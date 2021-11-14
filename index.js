@@ -36,6 +36,16 @@ client.on('message', message => {
 		cmd = message.content.split("oka ")[1];
 		ch = message.channel;
 
+		if (cmd === "help") {
+			let thisEmbed = new Discord.MessageEmbed()
+				.setTitle("okabot commands")
+				.addFields(
+					{name:"Music", value:"listen, loop, loop off, queue, skip, stop, clearqueue"},
+				)
+
+			ch.send(thisEmbed);
+		}
+
 		if (cmd === "loop") {
 			ch.send(":repeat::white_check_mark: looping the current song. queue will not be visible while using loop. use **oka loop off** to disable.");
 			loop = true;
@@ -64,21 +74,7 @@ client.on('message', message => {
 		/*if (cmd === "okash" || cmd === "money") {
 			ch.send(moneyhandler.getWallet(message.author.id));
 		}
-		if (cmd === "mycrypto") {
-			ch.send(moneyhandler.getCrypto(message.author.id));
-		}
-		if (cmd.startsWith("crypto buy ")) {
-			let nep = cmd.split(' ')[2];
-			if (!nep) {
-				ch.send(":x: usage: **oka crypto buy <amount>**");
-			} else {
-				if(moneyhandler.buyCrypto(nep)) {
-					ch.send(`:white_check_mark: bought ${nep} okoin. view your wallet with **oka mycrypto**`);
-				} else {
-					ch.send(`:x: not enough okash`);
-				}
-			}
-		}*/
+		*/
 	}
 });
 
