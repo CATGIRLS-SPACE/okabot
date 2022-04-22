@@ -15,6 +15,7 @@ function initCrypto(userID) {
 
 function getWallet(userID) {
 	initMoney(userID);
+	console.log(fs.readFileSync(`./money/wallet/${userID}.oka`));
 	return fs.readFileSync(`./money/wallet/${userID}.oka`);
 }
 

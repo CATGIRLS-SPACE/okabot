@@ -4,16 +4,29 @@
 
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
+// CONFIG FILE LOOKS LIKE THIS:
+//
+//{
+//	"token": "REPLACE WITH YOUR BOT TOKEN"
+//}
 const isUrl = require('is-url');
 const yts = require('yt-search');
 const client = new Discord.Client();
 const ytdl = require('ytdl-core');
+const fs = require('fs');
+const path = require('path');
+
+//test
+const express = require('express');
+const app = express();
+app.set('views', path.join(__dirname, '/views'));
+const port = 3000;
 
 const moneyhandler = require('./moneyhandler.js')
 
 client.once('ready', () => {
 	console.log('Ready!');
-	client.user.setActivity('with git bash');
+	client.user.setActivity('with experimental commands');
 });
 
 let msg;
@@ -22,6 +35,8 @@ let queue = [undefined];
 let userqueue = [undefined];
 let qnum = 0;
 let globaldispatcher;
+let errorCount = 0;
+let currentPlaying;
 
 function msToMin(millis) {
 	var minutes = Math.floor(millis / 60000);
@@ -30,9 +45,7 @@ function msToMin(millis) {
 }
 
 client.on('message', message => {
-	if (message.content === "purple") {
-		message.channel.send("the man behind the slaughter.");
-	} else if (message.content.startsWith("oka ")) {
+	if (message.content.startsWith("oka ")) {
 		cmd = message.content.split("oka ")[1];
 		ch = message.channel;
 
@@ -71,30 +84,51 @@ client.on('message', message => {
 			userqueue = [undefined];
 		}
 
-		/*if (cmd === "okash" || cmd === "money") {
+		if (cmd === "okash" || cmd === "money") {
 			ch.send(moneyhandler.getWallet(message.author.id));
 		}
-		*/
+		
+
+		if (cmd === "shorten") {
+			ch.send(`:x: okayuCDN is either offline or not responding to POST.`);
+		}
+
+
+		if(cmd === "kick") {
+			let mention = cmd.split(' ')[1];
+			if (mention.startsWith('<@!')) {
+				let mentionId = mention.split('!')[1];
+			} else {
+				ch.send(`:x: <@!${message.author.id}>, that not a mention!`);
+			}
+		}
+
+
+		if (cmd === "debug") {
+			ch.send(`:information_source: Debug info\n\n:signal_strength: Uptime: ${process.uptime()}\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`);
+		}
 	}
 });
 
 //music functions
 
-
 async function playMusic(message, MODE) {
 	if (MODE === 0) {
 		voice = message.member.voice.channel;
+		let current;
 
-		if(!loop)
+		if(!loop && queue[1] != undefined) {
 			queue.shift();
 			userqueue.shift();
-
-		let current = await yts( { videoId: queue[0].split('=')[1] } );
+			current = await yts( { videoId: queue[0].split('=')[1] } );
+			currentPlaying = current.title;
+		}
 
 		voice.join().then(connection => {
 			const stream = ytdl(queue[0], { filter: 'audioonly' });
 
-			let thisEmbed = new Discord.MessageEmbed()
+			if(!loop) {
+				let thisEmbed = new Discord.MessageEmbed()
 				.setColor('#3461eb')
 				.setTitle(':arrow_forward: Now Playing')
 				.addFields(
@@ -102,19 +136,26 @@ async function playMusic(message, MODE) {
 					{name: ":clock3: Time", value: `**${current.timestamp}**`, inline:true},
 				)
 
-			ch.send(thisEmbed);
+				ch.send(thisEmbed);
+			}
+
 			if(stream) {
 				let dispatcher = connection.play(stream);
 				globaldispatcher = dispatcher;
 				dispatcher.on('finish', () => {
-					if (queue[0] === undefined) {
+					if (queue[1] === undefined && !loop) {
 						voice.leave();
+						queue = [undefined];
+						userqueue = [undefined];
+						loop = false;
 					} else {
+						queue.shift();
 						playMusic(message, 0);
 					}
 				});
 			} else {
 				ch.send(`:x: sorry, something went wrong`);
+				errorCount++;
 			}
 		})
 	} else if (MODE === 1 && message.member.voice.channelID) {
@@ -124,11 +165,13 @@ async function playMusic(message, MODE) {
 		if(isUrl(link)) {
 			ch.send(`:twisted_rightwards_arrows: adding that to the queue...`);
 		} else {
+			ch.startTyping();
 			ch.send(`:information_source: that doesn't look like a link, finding the closest video to "**${link}**"`);
 			let res = await yts(link);
 			vid = res.videos.slice(0, 3);
 			link = `https://youtube.com/watch?v=${vid[0].videoId}`;
 			ch.send(`:twisted_rightwards_arrows: adding "**${vid[0].title}**" to the queue...`);
+			ch.stopTyping();
 		}
 
 		queue[queue.length] = link;
@@ -138,6 +181,7 @@ async function playMusic(message, MODE) {
 			queue.shift();
 			userqueue.shift();
 			let current = await yts( { videoId: queue[0].split('=')[1] } );
+			currentPlaying = current.title;
 
 			voice.join().then(connection => {
 				const stream = ytdl(queue[0], { filter: 'audioonly' });
@@ -155,8 +199,11 @@ async function playMusic(message, MODE) {
 					let dispatcher = connection.play(stream);
 					globaldispatcher = dispatcher;
 					dispatcher.on('finish', () => {
-						if (queue[0] === undefined) {
+						if (queue[1] === undefined && !loop) {
 							voice.leave();
+							queue = [undefined];
+							userqueue = [undefined];
+							loop = false;
 						} else {
 							playMusic(message, 0);
 						}
@@ -166,6 +213,7 @@ async function playMusic(message, MODE) {
 					queue = [undefined];
 					userqueue = [undefined];
 					loop = false;
+					errorCount++;
 				}
 			})
 		}
@@ -175,25 +223,34 @@ async function playMusic(message, MODE) {
 		queue.shift();
 		userqueue.shift();
 
-		let current = await yts( { videoId: queue[0].split('=')[1] } );
+
+		if (queue[0] != undefined) {
+			let current = await yts( { videoId: queue[0].split('=')[1] } );
+			currentPlaying = current.title;
+		}
 
 		voice.join().then(connection => {
 			const stream = ytdl(queue[0], { filter: 'audioonly' });
 
-			let thisEmbed = new Discord.MessageEmbed()
+			try {
+				let thisEmbed = new Discord.MessageEmbed()
 				.setColor('#3461eb')
 				.setTitle(':arrow_forward: Now Playing')
 				.addFields(
 					{name: ":information_source: Title", value: `${current.title}`, inline:true},
 					{name: ":clock3: Time", value: `**${current.timestamp}**`, inline:true},
 				)
+				ch.send(thisEmbed);
+			} catch (error) {
+				errorCount++;
+				ch.send("something went wrong. please run `oka stop` and then retry if nothing happens.");
+			}
 
-			ch.send(thisEmbed);
 			if(stream) {
 				let dispatcher = connection.play(stream);
 				globaldispatcher = dispatcher;
 				dispatcher.on('finish', () => {
-					if (queue[0] === undefined) {
+					if (queue[1] === undefined && !loop) {
 						voice.leave();
 					} else {
 						playMusic(message, 0);
@@ -201,6 +258,7 @@ async function playMusic(message, MODE) {
 				});
 			} else {
 				ch.send(`:x: sorry, something went wrong`);
+				errorCount++;
 			}
 		})
 	} else if (MODE === 3) {
@@ -211,8 +269,13 @@ async function playMusic(message, MODE) {
 			userqueue = [undefined];
 			loop = false;
 		});
+	} else if (MODE === 4) {
+		if(isUrl(message)) {
+			queue[queue.length] = message;
+			userqueue[userqueue.length] = "WEB USER";
+		}
 	} else {
-		ch.send(":loud::x: hop on vc then we can listen to some tunes together.");
+		ch.send(":loud_sound::x: hop on vc then we can listen to some tunes together.");
 	}
 }
 
@@ -220,14 +283,14 @@ async function sendQueue(message) {
 	let ch = message.channel;
 	ch.startTyping();
 	if (queue[0] !== undefined) {
-		let qmsg = "";
+		let qmsg = "- ";
 		for (let i = 1; i < queue.length; i++) {
 			let video = await yts( { videoId: queue[i].split('=')[1] } )
-			qmsg = qmsg + "- " + video.title + ` ・ queued by <@!${userqueue[i]}>` + + "\n";
+			qmsg = qmsg + video.title + ` ・ queued by <@!${userqueue[i]}>` + "\n- ";
 		}
 
 		let current = await yts( { videoId: queue[0].split('=')[1] } )
-		if (qmsg === "")
+		if (qmsg === "- ")
 			qmsg = `No upcoming songs. Use "oka listen <video name/link> to queue."`
 
 
@@ -262,3 +325,15 @@ async function sendQueue(message) {
 }
 
 client.login(token);
+
+// web dashboard test stuff
+app.post('/music/loop/true', (req, res) => {
+	loop = true;
+});
+app.post('/music/loop/false', (req, res) => {
+	loop = false;
+});
+app.get('/', (req, res) => {
+	res.render('home.ejs', {current: currentPlaying});
+});
+app.listen(port);
