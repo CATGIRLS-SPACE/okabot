@@ -85,9 +85,18 @@ client.on('message', message => {
 		}
 
 		if (cmd === "okash" || cmd === "money") {
-			ch.send(moneyhandler.getWallet(message.author.id));
+			let a = "moneyhandler did not respond in time!"
+			a = moneyhandler.getWallet(message.author.id);
+			ch.send(a);
 		}
 		
+		if (cmd.startsWith("cf ")) {
+			moneyhandler.coinFlip(message.author.id, message);
+		}
+
+		if (cmd === "daily") {
+			ch.send(moneyhandler.dailyRwd(message.author.id));
+		}
 
 		if (cmd === "shorten") {
 			ch.send(`:x: okayuCDN is either offline or not responding to POST.`);
@@ -176,6 +185,7 @@ async function playMusic(message, MODE) {
 
 		queue[queue.length] = link;
 		userqueue[userqueue.length] = message.author.id;
+		
 
 		if(queue[0] === undefined) {
 			queue.shift();
@@ -268,6 +278,7 @@ async function playMusic(message, MODE) {
 			queue = [undefined];
 			userqueue = [undefined];
 			loop = false;
+			message.channel.send("thank you for using okabot :blush:")
 		});
 	} else if (MODE === 4) {
 		if(isUrl(message)) {
