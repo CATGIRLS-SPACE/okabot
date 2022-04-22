@@ -222,10 +222,10 @@ async function playMusic(message, MODE) {
 
 		queue.shift();
 		userqueue.shift();
-
+		let current;
 
 		if (queue[0] != undefined) {
-			let current = await yts( { videoId: queue[0].split('=')[1] } );
+			current = await yts( { videoId: queue[0].split('=')[1] } );
 			currentPlaying = current.title;
 		}
 
@@ -243,7 +243,7 @@ async function playMusic(message, MODE) {
 				ch.send(thisEmbed);
 			} catch (error) {
 				errorCount++;
-				ch.send("something went wrong. please run `oka stop` and then retry if nothing happens.");
+				ch.send(`something went wrong. please run \`oka stop\` and then retry if nothing happens. (error info: ${error})`);
 			}
 
 			if(stream) {
