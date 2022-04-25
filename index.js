@@ -16,17 +16,11 @@ const ytdl = require('ytdl-core');
 const fs = require('fs');
 const path = require('path');
 
-//test
-const express = require('express');
-const app = express();
-app.set('views', path.join(__dirname, '/views'));
-const port = 3000;
-
 const moneyhandler = require('./moneyhandler.js')
 
 client.once('ready', () => {
 	console.log('Ready!');
-	client.user.setActivity('with experimental commands');
+	client.user.setActivity('SDVX EXCEED GEAR コナステ');
 });
 
 let msg;
@@ -45,8 +39,12 @@ function msToMin(millis) {
 }
 
 client.on('message', message => {
-	if (message.content.startsWith("oka ")) {
-		cmd = message.content.split("oka ")[1];
+	if (message.content.startsWith("oka ") || message.content.startsWith("オカ")) {
+		if (message.content.startsWith("oka ")) {
+			cmd = message.content.split("oka ")[1];			
+		} else {
+			cmd = message.content.split("オカ")[1];
+		}
 		ch = message.channel;
 
 		if (cmd === "help") {
@@ -54,6 +52,7 @@ client.on('message', message => {
 				.setTitle("okabot commands")
 				.addFields(
 					{name:"Music", value:"listen, loop, loop off, queue, skip, stop, clearqueue"},
+					{name:"Money", value:"daily, cf"},
 				)
 
 			ch.send(thisEmbed);
@@ -67,9 +66,14 @@ client.on('message', message => {
 			ch.send(":repeat::x: ok. done looping.");
 			loop = false;
 		}
+
 		if (cmd.startsWith("listen ")) {
 			playMusic(message, 1);
 		}
+		if (cmd.startsWith("歌　")) {
+			playMusic(message, 1, true);
+		}
+
 		if (cmd === "queue") {
 			sendQueue(message);
 		}
@@ -98,10 +102,6 @@ client.on('message', message => {
 			ch.send(moneyhandler.dailyRwd(message.author.id));
 		}
 
-		if (cmd === "shorten") {
-			ch.send(`:x: okayuCDN is either offline or not responding to POST.`);
-		}
-
 
 		if(cmd === "kick") {
 			let mention = cmd.split(' ')[1];
@@ -121,7 +121,7 @@ client.on('message', message => {
 
 //music functions
 
-async function playMusic(message, MODE) {
+async function playMusic(message, MODE, jp) {
 	if (MODE === 0) {
 		voice = message.member.voice.channel;
 		let current;
@@ -172,7 +172,7 @@ async function playMusic(message, MODE) {
 		link = message.content.split("oka listen ")[1];
 
 		if(isUrl(link)) {
-			ch.send(`:twisted_rightwards_arrows: adding that to the queue...`);
+			ch.send(`:twisted_rightwards_arrows: adding that to the queue...`);	
 		} else {
 			ch.startTyping();
 			ch.send(`:information_source: that doesn't look like a link, finding the closest video to "**${link}**"`);
@@ -219,7 +219,7 @@ async function playMusic(message, MODE) {
 						}
 					});
 				} else {
-					ch.send(`:x: sorry, something went wrong. please try again`);
+					ch.send(`:x: sorry, something went wrong. please try again (error: stream = ?)`);
 					queue = [undefined];
 					userqueue = [undefined];
 					loop = false;
@@ -286,7 +286,7 @@ async function playMusic(message, MODE) {
 			userqueue[userqueue.length] = "WEB USER";
 		}
 	} else {
-		ch.send(":loud_sound::x: hop on vc then we can listen to some tunes together.");
+		ch.send(":loud_sound::x: hop in vc then we can listen to some tunes together.");
 	}
 }
 
@@ -336,15 +336,3 @@ async function sendQueue(message) {
 }
 
 client.login(token);
-
-// web dashboard test stuff
-app.post('/music/loop/true', (req, res) => {
-	loop = true;
-});
-app.post('/music/loop/false', (req, res) => {
-	loop = false;
-});
-app.get('/', (req, res) => {
-	res.render('home.ejs', {current: currentPlaying});
-});
-app.listen(port);

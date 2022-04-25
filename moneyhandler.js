@@ -12,12 +12,6 @@ function initMoney(userID, message) {
 	}
 }
 
-function initCrypto(userID) {
-	if (!fs.existsSync(`./money/crypto/${userID}.oka`)) {
-		fs.writeFileSync(`./money/crypto/${userID}.oka`, "1500");
-	}
-}
-
 function getWallet(userID) {
 	initMoney(userID);
 	return ":yen: Your Wallet : OKA" + fs.readFileSync(`./money/wallet/${userID}.oka`, "utf8") + " :yen:"; 
@@ -29,7 +23,7 @@ function coinFlip(userID, msg) {
 	let curUsm = fs.readFileSync(`./money/wallet/${userID}.oka`, "utf8");
 	let win = getRandomInt(2);
 
-	if(!isNaN(amt)) {
+	if(!isNaN(amt) && amt) {
 		if(parseInt(amt) <= parseInt(curUsm) && parseInt(amt) > 0) {
 			msg.channel.send("You flip a coin for OKA" + amt + "...");
 			msg.channel.startTyping();
@@ -69,29 +63,6 @@ function dailyRwd(userID) {
 	}
 }
 
-function getCrypto(userID) {
-	initCrypto(userID);
-	return fs.readFileSync(`./money/crypto/${userID}.oka`);
-}
-
-function calculateOkashPerCoin() {
-	let info = json.parse(fs.readFileSync(`./money/crypto/crypto.json`));
-	let valuePerCoin = info.total * (info.buyers / 21);
-	return valuePerCoin;
-}
-
-function buyCrypto(userID, amount) {
-	initMoney(userID);
-	if (getWallet(userID) >= calculateOkashPerCoin()) {
-		let newAmt = getWallet(userID) - (calculateOkashPerCoin() * amount);
-		fs.writeFileSync(`./money/wallet/${userID}.oka`, `${newAmt}`);
-		let newCrypAmt = getCrypto(userID) + amount;
-		fs.writeFileSync(`./money/crypto/${userID}.oka`, `${newCrypAmt}`);
-	} else {
-		return -1;
-	}
-}
 
 
-
-module.exports = { getWallet, getCrypto, coinFlip, dailyRwd }
+module.exports = { getWallet, coinFlip, dailyRwd }
