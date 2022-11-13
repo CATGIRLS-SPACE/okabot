@@ -8,10 +8,11 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
+let hasSet = false;
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 	
-client.user.setActivity('new update!', { type: 0 });
+	if (!hasSet) { client.user.setActivity('new update!', { type: 0 }); hasSet = true; } // run once?
 });
 
 // Log in to Discord with your client's token
