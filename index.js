@@ -21,6 +21,7 @@ let errorCount = 0;
 
 // commands
 client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand()) return;
 	await interaction.deferReply();
 	console.log(interaction.commandName);
 	
