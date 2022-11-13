@@ -8,11 +8,10 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
-let hasSet = false;
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 	
-	if (!hasSet) { client.user.setActivity('new update!', { type: 0 }); hasSet = true; } // run once?
+	client.user.setActivity('new update!', { type: 0 });
 });
 
 // Log in to Discord with your client's token
@@ -22,20 +21,21 @@ let errorCount = 0;
 
 // commands
 client.on(Events.InteractionCreate, async interaction => {
+	await interaction.deferReply();
 	console.log(interaction.commandName);
 	
 	switch(interaction.commandName) {
 		case 'ping':
-			await interaction.reply({ content: 'Pong', ephemeral: true });
+			await interaction.editReply({ content: 'Pong', ephemeral: true });
 			break;
 		case 'debug':
-			await interaction.reply({ content: `:information_source: Debug info\n\n:signal_strength: Uptime: ${Math.floor(process.uptime())}s\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`, ephemeral: true });
+			await interaction.editReply({ content: `:information_source: Debug info\n\n:signal_strength: Uptime: ${Math.floor(process.uptime())}s\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`, ephemeral: true });
 			break;
 		case 'daily':
-			await interaction.reply({ content: moneyhandler.dailyRwd(interaction.user.id), ephemeral: false });
+			await interaction.editReply({ content: moneyhandler.dailyRwd(interaction.user.id), ephemeral: false });
 			break;
 		case 'okash':
-			await interaction.reply({ content: moneyhandler.getWallet(interaction.user.id), ephemeral: false });
+			await interaction.editReply({ content: moneyhandler.getWallet(interaction.user.id), ephemeral: false });
 			break;
 		case 'coinflip':
 			await moneyhandler.coinFlipV14(interaction);
