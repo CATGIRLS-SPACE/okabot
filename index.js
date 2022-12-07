@@ -22,21 +22,20 @@ let errorCount = 0;
 // commands
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
-	await interaction.deferReply();
 	console.log(interaction.commandName);
 	
 	switch(interaction.commandName) {
 		case 'ping':
-			await interaction.editReply({ content: 'Pong', ephemeral: true });
+			await interaction.reply({ content: 'Pong', ephemeral: true });
 			break;
 		case 'debug':
-			await interaction.editReply({ content: `:information_source: Debug info\n\n:signal_strength: Uptime: ${Math.floor(process.uptime())}s\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`, ephemeral: true });
+			await interaction.reply({ content: `:information_source: Debug info\n\n:signal_strength: Uptime: ${Math.floor(process.uptime())}s\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`, ephemeral: true });
 			break;
 		case 'daily':
-			await interaction.editReply({ content: moneyhandler.dailyRwd(interaction.user.id), ephemeral: false });
+			await interaction.reply({ content: moneyhandler.dailyRwd(interaction.user.id), ephemeral: false });
 			break;
 		case 'okash':
-			await interaction.editReply({ content: moneyhandler.getWallet(interaction.user.id), ephemeral: false });
+			await interaction.reply({ content: moneyhandler.getWallet(interaction.user.id), ephemeral: false });
 			break;
 		case 'coinflip':
 			await moneyhandler.coinFlipV14(interaction);
