@@ -7,8 +7,13 @@ const commands = [
 	new SlashCommandBuilder().setName('debug').setDescription('Replies with debug info!'),
 	new SlashCommandBuilder().setName('daily').setDescription('Get your daily okash reward!'),
 	new SlashCommandBuilder().setName('okash').setDescription('View your bank balance!'),
+    new SlashCommandBuilder().setName('pay').setDescription('Pay someone some okash!')
+        .addUserOption(option => option.setName('user').setDescription('The person to pay').setRequired(true))
+        .addNumberOption(option => option.setName('amount').setDescription('The amount to pay them').setRequired(true)),
 
-	new SlashCommandBuilder().setName('coinflip').setDescription('Flip a coin with a chance of doubling your amount!').addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true)),
+	new SlashCommandBuilder().setName('coinflip')
+        .setDescription('Flip a coin with a chance of doubling your amount!')
+        .addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true)),
 
     new SlashCommandBuilder()
         .setName('wordlesolution')

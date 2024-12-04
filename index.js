@@ -1,6 +1,6 @@
 // Require the necessary discord.js classes
 const { Client, Events, GatewayIntentBits, ActivityType, Partials } = require('discord.js');
-const { token } = require('./config.json');
+const { token, status } = require('./config.json');
 const moneyhandler = require('./moneyhandler.js');
 const {getWordleOnDay} = require('./wordle.js');
 const { GetMostRecent } = require('./earthquakes.js');
@@ -25,7 +25,7 @@ client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
     myId = c.user.id;
 	
-	client.user.setActivity('DEVELOPMENT MODE', { type: 0 });
+	client.user.setActivity(status.activity, { type: status.type });
 });
 
 // Log in to Discord with your client's token
@@ -97,12 +97,3 @@ client.on(Events.MessageCreate, async message => {
         }
     }
 });
-
-// client.on(Events.MessageReactionAdd, async ev => {
-//     if (ev.message.author.id == myId) return;
-//     if (ev.message.guild.id != "1019089377705611294") return;
-
-//     if (ev.emoji.name == '🚩') {
-//         ev.message.guild.systemChannel.send(`<@!1278171743797907487> https://discord.com/channels/1019089377705611294/1019089378343137373/${ev.message.id}\nFlagged by <@!${ev.message.author.id}> by reaction.`)
-//     }
-// });

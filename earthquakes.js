@@ -4,8 +4,8 @@ const parser = new rssParser();
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs')
 
-const URL = 'https://www.data.jma.go.jp/developer/xml/feed/eqvol.xml';
-const JSON_URL = 'https://www.jma.go.jp/bosai/quake/data/';
+const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
+const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
 
 const DAYS_OF_WEEK = [
     'Sunday',
@@ -22,21 +22,12 @@ const DAYS_OF_WEEK = [
  * @param {import("discord.js").Interaction<import("discord.js").CacheType>} interaction 
  */
 async function GetMostRecent(interaction) {
-    const feed = await parser.parseURL(URL);
-    
-    let item = '';
-    feed.items.forEach(entry => {
-        if (item != '') return;
+    const feed = await fetch(URL);
+    const list = await feed.json();
 
-        if (entry.content.includes('地震') && !entry.title.includes('火山')) {
-            console.log(`chose ${entry.id}`);
-            item = entry.id.split('https://www.data.jma.go.jp/developer/xml/data/')[1].split('.xml')[0];
-        }
-    });
+    let item = list[0];
 
-
-    const info = await fetch(JSON_URL + item);
-
+    const info = await fetch(`${INDV_URL}${item.json}`);
     const earthquake = await info.json();
 
     const OriginTime = new Date(earthquake.Body.Earthquake.OriginTime);
@@ -53,7 +44,7 @@ async function GetMostRecent(interaction) {
 
     const lat = HypocenterCoords.split('+')[1];
     const lon = HypocenterCoords.split('+')[2].split('-')[0];
-    const depth = HypocenterCoords.split('-')[1] / 1000; // in km, 10000 = 10km
+    const depth = HypocenterCoords.split('-')[1].split('/')[0] / 1000; // in km, 10000 = 10km
 
     const readableMeta = `Maximum Intensity of Shindo ${MaxInt}, approx M${Magnitude}. Depth of ${depth} km`;
     const readableLoc = `Hypocenter location: ${HypocenterName} (${HypocenterCoords}).`
@@ -74,10 +65,9 @@ async function BuildEarthquakeEmbed(origin_time, magnitude, max_intensity, hypoc
     // example: +34.0+133.0-10000/
     const lat = hypocenter_coords.split('+')[1];
     const lon = hypocenter_coords.split('+')[2].split('-')[0];
-    const depth = hypocenter_coords.split('-')[1] / 1000; // in km, 10000 = 10km
+    const depth = hypocenter_coords.split('-')[1].split('/')[0] / 1000; // in km, 10000 = 10km
 
-    const imageBuffer = await BuildEpicenterImage(lat, lon);
-    fs.writeFileSync('./temp/earthquake.png', imageBuffer);
+    
 }
 
 async function BuildEpicenterImage(latitude, longitude) {
