@@ -1,17 +1,31 @@
 // Require the necessary discord.js classes
-const { Client, Events, GatewayIntentBits, ActivityType } = require('discord.js');
+const { Client, Events, GatewayIntentBits, ActivityType, Partials } = require('discord.js');
 const { token } = require('./config.json');
-const moneyhandler = require('./moneyhandler.js')
+const moneyhandler = require('./moneyhandler.js');
+const {getWordleOnDay} = require('./wordle.js');
+const { GetMostRecent } = require('./earthquakes.js');
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [
+    GatewayIntentBits.Guilds, 
+    GatewayIntentBits.MessageContent, 
+    GatewayIntentBits.GuildMessages, 
+    GatewayIntentBits.GuildVoiceStates, 
+    GatewayIntentBits.GuildMessageReactions
+], partials: [
+    Partials.Message, 
+    Partials.Channel, 
+    Partials.Reaction
+], });
+let myId;
 
 // When the client is ready, run this code (only once)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+    myId = c.user.id;
 	
-	client.user.setActivity('new update!', { type: 0 });
+	client.user.setActivity('DEVELOPMENT MODE', { type: 0 });
 });
 
 // Log in to Discord with your client's token
@@ -40,80 +54,55 @@ client.on(Events.InteractionCreate, async interaction => {
 		case 'coinflip':
 			await moneyhandler.coinFlipV14(interaction);
 			break;
-		case 'play':
-			await interaction.reply({ content: 'Please wait...', ephemeral: false });
-			await handleMusicOption(interaction);
-			break;
+        case 'wordlesolution':
+            await interaction.deferReply();
+            getWordleOnDay(interaction);
+            break;
+        case 'recent-eq':
+            await interaction.deferReply();
+            GetMostRecent(interaction);
 	}
 });
 
+let last_cached_word = "";
+let last_cached_date = "";
 
-/* Music */
-const { joinVoiceChannel, getVoiceConnection, AudioPlayer, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
-const ytdl = require('ytdl-core');
-const isUrl = require('is-url');
-const yts = require('yt-search');
+client.on(Events.MessageCreate, async message => {
+    if (message.author.id == myId) return; // dont respond to myself
+    if (message.guild.id != "1019089377705611294") return; // don't listen in channels that aren't in in my guild
 
-let queue = [];
-let queuers = [];
-let isPlaying = false;
-let subscription;
-let player;
+    if (message.channel.id == "1310486655257411594") { // #wordle
+        let d = new Date();
+        const month = d.getMonth()+1<10?`0${d.getMonth()+1}`:d.getMonth()+1;
+        const day = d.getDate()<10?`0${d.getDate()}`:d.getDate();
+        let date = `${d.getFullYear()}-${month}-${day}`; // format date to match the wordle api
 
-async function handleMusicOption(interaction) {
-	let link = interaction.options.getString('link');
-	switch (interaction.commandName) {
-		case 'play':
-			if (!isPlaying) await prepVoice(interaction);
-			await queueMusic(link);
-			await playMusic(interaction);
-			break;
-	}
-}
+        let data, json, word;
 
-async function prepVoice(interaction) {
-	let channel = interaction.options.getChannel('channel');
+        // prevents mass requests to wordle api
+        if (date != last_cached_date) {
+            data = await fetch(`https://nytimes.com/svc/wordle/v2/${date}.json`); // get wordle 
+            json = await data.json();
+            word = json.solution;
 
-	joinVoiceChannel({
-		channelId: channel.id,
-		guildId: interaction.guildId,
-		adapterCreator: interaction.guild.voiceAdapterCreator
-	});
+            last_cached_date = date;
+            last_cached_word = word;
+        } else {
+            word = last_cached_word;
+        }
 
-	player = createAudioPlayer();
+        if (message.content.toLowerCase().includes(word)) { 
+            message.delete();
+            message.channel.send(`<@!${message.author.id}>, don't spoil today's word!!`);
+        }
+    }
+});
 
-	const connection = getVoiceConnection(interaction.guildId);
-	subscription = connection.subscribe(player);
-}
+// client.on(Events.MessageReactionAdd, async ev => {
+//     if (ev.message.author.id == myId) return;
+//     if (ev.message.guild.id != "1019089377705611294") return;
 
-async function queueMusic(link, user) {
-	if (isUrl(link)) {
-		queue.push(link);
-	} else {
-		let res = await yts(link);
-		vid = res.videos.slice(0, 3);
-		let flink = `https://youtube.com/watch?v=${vid[0].videoId}`;
-		queue.push(flink);
-		console.log(flink);
-	}
-	queuers.push(user);
-}
-
-async function playMusic(interaction) {
-	const connection = getVoiceConnection(interaction.guildId);
-	const stream = ytdl(queue[0], {filter:"audioonly"});
-	console.log(queue[0]);
-	let resource = createAudioResource(stream);
-	
-	connection.subscribe(player);
-	player.play(resource);
-
-	interaction.editReply('Trying to play...');
-}
-
-async function stopMusic(interaction) {
-	const connection = getVoiceConnection(interaction.guildId);
-	if (subscription) subscription.unsubscribe();
-	connection.destroy();
-	isPlaying = false;
-}
+//     if (ev.emoji.name == '🚩') {
+//         ev.message.guild.systemChannel.send(`<@!1278171743797907487> https://discord.com/channels/1019089377705611294/1019089378343137373/${ev.message.id}\nFlagged by <@!${ev.message.author.id}> by reaction.`)
+//     }
+// });
