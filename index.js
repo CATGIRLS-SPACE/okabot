@@ -127,7 +127,9 @@ client.on(Events.MessageCreate, async message => {
 
     // random cash rolls for each message
     // 1 in 500 seems decent enough for 1-1000 i think...
-    if (Math.floor(Math.random * 500) == 250) {
+    const small_roll = Math.floor(Math.random() * 500);
+    console.log(small_roll);
+    if (small_roll == 250) {
         const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
         return setTimeout(() => {
             const found_amount = Math.floor(Math.random * 1000);
@@ -142,7 +144,7 @@ client.on(Events.MessageCreate, async message => {
 
     // 1 in 2500 for a BIG payout
     // arbitrary number 1561 cuz why not!
-    if (Math.floor(Math.random * 2500) == 1561) {
+    if (Math.floor(Math.random() * 2500) == 1561) {
         const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
         return setTimeout(() => {
             let max = 10000;
