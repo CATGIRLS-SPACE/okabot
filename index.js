@@ -3,7 +3,8 @@ const { Client, Events, GatewayIntentBits, ActivityType, Partials } = require('d
 const { token, status } = require('./config.json');
 const moneyhandler = require('./moneyhandler.js');
 const {getWordleOnDay} = require('./wordle.js');
-const { GetMostRecent } = require('./earthquakes.js');
+const { GetMostRecent, StartEarthquakeMonitoring } = require('./earthquakes.js');
+const fs = require('fs')
 
 // Create a new client instance
 const client = new Client({ intents: [
@@ -26,6 +27,7 @@ client.once(Events.ClientReady, c => {
     myId = c.user.id;
 	
 	client.user.setActivity(status.activity, { type: status.type });
+    StartEarthquakeMonitoring(client);
 });
 
 // Log in to Discord with your client's token
@@ -46,7 +48,7 @@ client.on(Events.InteractionCreate, async interaction => {
 			await interaction.reply({ content: `:information_source: Debug info\n\n:signal_strength: Uptime: ${Math.floor(process.uptime())}s\n:infinity: Shard uptime: Unsharded\n:x: Errors: ${errorCount}\n:sos: Caught critical errors: 0`, ephemeral: true });
 			break;
 		case 'daily':
-			await interaction.reply({ content: moneyhandler.dailyRwd(interaction.user.id), ephemeral: false });
+			await interaction.reply({ content: moneyhandler.dailyReward(interaction.user.id), ephemeral: false });
 			break;
 		case 'okash':
 			await interaction.reply({ content: moneyhandler.getWallet(interaction.user.id), ephemeral: false });
@@ -61,6 +63,11 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'recent-eq':
             await interaction.deferReply();
             GetMostRecent(interaction);
+            break;
+        case 'pay':
+            await interaction.deferReply();
+            moneyhandler.payUser(client, interaction, interaction.user.id, interaction.options.getUser('user').id);
+            break;
 	}
 });
 
@@ -95,5 +102,58 @@ client.on(Events.MessageCreate, async message => {
             message.delete();
             message.channel.send(`<@!${message.author.id}>, don't spoil today's word!!`);
         }
+    }
+
+    if (message.author.id == "796201956255334452") {
+        if (message.content.startsWith('oka dep ')) {
+            const params = message.content.split(' ');
+            if (params.length != 4) return message.react('❌');
+
+            let receiver_bank_amount = parseInt(fs.readFileSync(`./money/wallet/${params[2]}.oka`, 'utf8'));
+            receiver_bank_amount += parseInt(params[3]);
+            fs.writeFileSync(`./money/wallet/${params[2]}.oka`, ''+receiver_bank_amount, 'utf8');
+            message.react('✅');
+            message.channel.send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+        }
+        if (message.content.startsWith('oka reset ')) {
+            const params = message.content.split(' ');
+            if (params.length != 3) return message.react('❌');
+            
+            fs.writeFileSync(`./money/wallet/${params[2]}.oka`, '1500', 'utf8');
+            message.react('✅');
+            message.channel.send(`<@!${params[2]}>, your wallet has been reset.`);
+        }
+    }
+
+    // random cash rolls for each message
+    // 1 in 500 seems decent enough for 1-1000 i think...
+    if (Math.floor(Math.random * 500) == 250) {
+        const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
+        return setTimeout(() => {
+            const found_amount = Math.floor(Math.random * 1000);
+
+            let author_wallet = parseInt(fs.readFileSync(`./money/wallet/${find_money_msg.author.id}.oka`, 'utf8'));
+            author_wallet += found_amount;
+            fs.writeFileSync(`./money/wallet/${find_money_msg.author.id}.oka`, ''+author_wallet, 'utf8');
+
+            find_money_msg.edit(`:scream_cat: **${message.author.username}**! You found OKA${found_amount}!`);
+        }, 3000);
+    }
+
+    // 1 in 2500 for a BIG payout
+    // arbitrary number 1561 cuz why not!
+    if (Math.floor(Math.random * 2500) == 1561) {
+        const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
+        return setTimeout(() => {
+            let max = 10000;
+            let min = 5000;
+            const found_amount = Math.random() * (max - min) + min;
+
+            let author_wallet = parseInt(fs.readFileSync(`./money/wallet/${find_money_msg.author.id}.oka`, 'utf8'));
+            author_wallet += found_amount;
+            fs.writeFileSync(`./money/wallet/${find_money_msg.author.id}.oka`, ''+author_wallet, 'utf8');
+
+            find_money_msg.edit(`:scream_cat: **${message.author.username}**, holy beans!! You found OKA${found_amount}!`);
+        }, 3000);
     }
 });

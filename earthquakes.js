@@ -1,8 +1,4 @@
-const rssParser = require('rss-parser');
-const xmlParser = require('xml-parser');
-const parser = new rssParser();
-const { createCanvas, loadImage } = require('canvas');
-const fs = require('fs')
+const { EmbedBuilder, ChatInputCommandInteraction, Client } = require('discord.js');
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
@@ -19,7 +15,7 @@ const DAYS_OF_WEEK = [
 
 /**
  * 
- * @param {import("discord.js").Interaction<import("discord.js").CacheType>} interaction 
+ * @param {ChatInputCommandInteraction} interaction 
  */
 async function GetMostRecent(interaction) {
     const feed = await fetch(URL);
@@ -51,49 +47,102 @@ async function GetMostRecent(interaction) {
 
     const disclaimer = '-# Times are provided in UTC-6 format, relative to the DST condition of the hosting environment.';
 
-    interaction.editReply({
-        content: `${readableDate}\n${readableMeta}\n${readableLoc}\n${disclaimer}`,
-        ephemeral: false
-    });
+    // interaction.editReply({
+    //     content: `${readableDate}\n${readableMeta}\n${readableLoc}\n${disclaimer}`,
+    //     ephemeral: false
+    // });
 
-    // const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName);
-    // interaction.editReply({embeds:[embed]})
+    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName);
+    interaction.editReply({embeds:[embed]});
 }
 
+const SHINDO_IMG = {
+    '1':'1.png',
+    '2':'2.png',
+    '3':'3.png',
+    '4':'4.png',
+    '5-':'5-.png',
+    '5+':'5+.png',
+    '6-':'6-.png',
+    '6+':'6+.png',
+    '7':'7.png'
+}
 
-async function BuildEarthquakeEmbed(origin_time, magnitude, max_intensity, hypocenter_coords, hypocenter_name) {
+async function BuildEarthquakeEmbed(origin_time, magnitude, max_intensity, hypocenter_coords, hypocenter_name, automatic = false) {
     // example: +34.0+133.0-10000/
     const lat = hypocenter_coords.split('+')[1];
     const lon = hypocenter_coords.split('+')[2].split('-')[0];
     const depth = hypocenter_coords.split('-')[1].split('/')[0] / 1000; // in km, 10000 = 10km
 
-    
+    const embed = new EmbedBuilder()
+        .setColor(0x42f5da)
+        .setTitle(automatic?'New entry in Japan earthquake data feed':'Most recent earthquake in Japan')
+        .setTimestamp(origin_time)
+        .setAuthor({name:'Japan Meteorological Agency',url:`https://www.jma.go.jp/bosai/map.html#11/${lat}/${lon}/&elem=int&contents=earthquake_map`})
+        .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setFields(
+            {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
+            {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
+            {name:'Depth', value: `**${depth} km**`, inline: true},
+            {name:'Location', value: hypocenter_name},
+        );
+        
+    return embed;
 }
 
-async function BuildEpicenterImage(latitude, longitude) {
-    const width = 1397;
-    const height = 1593;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
+const MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
+// const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
+let last_known_quake = {};
 
-    const map = await loadImage('./assets/earthquakes/Japan_large_trans.png');
-    ctx.drawImage(map, 0, 0, width, height);
+async function StartEarthquakeMonitoring(client) {
+    console.log('Starting Earthquake Monitoring...')
+    try {
+        const feed = await fetch(URL);
+        const list = await feed.json();
+        last_known_quake = list[0].json;
 
-    // Convert lat/lon to x/y (use a mapping library for precise projection)
-    const x = ((longitude - lonMin) / (lonMax - lonMin)) * width;
-    const y = ((latMax - latitude) / (latMax - latMin)) * height;
-
-    // Draw a red X at the hypocenter
-    ctx.strokeStyle = 'red';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x - 10, y - 10);
-    ctx.lineTo(x + 10, y + 10);
-    ctx.moveTo(x - 10, y + 10);
-    ctx.lineTo(x + 10, y - 10);
-    ctx.stroke();
-
-    return canvas.toBuffer();
+        setInterval(() => RunEarthquakeFetch(client), 30*1000);
+    } catch (err) {
+        console.error();
+    }
 }
 
-module.exports = { GetMostRecent }
+/**
+ * Check if there is a new earthquake, and if so, send an update to the channel
+ * @param {Client} client 
+ */
+async function RunEarthquakeFetch(client) {
+    console.log('fetching latest earthquake...');
+    try {
+        const feed = await fetch(URL);
+        const list = await feed.json();
+        let latest = list[0];
+        
+        // is it a new quake?
+        if (latest.json == last_known_quake) return; // nope
+        
+        // if so:
+        console.log('new quake!');
+        last_known_quake = latest.json;
+
+        // prep info
+        const info = await fetch(`${INDV_URL}${latest.json}`);
+        const earthquake = await info.json();
+
+        const OriginTime = new Date(earthquake.Body.Earthquake.OriginTime);
+        const Magnitude = earthquake.Body.Earthquake.Magnitude;
+        const MaxInt = earthquake.Body.Intensity.Observation.MaxInt;
+        const HypocenterName = earthquake.Body.Earthquake.Hypocenter.Area.enName;
+        const HypocenterCoords = earthquake.Body.Earthquake.Hypocenter.Area.Coordinate;
+
+        // make embed
+        const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName, true);
+
+        // send embed
+        client.channels.cache.get(MONITORING_CHANNEL).send({embeds:[embed]})
+    } catch (err) {
+        console.error(`RunEarthquakeFetch error: ${err}`);
+    }
+}
+
+module.exports = { GetMostRecent, StartEarthquakeMonitoring }
