@@ -72,7 +72,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
             {name:'⬆️ Sender', value:interaction.user.username, inline: true},
             {name:'⬇️ Receiver', value:interaction.options.getUser('user')!.username, inline: true},
         )
-        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${receiver_bank_amount}.`);
+        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${receiver_bank_amount+pay_amount}.`);
 
 
     const sender_embed = new EmbedBuilder()
@@ -82,7 +82,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
             {name:'⬆️ Sender', value:interaction.user.username, inline: true},
             {name:'⬇️ Receiver', value:interaction.options.getUser('user')!.username, inline: true},
         )
-        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount}.`);
+        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount-pay_amount}.`);
 
     interaction.options.getUser('user')!.send({
         embeds:[receiver_embed]
