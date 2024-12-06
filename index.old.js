@@ -81,7 +81,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == myId) return; // dont respond to myself
-    // if (message.guild.id != "1019089377705611294") return; // don't listen in channels that aren't in in my guild
+    if (message.guild.id != "1019089377705611294") return; // don't listen in channels that aren't in in my guild
 
     WordleCheck(message);
 
