@@ -1,5 +1,5 @@
 {
-  "name": "purple-bot-for-jj-friend",
+  "name": "okabot",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -25,5 +25,8 @@
     "rss-parser": "^3.13.0",
     "xml-parser": "^1.2.1",
     "ytdl-core": "^4.11.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1"
   }
 }

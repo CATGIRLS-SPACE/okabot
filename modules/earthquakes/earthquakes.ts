@@ -1,4 +1,4 @@
-const { EmbedBuilder, ChatInputCommandInteraction, Client } = require('discord.js');
+import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel } from 'discord.js';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
@@ -13,11 +13,8 @@ const DAYS_OF_WEEK = [
     'Saturday'
 ]
 
-/**
- * 
- * @param {ChatInputCommandInteraction} interaction 
- */
-async function GetMostRecent(interaction) {
+
+async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const feed = await fetch(URL);
     const list = await feed.json();
 
@@ -56,7 +53,7 @@ async function GetMostRecent(interaction) {
     interaction.editReply({embeds:[embed]});
 }
 
-const SHINDO_IMG = {
+const SHINDO_IMG: { [key: string]: string } = {
     '1':'1.png',
     '2':'2.png',
     '3':'3.png',
@@ -68,11 +65,11 @@ const SHINDO_IMG = {
     '7':'7.png'
 }
 
-async function BuildEarthquakeEmbed(origin_time, magnitude, max_intensity, hypocenter_coords, hypocenter_name, automatic = false) {
+async function BuildEarthquakeEmbed(origin_time: Date, magnitude: number, max_intensity: number, hypocenter_coords: string, hypocenter_name: string, automatic = false) {
     // example: +34.0+133.0-10000/
     const lat = hypocenter_coords.split('+')[1];
     const lon = hypocenter_coords.split('+')[2].split('-')[0];
-    const depth = hypocenter_coords.split('-')[1].split('/')[0] / 1000; // in km, 10000 = 10km
+    const depth = parseInt(hypocenter_coords.split('-')[1].split('/')[0]) / 1000; // in km, 10000 = 10km
 
     const embed = new EmbedBuilder()
         .setColor(0x42f5da)
@@ -94,7 +91,7 @@ const MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
 
-async function StartEarthquakeMonitoring(client) {
+async function StartEarthquakeMonitoring(client: Client) {
     console.log('Starting Earthquake Monitoring...')
     try {
         const feed = await fetch(URL);
@@ -111,7 +108,7 @@ async function StartEarthquakeMonitoring(client) {
  * Check if there is a new earthquake, and if so, send an update to the channel
  * @param {Client} client 
  */
-async function RunEarthquakeFetch(client) {
+async function RunEarthquakeFetch(client: Client) {
     console.log('fetching latest earthquake...');
     try {
         const feed = await fetch(URL);
@@ -139,7 +136,8 @@ async function RunEarthquakeFetch(client) {
         const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName, true);
 
         // send embed
-        client.channels.cache.get(MONITORING_CHANNEL).send({embeds:[embed]})
+        const channel = client.channels.cache.get(MONITORING_CHANNEL);
+        (channel as TextChannel)!.send({embeds:[embed]});
     } catch (err) {
         console.error(`RunEarthquakeFetch error: ${err}`);
     }

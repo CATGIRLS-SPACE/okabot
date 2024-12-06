@@ -1,0 +1,35 @@
+import { ChatInputCommandInteraction } from "discord.js";
+import { AddToWallet, RemoveFromWallet } from "../okash/wallet";
+
+const ActiveFlips: Array<string> = [];
+
+export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
+    if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
+        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`
+    });
+    
+    ActiveFlips.push(interaction.user.id);
+
+    const bet = interaction.options.getNumber('amount')!;
+
+    RemoveFromWallet(interaction.user.id, bet);
+
+    const win: boolean = Math.round(Math.random()) == 1;
+
+    await interaction.reply({
+        content: `<a:cf:1314438391462494280> **${interaction.user.displayName}** flips a coin for ${bet}...`
+    });
+
+    const next_message = `:coin: **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! :smile_cat:':'lost the bet, forefeiting the money. :crying_cat_face:'}`;
+
+    setTimeout(() => {
+        interaction.editReply({
+            content: next_message
+        });
+
+        ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
+
+        if (win)
+            AddToWallet(interaction.user.id, bet*2);
+    }, 3000);
+}

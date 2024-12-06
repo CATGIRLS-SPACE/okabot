@@ -1,9 +1,10 @@
 const { SlashCommandBuilder, Routes, ChannelType } = require('discord.js');
 const { REST } = require('@discordjs/rest');
-const { clientId, token } = require('./config.json');
+const { clientId, token, devtoken, devclientId } = require('./config.json');
+const config = require('./config.json');
 
 const commands = [
-	new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
+	// new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
 	new SlashCommandBuilder().setName('debug').setDescription('Replies with debug info!'),
 	new SlashCommandBuilder().setName('daily').setDescription('Get your daily okash reward!'),
 	new SlashCommandBuilder().setName('okash').setDescription('View your bank balance!'),
@@ -23,11 +24,10 @@ const commands = [
     new SlashCommandBuilder()
         .setName('recent-eq')
         .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency')
-]
-	.map(command => command.toJSON());
+].map(command => command.toJSON());
+ 
+const rest = new REST({ version: '10' }).setToken((config['extra'] && config['extra'].includes('use dev token'))?devtoken:token);
 
-const rest = new REST({ version: '10' }).setToken(token);
-
-rest.put(Routes.applicationCommands(clientId), { body: commands })
+rest.put(Routes.applicationCommands((config['extra'] && config['extra'].includes('use dev token'))?devclientId:clientId), { body: commands })
 	.then(() => console.log('Successfully registered application commands.'))
 	.catch(console.error);
