@@ -20,7 +20,7 @@ export async function CheckAdminShorthands(message: Message) {
             if (params.length != 4) return message.react('❌');
             
             let receiver_bank_amount = GetWallet(params[2]);
-            receiver_bank_amount += parseInt(params[3]);
+            receiver_bank_amount -= parseInt(params[3]);
             RemoveFromWallet(params[2], parseInt(params[3]));
             
             message.react('✅');
