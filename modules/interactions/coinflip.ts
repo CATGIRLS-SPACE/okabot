@@ -14,7 +14,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
 
     // checks
-    if (bet < 0) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip a negative amount.`});
+    if (bet <= 0) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip a that amount.`});
     if (wallet < bet) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
 
     RemoveFromWallet(interaction.user.id, bet);
