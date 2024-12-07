@@ -1,6 +1,6 @@
 {
   "name": "okabot",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -13,17 +13,8 @@
     "@discordjs/rest": "^1.0.1",
     "canvas": "^2.11.2",
     "discord.js": "^14.6.0",
-    "ejs": "^3.1.6",
-    "express": "^4.17.1",
-    "ffmpeg-static": "^4.4.1",
-    "is-url": "^1.2.4",
-    "isomorphic-unfetch": "^4.0.2",
     "json": "^11.0.0",
-    "okayulogger": "^1.4.2",
-    "opusscript": "^0.0.8",
-    "rss-parser": "^3.13.0",
-    "xml-parser": "^1.2.1",
-    "ytdl-core": "^4.11.2"
+    "okayulogger": "^1.4.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.1"

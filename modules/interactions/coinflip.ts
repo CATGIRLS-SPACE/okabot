@@ -17,10 +17,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const win: boolean = Math.round(Math.random()) == 1;
 
     await interaction.reply({
-        content: `<a:cf:1314438391462494280> **${interaction.user.displayName}** flips a coin for ${bet}...`
+        content: `<a:cfw:1314729112065282048> **${interaction.user.displayName}** flips a coin for ${bet}...`
     });
 
-    const next_message = `:coin: **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! :smile_cat:':'lost the bet, forefeiting the money. :crying_cat_face:'}`;
+    const next_message = `<a:cff:1314729249189400596> **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! :smile_cat:':'lost the bet, forefeiting the money. :crying_cat_face:'}`;
 
     setTimeout(() => {
         interaction.editReply({

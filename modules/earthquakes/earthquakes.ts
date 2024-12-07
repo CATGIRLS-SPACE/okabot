@@ -14,7 +14,7 @@ const DAYS_OF_WEEK = [
 ]
 
 
-async function GetMostRecent(interaction: ChatInputCommandInteraction) {
+export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const feed = await fetch(URL);
     const list = await feed.json();
 
@@ -91,7 +91,7 @@ const MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
 
-async function StartEarthquakeMonitoring(client: Client) {
+export async function StartEarthquakeMonitoring(client: Client) {
     console.log('Starting Earthquake Monitoring...')
     try {
         const feed = await fetch(URL);
@@ -142,5 +142,3 @@ async function RunEarthquakeFetch(client: Client) {
         console.error(`RunEarthquakeFetch error: ${err}`);
     }
 }
-
-module.exports = { GetMostRecent, StartEarthquakeMonitoring }

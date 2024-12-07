@@ -17,11 +17,6 @@ const commands = [
         .addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true)),
 
     new SlashCommandBuilder()
-        .setName('wordlesolution')
-        .setDescription('Get the Wordle word on a specific day')
-        .addStringOption(option => option.setName('date').setDescription('The date you want to see the solution of').setRequired(true)),
-
-    new SlashCommandBuilder()
         .setName('recent-eq')
         .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency')
 ].map(command => command.toJSON());
