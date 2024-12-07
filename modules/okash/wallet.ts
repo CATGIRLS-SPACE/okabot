@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
 
 export interface Wallet {
@@ -42,7 +42,7 @@ export function AddToWallet(user_id: string, amount: number) {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
-    data.wallet += amount;
+    data.wallet = Math.floor(data.wallet + amount);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
@@ -51,7 +51,7 @@ export function RemoveFromWallet(user_id: string, amount: number) {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
-    data.wallet -= amount;
+    data.wallet = Math.floor(data.wallet - amount);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
@@ -59,11 +59,25 @@ export function RemoveFromWallet(user_id: string, amount: number) {
 export function GetWallet(user_id: string): number {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+    data.wallet = Math.floor(data.wallet);
     return data.wallet;
 }
 
 export function GetBank(user_id: string): number {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+    data.bank = Math.floor(data.bank);
     return data.bank;
+}
+
+export function GetAllWallets(): Array<{user_id: string, amount: number}> {
+    let wallets: Array<{user_id: string, amount: number}> = [];
+
+    readdirSync(WALLET_PATH).forEach(file => {
+        const user_id: string = file.split('.oka')[0];
+        const amount = GetWallet(user_id);
+        wallets.push({user_id, amount});
+    });
+
+    return wallets;
 }

@@ -11,6 +11,7 @@ import * as config from './config.json';
 import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
 import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';
+import { HandleCommandLeaderboard } from './modules/interactions/leaderboard';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -73,6 +74,9 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'recent-eq':
             await interaction.deferReply();
             GetMostRecent(interaction);
+            break;
+        case 'leaderboard':
+            await HandleCommandLeaderboard(interaction);
             break;
     }
 });

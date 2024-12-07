@@ -3,29 +3,44 @@ import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 
 
 export async function CheckAdminShorthands(message: Message) {
-    if (message.author.id == "796201956255334452") {
-        if (message.content.startsWith('oka dep ')) {
-            const params = message.content.split(' ');
-            if (params.length != 4) return message.react('❌');
+    try {
+        if (message.author.id == "796201956255334452") {
+            if (message.content.startsWith('oka dep ')) {
+                const params = message.content.split(' ');
+                if (params.length != 4) return message.react('❌');
 
-            let receiver_bank_amount = GetWallet(params[2]);
-            receiver_bank_amount += parseInt(params[3]);
-            AddToWallet(params[2], parseInt(params[3]));
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
 
-            message.react('✅');
-            (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                let receiver_bank_amount = GetWallet(params[2]);
+                receiver_bank_amount += parseInt(params[3]);
+                AddToWallet(params[2], parseInt(params[3]));
+
+                message.react('✅');
+                (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+            }
+            if (message.content.startsWith('oka wd ')) {
+                const params = message.content.split(' ');
+                if (params.length != 4) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                let receiver_bank_amount = GetWallet(params[2]);
+                receiver_bank_amount -= parseInt(params[3]);
+                RemoveFromWallet(params[2], parseInt(params[3]));
+
+                message.react('✅');
+                (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+            }
         }
-        if (message.content.startsWith('oka wd ')) {
-            const params = message.content.split(' ');
-            if (params.length != 4) return message.react('❌');
-            
-            let receiver_bank_amount = GetWallet(params[2]);
-            receiver_bank_amount -= parseInt(params[3]);
-            RemoveFromWallet(params[2], parseInt(params[3]));
-            
-            message.react('✅');
-            (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
-        }
+    } catch (err) {
+        message.reply({content:'error while parsing your command. check the params and try again.\n`' + err + '`'})
+        return message.react('❌');
     }
 }
 
