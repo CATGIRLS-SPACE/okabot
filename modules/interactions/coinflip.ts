@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import { AddToWallet, RemoveFromWallet } from "../okash/wallet";
+import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 
 const ActiveFlips: Array<string> = [];
 
@@ -10,7 +10,12 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     
     ActiveFlips.push(interaction.user.id);
 
+    const wallet = GetWallet(interaction.user.id);
     const bet = interaction.options.getNumber('amount')!;
+
+    // checks
+    if (bet < 0) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip a negative amount.`});
+    if (wallet < bet) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
 
     RemoveFromWallet(interaction.user.id, bet);
 

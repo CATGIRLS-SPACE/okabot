@@ -75,9 +75,9 @@ client.on(Events.InteractionCreate, async interaction => {
             await interaction.deferReply();
             GetMostRecent(interaction);
             break;
-        case 'leaderboard':
-            await HandleCommandLeaderboard(interaction);
-            break;
+        // case 'leaderboard':
+        //     await HandleCommandLeaderboard(interaction);
+        //     break;
     }
 });
 

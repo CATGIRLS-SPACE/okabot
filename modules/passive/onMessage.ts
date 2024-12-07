@@ -1,4 +1,4 @@
-import { Message, TextChannel } from "discord.js";
+import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 
 
@@ -36,6 +36,29 @@ export async function CheckAdminShorthands(message: Message) {
 
                 message.react('✅');
                 (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+            }
+
+
+            if (message.content.startsWith('oka w ')) {
+                const params = message.content.split(' ');
+                if (params.length != 4) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                message.react('✅');
+                
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('Warning')
+                    .setDescription('You have received a warning for your behavior with the bot. Continuing with this behavior may result in a ban.')
+                    .addFields({
+                        name:'Reason', value:params[3]
+                    });
+
+                message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
             }
         }
     } catch (err) {
