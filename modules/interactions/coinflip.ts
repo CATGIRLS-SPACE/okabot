@@ -7,8 +7,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
         content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`
     });
-    
-    ActiveFlips.push(interaction.user.id);
 
     const wallet = GetWallet(interaction.user.id);
     const bet = interaction.options.getNumber('amount')!;
@@ -17,6 +15,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (bet <= 0) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip a that amount.`});
     if (wallet < bet) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
 
+    ActiveFlips.push(interaction.user.id);
     RemoveFromWallet(interaction.user.id, bet);
 
     const win: boolean = Math.round(Math.random()) == 1;
