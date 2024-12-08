@@ -32,14 +32,17 @@ export async function HandleCommandLeaderboard(interaction: ChatInputCommandInte
     let i = 0;
     let fields: Array<APIEmbedField> = [];
 
-    balances.forEach(balance => {
-        if (i == 5) return;
+    for (const balance of balances) {
+        if (i == 5) break;
         
-        const username = interaction.client.users.cache.find((user) => user.id == balance.user_id)?.displayName; 
-        fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${username}`, value: `<@!${balance.user_id}> has OKA**${balance.amount}**!`, inline: false});
-        
-        i++;
-    });
+        const user = await interaction.client.users.fetch(balance.user_id);
+        const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
+
+        if (isMember) {
+            fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@!${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
+            i++;
+        }
+    }
 
     embed.setFields(fields);
 

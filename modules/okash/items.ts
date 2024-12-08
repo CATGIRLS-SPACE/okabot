@@ -1,0 +1,12 @@
+export enum GEMS {
+    STREAK_RESTORE,
+    DROP_BOOST,
+    HIGH_DROP_BOOST,
+    MYSTERY_GEM
+}
+
+export enum ITEMS {
+    RANDOM_DROP_COMMON,
+    RANDOM_DROP_RARE,
+    RANDOM_DROP_RAREST
+}

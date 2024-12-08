@@ -12,19 +12,21 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
 
     // checks
-    if (bet <= 0) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip a that amount.`});
-    if (wallet < bet) return interaction.reply({content:`**${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
+    if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip a that amount.`});
+    if (wallet < bet) return interaction.reply({content:`:crying_cat_face: **${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
 
     ActiveFlips.push(interaction.user.id);
     RemoveFromWallet(interaction.user.id, bet);
 
-    const win: boolean = Math.round(Math.random()) == 1;
+    
+    const rolled = Math.random();
+    const win: boolean = rolled >= 0.5;
 
     await interaction.reply({
         content: `<a:cfw:1314729112065282048> **${interaction.user.displayName}** flips a coin for ${bet}...`
     });
 
-    const next_message = `<:cff:1314729249189400596> **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! :smile_cat:':'lost the bet, forefeiting the money. :crying_cat_face:'}`;
+    const next_message = `<:cff:1314729249189400596> **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! :smile_cat:':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be >= 0.5 to win)`;
 
     setTimeout(() => {
         interaction.editReply({

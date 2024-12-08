@@ -71,7 +71,7 @@ export async function DoRandomOkashRolls(message: Message) {
     // random cash rolls for each message
     // 1 in 500 seems decent enough for 1-1000 i think...
     const small_roll = Math.floor(Math.random() * 500);
-    console.log('small roll: ' + small_roll);
+    // console.log('small roll: ' + small_roll);
     if (small_roll == 250) {
         console.log('trigger small reward');
         const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
@@ -87,7 +87,7 @@ export async function DoRandomOkashRolls(message: Message) {
     // 1 in 2500 for a BIG payout
     // arbitrary number 1561 cuz why not!
     const big_roll = Math.floor(Math.random() * 2500);
-    console.log(`big roll: ${big_roll}`);
+    // console.log(`big roll: ${big_roll}`);
     if (big_roll == 1561) {
         console.log('trigger big reward');
         const find_money_msg = await message.reply(':question: ...oh? what\'s this..?');

@@ -1,10 +1,15 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
+import { GEMS, ITEMS } from "./items";
 
 export interface Wallet {
     version: number,
     wallet: number,
-    bank: number
+    bank: number,
+    inventory: {
+        gems: Array<GEMS>,
+        other: Array<ITEMS>
+    }
 }
 
 const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
@@ -12,9 +17,13 @@ const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
 function CheckVersion(user_id: string) {
     if (!existsSync(join(WALLET_PATH, `${user_id}.oka`))) {
         const new_data: Wallet = {
-            version: 1,
+            version: 2,
             wallet: 0,
-            bank: 0
+            bank: 0,
+            inventory: {
+                gems: [],
+                other: []
+            }
         };
 
         writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
@@ -24,13 +33,31 @@ function CheckVersion(user_id: string) {
 
     try {
         let version = JSON.parse(data).version;
-        if (version != 1) throw new Error();
+        // if it's already v1 then just need ot upgrade
+        if (version == 1) {
+            const wallet: Wallet = JSON.parse(data);
+            const new_data: Wallet = {
+                version: 2,
+                wallet: wallet.wallet,
+                bank: wallet.bank,
+                inventory: {
+                    gems: [],
+                    other: []
+                }
+            };
+            wallet.version = 2;
+            writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(wallet), 'utf8');
+        } else throw new Error();
         return;
     } catch {
         const new_data: Wallet = {
-            version: 1,
+            version: 2,
             wallet: parseInt(data),
-            bank: 0
+            bank: 0,
+            inventory: {
+                gems: [],
+                other: []
+            }
         };
 
         writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');

@@ -1,6 +1,7 @@
-import { readFileSync, writeFileSync } from "node:fs"
+import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
 import { AddToWallet } from "./wallet"
+import { ChatInputCommandInteraction } from "discord.js"
 
 export interface DailyData {
     version: number,
@@ -9,31 +10,53 @@ export interface DailyData {
     },
     streak: {
         count: number,
-        restored: boolean
+        last_count: number,
+        restored: boolean,
     }
 }
 
 const DAILY_PATH = join(__dirname, '..', '..', 'money', 'daily');
 
 function CheckVersion(user_id: string) {
+    if (!existsSync(join(DAILY_PATH, `${user_id}.oka`))) {
+        const new_data: DailyData = {
+            version: 2,
+            last_get: {
+                time: 0
+            },
+            streak: {
+                count: 0,
+                last_count: 0,
+                restored: false
+            }
+        }
+
+        writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
+        return;
+    }
     const data: string = readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8');
 
     try {
         // try and parse, if it fails then it needs upgrading
         const daily_version = JSON.parse(data).version;
-        if (daily_version != 1) throw new Error();
+        if (daily_version != 2) {
+            if (daily_version != 1) throw new Error();   
+
+            // just means we need to add the new 
+        }
         return;
     } catch {
         // old data, must be upgraded
         const previous_time = parseInt(data);
 
         const new_data: DailyData = {
-            version: 1,
+            version: 2,
             last_get: {
                 time: previous_time
             },
             streak: {
                 count: 0,
+                last_count: 0,
                 restored: false
             }
         }
@@ -60,7 +83,9 @@ export function ClaimDaily(user_id: string): number {
         if (data.streak.count == 0 || data.last_get.time + ONE_DAY*2 < d.getTime()) {
             console.log('daily is new streak');
             data.streak.count = 1;
+            data.streak.last_count = data.streak.count;
             data.last_get.time = d.getTime();
+            data.streak.restored = false;
 
             AddToWallet(user_id, 750);
             writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
@@ -92,4 +117,31 @@ export function GetDailyStreak(user_id: string): number {
 
     const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
     return data.streak.count;
+}
+
+/**
+ * restore a daily streak with a streak restore gem
+ * @param user_id 
+ * @param interaction 
+ * @returns true if it was restored, false if it wasn't. use this to deduce whether you should "use" a g00 from their inventory
+ */
+export async function RestoreLastDailyStreak(user_id: string, interaction: ChatInputCommandInteraction): Promise<boolean> {
+    CheckVersion(user_id);
+    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
+
+    if (data.streak.count > data.streak.last_count) {
+        await interaction.editReply({
+            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> Streak Restore gem right now!`
+        });
+        return false;
+    }
+
+    data.streak.count = data.streak.last_count;
+    data.streak.restored = true;
+
+    await interaction.editReply({
+        content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
+    });
+
+    return true;
 }
