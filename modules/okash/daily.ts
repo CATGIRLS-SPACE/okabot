@@ -12,6 +12,7 @@ export interface DailyData {
         count: number,
         last_count: number,
         restored: boolean,
+        double_claimed: boolean
     }
 }
 
@@ -27,7 +28,8 @@ function CheckVersion(user_id: string) {
             streak: {
                 count: 0,
                 last_count: 0,
-                restored: false
+                restored: false,
+                double_claimed: false
             }
         }
 
@@ -57,7 +59,8 @@ function CheckVersion(user_id: string) {
             streak: {
                 count: 0,
                 last_count: 0,
-                restored: false
+                restored: false,
+                double_claimed: false
             }
         }
 
@@ -71,21 +74,23 @@ const ONE_DAY = 86400000;
 /**
  * Claim a daily reward and calculate the streak amount.
  * @param user_id The Discord user ID who is claiming
+ * @param reclaim Set the double_claim flag to true?
  * @returns The amount claimed on success, negative time until next daily on failure.
  */
-export function ClaimDaily(user_id: string): number {
+export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
     CheckVersion(user_id);
 
     const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
     const d = new Date();
 
-    if (data.last_get.time + ONE_DAY <= d.getTime()) {
+    if (data.last_get.time + ONE_DAY <= d.getTime() || reclaim) {
         if (data.streak.count == 0 || data.last_get.time + ONE_DAY*2 < d.getTime()) {
             console.log('daily is new streak');
             data.streak.count = 1;
             data.streak.last_count = data.streak.count;
             data.last_get.time = d.getTime();
             data.streak.restored = false;
+            data.streak.double_claimed = false;
 
             AddToWallet(user_id, 750);
             writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
@@ -97,6 +102,7 @@ export function ClaimDaily(user_id: string): number {
         // has streak, use multipliers!
         data.streak.count += 1;
         data.last_get.time = d.getTime();
+        data.streak.double_claimed = reclaim;
 
         // 5% bonus each day capped at 100%
         let streak_multiplier = (data.streak.count - 1)* 0.05;
@@ -142,6 +148,27 @@ export async function RestoreLastDailyStreak(user_id: string, interaction: ChatI
     await interaction.editReply({
         content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
     });
+
+    return true;
+}
+
+/**
+ * Claim the daily twice, increasing the streak by one.
+ * @param interaction 
+ * @returns true if successful, false otherwise
+ */
+export async function SkipDailyOnce(interaction: ChatInputCommandInteraction): Promise<boolean> {
+    CheckVersion(interaction.user.id);
+    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), 'utf8'));
+
+    if (data.streak.double_claimed) { 
+        interaction.reply({
+            content: `:x: Sorry **${interaction.user.displayName}**, but you can only use a Daily Reclaim gem once per day.`
+        });
+        return false;
+    }
+
+    ClaimDaily(interaction.user.id, true);
 
     return true;
 }

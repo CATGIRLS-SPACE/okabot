@@ -1,9 +1,9 @@
 export enum GEMS {
-    STREAK_RESTORE,
-    DROP_BOOST,
-    HIGH_DROP_BOOST,
-    MYSTERY_GEM,
-    DAILY_DOUBLE_CLAIM
+    STREAK_RESTORE,     // g00
+    DROP_BOOST,         // gb0
+    HIGH_DROP_BOOST,    // gb1
+    MYSTERY_GEM,        // g01
+    DAILY_DOUBLE_CLAIM  // g02
 }
 
 export enum ITEMS {

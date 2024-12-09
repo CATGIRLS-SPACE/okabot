@@ -19,7 +19,21 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('recent-eq')
-        .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency!')
+        .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency!'),
+
+    new SlashCommandBuilder()
+        .setName('use')
+        .setDescription('Use an item or gem from you inventory!')
+        .addStringOption(option => option.setName('item').setDescription('The item to use').setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('buy')
+        .setDescription('Buy an item from the shop!')
+        .addStringOption(option => option.setName('item').setDescription('The item to buy').setRequired(true)),
+
+    new SlashCommandBuilder()
+        .setName('shop')
+        .setDescription('Get the shop item and price listings')
 ].map(command => command.toJSON());
  
 const rest = new REST({ version: '10' }).setToken((config['extra'] && config['extra'].includes('use dev token'))?devtoken:token);
