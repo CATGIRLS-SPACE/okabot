@@ -6,6 +6,7 @@ const ActiveFlips: Array<string> = [];
 
 const WIN_CHANCE = 0.5;
 const WEIGHTED_WIN_CHANCE = 0.3; // decrease it because this is actually the loss chance i guess
+const USE_CUSTOMIZATION = false;
 
 export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
     if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
@@ -35,12 +36,26 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     let win: boolean = false; 
 
     // .5 is always inclusive bc idgaf
-    if (side == 'heads')
-        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-    else if (side == 'tails')
-        win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-    else
-        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    if (side == 'heads') win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    else if (side == 'tails') win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    else win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+        
+        
+    let first_message = `**${interaction.user.displayName}** flips a coin for OKA**${bet}**...`
+    let next_message = `**${interaction.user.displayName}** flips a coin for OKA**${bet}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
+
+    // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
+    if (USE_CUSTOMIZATION) {
+        const prefs = GetUserProfile(interaction.user.id);
+        first_message = prefs.customization.messages.coinflip_first
+            .replaceAll('{user}', `**${interaction.user.displayName}**`)
+            .replaceAll('{amount}', `OKA**${bet}**`);
+
+        next_message = (win?prefs.customization.messages.coinflip_win:prefs.customization.messages.coinflip_loss)
+            .replaceAll('{user}', `**${interaction.user.displayName}**`)
+            .replaceAll('{amount}', `OKA**${bet}**`);
+    }
+
 
     // get rid of weighted coin after one use
     if (weighted_coin_equipped) {
@@ -49,14 +64,12 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }
 
     await interaction.reply({
-        content: `${emoji_waiting} **${interaction.user.displayName}** flips a coin for OKA**${bet}**...`
+        content: `${emoji_waiting} ${first_message}`
     });
-
-    const next_message = `${emoji_finish} **${interaction.user.displayName}** flips a coin for OKA**${bet}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
 
     setTimeout(() => {
         interaction.editReply({
-            content: next_message
+            content: `${emoji_finish} ${next_message}`
         });
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
