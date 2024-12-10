@@ -16,7 +16,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
 
     // checks
-    if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip a that amount.`});
+    if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`});
     if (wallet < bet) return interaction.reply({content:`:crying_cat_face: **${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
 
     // don't let the user do multiple coinflips and take the money immediately
