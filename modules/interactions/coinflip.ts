@@ -40,10 +40,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }
 
     await interaction.reply({
-        content: `${emoji_waiting} **${interaction.user.displayName}** flips a coin for ${bet}...`
+        content: `${emoji_waiting} **${interaction.user.displayName}** flips a coin for OKA**${bet}**...`
     });
 
-    const next_message = `${emoji_finish} **${interaction.user.displayName}** flips a coin for ${bet}... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be >= ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
+    const next_message = `${emoji_finish} **${interaction.user.displayName}** flips a coin for OKA**${bet}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be >= ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
 
     setTimeout(() => {
         interaction.editReply({
