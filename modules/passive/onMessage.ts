@@ -1,5 +1,6 @@
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
+import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
+import { GEMS, ITEM_TYPE } from "../okash/items";
 
 
 export async function CheckAdminShorthands(message: Message) {
@@ -36,6 +37,21 @@ export async function CheckAdminShorthands(message: Message) {
 
                 message.react('✅');
                 (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
+            }
+
+            if (message.content.startsWith('oka i ')) {
+                const params = message.content.split(' ');
+                if (params.length != 4) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                AddOneToInventory(params[2], ITEM_TYPE.GEM, GEMS.STREAK_RESTORE);
+
+                message.react('✅');
+                (message.channel as TextChannel).send(`<@!${params[2]}>, inserted one \`${params[3]}\` into your inventory.`);
             }
 
 

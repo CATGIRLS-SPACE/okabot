@@ -1,6 +1,8 @@
 import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { GetAllWallets } from "../okash/wallet";
+import { Logger } from "okayulogger";
 
+const L = new Logger('leaderboard');
 
 const PLACE_EMOJI = [
     ':first_place:',
@@ -35,12 +37,17 @@ export async function HandleCommandLeaderboard(interaction: ChatInputCommandInte
     for (const balance of balances) {
         if (i == 5) break;
         
-        const user = await interaction.client.users.fetch(balance.user_id);
-        const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
+        try {
 
-        if (isMember) {
-            fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@!${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
-            i++;
+            const user = await interaction.client.users.fetch(balance.user_id);
+            const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
+            
+            if (isMember) {
+                fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@!${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
+                i++;
+            }
+        } catch (err) {
+            L.error(err as string);
         }
     }
 

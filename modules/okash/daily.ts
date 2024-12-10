@@ -1,7 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
-import { AddToWallet } from "./wallet"
+import { AddOneToInventory, AddToWallet } from "./wallet"
 import { ChatInputCommandInteraction } from "discord.js"
+import { ITEM_TYPE, ITEMS } from "./items"
 
 export interface DailyData {
     version: number,
@@ -95,6 +96,8 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
             AddToWallet(user_id, 750);
             writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 
+            AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
+
             return 750;
         }
         console.log('daily is existing streak');
@@ -111,8 +114,9 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
         const amount = Math.round(750 + (750 * streak_multiplier));
 
         AddToWallet(user_id, amount);
-
         writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+        AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
+
         return amount;
     } else return -Math.floor((data.last_get.time + ONE_DAY)/1000);
 }
@@ -131,13 +135,13 @@ export function GetDailyStreak(user_id: string): number {
  * @param interaction 
  * @returns true if it was restored, false if it wasn't. use this to deduce whether you should "use" a g00 from their inventory
  */
-export async function RestoreLastDailyStreak(user_id: string, interaction: ChatInputCommandInteraction): Promise<boolean> {
-    CheckVersion(user_id);
-    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
+export async function RestoreLastDailyStreak(interaction: ChatInputCommandInteraction): Promise<boolean> {
+    CheckVersion(interaction.user.id);
+    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), 'utf8'));
 
-    if (data.streak.count > data.streak.last_count) {
+    if (data.streak.count >= data.streak.last_count) {
         await interaction.editReply({
-            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> Streak Restore gem right now!`
+            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> **Streak Restore** gem right now!`
         });
         return false;
     }
@@ -148,6 +152,8 @@ export async function RestoreLastDailyStreak(user_id: string, interaction: ChatI
     await interaction.editReply({
         content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
     });
+
+    writeFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), JSON.stringify(data), 'utf8');
 
     return true;
 }

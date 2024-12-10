@@ -35,3 +35,9 @@ export enum CUSTOMIZATION_UNLOCKS {
     SYS_BANK_ACCESS,
     SYS_LOAN_ACCESS
 }
+
+export enum ITEM_TYPE {
+    ITEM,
+    GEM,
+    CUSTOMIZATION
+}

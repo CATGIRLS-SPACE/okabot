@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
-import { GEMS, ITEMS } from "./items";
+import { GEMS, ITEM_TYPE, ITEMS } from "./items";
 
 export interface Wallet {
     version: number,
@@ -16,6 +16,7 @@ const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
 
 function CheckVersion(user_id: string) {
     if (!existsSync(join(WALLET_PATH, `${user_id}.oka`))) {
+        console.log('no wallet, init one...');
         const new_data: Wallet = {
             version: 2,
             wallet: 0,
@@ -34,6 +35,9 @@ function CheckVersion(user_id: string) {
     try {
         let version = JSON.parse(data).version;
         // if it's already v1 then just need ot upgrade
+
+        if (version == 2) return;
+
         if (version == 1) {
             const wallet: Wallet = JSON.parse(data);
             const new_data: Wallet = {
@@ -46,7 +50,7 @@ function CheckVersion(user_id: string) {
                 }
             };
             wallet.version = 2;
-            writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(wallet), 'utf8');
+            writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
         } else throw new Error();
         return;
     } catch {
@@ -107,4 +111,50 @@ export function GetAllWallets(): Array<{user_id: string, amount: number}> {
     });
 
     return wallets;
+}
+
+export function GetInventory(user_id: string) {
+    CheckVersion(user_id);
+
+    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+
+    return data.inventory;
+}
+
+export function RemoveOneFromInventory(user_id: string, type: ITEM_TYPE, item: GEMS | ITEMS) {
+    CheckVersion(user_id);
+
+    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+
+    switch (type) {
+        case ITEM_TYPE.GEM:
+            if (data.inventory.gems.indexOf(item as GEMS) == -1) return;
+            data.inventory.gems.splice(data.inventory.gems.indexOf(item as GEMS), 1)
+            break;
+    
+        case ITEM_TYPE.ITEM:
+            if (data.inventory.other.indexOf(item as ITEMS) == -1) return;
+            data.inventory.other.splice(data.inventory.other.indexOf(item as ITEMS), 1)
+            break;
+    }
+
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
+}
+
+export function AddOneToInventory(user_id: string, type: ITEM_TYPE, item: GEMS | ITEMS) {
+    CheckVersion(user_id);
+
+    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+
+    switch (type) {
+        case ITEM_TYPE.GEM:
+            data.inventory.gems.push(item as GEMS);
+            break;
+    
+        case ITEM_TYPE.ITEM:
+            data.inventory.other.push(item as ITEMS);
+            break;
+    }
+
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
 }

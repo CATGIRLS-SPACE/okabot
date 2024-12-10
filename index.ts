@@ -12,6 +12,12 @@ import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
 import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';
 import { HandleCommandLeaderboard } from './modules/interactions/leaderboard';
+import { HandleCommandUse } from './modules/interactions/use';
+import { HandleCommandShop } from './modules/interactions/shop';
+import { HandleCommandBuy } from './modules/interactions/buy';
+import { HandleCommandPockets } from './modules/interactions/pockets';
+import {SetupPrefs} from './modules/user/prefs';
+import { HandleCommandToggle } from './modules/interactions/toggle';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -36,6 +42,7 @@ const client = new Client({
 });
 
 client.once(Events.ClientReady, (c: Client) => {
+    SetupPrefs(__dirname);
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
@@ -78,6 +85,21 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'leaderboard':
             await HandleCommandLeaderboard(interaction);
             break;
+        case 'use':
+            await HandleCommandUse(interaction);
+            break;
+        case 'shop':
+            await HandleCommandShop(interaction);
+            break;
+        case 'buy':
+            await HandleCommandBuy(interaction);
+            break;
+        case 'pockets':
+            await HandleCommandPockets(interaction);
+            break;
+        case 'toggle':
+            await HandleCommandToggle(interaction);
+            break;
     }
 });
 
@@ -85,6 +107,7 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handling message-based things:
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
+    if (message.author.bot || message.webhookId) return;
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
     WordleCheck(message);

@@ -9,6 +9,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     const bank = GetBank(interaction.user.id);
 
     await interaction.editReply({
-        content: `<:okash:1315058783889657928> **${interaction.user.username}**, you've got OKA${wallet} in your wallet and OKA${bank} in your bank.`
+        // content: `<:okash:1315058783889657928> **${interaction.user.username}**, you've got OKA**${wallet}** in your wallet and OKA**${bank}** in your bank.`
+        content: `<:okash:1315058783889657928> **${interaction.user.username}**, you've got OKA**${wallet}** in your wallet.`
     });
 }

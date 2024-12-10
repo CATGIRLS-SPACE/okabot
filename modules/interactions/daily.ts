@@ -17,13 +17,14 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (result == 750) {
         // 750 = no streak (technically 1 day)
         return interaction.editReply({
-            content: `:white_check_mark: Got your daily reward of OKA750!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+            content: `:white_check_mark: Got your daily reward of <:okash:1315058783889657928> OKA**750** and a <:cff_green:1315843280776462356> Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
         });
     }
 
     // plus streak bonus
     const bonus = result - 750;
+    const streak_count = GetDailyStreak(interaction.user.id);
     interaction.editReply({
-        content: `:white_check_mark: Got your daily reward of OKA750 **PLUS OKA${bonus}**!\n:chart_with_upwards_trend: You currently have a daily streak of ${GetDailyStreak(interaction.user.id)} days!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+        content: `:white_check_mark: Got your daily reward of <:okash:1315058783889657928> OKA**750** (**PLUS OKA${bonus}**) and a <:cff_green:1315843280776462356> Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${100+(100*0.05*streak_count)}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
     });
 }

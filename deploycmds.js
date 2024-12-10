@@ -33,7 +33,27 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('shop')
-        .setDescription('Get the shop item and price listings')
+        .setDescription('Get the shop item and price listings'),
+
+    new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!'),
+
+    new SlashCommandBuilder()
+        .setName('toggle')
+        .setDescription('Change a toggleable okabot setting!')
+        .addStringOption(option => option.setName('setting')
+            .setDescription('The toggle to change')
+            .setRequired(true)
+            .addChoices(
+                { name:'okash notifications when money is transferred/received on your account', value: 'okash_notifications' }
+            ))
+        .addStringOption(option => option.setName('active')
+            .setDescription('whether you want the option on or off')
+            .setRequired(true)
+            .addChoices(
+                {name:'ON', value:'on'},
+                {name:'OFF', value:'off'}
+            ))
+
 ].map(command => command.toJSON());
  
 const rest = new REST({ version: '10' }).setToken((config['extra'] && config['extra'].includes('use dev token'))?devtoken:token);

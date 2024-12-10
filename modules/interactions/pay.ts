@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
+import { GetUserProfile } from "../user/prefs";
 
 
 export async function HandleCommandPay(interaction: ChatInputCommandInteraction, client: Client) {
@@ -29,6 +30,9 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     let sender_bank_amount = GetWallet(sender_id);
     let receiver_bank_amount = GetWallet(receiver_id);
     
+    const sender_prefs = GetUserProfile(interaction.user.id);
+    const receiver_prefs = GetUserProfile(receiver_id);
+
     let pay_amount = Math.floor(interaction.options.getNumber('amount')!);
 
     if (pay_amount < 0) {
@@ -84,13 +88,13 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         )
         .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount-pay_amount}.`);
 
-    interaction.options.getUser('user')!.send({
+    if (receiver_prefs.okash_notifications) interaction.options.getUser('user')!.send({
         embeds:[receiver_embed]
     }).catch(() => {
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${receiver_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[receiver_embed]});
     });
     
-    interaction.user.send({
+    if (sender_prefs.okash_notifications) interaction.user.send({
         embeds:[sender_embed]
     }).catch(() => {
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${sender_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});
