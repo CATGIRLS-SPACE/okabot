@@ -5,3 +5,4 @@ config.json
 /modules/*/*.js
 index.js
 .vscode/
+*.oka

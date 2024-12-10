@@ -14,6 +14,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
     const wallet = GetWallet(interaction.user.id);
     const bet = interaction.options.getNumber('amount')!;
+    const side = interaction.options.getString('side');
 
     // checks
     if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`});
@@ -31,7 +32,15 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     
     // set probabilities and decide outcome
     const rolled = Math.random();
-    const win: boolean = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    let win: boolean = false; 
+
+    // .5 is always inclusive bc idgaf
+    if (side == 'heads')
+        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    else if (side == 'tails')
+        win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    else
+        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
 
     // get rid of weighted coin after one use
     if (weighted_coin_equipped) {
@@ -43,7 +52,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         content: `${emoji_waiting} **${interaction.user.displayName}** flips a coin for OKA**${bet}**...`
     });
 
-    const next_message = `${emoji_finish} **${interaction.user.displayName}** flips a coin for OKA**${bet}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be >= ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
+    const next_message = `${emoji_finish} **${interaction.user.displayName}** flips a coin for OKA**${bet}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
 
     setTimeout(() => {
         interaction.editReply({
