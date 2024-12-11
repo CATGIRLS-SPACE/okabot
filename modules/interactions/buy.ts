@@ -62,7 +62,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_PINK, price);
 
         case 'rainbow coin':
-            return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_PINK, price);
+            return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_RAINBOW, price);
     }
 
     // this will only execute if it's a '/use'able item
