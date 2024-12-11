@@ -78,6 +78,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const rolled = Math.random();
     let win: boolean = false; 
 
+    if (rolled >= 0.5 && rolled < 0.50001) {
+
+    }
+
     // .5 is always inclusive bc idgaf
     if (side == 'heads') win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
     else if (side == 'tails') win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
@@ -99,16 +103,31 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             .replaceAll('{amount}', `OKA**${bet}**`);
     }
 
+    await interaction.reply({
+        content: `${emoji_waiting} ${first_message}`
+    });
+
+    if (rolled >= 0.5 && rolled < 0.50001) {
+        setTimeout(() => {
+            // win regardless, it landed on the side!!!
+            next_message = `${first_message} and lands it on the side:interrobang: They now get 5x their bet, earning <:okash:1315058783889657928> OKA**${bet*5}**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
+            
+            ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
+            AddToWallet(interaction.user.id, bet*5);
+            
+            interaction.editReply({
+                content: `${emoji_finish} ${next_message}`
+            });
+        }, 3000);
+
+        return;
+    }
 
     // get rid of weighted coin after one use
     if (weighted_coin_equipped) {
         prefs.flags.splice(prefs.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED), 1);
         UpdateUserProfile(interaction.user.id, prefs);
     }
-
-    await interaction.reply({
-        content: `${emoji_waiting} ${first_message}`
-    });
 
     setTimeout(() => {
         const stats: coin_floats = JSON.parse(readFileSync(stats_file, 'utf-8'));
