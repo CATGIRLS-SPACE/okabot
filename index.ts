@@ -150,7 +150,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     const lowest_holder = await client.users.fetch(stats.coinflip.low.user_id);
 
     const info_embed = new EmbedBuilder()
-    .setTitle(`okabot v${version}`)
+    .setTitle(`<:nekoheart:1316232330733682689> okabot v${version} <:nekoheart:1316232330733682689>`)
     .setAuthor({
         name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL() 
     })
@@ -163,7 +163,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         {name:'Highest coinflip float',value:`${stats.coinflip.high.value} by <@${highest_holder.id}>`, inline:true},
         {name:'Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${lowest_holder.id}>`, inline:true},
     )
-    .setFooter({text: 'read if cute | thanks for using my bot <:nekoheart:1316232330733682689>'})
+    .setFooter({text: 'read if cute | thanks for using my bot <3'})
     .setThumbnail(client.user!.avatarURL())
 
     interaction.editReply({embeds:[info_embed]});
