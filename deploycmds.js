@@ -4,7 +4,7 @@ const { clientId, token, devtoken, devclientId } = require('./config.json');
 const config = require('./config.json');
 
 const commands = [
-	// new SlashCommandBuilder().setName('ping').setDescription('Replies with pong!'),
+	new SlashCommandBuilder().setName('info').setDescription('Get some info on the bot!'),
 	new SlashCommandBuilder().setName('debug').setDescription('Replies with debug info!'),
 	new SlashCommandBuilder().setName('daily').setDescription('Get your daily okash reward!'),
 	new SlashCommandBuilder().setName('okash').setDescription('View your bank balance!'),
@@ -37,9 +37,28 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('shop')
-        .setDescription('Get the shop item and price listings'),
+        .setDescription('Get the shop item and price listings')
+        .addStringOption(option => option.setName('page').setDescription('The shop category to display').addChoices(
+            {name:'Gems', value: 'gems'},
+            {name:'Customization', value:'customization'}
+        ).setRequired(true)),
 
-    new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!'),
+    new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!')
+        .addStringOption(option => option.setName('page').setDescription('The pockets category to display').addChoices(
+            {name:'Items and Gems', value:'items'},
+            {name:'Customization Unlocks', value:'customize'}
+        ).setRequired(true)),
+
+    new SlashCommandBuilder().setName('customize').setDescription('Customize your experience with your unlocked customizations!')
+        .addSubcommand(subcommand => 
+            subcommand
+                .setName('coinflip')
+                .setDescription('Customize your coinflip experience')
+                .addStringOption(option => option
+                    .setName('coin')
+                    .setDescription('The coin you want to use when flipping')
+                    .setRequired(true))
+                ),
 
     new SlashCommandBuilder()
         .setName('toggle')

@@ -1,4 +1,4 @@
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, Partials } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
 import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
@@ -18,6 +18,9 @@ import { HandleCommandBuy } from './modules/interactions/buy';
 import { HandleCommandPockets } from './modules/interactions/pockets';
 import {SetupPrefs} from './modules/user/prefs';
 import { HandleCommandToggle } from './modules/interactions/toggle';
+import { HandleCommandCustomize } from './modules/interactions/customize';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -56,9 +59,15 @@ client.login((config.extra && config.extra.includes('use dev token'))?config.dev
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
+    // this should never trigger but its a catch just in case it does happen somehow
+    if (interaction.channel!.isDMBased()) return interaction.reply({
+        content:'Sorry, but okabot commands aren\'t available in DMs. Please head to CATGIRL CENTRAL to use okabot.'
+    });
+
     switch (interaction.commandName) {
-        case 'ping':
-            await interaction.reply({content: ':cat: Pong!', ephemeral: true});
+        case 'info':
+            await interaction.deferReply();
+            await GetInfoEmbed(interaction);
             break;
         case 'debug':
             await interaction.reply({
@@ -97,6 +106,9 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'pockets':
             await HandleCommandPockets(interaction);
             break;
+        case 'customize':
+            await HandleCommandCustomize(interaction);
+            break;
         case 'toggle':
             await HandleCommandToggle(interaction);
             break;
@@ -114,3 +126,45 @@ client.on(Events.MessageCreate, async message => {
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);
 });
+
+interface coin_floats {
+    coinflip:{
+        high: {
+            value: number,
+            user_id: string
+        },
+        low: {
+            value: number,
+            user_id: string
+        }
+    }
+}
+
+if (!existsSync(join(__dirname, 'stats.oka'))) writeFileSync(join(__dirname, 'stats.oka'), '{"coinflip":{"high":{"value":0,"user_id":"1314398026315333692"},"low":{"value":1,"user_id":"1314398026315333692"}}}', 'utf-8');
+
+async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
+    const okawaffles = await client.users.fetch("796201956255334452");
+
+    const stats: coin_floats  = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
+    const highest_holder = await client.users.fetch(stats.coinflip.high.user_id);
+    const lowest_holder = await client.users.fetch(stats.coinflip.low.user_id);
+
+    const info_embed = new EmbedBuilder()
+    .setTitle(`okabot v${version}`)
+    .setAuthor({
+        name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL() 
+    })
+    .setDescription('A bot that "serves zero purpose" and exists "just because it can."')
+    .addFields(
+        {name:'Development', value: 'okawaffles', inline: true},
+        {name:'Testing', value:'okawaffles, tacobella03', inline: true},
+        {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
+        {name:'Earthquake Information Sources', value:'Japan Meteorological Agency', inline: false},
+        {name:'Highest coinflip float',value:`${stats.coinflip.high.value} by <@${highest_holder.id}>`, inline:true},
+        {name:'Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${lowest_holder.id}>`, inline:true},
+    )
+    .setFooter({text: 'read if cute | thanks for using my bot <:nekoheart:1316232330733682689>'})
+    .setThumbnail(client.user!.avatarURL())
+
+    interaction.editReply({embeds:[info_embed]});
+}

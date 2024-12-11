@@ -1,7 +1,9 @@
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { GEMS, ITEM_TYPE } from "../okash/items";
+import { Logger } from "okayulogger";
 
+const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
     try {
@@ -39,7 +41,7 @@ export async function CheckAdminShorthands(message: Message) {
                 (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
             }
 
-            if (message.content.startsWith('oka i ')) {
+            if (message.content.startsWith('oka ig ')) {
                 const params = message.content.split(' ');
                 if (params.length != 4) return message.react('❌');
 
@@ -48,7 +50,22 @@ export async function CheckAdminShorthands(message: Message) {
                 
                 if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
 
-                AddOneToInventory(params[2], ITEM_TYPE.GEM, GEMS.STREAK_RESTORE);
+                AddOneToInventory(params[2], ITEM_TYPE.GEM, parseInt(params[3]));
+
+                message.react('✅');
+                (message.channel as TextChannel).send(`<@!${params[2]}>, inserted one \`${params[3]}\` into your inventory.`);
+            }
+
+            if (message.content.startsWith('oka ii ')) {
+                const params = message.content.split(' ');
+                if (params.length != 4) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                AddOneToInventory(params[2], ITEM_TYPE.ITEM, parseInt(params[3]));
 
                 message.react('✅');
                 (message.channel as TextChannel).send(`<@!${params[2]}>, inserted one \`${params[3]}\` into your inventory.`);
@@ -57,28 +74,30 @@ export async function CheckAdminShorthands(message: Message) {
 
             if (message.content.startsWith('oka w ')) {
                 const params = message.content.split(' ');
-                if (params.length != 4) return message.react('❌');
+                const original_param_2 = message.content.split(' ')[2];
+                if (params.length < 4) return message.react('❌');
 
                 if (params[2] == 'me') params[2] = message.author.id;
                 if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
                 
                 if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
-
-                message.react('✅');
                 
                 const embed = new EmbedBuilder()
                     .setColor(0xFF0000)
                     .setTitle('Warning')
                     .setDescription('You have received a warning for your behavior with the bot. Continuing with this behavior may result in a ban.')
                     .addFields({
-                        name:'Reason', value:params[3]
+                        name:'Reason', value:''+message.content.split(original_param_2)[1]
                     });
 
                 message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
+
+                message.react('✅');
             }
         }
     } catch (err) {
         message.reply({content:'error while parsing your command. check the params and try again.\n`' + err + '`'})
+        console.log(err);
         return message.react('❌');
     }
 }

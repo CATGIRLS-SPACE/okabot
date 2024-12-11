@@ -27,7 +27,7 @@ export async function HandleCommandLeaderboard(interaction: ChatInputCommandInte
     // create the embed
     const embed = new EmbedBuilder()
         .setTitle(`okash Leaderboard for **${interaction.guild?.name}**`)
-        .setAuthor({name:interaction.guild!.name})
+        .setAuthor({name:interaction.guild!.name, iconURL:interaction.guild!.iconURL()!})
         .setColor(0x9d60cc);
 
     
@@ -43,7 +43,7 @@ export async function HandleCommandLeaderboard(interaction: ChatInputCommandInte
             const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
             
             if (isMember) {
-                fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@!${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
+                fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
                 i++;
             }
         } catch (err) {

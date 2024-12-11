@@ -1,3 +1,6 @@
+// once these have been used you **CANNOT** change the order of them
+// if you add an item, it MUST be at the end, otherwise you will BREAK a user file!
+
 export enum GEMS {
     STREAK_RESTORE,     // g00
     DROP_BOOST,         // gb0
@@ -20,8 +23,8 @@ export enum ITEMS {
 export enum CUSTOMIZATION_UNLOCKS {
     COIN_DEF,
     COIN_RED,
-    COIN_GREEN,
-    COIN_BLUE,
+    COIN_DBLUE,
+    COIN_BLUE, // considered light blue
     COIN_PINK,
     COIN_PURPLE,
     CV_LEVEL_THEME_DEF,
@@ -33,7 +36,9 @@ export enum CUSTOMIZATION_UNLOCKS {
     STR_COINFLIP,
     STR_OKASH,
     SYS_BANK_ACCESS,
-    SYS_LOAN_ACCESS
+    SYS_LOAN_ACCESS,
+    COIN_DGREEN, // normal green = reserved for weighted coin
+    COIN_RAINBOW
 }
 
 export enum ITEM_TYPE {

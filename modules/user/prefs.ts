@@ -7,6 +7,7 @@ export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
 }
 
+// probably never going to be used besides in here
 export enum COIN_COLOR {
     DEFAULT,
     RED,
@@ -19,7 +20,7 @@ export enum COIN_COLOR {
 export interface USER_PROFILE {
     flags: Array<FLAG>, // keeping this as an array so i dont have to painfully upgrade later on
     customization: {
-        coin_color: COIN_COLOR,
+        coin_color: COIN_COLOR | CUSTOMIZATION_UNLOCKS,
         messages: {
             okash: string,
             coinflip_first: string,
