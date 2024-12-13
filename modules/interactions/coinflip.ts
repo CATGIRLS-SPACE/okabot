@@ -9,6 +9,8 @@ import { getRandomValues } from "crypto";
 const ActiveFlips: Array<string> = [];
 
 const USE_CUSTOMIZATION = false;
+const WIN_CHANCE = 0.5;
+const WEIGHTED_WIN_CHANCE = 0.3;
 
 const COIN_EMOJIS_FLIP: {
     [key: number]: string
@@ -48,30 +50,9 @@ interface coin_floats {
     }
 }
 
-
-function GetCryptoRoll(): number {
-    const vals = new Uint8Array(2);
-    getRandomValues(vals);
-    const roll = vals[0] + vals[1];
-    return roll;
-}
-
 export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
     const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (has_restriction) return;
-
-    let WIN_CHANCE;
-    let WEIGHTED_WIN_CHANCE;
-    const USE_SECURE = interaction.options.getBoolean('secure') || false;
-
-
-    if (USE_SECURE) {
-        WIN_CHANCE = 255;
-        WEIGHTED_WIN_CHANCE = 128; // decrease it because this is actually the loss chance i guess
-    } else {
-        WIN_CHANCE = 0.5;
-        WEIGHTED_WIN_CHANCE = 0.3;
-    }
 
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
@@ -98,8 +79,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const emoji_finish = weighted_coin_equipped?'<:cff_green:1315843280776462356>':COIN_EMOJIS_DONE[prefs.customization.coin_color];
     
     // set probabilities and decide outcome
-    // const rolled = Math.random();
-    const rolled = USE_SECURE?GetCryptoRoll():Math.random();
+    const rolled = Math.random();
     let win: boolean = false; 
 
     // .5 is always inclusive bc idgaf
@@ -154,17 +134,15 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
         let new_float = '';
 
-        if (!USE_SECURE) {
-            if (stats.coinflip.high.value < rolled) { 
-                new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot!`;
-                stats.coinflip.high.value = rolled;
-                stats.coinflip.high.user_id = interaction.user.id;
-            }
-            if (stats.coinflip.low.value > rolled) {
-                new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot!`;
-                stats.coinflip.low.value = rolled;
-                stats.coinflip.low.user_id = interaction.user.id;
-            }
+        if (stats.coinflip.high.value < rolled) { 
+            new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot!`;
+            stats.coinflip.high.value = rolled;
+            stats.coinflip.high.user_id = interaction.user.id;
+        }
+        if (stats.coinflip.low.value > rolled) {
+            new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot!`;
+            stats.coinflip.low.value = rolled;
+            stats.coinflip.low.user_id = interaction.user.id;
         }
 
         interaction.editReply({
