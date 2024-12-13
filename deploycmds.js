@@ -19,7 +19,8 @@ const commands = [
         .addStringOption(option => option.setName('side').setDescription('Optionally, pick heads or tails').addChoices(
             {name:'heads', value:'heads'},
             {name:'tails', value:'tails'}
-        ).setRequired(false)),
+        ).setRequired(false))
+        .addBooleanOption(option => option.setName('secure').setDescription('Whether you want to use cryptographically secure values or not').setRequired(false)),
 
     new SlashCommandBuilder()
         .setName('recent-eq')
