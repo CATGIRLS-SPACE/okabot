@@ -2,12 +2,18 @@ import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { GEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
+import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 
 const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
     try {
-        if (message.author.id == "796201956255334452") {
+        if (message.author.id == "796201956255334452" || message.author.id == "502879264081707008") {
+            if (message.content.startsWith('oka ') && (message.content.includes('them') || message.content.includes("796201956255334452")) && message.author.id != "796201956255334452") {
+                message.react('❌');
+                return message.reply('https://tenor.com/view/anime-rikka-takanashi-yuuta-togashi-chuunibyou-demo-koi-ga-shitai-gif-23394441');
+            }
+
             if (message.content.startsWith('oka dep ')) {
                 const params = message.content.split(' ');
                 if (params.length != 4) return message.react('❌');
@@ -89,6 +95,77 @@ export async function CheckAdminShorthands(message: Message) {
                     .addFields({
                         name:'Reason', value:''+message.content.split(original_param_2)[1]
                     });
+
+                message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
+
+                message.react('✅');
+            }
+
+            // oka restrict them "1/2/34 12:34:00 PM" "abilities go here" "reason goes here"
+            if (message.content.startsWith('oka restrict ')) {
+                const regex = /"([^"]+)"|(\S+)/g;
+                const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+                
+                if (params.length < 6) return message.react('❌');
+
+                const d = new Date(params[3]);
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+                
+                // update their account
+                const profile = GetUserProfile(params[2]);
+                profile.okash_restriction = {
+                    is_restricted: true,
+                    until: d.getTime(),
+                    reason: params[5],
+                    abilities: params[4]
+                };
+                UpdateUserProfile(params[2], profile);
+
+                const embed = new EmbedBuilder()
+                    .setColor(0xFF0000)
+                    .setTitle('Important Account Update')
+                    .setDescription('You have received a restriction for your behavior with the bot. You are unable to use some okash features until the restriction is lifted.')
+                    .addFields(
+                        {name:'Reason', value:params[5]},
+                        {name:'Expires', value:d.toDateString() + ' at ' + d.toLocaleTimeString()}
+                    );
+
+                message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
+
+                message.react('✅');
+            }
+
+            // oka lift <user_id | me | them>
+            if (message.content.startsWith('oka lift')) {
+                const regex = /"([^"]+)"|(\S+)/g;
+                const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+                
+                if (params.length < 3) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                // update their account
+                const profile = GetUserProfile(params[2]);
+                profile.okash_restriction = {
+                    is_restricted: false,
+                    until: 0,
+                    reason: 'unrestricted',
+                    abilities: ''
+                };
+                UpdateUserProfile(params[2], profile);
+
+
+                const embed = new EmbedBuilder()
+                    .setColor(0x00FF00)
+                    .setTitle('Important Account Update')
+                    .setDescription('Any previous restriction on okash features were manually lifted just now.')
 
                 message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
 

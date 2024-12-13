@@ -21,6 +21,7 @@ import { HandleCommandToggle } from './modules/interactions/toggle';
 import { HandleCommandCustomize } from './modules/interactions/customize';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -63,6 +64,9 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.channel!.isDMBased()) return interaction.reply({
         content:'Sorry, but okabot commands aren\'t available in DMs. Please head to CATGIRL CENTRAL to use okabot.'
     });
+
+    const has_agreed = await CheckRuleAgreement(interaction);
+    if (!has_agreed) return; // will automatically be replied to if no agreement
 
     switch (interaction.commandName) {
         case 'info':
@@ -122,6 +126,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.bot || message.webhookId) return;
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
+    CheckForAgreementMessage(message);
     WordleCheck(message);
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);

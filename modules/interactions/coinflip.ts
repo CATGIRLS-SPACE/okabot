@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { FLAG, GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { BASE_DIRNAME } from "../..";
 import { join } from "path";
@@ -50,6 +50,9 @@ interface coin_floats {
 }
 
 export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
+    const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
+    if (has_restriction) return;
+
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
@@ -77,10 +80,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     // set probabilities and decide outcome
     const rolled = Math.random();
     let win: boolean = false; 
-
-    if (rolled >= 0.5 && rolled < 0.50001) {
-
-    }
 
     // .5 is always inclusive bc idgaf
     if (side == 'heads') win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);

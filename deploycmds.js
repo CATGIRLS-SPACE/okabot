@@ -15,7 +15,7 @@ const commands = [
 
 	new SlashCommandBuilder().setName('coinflip')
         .setDescription('Flip a coin with a chance of doubling your amount!')
-        .addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true))
+        .addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true).setMinValue(1).setMaxValue(50_000))
         .addStringOption(option => option.setName('side').setDescription('Optionally, pick heads or tails').addChoices(
             {name:'heads', value:'heads'},
             {name:'tails', value:'tails'}

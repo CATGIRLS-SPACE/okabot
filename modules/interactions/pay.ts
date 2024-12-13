@@ -1,9 +1,14 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { GetUserProfile } from "../user/prefs";
+import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, OKASH_ABILITY } from "../user/prefs";
+import { Logger } from "okayulogger";
 
+const L = new Logger('payment');
 
 export async function HandleCommandPay(interaction: ChatInputCommandInteraction, client: Client) {
+    const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.TRANSFER);
+    if (has_restriction) return;
+
     await interaction.deferReply();
 
     const sender_id = interaction.user.id;
@@ -24,6 +29,13 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     if (interaction.options.getUser('user')!.bot) {
         return interaction.editReply({
             content: `:rotating_light: <@!${sender_id}>, what do you think you're doing?!`,
+        });
+    }
+
+    const receiver_has_restriction = CheckUserIdOkashRestriction(receiver_id, OKASH_ABILITY.TRANSFER);
+    if (receiver_has_restriction) {
+        return interaction.editReply({
+            content: `:x: **${interaction.user.displayName}**, failed to transfer money to this person.`,
         });
     }
 
@@ -53,6 +65,9 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         });
     }
     
+    const receiver_user = interaction.options.getUser('user')!;
+    L.info(`PAYMENT SUCCESS FOR OKA${pay_amount} | ${interaction.user.username}(${interaction.user.id}) --> ${receiver_user.username}(${receiver_user.id})`);
+
     RemoveFromWallet(sender_id, pay_amount);
     AddToWallet(receiver_id, pay_amount);
 
@@ -61,7 +76,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         .setTitle(`okash Transfer of OKA${pay_amount}`)
         .addFields(
             {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:interaction.options.getUser('user')!.username, inline: true},
+            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
         )
         .setDescription('The payment has been successful and the funds were transferred.');
 
@@ -74,7 +89,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         .setTitle(`You received some okash!`)
         .addFields(
             {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:interaction.options.getUser('user')!.username, inline: true},
+            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
         )
         .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${receiver_bank_amount+pay_amount}.`);
 
@@ -84,11 +99,11 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         .setTitle(`You sent some okash!`)
         .addFields(
             {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:interaction.options.getUser('user')!.username, inline: true},
+            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
         )
         .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount-pay_amount}.`);
 
-    if (receiver_prefs.okash_notifications) interaction.options.getUser('user')!.send({
+    if (receiver_prefs.okash_notifications) receiver_user.send({
         embeds:[receiver_embed]
     }).catch(() => {
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${receiver_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[receiver_embed]});
