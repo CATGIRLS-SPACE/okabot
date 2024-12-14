@@ -1,12 +1,14 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, UpdateUserProfile } from "../user/prefs";
+import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { BASE_DIRNAME } from "../..";
 import { join } from "path";
 import { getRandomValues } from "crypto";
+import { AddXP } from "../levels/onMessage";
 
 const ActiveFlips: Array<string> = [];
+const UIDViolationTracker = new Map<string, number>();
 
 const USE_CUSTOMIZATION = false;
 const WIN_CHANCE = 0.5;
@@ -56,10 +58,25 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
-    if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
-        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`,
-        flags: [MessageFlags.SuppressNotifications]
-    });
+    if (ActiveFlips.indexOf(interaction.user.id) != -1) {
+        let violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
+
+        console.log(`violations: ${violations}`);
+
+        UIDViolationTracker.set(interaction.user.id, violations);
+        
+        if (violations == 5) {
+            const d = new Date();
+            const unrestrict_date = new Date(d.getTime()+600000);
+            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'gamble', 'Potential macro abuse (automatically issued by okabot)');
+            UIDViolationTracker.set(interaction.user.id, 0);
+        } 
+        
+        return interaction.reply({
+            content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
 
     const wallet = GetWallet(interaction.user.id);
     const bet = interaction.options.getNumber('amount')!;
@@ -92,7 +109,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         
         
     let first_message = `**${interaction.user.displayName}** flips a coin for OKA**${bet}** on **${side || 'heads'}**...`
-    let next_message = `**${interaction.user.displayName}** flips a coin for OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648>':'lost the bet, losing the money. :crying_cat_face:'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
+    let next_message = `**${interaction.user.displayName}** flips a coin for OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money! <:cat_money:1315862405607067648> **(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
 
     // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
     if (USE_CUSTOMIZATION) {
@@ -114,8 +131,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (rolled >= 0.5 && rolled < 0.50001) {
         setTimeout(() => {
             // win regardless, it landed on the side!!!
-            next_message = `${first_message} and lands it on the side:interrobang: They now get 5x their bet, earning <:okash:1315058783889657928> OKA**${bet*5}**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
+            next_message = `${first_message} and it... lands on the side:interrobang: They now get 5x their bet, earning <:okash:1315058783889657928> OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
             
+            AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
+
             ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
             AddToWallet(interaction.user.id, bet*5);
             
@@ -139,14 +158,16 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         let new_float = '';
 
         if (stats.coinflip.high.value < rolled) { 
-            new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot!`;
+            new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot! <:okash:1315058783889657928> You have earned OKA500!`;
             stats.coinflip.high.value = rolled;
             stats.coinflip.high.user_id = interaction.user.id;
+            AddToWallet(interaction.user.id, 500);
         }
         if (stats.coinflip.low.value > rolled) {
-            new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot!`;
+            new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot! <:okash:1315058783889657928> You have earned OKA500!`;
             stats.coinflip.low.value = rolled;
             stats.coinflip.low.user_id = interaction.user.id;
+            AddToWallet(interaction.user.id, 500);
         }
 
         interaction.editReply({
@@ -156,6 +177,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
+
+        AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
         if (win)
             AddToWallet(interaction.user.id, bet*2);

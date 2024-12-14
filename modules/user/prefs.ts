@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items"
 import { join } from "path"
 import { BASE_DIRNAME } from "../.."
-import { ChatInputCommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js"
 import { Logger } from "okayulogger"
 
 const L = new Logger('profiles');
@@ -174,4 +174,34 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
     });
 
     return all;
+}
+
+
+export async function RestrictUser(client: Client, user_id: string, until: string, abilities: string, reason: string) {
+    const d = new Date(until);
+
+    // update their account
+    const profile = GetUserProfile(user_id);
+    profile.okash_restriction = {
+        is_restricted: true,
+        until: d.getTime(),
+        reason,
+        abilities
+    };
+    
+    UpdateUserProfile(user_id, profile);
+    const embed = new EmbedBuilder()
+        .setColor(0xFF0000)
+        .setTitle('Important Account Update')
+        .setDescription('You have received a restriction for your behavior with the bot. You are unable to use some okash features until the restriction is lifted.')
+        .addFields(
+            {name:'Reason', value:reason},
+            {name:'Expires', value:d.toDateString() + ' at ' + d.toLocaleTimeString()}
+        );
+
+    try {
+        client.users.cache.find((user) => user.id == user_id)!.send({embeds:[embed]});
+    } catch (err) {
+        L.error(`Couldn't send restriction info to ${user_id}`);
+    }
 }

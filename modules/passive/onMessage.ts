@@ -2,7 +2,7 @@ import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { GEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
 
 const L = new Logger('onMessage.ts');
 
@@ -108,33 +108,12 @@ export async function CheckAdminShorthands(message: Message) {
                 
                 if (params.length < 6) return message.react('❌');
 
-                const d = new Date(params[3]);
-
                 if (params[2] == 'me') params[2] = message.author.id;
                 if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
                 
                 if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
                 
-                // update their account
-                const profile = GetUserProfile(params[2]);
-                profile.okash_restriction = {
-                    is_restricted: true,
-                    until: d.getTime(),
-                    reason: params[5],
-                    abilities: params[4]
-                };
-                UpdateUserProfile(params[2], profile);
-
-                const embed = new EmbedBuilder()
-                    .setColor(0xFF0000)
-                    .setTitle('Important Account Update')
-                    .setDescription('You have received a restriction for your behavior with the bot. You are unable to use some okash features until the restriction is lifted.')
-                    .addFields(
-                        {name:'Reason', value:params[5]},
-                        {name:'Expires', value:d.toDateString() + ' at ' + d.toLocaleTimeString()}
-                    );
-
-                message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
+                RestrictUser(message.client, params[2], params[3], params[4], params[5]);
 
                 message.react('✅');
             }

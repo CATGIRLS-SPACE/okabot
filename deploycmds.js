@@ -20,7 +20,7 @@ const commands = [
 
 	new SlashCommandBuilder().setName('coinflip')
         .setDescription('Flip a coin with a chance of doubling your amount!')
-        .addNumberOption(option => option.setName('amount').setDescription('The amount of okash you want to bet').setRequired(true).setMinValue(1).setMaxValue(50_000))
+        .addNumberOption(option => option.setName('amount').setDescription('The amount of okash you want to bet').setRequired(true).setMinValue(1).setMaxValue(100_000))
         .addStringOption(option => option.setName('side').setDescription('Optionally, pick heads or tails').addChoices(
             {name:'heads', value:'heads'},
             {name:'tails', value:'tails'}
@@ -84,7 +84,11 @@ const commands = [
         
 
     new SlashCommandBuilder().setName('level').setDescription('Get information on your current level!')
-        .addUserOption(option => option.setName('user').setDescription('Get another user\'s level info').setRequired(false))
+        .addUserOption(option => option.setName('user').setDescription('Get another user\'s level info').setRequired(false)),
+
+
+    new SlashCommandBuilder().setName('blackjack').setDescription('Play a game of blackjack for a chance at increasing your money!')
+        .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(100_000).setMinValue(1))
 
 ].map(command => command.toJSON());
  

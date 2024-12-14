@@ -24,6 +24,7 @@ import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
 import { HandleCommandLevel } from './modules/levels/levels';
 import { DoLeveling } from './modules/levels/onMessage';
+import { SetupBlackjackMessage } from './modules/okash/blackjack';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -66,6 +67,10 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.channel!.isDMBased()) return interaction.reply({
         content:'Sorry, but okabot commands aren\'t available in DMs. Please head to CATGIRL CENTRAL to use okabot.'
     });
+    // please stop using commands in #okabot
+    if (interaction.channel!.id == "1315805846910795846") return interaction.reply({
+        content:'Sorry, but this channel isn\'t for using commands.\nInstead, please use <#1019091099639361576> for commands.'
+    });
 
     const has_agreed = await CheckRuleAgreement(interaction);
     if (!has_agreed) return; // will automatically be replied to if no agreement
@@ -89,6 +94,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'coinflip':
             await HandleCommandCoinflip(interaction);
+            break;
+        case 'blackjack':
+            await SetupBlackjackMessage(interaction);
             break;
         case 'pay':
             await HandleCommandPay(interaction, client);
@@ -124,6 +132,14 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+const TYO_RESPONSE: Array<string> = [
+    'of course!',
+    'no problem!',
+    '<3',
+    '<:nekoheart:1316232330733682689>',
+    'thank you too!',
+    'i do my best!'
+]
 
 // Handling message-based things:
 client.on(Events.MessageCreate, async message => {
@@ -136,6 +152,10 @@ client.on(Events.MessageCreate, async message => {
     WordleCheck(message);
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);
+
+    if (message.content.toLocaleLowerCase() == 'thank you okabot') message.reply({
+        content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
+    })
 });
 
 interface coin_floats {
