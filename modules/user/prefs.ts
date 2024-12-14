@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items"
 import { join } from "path"
 import { BASE_DIRNAME } from "../.."
@@ -40,7 +40,11 @@ export interface USER_PROFILE {
         },
         unlocked: Array<CUSTOMIZATION_UNLOCKS>
     },
-    okash_notifications: boolean
+    okash_notifications: boolean,
+    level: {
+        level: number,
+        current_xp: number
+    }
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -59,7 +63,11 @@ const DEFAULT_DATA: USER_PROFILE = {
             CUSTOMIZATION_UNLOCKS.CV_LEVEL_THEME_DEF,
         ]
     },
-    okash_notifications: true
+    okash_notifications: true,
+    level: {
+        level: 1,
+        current_xp: 0
+    }
 }
 
 let PROFILES_DIR: string;
@@ -151,4 +159,19 @@ export function CheckUserIdOkashRestriction(user_id: string, ability: string): b
     }
 
     return false;
+}
+
+
+export async function GetAllLevels(): Promise<Array<{user_id: string, level: {level: number, current_xp: number}}>> {
+    const all: Array<{user_id: string, level: {level: number, current_xp: number}}> = [];
+
+    const profiles = readdirSync(PROFILES_DIR);
+    
+    profiles.forEach(profile => {
+        let user_id = profile.split('.')[0];
+        const p = GetUserProfile(user_id);
+        all.push({user_id, level: p.level || {level: 0, current_xp: 0}});
+    });
+
+    return all;
 }

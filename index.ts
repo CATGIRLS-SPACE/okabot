@@ -22,6 +22,8 @@ import { HandleCommandCustomize } from './modules/interactions/customize';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
+import { HandleCommandLevel } from './modules/levels/levels';
+import { DoLeveling } from './modules/levels/onMessage';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -116,6 +118,9 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'toggle':
             await HandleCommandToggle(interaction);
             break;
+        case 'level':
+            await HandleCommandLevel(interaction);
+            break;
     }
 });
 
@@ -126,6 +131,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.bot || message.webhookId) return;
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
+    DoLeveling(message);
     CheckForAgreementMessage(message);
     WordleCheck(message);
     CheckAdminShorthands(message);

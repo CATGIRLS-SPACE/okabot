@@ -11,11 +11,16 @@ const commands = [
     new SlashCommandBuilder().setName('pay').setDescription('Pay someone some okash!')
         .addUserOption(option => option.setName('user').setDescription('The person to pay').setRequired(true))
         .addNumberOption(option => option.setName('amount').setDescription('The amount to pay them').setRequired(true)),
-    new SlashCommandBuilder().setName('leaderboard').setDescription('Get the leaderboard of the biggest okash-holders in the server!'),
+    
+    new SlashCommandBuilder().setName('leaderboard').setDescription('Get the leaderboard of the biggest okash-holders in the server!')
+        .addStringOption(option => option.setName('category').setDescription('Which leaderboard category to display').setRequired(true).addChoices(
+            {name:'okash', value:'okash'},
+            {name:'XP Levels', value:'levels'}
+        )),
 
 	new SlashCommandBuilder().setName('coinflip')
         .setDescription('Flip a coin with a chance of doubling your amount!')
-        .addNumberOption(option => option.setName('amount').setDescription('The amount of OKASH you want to bet').setRequired(true).setMinValue(1).setMaxValue(50_000))
+        .addNumberOption(option => option.setName('amount').setDescription('The amount of okash you want to bet').setRequired(true).setMinValue(1).setMaxValue(50_000))
         .addStringOption(option => option.setName('side').setDescription('Optionally, pick heads or tails').addChoices(
             {name:'heads', value:'heads'},
             {name:'tails', value:'tails'}
@@ -75,7 +80,11 @@ const commands = [
             .addChoices(
                 {name:'ON', value:'on'},
                 {name:'OFF', value:'off'}
-            ))
+            )),
+        
+
+    new SlashCommandBuilder().setName('level').setDescription('Get information on your current level!')
+        .addUserOption(option => option.setName('user').setDescription('Get another user\'s level info').setRequired(false))
 
 ].map(command => command.toJSON());
  
