@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -57,7 +57,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
-        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`
+        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     const wallet = GetWallet(interaction.user.id);
@@ -65,8 +66,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const side = interaction.options.getString('side');
 
     // checks
-    if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`});
-    if (wallet < bet) return interaction.reply({content:`:crying_cat_face: **${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`});
+    if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`,
+        flags: [MessageFlags.SuppressNotifications]});
+    if (wallet < bet) return interaction.reply({content:`:crying_cat_face: **${interaction.user.displayName}**, you cannot flip more than you have in your wallet.`,
+        flags: [MessageFlags.SuppressNotifications]});
 
     // don't let the user do multiple coinflips and take the money immediately
     ActiveFlips.push(interaction.user.id);
@@ -104,7 +107,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }
 
     await interaction.reply({
-        content: `${emoji_waiting} ${first_message}`
+        content: `${emoji_waiting} ${first_message}`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     if (rolled >= 0.5 && rolled < 0.50001) {
