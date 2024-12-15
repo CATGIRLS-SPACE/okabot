@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, Partials } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
 import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
@@ -25,9 +25,13 @@ import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rul
 import { HandleCommandLevel } from './modules/levels/levels';
 import { DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/blackjack';
+import { GetEmoji } from './util/emoji';
 
 export const BASE_DIRNAME = __dirname;
 export const DEV = config.extra.includes('use dev token');
+
+export let LISTENING = true;
+export function SetListening(listening: boolean) { LISTENING = listening }
 
 const L = new Logger('main');
 let dependencies: string = '';
@@ -68,9 +72,17 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.channel!.isDMBased()) return interaction.reply({
         content:'Sorry, but okabot commands aren\'t available in DMs. Please head to CATGIRL CENTRAL to use okabot.'
     });
+
+    // disabling of okabot temporarily if a big issue is found
+    if (!LISTENING) return interaction.reply({
+        content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been instructed to hold off on commands for now!`,
+        ephemeral: true
+    });
+
     // please stop using commands in #okabot
     if (interaction.channel!.id == "1315805846910795846") return interaction.reply({
-        content:'Sorry, but this channel isn\'t for using commands.\nInstead, please use <#1019091099639361576> for commands.'
+        content:'Sorry, but this channel isn\'t for using commands.\nInstead, please use <#1019091099639361576> for commands.',
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     const has_agreed = await CheckRuleAgreement(interaction);

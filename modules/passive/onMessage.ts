@@ -3,6 +3,7 @@ import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../
 import { GEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
+import { LISTENING, SetListening } from "../..";
 
 const L = new Logger('onMessage.ts');
 
@@ -151,6 +152,19 @@ export async function CheckAdminShorthands(message: Message) {
                     .setDescription('Any previous restriction on okash features were manually lifted just now.')
 
                 message.client.users.cache.find((user) => user.id == params[2])!.send({embeds:[embed]});
+
+                message.react('✅');
+            }
+
+            // pausing/resuming of bot actions
+            if (message.content == 'oka toggle') {
+                SetListening(!LISTENING);
+
+                message.reply({
+                    content: LISTENING?
+                    ':arrow_forward: resumed command handling':
+                    ':pause_button: paused command handling'
+                })
 
                 message.react('✅');
             }

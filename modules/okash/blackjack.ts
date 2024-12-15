@@ -4,6 +4,7 @@ import { AddToWallet, RemoveFromWallet } from "./wallet";
 import { AddXP } from "../levels/onMessage";
 import { DEV } from "../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../user/prefs";
+import { GetEmoji } from "../../util/emoji";
 
 
 const L = new Logger('blackjack');
@@ -66,9 +67,9 @@ function GetCardEmojis(hand: Array<HandCard>) {
     let final = '';
 
     hand.forEach(card => {
-        if (card.name === 'ca') final += GetEmojiIDByName('ca');
-        else if (card.name === 'cr') final += GetEmojiIDByName('cr');
-        else final += GetEmojiIDByName(`${card.name}`);
+        if (card.name === 'ca') final += GetEmoji('ca');
+        else if (card.name === 'cr') final += GetEmoji('cr');
+        else final += GetEmoji(`${card.name}`);
     });
 
     return final;
@@ -127,7 +128,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     GamesActive.set(interaction.user.id, game);
 
     const response = await interaction.reply({
-        content:`**(BETA)** Blackjack | Bet <:okash:1315058783889657928> OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}`,
+        content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}`,
         components: [row as any],
         flags:[MessageFlags.SuppressNotifications]
     });
@@ -179,7 +180,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
 
     if (player_busted) {
         await confirmation.update({
-            content:`**(BETA)** Blackjack | Bet <:okash:1315058783889657928> OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+15XP)**`,
+            content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+15XP)**`,
             components: []
         });
 
@@ -188,7 +189,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
         GamesActive.delete(interaction.user.id);
     } else {
         await confirmation.update({
-            content:`**(BETA)** Blackjack | Bet <:okash:1315058783889657928> OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}`,
+            content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}`,
             components: [player_blackjack?row_willbust:row]
         });
     }
@@ -220,10 +221,10 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     if (player_blackjack) earned_xp += 5;
 
     await confirmation.update({
-        content:`**(BETA)** Blackjack | Bet <:okash:1315058783889657928> OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
+        content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\
         \n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}\
-        \n\nYou ${tie?'tied!':(win?'won <:okash:1315058783889657928> OKA**' + game.bet*(player_blackjack?3:2) + '**!':'lost!')} **(+${earned_xp}XP)**`,
+        \n\nYou ${tie?'tied!':(win?'won '+ GetEmoji('okash') +' OKA**' + game.bet*(player_blackjack?3:2) + '**!':'lost!')} **(+${earned_xp}XP)**`,
         components: []
     });
 
@@ -238,29 +239,4 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
     GamesActive.delete(interaction.user.id);
-}
-
-
-interface EMOJI {
-    prod: string,
-    dev: string
-}
-const emojis: {
-    [key: string]: EMOJI
-} = {
-    'ca':{prod:'1317726303541006367',dev:'1317728258652901447'},
-    'c2':{prod:'1317726214240206848',dev:'1317728181352009788'},
-    'c3':{prod:'1317726223744630834',dev:'1317728189912711208'},
-    'c4':{prod:'1317726232409800745',dev:'1317728197185634355'},
-    'c5':{prod:'1317726240714784828',dev:'1317728203967692852'},
-    'c6':{prod:'1317726251883958273',dev:'1317728211995459747'},
-    'c7':{prod:'1317726264844353566',dev:'1317728221537501344'},
-    'c8':{prod:'1317726276663906314',dev:'1317728233738731611'},
-    'c9':{prod:'1317726285799227493',dev:'1317728241359917126'},
-    'c10':{prod:'1317726293542047756',dev:'1317728249551388683'},
-    'cr':{prod:'1317726312986837033',dev:'1317728273823698974'},
-};
-
-function GetEmojiIDByName(name: string): string {
-    return `<:${name}:${emojis[name][DEV?'dev':'prod']}>`;
 }

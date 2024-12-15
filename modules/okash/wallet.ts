@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
 import { GEMS, ITEM_TYPE, ITEMS } from "./items";
+import { Logger } from "okayulogger";
 
 export interface Wallet {
     version: number,
@@ -13,6 +14,7 @@ export interface Wallet {
 }
 
 const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
+const L = new Logger('wallet');
 
 function CheckVersion(user_id: string) {
     if (!existsSync(join(WALLET_PATH, `${user_id}.oka`))) {
@@ -74,6 +76,9 @@ export function AddToWallet(user_id: string, amount: number) {
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
     data.wallet = Math.floor(data.wallet + amount);
+
+    if (amount > 50000)
+        L.warn(`LARGE WALLET ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
@@ -83,6 +88,9 @@ export function RemoveFromWallet(user_id: string, amount: number) {
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
     data.wallet = Math.floor(data.wallet - amount);
+
+    if (amount > 50000)
+        L.warn(`LARGE WALLET REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
