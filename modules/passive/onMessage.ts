@@ -9,7 +9,11 @@ const L = new Logger('onMessage.ts');
 export async function CheckAdminShorthands(message: Message) {
     try {
         if (message.author.id == "796201956255334452" || message.author.id == "502879264081707008") {
-            if (message.content.startsWith('oka ') && (message.content.includes('them') || message.content.includes("796201956255334452")) && message.author.id != "796201956255334452") {
+            if (message.content.startsWith('oka ') && 
+                (message.content.includes('them') || 
+                message.content.includes("796201956255334452")) && 
+                (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id == "796201956255334452"
+            ) {
                 message.react('❌');
                 return message.reply('https://tenor.com/view/anime-rikka-takanashi-yuuta-togashi-chuunibyou-demo-koi-ga-shitai-gif-23394441');
             }

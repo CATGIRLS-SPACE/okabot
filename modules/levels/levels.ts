@@ -5,10 +5,8 @@ import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 const CHAR_UNFILLED = '░';
 const CHAR_FILLED   = '█';
 
-const LEVEL_WEIGHTING = 25;
-
 export function CalculateTargetXP(level: number): number {
-    return 100 + Math.floor((LEVEL_WEIGHTING*Math.exp(level - 1)) - (LEVEL_WEIGHTING*level - 1)) - 1;
+    return Math.floor(((level*level) * 4) + (15*level) + 81); // start at 100
 }
 
 function CreateLevelBar(profile: USER_PROFILE): string {

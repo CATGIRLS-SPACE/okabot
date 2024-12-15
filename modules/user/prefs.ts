@@ -118,7 +118,11 @@ export async function CheckOkashRestriction(interaction: ChatInputCommandInterac
         L.info(`user has a restriction that expires on ${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()}.`);
         L.info(`it is currently: ${d.toDateString() + ' at ' + d.toLocaleTimeString()}`);
 
-        if (d.getTime() > profile.okash_restriction.until) return false;
+        if (d.getTime() > profile.okash_restriction.until) {
+            profile.okash_restriction = undefined;
+            UpdateUserProfile(interaction.user.id, profile)
+            return false;
+        }
 
         // they are restricted in some way
         const abilities = profile.okash_restriction.abilities.includes(',')?profile.okash_restriction.abilities.split(','):profile.okash_restriction.abilities;

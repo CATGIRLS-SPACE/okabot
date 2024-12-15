@@ -27,6 +27,7 @@ import { DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/blackjack';
 
 export const BASE_DIRNAME = __dirname;
+export const DEV = config.extra.includes('use dev token');
 
 const L = new Logger('main');
 let dependencies: string = '';
