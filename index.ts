@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
 import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
@@ -19,7 +19,7 @@ import { HandleCommandPockets } from './modules/interactions/pockets';
 import {SetupPrefs} from './modules/user/prefs';
 import { HandleCommandToggle } from './modules/interactions/toggle';
 import { HandleCommandCustomize } from './modules/interactions/customize';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
 import { HandleCommandLevel } from './modules/levels/levels';
@@ -57,6 +57,21 @@ client.once(Events.ClientReady, (c: Client) => {
     SetupPrefs(__dirname);
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
+
+    if (!DEV) {
+        if (existsSync(join(__dirname, 'ERROR.LOG'))) {
+            const error = readFileSync(join(__dirname, 'ERROR.LOG'), 'utf-8');
+
+            try {
+                rmSync(join(__dirname, 'ERROR.LOG'));
+
+                const channel = client.channels.cache.get("1315805846910795846") as TextChannel;
+                channel.send({content:':warning: okabot has crashed and restarted! here\'s the recorded error/stack:\n'+'```'+ error +'```'});
+            } catch(err) {
+                L.error('cannot find #okabot/cannot delete ERROR.LOG, not logging the error!');
+            }
+        }
+    }
 
     if (config.extra && config.extra.includes('disable jma fetching')) return;
     StartEarthquakeMonitoring(client);
@@ -233,3 +248,28 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 
     interaction.editReply({embeds:[info_embed]});
 }
+
+function logError(error: Error | string) {
+    const timestamp = new Date().toISOString();
+    const errorMessage = `[${timestamp}] ${error instanceof Error ? error.stack || error.message : error}\n\n`;
+    writeFileSync(join(__dirname, 'ERROR.LOG'), errorMessage, 'utf-8');
+}
+
+// Catch uncaught exceptions
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    logError(error);
+    process.exit(1); // Exit the process safely
+});
+
+// Catch unhandled promise rejections
+process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    console.error('Unhandled Rejection:', reason);
+    logError(reason);
+});
+
+// Catch termination signals (e.g., CTRL+C, kill)
+process.on('SIGINT', () => {
+    console.log('Process terminated.');
+    process.exit(0);
+});
