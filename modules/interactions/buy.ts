@@ -10,11 +10,11 @@ const PRICES: {
     'streak restore':15_000,
     'dark green coin':2_500,
     'dark blue coin':2_500,
-    'red coin':2_500,
-    'light blue coin':5_000,
-    'purple coin':10_000,
-    'pink coin':25_000,
-    'rainbow coin':100_000
+    'red coin':5_00,
+    'light blue coin':10_000,
+    'purple coin':50_000,
+    'pink coin':100_000,
+    'rainbow coin':1_000_000
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {

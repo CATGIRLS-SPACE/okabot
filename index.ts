@@ -8,6 +8,7 @@ import { HandleCommandOkash } from './modules/interactions/okash.js';
 import { CheckAdminShorthands, DoRandomOkashRolls } from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
+export const DEV = config.extra.includes('use dev token'); // load this asap
 import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
 import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';
@@ -28,7 +29,6 @@ import { SetupBlackjackMessage } from './modules/okash/blackjack';
 import { GetEmoji } from './util/emoji';
 
 export const BASE_DIRNAME = __dirname;
-export const DEV = config.extra.includes('use dev token');
 
 export let LISTENING = true;
 export function SetListening(listening: boolean) { LISTENING = listening }

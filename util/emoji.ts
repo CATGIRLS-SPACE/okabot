@@ -28,7 +28,7 @@ const EMOJI: {
     'cfw_purple':{prod:'1316175061966782555',dev:'1317965168038252554', animated: true},
     'cff_purple':{prod:'1316175038042472491',dev:'1317965178993774692'},
     'cfw_rainbow':{prod:'1316224255511367710',dev:'1317965135540654090', animated: true},
-    'cff_rainbow':{prod:'1316224243855261776',dev:'1317965155534901248'},
+    'cff_rainbow':{prod:'1316224243855261776',dev:'1317965155534901248', animated: true},
     // gems
     'g00':{prod:'1315084985589563492',dev:'1317965065298640936'},
     'g01':{prod:'1315098781477503128',dev:'1317965089109704804'},
@@ -47,5 +47,5 @@ const EMOJI: {
 }
 
 export function GetEmoji(name: string): string {
-     return `<${EMOJI[name].animated?'a':''}:${name}:${EMOJI[name][DEV?'dev':'prod']}>`;
+    return `<${EMOJI[name].animated?'a':''}:${name}:${EMOJI[name][DEV?'dev':'prod']}>`;
 }
