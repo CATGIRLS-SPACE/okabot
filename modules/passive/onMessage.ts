@@ -4,6 +4,8 @@ import { GEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { LISTENING, SetListening } from "../..";
+import { exec } from "child_process";
+import { SelfUpdate } from "../../util/updater";
 
 const L = new Logger('onMessage.ts');
 
@@ -167,6 +169,11 @@ export async function CheckAdminShorthands(message: Message) {
                 })
 
                 message.react('✅');
+            }
+
+            // updating via message command
+            if (message.content == 'oka update') {
+                SelfUpdate(message);
             }
         }
     } catch (err) {
