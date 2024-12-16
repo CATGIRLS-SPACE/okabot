@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, TextChannel, User } from "discord.js";
 import { Logger } from "okayulogger";
-import { AddToWallet, RemoveFromWallet } from "./wallet";
+import { AddToWallet, GetWallet, RemoveFromWallet } from "./wallet";
 import { AddXP } from "../levels/onMessage";
 import { DEV } from "../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../user/prefs";

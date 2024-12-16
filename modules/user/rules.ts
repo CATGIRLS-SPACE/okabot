@@ -11,8 +11,9 @@ const agreement = new EmbedBuilder()
         {name:'2. No Macros',value:'Effortless gambling isn\'t fair to others. Don\'t use macros/scripts.'},
         {name:'3. No multiaccounting',value:'You are allowed one account and one account only for okabot.'},
         {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot.'},
+        {name:'5. Reset Clause',value:'Depending on circumstances and potential issues, data resets may occur at any time, with or without warning.'},
     )
-    .setFooter({text:'Please type "I understand and agree to the okabot rules." to gain access to okabot.'});
+    .setFooter({text:'Please type "I understand and agree to the okabot rules" to gain access to okabot.'});
 
 
 const KNOWN_AGREED_USER_IDS: Array<string> = [];
@@ -44,7 +45,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
 export async function CheckForAgreementMessage(message: Message) {
     if (AWAITING_RULE_AGREEMENT.indexOf(message.author.id) == -1) return;
 
-    if (message.content == "I understand and agree to the okabot rules.") {
+    if (message.content.toLowerCase().includes("I understand and agree to the okabot rules")) {
         const profile = GetUserProfile(message.author.id);
         profile.has_agreed_to_rules = true;
         UpdateUserProfile(message.author.id, profile);
