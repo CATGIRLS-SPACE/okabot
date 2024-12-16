@@ -3,6 +3,7 @@ config.json
 /node_modules
 /temp
 /modules/*/*.js
+/util/*.js
 index.js
 .vscode/
 *.oka
