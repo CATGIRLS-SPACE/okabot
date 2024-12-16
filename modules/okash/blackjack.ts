@@ -32,7 +32,8 @@ interface BlackjackGame {
     dealer: Array<HandCard>,
     user: Array<HandCard>,
     bet: number,
-    gameActive: boolean
+    gameActive: boolean,
+    gameWasInitiated: boolean
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
 const BetRecovery = new Map<string, number>(); // user_id and bet
@@ -111,7 +112,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         dealer: [],
         user: [],
         bet,
-        gameActive: true
+        gameActive: true,
+        gameWasInitiated: false
     }
 
     // dealer gets two cards at first:
@@ -139,6 +141,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const collector = response.createMessageComponentCollector({filter: collectorFilter, time:120_000});
 
     collector.on('collect', async (i) => {
+        game.gameWasInitiated = true;
         switch (i.customId) {
             case 'blackjack-hit':
                 Hit(interaction, i);
@@ -153,13 +156,15 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     collector.on('end', async () => {
         const game = GamesActive.get(interaction.user.id);
         
-        if (game != undefined && game.gameActive) {
+        if (game && game.gameActive) {
             await interaction.editReply({content:`*This incomplete blackjack game has expired. okabot will no longer respond to it. Your bet has been refunded.*`});
             AddToWallet(interaction.user.id, game.bet);
             game.gameActive = false;
         }
 
-        GamesActive.delete(interaction.user.id);
+        setTimeout(() => {
+            if (game!.gameActive) GamesActive.delete(interaction.user.id);
+        }, 5_000);
     });
 }
 
