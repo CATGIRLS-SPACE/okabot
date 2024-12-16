@@ -33,7 +33,7 @@ interface BlackjackGame {
     user: Array<HandCard>,
     bet: number,
     gameActive: boolean,
-    gameWasInitiated: boolean
+    expires: number
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
 const BetRecovery = new Map<string, number>(); // user_id and bet
@@ -78,9 +78,9 @@ function GetCardEmojis(hand: Array<HandCard>) {
 
 
 const hitBtn = new ButtonBuilder()
-        .setCustomId('blackjack-hit')
-        .setLabel('Hit!')
-        .setStyle(ButtonStyle.Primary);
+    .setCustomId('blackjack-hit')
+    .setLabel('Hit!')
+    .setStyle(ButtonStyle.Primary);
 
 const standBtn = new ButtonBuilder()
     .setCustomId('blackjack-stand')
@@ -107,13 +107,15 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     BetRecovery.set(interaction.user.id, bet);
     RemoveFromWallet(interaction.user.id, bet);
 
+    const d = new Date();
+
     // create a blackjack game
     const game: BlackjackGame = {
         dealer: [],
         user: [],
         bet,
         gameActive: true,
-        gameWasInitiated: false
+        expires: d.getTime() + 120_000
     }
 
     // dealer gets two cards at first:
@@ -141,7 +143,9 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const collector = response.createMessageComponentCollector({filter: collectorFilter, time:120_000});
 
     collector.on('collect', async (i) => {
-        game.gameWasInitiated = true;
+        const n = new Date();
+
+        game.expires = n.getTime() + 30_000; // add 30s before the game expires
         switch (i.customId) {
             case 'blackjack-hit':
                 Hit(interaction, i);
@@ -154,18 +158,25 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     });
 
     collector.on('end', async () => {
-        const game = GamesActive.get(interaction.user.id);
-        
-        if (game && game.gameActive) {
+        CheckGameIdle(interaction);
+    });
+}
+
+async function CheckGameIdle(interaction: ChatInputCommandInteraction) {
+    const game = GamesActive.get(interaction.user.id);
+    const now = new Date();
+
+    // if game exists and the expiry time hasn't passed
+    if (game && now.getTime() >= game.expires) {
+        if (game.gameActive) {
             await interaction.editReply({content:`*This incomplete blackjack game has expired. okabot will no longer respond to it. Your bet has been refunded.*`});
             AddToWallet(interaction.user.id, game.bet);
-            game.gameActive = false;
         }
-
-        setTimeout(() => {
-            if (game!.gameActive) GamesActive.delete(interaction.user.id);
-        }, 5_000);
-    });
+        GamesActive.delete(interaction.user.id);
+    } else if (game) {
+        // wait 30s and check again
+        setTimeout(() => CheckGameIdle(interaction), 30_000);
+    }
 }
 
 async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) {
