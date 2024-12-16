@@ -45,7 +45,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
 export async function CheckForAgreementMessage(message: Message) {
     if (AWAITING_RULE_AGREEMENT.indexOf(message.author.id) == -1) return;
 
-    if (message.content.toLowerCase().includes("I understand and agree to the okabot rules")) {
+    if (message.content == 'I understand and agree to the okabot rules' || message.content == 'I understand and agree to the okabot rules.') {
         const profile = GetUserProfile(message.author.id);
         profile.has_agreed_to_rules = true;
         UpdateUserProfile(message.author.id, profile);
