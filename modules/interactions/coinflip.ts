@@ -157,18 +157,19 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         const stats: coin_floats = JSON.parse(readFileSync(stats_file, 'utf-8'));
 
         let new_float = '';
+        const REWARD = 250;
 
         if (stats.coinflip.high.value < rolled) { 
-            new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.floor(rolled * 500)}**!`;
+            new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.floor(rolled * REWARD)}**!`;
             stats.coinflip.high.value = rolled;
             stats.coinflip.high.user_id = interaction.user.id;
-            AddToWallet(interaction.user.id, Math.abs(Math.floor(rolled * 500)));
+            AddToWallet(interaction.user.id, Math.abs(Math.floor(rolled * REWARD)));
         }
         if (stats.coinflip.low.value > rolled) {
-            new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.abs(Math.floor(500 - (rolled*500)))}**!`;
+            new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.abs(Math.floor(REWARD - (rolled*REWARD)))}**!`;
             stats.coinflip.low.value = rolled;
             stats.coinflip.low.user_id = interaction.user.id;
-            AddToWallet(interaction.user.id, Math.abs(Math.floor(500 - (rolled*500))));
+            AddToWallet(interaction.user.id, Math.abs(Math.floor(REWARD - (rolled*REWARD))));
         }
 
         interaction.editReply({

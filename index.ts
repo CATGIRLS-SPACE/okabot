@@ -180,6 +180,27 @@ interface coin_floats {
         low: {
             value: number,
             user_id: string
+        },
+        all_time: {
+            high: {
+                value: number,
+                user_id: string
+            },
+            low: {
+                value: number,
+                user_id: string
+            }
+        },
+        daily?: {
+            next: number, // when the next day will start
+            high: {
+                value: number,
+                user_id: number,
+            },
+            low: {
+                value: number,
+                user_id: number
+            }
         }
     }
 }

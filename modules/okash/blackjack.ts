@@ -35,7 +35,7 @@ interface BlackjackGame {
     gameActive: boolean
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
-
+const BetRecovery = new Map<string, number>(); // user_id and bet
 
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
@@ -103,6 +103,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     if (result) return;
 
     const bet = interaction.options.getNumber('bet')!;
+    BetRecovery.set(interaction.user.id, bet);
     RemoveFromWallet(interaction.user.id, bet);
 
     // create a blackjack game
@@ -128,8 +129,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     GamesActive.set(interaction.user.id, game);
 
     const response = await interaction.reply({
-        content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}`,
-        components: [row as any],
+        content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user)==21?'***Blackjack!***':''}`,
+        components: [TallyCards(game.user)==21?row_willbust:row as any],
         flags:[MessageFlags.SuppressNotifications]
     });
 
@@ -151,10 +152,11 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     collector.on('end', async () => {
         const game = GamesActive.get(interaction.user.id);
-
+        
         if (game != undefined && game.gameActive) {
-        await interaction.editReply({content:`*This incomplete blackjack game has expired. okabot will no longer respond to it. Your bet has been refunded.*`});
+            await interaction.editReply({content:`*This incomplete blackjack game has expired. okabot will no longer respond to it. Your bet has been refunded.*`});
             AddToWallet(interaction.user.id, game.bet);
+            game.gameActive = false;
         }
 
         GamesActive.delete(interaction.user.id);
@@ -165,8 +167,9 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
     const game = GamesActive.get(interaction.user.id)!;
 
     if (!game) {
+        const recovered_bet = BetRecovery.get(interaction.user.id);
         return confirmation.update({
-            content:':x: Something went wrong: game is undefined.',
+            content:`:x: Something went wrong: game is undefined.\nIt looks like your bet was OKA**${recovered_bet}**, so that's what I'm going to refund you. If this is incorrect, please let a bot admin know.`,
             components:[]
         });
     }
@@ -180,7 +183,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
 
     if (player_busted) {
         await confirmation.update({
-            content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+15XP)**`,
+            content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+15XP)**`,
             components: []
         });
 
@@ -189,7 +192,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
         GamesActive.delete(interaction.user.id);
     } else {
         await confirmation.update({
-            content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}`,
+            content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}`,
             components: [player_blackjack?row_willbust:row]
         });
     }
@@ -203,8 +206,6 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
     // dealer must get to 17 to stand
     while (TallyCards(game.dealer) < 17) {
-        L.info('auto hit dealer...');
-
         // add random card
         game.dealer.push(CARDS[Math.floor(Math.random() * 11)]);
     }
@@ -221,7 +222,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     if (player_blackjack) earned_xp += 5;
 
     await confirmation.update({
-        content:`**(BETA)** Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
+        content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack?' ***Blackjack!***':''}\
         \n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack?' ***Blackjack!***':''}\
         \n\nYou ${tie?'tied!':(win?'won '+ GetEmoji('okash') +' OKA**' + game.bet*(player_blackjack?3:2) + '**!':'lost!')} **(+${earned_xp}XP)**`,
@@ -237,6 +238,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     }
 
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
+    game.gameActive = false;
 
     GamesActive.delete(interaction.user.id);
 }
