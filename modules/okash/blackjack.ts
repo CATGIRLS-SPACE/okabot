@@ -28,12 +28,82 @@ const CARDS: Array<HandCard> = [
     {value:10,name:'cr'} // redundant to have all the royalty
 ]
 
+// 52-card deck
+const DECK: Array<HandCard> = [
+    {value:1,name:'ca'},
+    {value:1,name:'ca'},
+    {value:1,name:'ca'},
+    {value:1,name:'ca'},
+
+    {value:2,name:'c2'},
+    {value:2,name:'c2'},
+    {value:2,name:'c2'},
+    {value:2,name:'c2'},
+
+    {value:3,name:'c3'},
+    {value:3,name:'c3'},
+    {value:3,name:'c3'},
+    {value:3,name:'c3'},
+
+    {value:4,name:'c4'},
+    {value:4,name:'c4'},
+    {value:4,name:'c4'},
+    {value:4,name:'c4'},
+// 16
+    {value:5,name:'c5'},
+    {value:5,name:'c5'},
+    {value:5,name:'c5'},
+    {value:5,name:'c5'},
+
+    {value:6,name:'c6'},
+    {value:6,name:'c6'},
+    {value:6,name:'c6'},
+    {value:6,name:'c6'},
+
+    {value:7,name:'c7'},
+    {value:7,name:'c7'},
+    {value:7,name:'c7'},
+    {value:7,name:'c7'},
+
+    {value:8,name:'c8'},
+    {value:8,name:'c8'},
+    {value:8,name:'c8'},
+    {value:8,name:'c8'},
+// 32
+    {value:9,name:'c9'},
+    {value:9,name:'c9'},
+    {value:9,name:'c9'},
+    {value:9,name:'c9'},
+
+    {value:10,name:'c10'},
+    {value:10,name:'c10'},
+    {value:10,name:'c10'},
+    {value:10,name:'c10'},
+
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+// 48
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+    {value:10,name:'cr'},
+// 52
+]
+
 interface BlackjackGame {
     dealer: Array<HandCard>,
     user: Array<HandCard>,
     bet: number,
     gameActive: boolean,
-    expires: number
+    expires: number,
+    deck: Array<HandCard>
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
 const BetRecovery = new Map<string, number>(); // user_id and bet
@@ -116,25 +186,33 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     BetRecovery.set(interaction.user.id, bet);
     const d = new Date();
 
+    let this_deck = DECK;
+    ShuffleCards(this_deck);
+
     // create a blackjack game
     const game: BlackjackGame = {
         dealer: [],
         user: [],
         bet,
         gameActive: true,
-        expires: d.getTime() + 120_000
+        expires: d.getTime() + 120_000,
+        deck: this_deck
     }
+
+    // set up deck
+    // to deal a card we must get a random one and remove it from the deck
+    // since they are pre-shuffled, we can just take the topmost one
 
     // dealer gets two cards at first:
     game.dealer.push(
-        CARDS[Math.floor(Math.random() * 11)], 
-        CARDS[Math.floor(Math.random() * 11)]
+        game.deck.shift()!, 
+        game.deck.shift()!
     );
 
     // player also gets two cards
     game.user.push(
-        CARDS[Math.floor(Math.random() * 11)], 
-        CARDS[Math.floor(Math.random() * 11)]
+        game.deck.shift()!, 
+        game.deck.shift()!
     );
 
     GamesActive.set(interaction.user.id, game);
@@ -198,7 +276,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
     }
     
     // deal a card to the user
-    game.user.push(CARDS[Math.floor(Math.random() * 11)]);
+    game.user.push(game.deck.shift()!);
 
     const player_busted = TallyCards(game.user) > 21;
     const player_blackjack = TallyCards(game.user) == 21;
@@ -230,7 +308,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     // dealer must get to 17 to stand
     while (TallyCards(game.dealer) < 17) {
         // add random card
-        game.dealer.push(CARDS[Math.floor(Math.random() * 11)]);
+        game.dealer.push(game.deck.shift()!);
     }
 
     const dealer_bust: boolean = TallyCards(game.dealer) > 21;
@@ -265,3 +343,19 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
     GamesActive.delete(interaction.user.id);
 }
+
+function ShuffleCards(array: Array<HandCard>) {
+    let currentIndex = array.length;
+  
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+  
+      // Pick a remaining element...
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+  
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+  }
