@@ -104,9 +104,16 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     if (result) return;
 
     const bet = interaction.options.getNumber('bet')!;
-    BetRecovery.set(interaction.user.id, bet);
+    
+    const wallet = GetWallet(interaction.user.id);
+    if (wallet < bet) return interaction.reply({
+       content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have that much!` 
+    });
+    
+    
     RemoveFromWallet(interaction.user.id, bet);
-
+    
+    BetRecovery.set(interaction.user.id, bet);
     const d = new Date();
 
     // create a blackjack game
