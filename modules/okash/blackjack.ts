@@ -114,8 +114,6 @@ function TallyCards(cards: Array<HandCard>): number {
 
     // add up values and count aces
     for (const card of cards) {
-        if (!card) throw new Error(`card is undefined ?!?!?! here is cards object: ${cards}`);
-
         if (card.name == 'ca') {
             aces++;
         } else {
@@ -218,6 +216,22 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     );
 
     GamesActive.set(interaction.user.id, game);
+
+    // for debugging:
+
+    try {
+        TallyCards(game.user);
+    } catch (err) {
+        throw new Error('game.user tallying failed');
+    }
+
+    try {
+        TallyCards(game.dealer);
+    } catch (err) {
+        throw new Error('game.dealer tallying failed');
+    }
+
+    //
 
     const response = await interaction.reply({
         content:`okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user)==21?'***Blackjack!***':''}`,
