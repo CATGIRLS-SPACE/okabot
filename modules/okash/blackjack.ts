@@ -114,6 +114,8 @@ function TallyCards(cards: Array<HandCard>): number {
 
     // add up values and count aces
     for (const card of cards) {
+        if (!card) throw new Error(`card is undefined ?!?!?! here is cards object: ${cards}`);
+
         if (card.name == 'ca') {
             aces++;
         } else {
