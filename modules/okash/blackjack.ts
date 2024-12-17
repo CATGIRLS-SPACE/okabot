@@ -319,7 +319,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
     // the player themselves cannot bust at this point
 
-    let earned_xp = tie ? 20 : (win ? 30 : 15);
+    let earned_xp = tie ? 5 : (win ? 15 : 10);
     if (player_blackjack) earned_xp += 5;
 
     await confirmation.update({
