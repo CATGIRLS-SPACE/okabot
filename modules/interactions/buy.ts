@@ -10,7 +10,7 @@ const PRICES: {
     'streak restore':15_000,
     'dark green coin':2_500,
     'dark blue coin':2_500,
-    'red coin':5_00,
+    'red coin':5_000,
     'light blue coin':10_000,
     'purple coin':50_000,
     'pink coin':100_000,
