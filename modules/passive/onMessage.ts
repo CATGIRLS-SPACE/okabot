@@ -10,6 +10,23 @@ import { SelfUpdate } from "../../util/updater";
 const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
+    if (message.content == 'oka debt') {
+        const profile = GetUserProfile(message.author.id);
+
+        let final = 'you owe:\n';
+
+        console.log(JSON.stringify(profile.owes));
+
+        Object.keys(profile.owes).forEach((key) => {
+            final += `- <@${key}> is owed ${profile.owes[key]}\n`
+        });
+
+        (message.channel as TextChannel).send(final);
+        
+        return;
+    }
+
+
     try {
         if (message.author.id == "796201956255334452" || message.author.id == "502879264081707008") {
             if (message.content.startsWith('oka ') && 

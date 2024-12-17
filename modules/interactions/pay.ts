@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, OKASH_ABILITY } from "../user/prefs";
+import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, ManageDebt, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
 
 const L = new Logger('payment');
@@ -67,6 +67,8 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     
     const receiver_user = interaction.options.getUser('user')!;
     L.info(`PAYMENT SUCCESS FOR OKA${pay_amount} | ${interaction.user.username}(${interaction.user.id}) --> ${receiver_user.username}(${receiver_user.id})`);
+
+    ManageDebt(sender_id, receiver_id, pay_amount);
 
     RemoveFromWallet(sender_id, pay_amount);
     AddToWallet(receiver_id, pay_amount);

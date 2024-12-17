@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Message, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Message, MessageFlags, TextChannel } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { CalculateOkashReward, CalculateTargetXP } from "./levels";
 import { AddToWallet } from "../okash/wallet";
@@ -34,7 +34,10 @@ export async function AddXP(user_id: string, channel: TextChannel, amount?: numb
         const okash_reward = CalculateOkashReward(profile.level.level);
         AddToWallet(user_id, okash_reward);
         
-        channel.send(`Congrats, <@${user_id}>! You're now level **${profile.level.level}**!\nYou earned <:okash:1315058783889657928> OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`);
+        channel.send({
+            content: `Congrats, <@${user_id}>! You're now level **${profile.level.level}**!\nYou earned <:okash:1315058783889657928> OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
     }
 
     UpdateUserProfile(user_id, profile);

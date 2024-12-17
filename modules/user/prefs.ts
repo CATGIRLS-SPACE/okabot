@@ -44,7 +44,8 @@ export interface USER_PROFILE {
     level: {
         level: number,
         current_xp: number
-    }
+    },
+    owes: {[key: string]: number}
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -67,7 +68,8 @@ const DEFAULT_DATA: USER_PROFILE = {
     level: {
         level: 1,
         current_xp: 0
-    }
+    },
+    owes: {}
 }
 
 let PROFILES_DIR: string;
@@ -181,7 +183,7 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
 }
 
 
-export async function RestrictUser(client: Client, user_id: string, until: string, abilities: string, reason: string) {
+export function RestrictUser(client: Client, user_id: string, until: string, abilities: string, reason: string) {
     const d = new Date(until);
 
     // update their account
@@ -207,5 +209,33 @@ export async function RestrictUser(client: Client, user_id: string, until: strin
         client.users.cache.find((user) => user.id == user_id)!.send({embeds:[embed]});
     } catch (err) {
         L.error(`Couldn't send restriction info to ${user_id}`);
+    }
+}
+
+
+export function ManageDebt(sender_id: string, receiver_id: string, amount: number) {
+    const sender_profile = GetUserProfile(sender_id);
+    const receiver_profile = GetUserProfile(receiver_id);
+
+    if (!sender_profile.owes) sender_profile.owes = {};
+    if (!receiver_profile.owes) receiver_profile.owes = {};
+
+    // check if the sender is in debt to the receiver:
+    if (!sender_profile.owes[receiver_id] || sender_profile.owes[receiver_id] == 0) {
+        // the sender is not in any debt to the receiver
+        let receiver_debt = receiver_profile.owes[sender_id] || 0;
+        receiver_debt += amount;
+
+        UpdateUserProfile(receiver_id, receiver_profile);
+    } else {
+        // the sender is in some sort of debt to the receiver
+        const sender_debt = sender_profile.owes[receiver_id]; // positive, like 250
+        const after_paid = sender_debt - amount; // if they paid 300, this would be -50
+        const transferred_debt = Math.abs(after_paid); // this will become 50, which is how much we need to transfer to the receiver's debt
+        
+        receiver_profile.owes[sender_id] = receiver_profile.owes[sender_id]+transferred_debt || transferred_debt;
+
+        UpdateUserProfile(receiver_id, receiver_profile);
+        UpdateUserProfile(sender_id, sender_profile);
     }
 }

@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 
 
@@ -28,9 +28,7 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 }
 
 
-export async function HandleCommandLevel(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-
+export function HandleCommandLevel(interaction: ChatInputCommandInteraction) {
     const user_to_get = interaction.options.getUser('user') || interaction.user;
 
     const profile = GetUserProfile(user_to_get.id);
@@ -46,12 +44,14 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     const target_xp = CalculateTargetXP(profile.level.level);
     const bar = CreateLevelBar(profile);
 
-    if (user_to_get.id != interaction.user.id) return interaction.editReply({
-            content:`**${user_to_get.displayName}** is currently at level **${profile.level.level}**.\n${bar} **${profile.level.current_xp}XP** / **${target_xp}XP**`
+    if (user_to_get.id != interaction.user.id) return interaction.reply({
+            content:`**${user_to_get.displayName}** is currently at level **${profile.level.level}**.\n${bar} **${profile.level.current_xp}XP** / **${target_xp}XP**`,
+            flags: [MessageFlags.SuppressNotifications]
     });
 
-    interaction.editReply({
-        content:`**${interaction.user.displayName}**, you're currently at level **${profile.level.level}**. You need **${target_xp-profile.level.current_xp}XP** to level up.\n${bar} **${profile.level.current_xp}XP** / **${target_xp}XP**\n\nYou can earn XP by chatting in the server.\n-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`
+    interaction.reply({
+        content:`**${interaction.user.displayName}**, you're currently at level **${profile.level.level}**. You need **${target_xp-profile.level.current_xp}XP** to level up.\n${bar} **${profile.level.current_xp}XP** / **${target_xp}XP**\n\nYou can earn XP by chatting in the server.\n-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 }
 
