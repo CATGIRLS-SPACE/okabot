@@ -35,7 +35,7 @@ server.post('/minecraft', (req: Request, res: Response) => {
 
         case 'leave':
             channel.send({
-                content: `:arrow_right: **${req.body.username}** left.`,
+                content: `:arrow_left: **${req.body.username}** left.`,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
