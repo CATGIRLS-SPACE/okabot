@@ -18,10 +18,42 @@ server.post('/minecraft', (req: Request, res: Response) => {
     
     if (DEV) return;
     
-    channel.send({
-        content: `**${req.body.username}:** ${req.body.content}`,
-        flags: MessageFlags.SuppressNotifications
-    })
+    switch (req.body.type) {
+        case 'chat':
+            channel.send({
+                content: `**${req.body.username}:** ${req.body.content}`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+
+        case 'join':
+            channel.send({
+                content: `:arrow_right: **${req.body.username}** joined.`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+
+        case 'leave':
+            channel.send({
+                content: `:arrow_right: **${req.body.username}** left.`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+
+        case 'death':
+            channel.send({
+                content: `:skull: Yikes! **${req.body.message}**`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+
+        default:
+            channel.send({
+                content: `**${req.body.username}:** ${req.body.content}`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+    }
 });
 
 export function StartHTTPServer(c: Client) {
