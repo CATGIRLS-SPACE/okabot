@@ -183,6 +183,17 @@ client.on(Events.MessageCreate, async message => {
     WordleCheck(message);
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);
+    
+    if (message.channel.id == "1321639990383476797") {
+        // send the message to the minecraft server
+        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+            method: 'POST',
+            body: JSON.stringify({
+                username:message.author.username,
+                message:message.content
+            })
+        });
+    }
 
     if (message.content.toLocaleLowerCase() == 'thank you okabot') message.reply({
         content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
