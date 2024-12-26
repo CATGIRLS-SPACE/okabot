@@ -56,5 +56,5 @@ export function HandleCommandLevel(interaction: ChatInputCommandInteraction) {
 }
 
 export function CalculateOkashReward(level: number): number {
-    return 100 * level + 500;
+    return Math.floor((100 * level + 500) / 5);
 }

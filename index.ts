@@ -27,6 +27,7 @@ import { HandleCommandLevel } from './modules/levels/levels';
 import { DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/blackjack';
 import { GetEmoji } from './util/emoji';
+import { StartHTTPServer } from './modules/http/server';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -72,6 +73,8 @@ client.once(Events.ClientReady, (c: Client) => {
             }
         }
     }
+
+    StartHTTPServer(c);
 
     if (config.extra && config.extra.includes('disable jma fetching')) return;
     StartEarthquakeMonitoring(client);
