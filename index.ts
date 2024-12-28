@@ -185,12 +185,19 @@ client.on(Events.MessageCreate, async message => {
     DoRandomOkashRolls(message);
     
     if (message.channel.id == "1321639990383476797") {
+        let final_message = message.content;
+
+        if (message.reference) {
+            let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+            final_message = `(replying to @${message.author.username}, "${reference.content}") ${message.content}`;
+        }
+
         // send the message to the minecraft server
         fetch('https://bot.lilycatgirl.dev/okabot/discord', {
             method: 'POST',
             body: JSON.stringify({
-                username:message.author.username,
-                message:message.content
+                username:`@${message.author.username}`,
+                message:final_message
             })
         });
     }
