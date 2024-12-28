@@ -46,10 +46,24 @@ server.post('/minecraft', (req: Request, res: Response) => {
                 flags: MessageFlags.SuppressNotifications
             });
             break;
+        
+        case 'afk':
+            channel.send({
+                content: `:zzz: **${req.body.username}** is now AFK.`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
+
+        case 'unafk':
+            channel.send({
+                content: `:city_sunrise: **${req.body.username}** is no longer AFK.`,
+                flags: MessageFlags.SuppressNotifications
+            });
+            break;
 
         default:
             channel.send({
-                content: `**${req.body.username}:** ${req.body.content}`,
+                content: `:grey_question: unknown message type "${req.body.type}"\nfull body: \`${JSON.stringify(req.body)}\``,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
