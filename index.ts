@@ -189,7 +189,7 @@ client.on(Events.MessageCreate, async message => {
 
         if (message.reference) {
             let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
-            final_message = `(replying to @${message.author.username}, "${reference.content}") ${message.content}`;
+            final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
         }
 
         // send the message to the minecraft server
