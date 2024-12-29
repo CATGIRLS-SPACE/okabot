@@ -1,7 +1,7 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
 import { DEV } from '../..';
-import { Client, MessageFlags, TextChannel } from 'discord.js';
+import { Client, EmbedBuilder, MessageFlags, TextChannel } from 'discord.js';
 const server = express();
 
 let channelId = "1321639990383476797";
@@ -60,6 +60,9 @@ server.post('/minecraft', (req: Request, res: Response) => {
                 flags: MessageFlags.SuppressNotifications
             });
             break;
+
+        case 'achievement':
+            channel.send(`:tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`);
 
         default:
             channel.send({
