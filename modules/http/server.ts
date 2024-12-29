@@ -63,6 +63,7 @@ server.post('/minecraft', (req: Request, res: Response) => {
 
         case 'achievement':
             channel.send(`:tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`);
+            break;
 
         default:
             channel.send({
