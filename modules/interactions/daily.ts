@@ -23,9 +23,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     // plus streak bonus
     const bonus = result - 750;
+    const streak_count = GetDailyStreak(interaction.user.id);
+    
     let percentage = 100+(100*0.05*(streak_count-1));
     if (percentage > 200) percentage = 200;
-    const streak_count = GetDailyStreak(interaction.user.id);
+    
     interaction.editReply({
         content: `:white_check_mark: Got your daily reward of <:okash:1315058783889657928> OKA**750** (**PLUS OKA${bonus}**) and a <:cff_green:1315843280776462356> Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
     });
