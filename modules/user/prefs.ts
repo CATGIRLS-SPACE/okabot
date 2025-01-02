@@ -84,6 +84,9 @@ export function SetupPrefs(base_dirname: string) {
 
 
 export function GetUserProfile(user_id: string): USER_PROFILE {
+    // only should trigger if you use the --wipe flag
+    if (!PROFILES_DIR) PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
+
     const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
 
     // check if it exists

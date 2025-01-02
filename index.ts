@@ -23,11 +23,12 @@ import { HandleCommandCustomize } from './modules/interactions/customize';
 import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
-import { HandleCommandLevel } from './modules/levels/levels';
+import { Dangerous_WipeAllLevels, HandleCommandLevel } from './modules/levels/levels';
 import { DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/blackjack';
 import { GetEmoji } from './util/emoji';
 import { StartHTTPServer } from './modules/http/server';
+import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -39,6 +40,10 @@ let dependencies: string = '';
 Object.keys(pj_dep).forEach((key: string) => {
     dependencies += `${key}@${(pj_dep as any)[key]} `;
 });
+
+const NO_LAUNCH = process.argv.includes('--no-launch');
+const WIPE = process.argv.includes('--wipe');
+const WIPE_TYPE = WIPE?process.argv[process.argv.indexOf('--wipe') + 1]:'none';
 
 // bot code start
 const client = new Client({ 
@@ -80,7 +85,28 @@ client.once(Events.ClientReady, (c: Client) => {
     StartEarthquakeMonitoring(client);
 });
 
-client.login((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token);
+if (WIPE) {
+    switch (WIPE_TYPE) {
+        case 'okash':
+            Dangerous_WipeAllWallets();
+            break;
+
+        case 'levels':
+            Dangerous_WipeAllLevels();
+            break;
+
+        case 'all':
+            Dangerous_WipeAllWallets();
+            Dangerous_WipeAllLevels();
+            break;
+    
+        default:
+            L.error('Unknown wipe type specified in --wipe flag!');
+            break;
+    }
+}
+
+if (!NO_LAUNCH) client.login((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token);
 
 // Handling slash commands:
 client.on(Events.InteractionCreate, async interaction => {
@@ -278,6 +304,7 @@ function logError(error: Error | string) {
 
 // Catch uncaught exceptions
 process.on('uncaughtException', (error) => {
+    L.error('okabot has encountered an uncaught exception!');
     console.error('Uncaught Exception:', error);
     logError(error);
     process.exit(1); // Exit the process safely
@@ -285,12 +312,14 @@ process.on('uncaughtException', (error) => {
 
 // Catch unhandled promise rejections
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+    L.error('okabot has encountered an uncaught rejection!');
     console.error('Unhandled Rejection:', reason);
     logError(reason);
 });
 
 // Catch termination signals (e.g., CTRL+C, kill)
 process.on('SIGINT', () => {
-    console.log('Process terminated.');
+    L.warn('unsafe shutdown!!!');
+    console.log('Process terminated (SIGINT).');
     process.exit(0);
 });

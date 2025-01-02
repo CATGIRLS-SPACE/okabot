@@ -166,3 +166,13 @@ export function AddOneToInventory(user_id: string, type: ITEM_TYPE, item: GEMS |
 
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
 }
+
+export function Dangerous_WipeAllWallets() {
+    readdirSync(WALLET_PATH).forEach(file => {
+        const wallet_data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, file), 'utf-8'));
+        wallet_data.bank = 0;
+        wallet_data.wallet = 0;
+        writeFileSync(join(WALLET_PATH, file), JSON.stringify(wallet_data), 'utf-8');
+        L.info(`Wiped wallet file ${file}`);
+    });
+}
