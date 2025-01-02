@@ -52,29 +52,35 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-
-    // we need to fetch the user apparently
-    // interaction.client.users.fetch(interaction.user);
-    // const background_url = interaction.user.bannerURL({extension:'png', size:512})!;
-    // // download the banner
-    // console.log(background_url);
-    // const image_buf = await fetchImage(background_url);
-    
-
     // Background color
     ctx.fillStyle = '#2b2d42';
     ctx.fillRect(0, 0, width, height);
-    // let img = await loadImage(image_buf);
-    // ctx.drawImage(img, -((720-width)/2), -((288-height)/2), 720, 288);
 
+    // why do we have to force fetch the user? idk, it's dumb
+    const banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    if (banner_url) {
+        const banner_buffer = await fetchImage(banner_url);
+        const banner_img = await loadImage(banner_buffer);
+        ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+        // darken with a slightly-transparent rectangle
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    // User profile photo because we're gangsta like that
+    const pfp_url = interaction.user.avatarURL({extension:'png', size:128})!;
+    const pfp_buffer = await fetchImage(pfp_url);
+    const pfp_img = await loadImage(pfp_buffer);
+    ctx.drawImage(pfp_img, 560-66, 20, 80, 80);
+    
 
     // User Name
-    ctx.font = '28px Arial';
+    ctx.font = "28px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#edf2f4';
     ctx.fillText(`🐾✨ ${interaction.user.displayName} ✨🐾`, 20, 42);
 
     // Level
-    ctx.font = '24px Arial';
+    ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#8d99ae';
     ctx.fillText(`🌠 Level ${profile.level.level}`, 20, 90);
 
