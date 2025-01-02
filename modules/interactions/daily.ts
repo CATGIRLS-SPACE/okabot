@@ -1,11 +1,11 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, TextChannel } from "discord.js";
 import { ClaimDaily, GetDailyStreak } from "../okash/daily";
 
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    const result: number = ClaimDaily(interaction.user.id);
+    const result: number = ClaimDaily(interaction.user.id, false, interaction.channel as TextChannel);
 
     if (result < 0) {
         // must wait

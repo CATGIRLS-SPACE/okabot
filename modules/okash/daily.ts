@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path"
 import { AddOneToInventory, AddToWallet } from "./wallet"
-import { ChatInputCommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction, TextChannel } from "discord.js"
 import { ITEM_TYPE, ITEMS } from "./items"
+import { AddXP } from "../levels/onMessage"
 
 export interface DailyData {
     version: number,
@@ -78,7 +79,7 @@ const ONE_DAY = 86400000;
  * @param reclaim Set the double_claim flag to true?
  * @returns The amount claimed on success, negative time until next daily on failure.
  */
-export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
+export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: TextChannel): number {
     CheckVersion(user_id);
 
     const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
@@ -98,6 +99,8 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
 
             AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
 
+            AddXP(user_id, channel, 50);
+
             return 750;
         }
         console.log('daily is existing streak');
@@ -116,6 +119,8 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false): number {
         AddToWallet(user_id, amount);
         writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
         AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
+
+        AddXP(user_id, channel, 55);
 
         return amount;
     } else return -Math.floor((data.last_get.time + ONE_DAY)/1000);
@@ -174,7 +179,7 @@ export async function SkipDailyOnce(interaction: ChatInputCommandInteraction): P
         return false;
     }
 
-    ClaimDaily(interaction.user.id, true);
+    ClaimDaily(interaction.user.id, true, interaction.channel as TextChannel);
 
     return true;
 }
