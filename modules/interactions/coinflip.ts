@@ -140,7 +140,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             // win regardless, it landed on the side!!!
             next_message = `${first_message} and it... lands on the side:interrobang: They now get 5x their bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
             
-            AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
+            if (can_earn_xp) AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
 
             ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
             AddToWallet(interaction.user.id, bet*5);
@@ -186,7 +186,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
 
-        AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
+        if (can_earn_xp) AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
         if (win)
             AddToWallet(interaction.user.id, bet*2);
