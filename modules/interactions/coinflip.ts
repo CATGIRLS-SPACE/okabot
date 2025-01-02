@@ -10,6 +10,7 @@ import { GetEmoji } from "../../util/emoji";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
+const LastXPGain = new Map<string, number>(); // user_id, time
 
 const USE_CUSTOMIZATION = false;
 const WIN_CHANCE = 0.5;
@@ -83,6 +84,11 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
     const side = interaction.options.getString('side');
 
+    const last_xp_gain = LastXPGain.get(interaction.user.id) || 0;
+    const d = new Date();
+    const can_earn_xp = Math.floor(d.getTime() / 1000) > last_xp_gain + 60;
+    if (can_earn_xp) LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000)); 
+
     // checks
     if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`,
         flags: [MessageFlags.SuppressNotifications]});
@@ -109,8 +115,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     else win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
         
         
-    let first_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**...`
-    let next_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money!' + GetEmoji('cat_money') + '**(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)`;
+    let first_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**...${can_earn_xp?'':'\n-# :warning: XP cannot be gained by this flip.'}`
+    let next_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money!' + GetEmoji('cat_money') + '**(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)` + `${can_earn_xp?'':'\n-# :warning: XP cannot be gained by this flip.'}`;
 
     // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
     if (USE_CUSTOMIZATION) {
