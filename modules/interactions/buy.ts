@@ -158,6 +158,8 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only buy an XP level once every 3 hours! Come back <t:${last_bought_level + 10800}:R>!`
     });
 
+    LastBoughtLevel.set(interaction.user.id, Math.floor(d.getTime() / 1000));
+
     const profile = GetUserProfile(interaction.user.id);
     
     RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50));
