@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { GetEmoji } from "../../util/emoji";
+import { GetUserProfile } from "../user/prefs";
 
 
 const AVAILABLE_GEMS = new EmbedBuilder()
@@ -7,7 +8,7 @@ const AVAILABLE_GEMS = new EmbedBuilder()
     .setAuthor({name:'okabot Shop'})
     .setColor(0x9d60cc)
     .setFields(
-        {name:`${GetEmoji('g00')} Streak Restore gem`, value:`${GetEmoji('okash')} OKA**15,000**`}
+        {name:`${GetEmoji('g00')} Streak Restore gem`, value:`${GetEmoji('okash')} OKA**15,000**`},
     )
 
 
@@ -43,7 +44,10 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
 
     switch (interaction.options.getString('page')) {
         case 'gems':
-            interaction.reply({embeds:[AVAILABLE_GEMS]});
+            const profile = GetUserProfile(interaction.user.id);
+            interaction.reply({embeds:[
+                AVAILABLE_GEMS.addFields({name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`})
+            ]});
             break;
     
         case 'customization.coin':

@@ -1,7 +1,9 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, TextChannel } from "discord.js";
 import { AddOneToInventory, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CUSTOMIZATION_UNLOCKS, GEMS, ITEM_TYPE } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { CalculateTargetXP } from "../levels/levels";
+import { AddXP } from "../levels/onMessage";
 
 
 const PRICES: {
@@ -41,6 +43,11 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
     });
 
     switch (wanted_item) {
+        // xp level
+        case 'xp level': case 'level':
+            AddXPLevel(interaction);
+            break;
+
         // gems
 
         case 'streak restore': case 'g00':
@@ -138,4 +145,13 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.`});
+}
+
+function AddXPLevel(interaction: ChatInputCommandInteraction) {
+    const profile = GetUserProfile(interaction.user.id);
+    
+    RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50));
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for <:okash:1315058783889657928> OKA**${10000+(profile.level.level * 50)}**!`});
+    
+    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level));
 }
