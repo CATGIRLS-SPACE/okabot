@@ -10,23 +10,6 @@ import { SelfUpdate } from "../../util/updater";
 const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
-    if (message.content == 'oka debt') {
-        const profile = GetUserProfile(message.author.id);
-
-        let final = 'you owe:\n';
-
-        console.log(JSON.stringify(profile.owes));
-
-        Object.keys(profile.owes).forEach((key) => {
-            final += `- <@${key}> is owed ${profile.owes[key]}\n`
-        });
-
-        (message.channel as TextChannel).send(final);
-        
-        return;
-    }
-
-
     try {
         if (message.author.id == "796201956255334452" || message.author.id == "502879264081707008") {
             if (message.content.startsWith('oka ') && 
@@ -191,6 +174,28 @@ export async function CheckAdminShorthands(message: Message) {
             // updating via message command
             if (message.content == 'oka update') {
                 SelfUpdate(message);
+            }
+
+            // oka level <user> <+-amt>
+            if (message.content.startsWith('oka level ')) {
+                const regex = /"([^"]+)"|(\S+)/g;
+                const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+                
+                if (params.length < 4) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+
+                const profile = GetUserProfile(params[2]);
+                const level_change = parseInt(params[3]);
+
+                profile.level.level += level_change;
+
+                UpdateUserProfile(params[2], profile);
+
+                message.react('✅');
             }
         }
     } catch (err) {
