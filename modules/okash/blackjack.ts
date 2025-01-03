@@ -159,14 +159,14 @@ const standBtn = new ButtonBuilder()
 
 const doubleDownButton = new ButtonBuilder()
     .setCustomId('blackjack-double')
-    .setLabel('Hit!')
+    .setLabel('Double Down!')
     .setStyle(ButtonStyle.Primary);
 
 const row = new ActionRowBuilder()
     .addComponents(hitBtn, standBtn);
 
 const row_can_double = new ActionRowBuilder()
-    .addComponents(hitBtn, standBtn);
+    .addComponents(hitBtn, standBtn, doubleDownButton);
 
 const row_willbust = new ActionRowBuilder()
     .addComponents(standBtn);
@@ -191,6 +191,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     RemoveFromWallet(interaction.user.id, bet);
     const can_double_down = GetWallet(interaction.user.id) >= bet;
+    console.log(can_double_down?"can dd":"cant dd");
 
     BetRecovery.set(interaction.user.id, bet);
     const d = new Date();
@@ -351,7 +352,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
         content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\
         \n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
-        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+' + ${earned_xp} + 'XP)`,
+        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+ ${earned_xp} XP)**`,
         components: []
     });
 
