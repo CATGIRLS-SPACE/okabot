@@ -84,6 +84,11 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
     const side = interaction.options.getString('side');
 
+    // terrible way of checking whether its a float or not lol
+    if (bet.toString().includes('.')) return interaction.reply({
+        content:`:x: **${interaction.user.displayName}**, I don't have change!`
+    });
+
     // checks
     if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`,
         flags: [MessageFlags.SuppressNotifications]});
