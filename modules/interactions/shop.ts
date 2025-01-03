@@ -45,8 +45,9 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
     switch (interaction.options.getString('page')) {
         case 'gems':
             const profile = GetUserProfile(interaction.user.id);
+            const user_specific_embed = AVAILABLE_GEMS;
             interaction.reply({embeds:[
-                AVAILABLE_GEMS.addFields({name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`})
+                user_specific_embed.addFields({name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`})
             ]});
             break;
     
