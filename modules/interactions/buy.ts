@@ -154,7 +154,7 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
 function AddXPLevel(interaction: ChatInputCommandInteraction) {
     const last_bought_level = LastBoughtLevel.get(interaction.user.id) || 0;
     const d = new Date();
-    if (last_bought_level + 10800 < d.getTime() / 1000) return interaction.editReply({
+    if (last_bought_level + 10800 > d.getTime() / 1000) return interaction.editReply({
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only buy an XP level once every 3 hours! Come back <t:${last_bought_level + 10800}:R>!`
     });
 

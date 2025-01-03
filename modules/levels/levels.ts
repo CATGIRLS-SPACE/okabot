@@ -32,7 +32,7 @@ const LEVEL_DICTIONARY = [
 
 // create appropriate level names on boot
 const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']; // im lazy
-const LEVEL_NAMES: Array<string> = [];
+export const LEVEL_NAMES: Array<string> = [];
 
 LEVEL_DICTIONARY.forEach(item => {
     for (let i = 1; i <= item.levels; i++) LEVEL_NAMES.push(`${item.name} ${ROMAN_NUMERALS[i-1]}`);
