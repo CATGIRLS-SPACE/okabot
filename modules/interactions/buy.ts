@@ -6,6 +6,8 @@ import { CalculateTargetXP } from "../levels/levels";
 import { AddXP } from "../levels/onMessage";
 
 
+const LastBoughtLevel = new Map<string, number>();
+
 const PRICES: {
     [key: string]: number
 } = {
@@ -23,6 +25,9 @@ const PRICES: {
     'green level bar':10_000,
     'blue level bar':10_000,
     'pink level bar':10_000,
+    'level':1,
+    'xp level':1,
+    'xp level up':1,
     // 'custom level bar':15_000,
 }
 
@@ -44,9 +49,8 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     switch (wanted_item) {
         // xp level
-        case 'xp level': case 'level':
-            AddXPLevel(interaction);
-            break;
+        case 'xp level': case 'level': case 'xp level up':
+            return AddXPLevel(interaction);
 
         // gems
 
@@ -148,6 +152,12 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
 }
 
 function AddXPLevel(interaction: ChatInputCommandInteraction) {
+    const last_bought_level = LastBoughtLevel.get(interaction.user.id) || 0;
+    const d = new Date();
+    if (last_bought_level + 10800 < d.getTime() / 1000) return interaction.editReply({
+        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only buy an XP level once every 3 hours! Come back <t:${last_bought_level + 10800}:R>!`
+    });
+
     const profile = GetUserProfile(interaction.user.id);
     
     RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50));
