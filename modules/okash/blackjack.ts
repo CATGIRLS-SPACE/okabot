@@ -112,22 +112,19 @@ function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
     let aces = 0;
 
-    // add up values and count aces
+    // Sum values and count aces
     for (const card of cards) {
-        if (card.name == 'ca') {
+        if (card.name === 'ca') {
             aces++;
+            total += 11; // Assume Ace is 11 first
         } else {
             total += card.value;
         }
     }
 
-    // aces -- add 11 for each ace if it doesn't bust, otherwise add 1
-    while (aces > 0) {
-        if (total + 11 <= 21) {
-            total += 11;
-        } else {
-            total += 1;
-        }
+    // Convert Aces from 11 to 1 if needed
+    while (total > 21 && aces > 0) {
+        total -= 10; // Change an Ace from 11 to 1
         aces--;
     }
 
@@ -191,7 +188,6 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     RemoveFromWallet(interaction.user.id, bet);
     const can_double_down = GetWallet(interaction.user.id) >= bet;
-    console.log(can_double_down?"can dd":"cant dd");
 
     BetRecovery.set(interaction.user.id, bet);
     const d = new Date();
@@ -228,7 +224,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     GamesActive.set(interaction.user.id, game);
 
     const response = await interaction.reply({
-        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`,
+        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`,
         components: [
             TallyCards(game.user) == 21 ? row_willbust 
             : (can_double_down ? row_can_double : row ) as any
@@ -306,7 +302,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
     if (player_busted) {
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
+            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
             components: []
         });
 
@@ -317,7 +313,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         // if we doubled down, you cannot hit again
 
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}`,
+            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}`,
             components: [player_blackjack || double_down ? row_willbust : row]
         });
     }
@@ -325,8 +321,6 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
 async function Stand(interaction: ChatInputCommandInteraction, confirmation: any) {
     // await confirmation.deferUpdate();
-
-    const d = new Date();
 
     // get the game
     const game = GamesActive.get(confirmation.user.id)!;
@@ -351,7 +345,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     await confirmation.update({
         content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\
-        \n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
+        \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
         \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+ ${earned_xp} XP)**`,
         components: []
     });
