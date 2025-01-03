@@ -285,11 +285,11 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
 
     if (player_busted) {
         const d = new Date();
-        let xp_limit = true; // limit the user's XP so they can't earn an absurd amount by constantly playing games
-        if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
-            LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
-            xp_limit = false; // this can be lifted
-        }
+        let xp_limit = false; // limit the user's XP so they can't earn an absurd amount by constantly playing games
+        // if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
+        //     LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
+        //     xp_limit = false; // this can be lifted
+        // }
 
         await confirmation.update({
             content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**DEALER**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! ${!xp_limit?'**(+10XP)**':''}`,
@@ -312,12 +312,12 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     // await confirmation.deferUpdate();
 
     const d = new Date();
-    let xp_limit = true; // limit the user's XP so they can't earn an absurd amount by constantly playing games
-    if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
-        LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
-        xp_limit = false; // this can be lifted
-        console.log('player can earn XP');
-    }
+    let xp_limit = false; // limit the user's XP so they can't earn an absurd amount by constantly playing games
+    // if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
+    //     LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
+    //     xp_limit = false; // this can be lifted
+    //     console.log('player can earn XP');
+    // }
 
     // get the game
     const game = GamesActive.get(confirmation.user.id)!;

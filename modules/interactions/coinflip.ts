@@ -84,11 +84,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('amount')!;
     const side = interaction.options.getString('side');
 
-    const last_xp_gain = LastXPGain.get(interaction.user.id) || 0;
-    const d = new Date();
-    const can_earn_xp = Math.floor(d.getTime() / 1000) > last_xp_gain + 60;
-    if (can_earn_xp) LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000)); 
-
     // checks
     if (bet <= 0) return interaction.reply({content:`:x: **${interaction.user.displayName}**, you cannot flip that amount.`,
         flags: [MessageFlags.SuppressNotifications]});
@@ -115,8 +110,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     else win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
         
         
-    let first_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**...${can_earn_xp?'':'\n-# :warning: XP cannot be gained by this flip.'}`
-    let next_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money!' + GetEmoji('cat_money') + '**(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)` + `${can_earn_xp?'':'\n-# :warning: XP cannot be gained by this flip.'}`;
+    let first_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**...`
+    let next_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money!' + GetEmoji('cat_money') + '**(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)` + ``;
 
     // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
     if (USE_CUSTOMIZATION) {
@@ -140,7 +135,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             // win regardless, it landed on the side!!!
             next_message = `${first_message} and it... lands on the side:interrobang: They now get 5x their bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
             
-            if (can_earn_xp) AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
+            AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
 
             ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
             AddToWallet(interaction.user.id, bet*5);
@@ -186,7 +181,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
 
-        if (can_earn_xp) AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
+        AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
         if (win)
             AddToWallet(interaction.user.id, bet*2);
