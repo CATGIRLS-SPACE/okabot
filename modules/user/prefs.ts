@@ -61,7 +61,8 @@ const DEFAULT_DATA: USER_PROFILE = {
         },
         unlocked: [
             CUSTOMIZATION_UNLOCKS.COIN_DEF,
-            CUSTOMIZATION_UNLOCKS.CV_LEVEL_THEME_DEF,
+            CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF,
+            CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT,
         ]
     },
     okash_notifications: true,

@@ -45,7 +45,8 @@ const commands = [
         .setDescription('Get the shop item and price listings')
         .addStringOption(option => option.setName('page').setDescription('The shop category to display').addChoices(
             {name:'Gems', value: 'gems'},
-            {name:'Customization', value:'customization'}
+            {name:'Customization - Coinflip', value:'customization.coin'},
+            {name:'Customization - Profile', value:'customization.profile'},
         ).setRequired(true)),
 
     new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!')

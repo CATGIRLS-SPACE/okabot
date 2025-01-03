@@ -6,6 +6,41 @@ import { createWriteStream, existsSync, mkdirSync, readdirSync, writeFileSync } 
 import { createCanvas, loadImage } from "canvas";
 
 
+const BAR_COLORS: {
+    [key: string]: {bg:string,fg:string}
+} = {
+    'OKABOT':{bg:'#44384d',fg:'#9d60cc'},
+    'RED':{bg:'#4d3838',fg:'#cc6060'},
+    'BLUE':{bg:'#3a384d',fg:'#6072cc'},
+    'GREEN':{bg:'#384d38',fg:'#60cc6b'},
+    'PINK':{bg:'#4d384b',fg:'#cc60aa'},
+};
+
+const LEVEL_DICTIONARY = [
+    {name:'Kitten',levels:5},
+    {name:'Catgirl',levels:5},
+    {name:'Silver Bell Trainee',levels:10},
+    {name:'Silver Bell Holder',levels:10},
+    {name:'Gold Bell Trainee',levels:10},
+    {name:'Gold Bell Holder',levels:10},
+    {name:'Waitress',levels:10},
+    {name:'Delivery Maine Coon',levels:10},
+    {name:'Tea-brewing American Curl',levels:10},
+    {name:'Custard Munchkin',levels:10},
+    {name:'Strawberry-polishing Scottish Fold',levels:10},
+];
+
+// create appropriate level names on boot
+const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']; // im lazy
+const LEVEL_NAMES: Array<string> = [];
+
+LEVEL_DICTIONARY.forEach(item => {
+    for (let i = 1; i <= item.levels; i++) LEVEL_NAMES.push(`${item.name} ${ROMAN_NUMERALS[i-1]}`);
+});
+
+
+// for legacy bar
+
 const CHAR_UNFILLED = '░';
 const CHAR_FILLED   = '█';
 const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
@@ -44,13 +79,21 @@ function CreateLevelBar(profile: USER_PROFILE): string {
     return bar;
 }
 
-import * as client from 'https';
+// -- new things --
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
+    interaction.deferReply();
+
     const width = 600; // Banner width
     const height = 150; // Banner height
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
+
+    let bar_color = BAR_COLORS['OKABOT']; // default
+    if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED)) bar_color = BAR_COLORS['RED'];
+    if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE)) bar_color = BAR_COLORS['BLUE'];
+    if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN)) bar_color = BAR_COLORS['GREEN'];
+    if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK)) bar_color = BAR_COLORS['PINK'];
 
     // Background color
     ctx.fillStyle = '#2b2d42';
@@ -58,7 +101,8 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // why do we have to force fetch the user? idk, it's dumb
     const banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
-    if (banner_url) {
+    // if the user has a banner + unlocked the user banner ability
+    if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
         const banner_img = await loadImage(banner_buffer);
         ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
@@ -81,21 +125,21 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // Level
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
-    ctx.fillStyle = '#8d99ae';
-    ctx.fillText(`🌠 Level ${profile.level.level}`, 20, 90);
+    ctx.fillStyle = '#b4c1d9';
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1]} (${profile.level.level})`, 20, 90);
 
     // XP Bar Background
     const barX = 20;
     const barY = 110;
     const barWidth = 560;
     const barHeight = 25;
-    ctx.fillStyle = '#44384d';
+    ctx.fillStyle = bar_color.bg;
     ctx.roundRect(barX, barY, barWidth, barHeight, 8);
     ctx.fill();
 
     // XP Bar Progress
     const progressRatio = profile.level.current_xp / CalculateTargetXP(profile.level.level);
-    ctx.fillStyle = '#9d60cc';
+    ctx.fillStyle = bar_color.fg;
     ctx.beginPath();
     ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
     ctx.fill();
@@ -137,9 +181,8 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 
     await generateLevelBanner(interaction, profile);
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'level-banner.png'));
-    interaction.reply({
+    interaction.editReply({
         content:`-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
-        flags: [MessageFlags.SuppressNotifications],
         files: [image]
     });
 }
@@ -166,8 +209,12 @@ export function Dangerous_WipeAllLevels() {
 
 
 import axios from 'axios';
+import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
     return Buffer.from(response.data, 'binary');   
 }
+
+
+// unlocks

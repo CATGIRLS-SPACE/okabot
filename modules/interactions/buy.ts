@@ -14,7 +14,14 @@ const PRICES: {
     'light blue coin':10_000,
     'purple coin':50_000,
     'pink coin':100_000,
-    'rainbow coin':1_000_000
+    'rainbow coin':1_000_000,
+    'user banner level background':25_000,
+    'ublb':25_000,
+    'red level bar':10_000,
+    'green level bar':10_000,
+    'blue level bar':10_000,
+    'pink level bar':10_000,
+    // 'custom level bar':15_000,
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
@@ -63,6 +70,24 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'rainbow coin':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_RAINBOW, price);
+
+        // profile customizations
+        case 'user banner level background': case 'ublb':
+            // permanent unlock
+            return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER, price);
+            
+        // one-time unlocks
+        case 'red level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED, price);
+
+        case 'blue level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE, price);
+    
+        case 'green level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN, price);
+        
+        case 'pink level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK, price);
     }
 
     // this will only execute if it's a '/use'able item
@@ -86,4 +111,31 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you unlocked the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Try it out with /customize!\nYour new balance is OKA**${wallet-price}**.`});
+}
+
+function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, unlock: CUSTOMIZATION_UNLOCKS, price: number) {
+    const profile = GetUserProfile(interaction.user.id);
+
+    if (profile.customization.unlocked.indexOf(unlock) != -1) return interaction.editReply({
+        content:`:cat: **${interaction.user.displayName}**, you've already got this customization option!`
+    });
+
+    const wanted_item = interaction.options.getString('item')!.toLowerCase();
+    const wallet = GetWallet(interaction.user.id);
+
+    switch (unlock) {
+        // based on the unlock, we may need to get rid of old unlocks
+        case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK:
+            if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED), 1);
+            if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE), 1);
+            if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN), 1);
+            if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK), 1);
+            break;
+    }
+
+    RemoveFromWallet(interaction.user.id, price);
+    profile.customization.unlocked.push(unlock);
+    UpdateUserProfile(interaction.user.id, profile);
+
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.`});
 }

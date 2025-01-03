@@ -18,7 +18,7 @@ const ITEM_NAMES: {
 }
 
 const UNLOCK_NAMES: {
-    [key: number]: {name: string, desc: string}
+    [key: number]: {name: string, desc: string, hide?: boolean}
 } = {
     0:  {name:'<:cff:1314729249189400596> Default Coin',desc:'The definitely-not-biased classic yellow coin everyone has, but you\'re still convinced it\'s biased.'},
     1:  {name:'<:cff_red:1316187598791905280> Red Coin',desc:'A red coin. It resembles strawberries. Using this coin makes you feel like you can do anything, maybe even climbing a mountain?'},
@@ -26,18 +26,20 @@ const UNLOCK_NAMES: {
     3:  {name:'<:cff_blue:1316187504067739699> Light Blue Coin',desc:'A light blue coin. Even the sky struggles to reach this shade of pure blue. Just like waffles struggles to win her coinflips.'},
     4:  {name:'<:cff_pink:1316173446803226665> Pink Coin',desc:'A pink coin. You feel rich just looking at it. Or maybe you\'re feeling more feminine. Oh well, basically the same thing, right?'},
     5:  {name:'<:cff_purple:1316175038042472491> Purple Coin',desc:'A purple coin. It\'s the slightly-less-rich man\'s pink coin, but you don\'t care because it still looks cool anyways.'},
-    6:  {name:'CV_LEVEL_THEME_DEF',desc:'placeholder'},
-    7:  {name:'CV_LEVEL_THEME_RED',desc:'placeholder'},
-    8:  {name:'CV_LEVEL_THEME_GREEN',desc:'placeholder'},
-    9:  {name:'CV_LEVEL_THEME_BLUE',desc:'placeholder'},
-    10: {name:'CV_LEVEL_THEME_PINK',desc:'placeholder'},
-    11: {name:'CV_LEVEL_THEME_PURPLE',desc:'placeholder'},
+    6:  {name:'CV_LEVEL_BANNER_DEF',desc:'',hide:true},
+    7:  {name:'Red Level Bar',desc:'Sets your level bar color to red'},
+    8:  {name:'Green Level Bar',desc:'Sets your level bar color to blue'},
+    9:  {name:'Blue Level Bar',desc:'Sets your level bar color to green'},
+    10: {name:'Pink Level Bar',desc:'Sets your level bar color to pink'},
+    11: {name:'CV_LEVEL_THEME_OKABOT',desc:'',hide:true},
     12: {name:'Custom Coinflip Messages',desc:'Lets you change the messages you get with /coinflip.'},
     13: {name:'Custom okash Message',desc:'Lets you change the message you get with /okash'},
     14: {name:'bank access',desc:'this item should not be visible in the customize listing'},
     15: {name:'loan access',desc:'this item should not be visible in the customize listing'},
     16: {name:'<:cff_dgreen:1316187558375456859> Dark Green Coin',desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
-    17: {name:'<a:cff_rainbow:1316224243855261776> Rainbow Coin',desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'}
+    17: {name:'<a:cff_rainbow:1316224243855261776> Rainbow Coin',desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
+    18: {name:'User Banner Level Background',desc:'Enables your level banner to use your Discord banner as its background'},
+    19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
 }
 
 export async function HandleCommandPockets(interaction: ChatInputCommandInteraction) {
@@ -50,7 +52,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         const profile = GetUserProfile(interaction.user.id);
 
         for (const unlock of profile.customization.unlocked) {
-            if (!(unlock > 5 && unlock < 12)) fields.push({
+            if (!UNLOCK_NAMES[unlock].hide) fields.push({
                 name: UNLOCK_NAMES[unlock].name, value: UNLOCK_NAMES[unlock].desc
             })
         }
