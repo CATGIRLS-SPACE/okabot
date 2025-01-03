@@ -82,7 +82,7 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 // -- new things --
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
-    interaction.deferReply();
+    await interaction.deferReply();
 
     const width = 600; // Banner width
     const height = 150; // Banner height
