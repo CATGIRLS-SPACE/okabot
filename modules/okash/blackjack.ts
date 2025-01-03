@@ -107,7 +107,6 @@ interface BlackjackGame {
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
 const BetRecovery = new Map<string, number>(); // user_id and bet
-const LastXPGain = new Map<string, number>(); // user_id and time
 
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
@@ -156,9 +155,17 @@ const hitBtn = new ButtonBuilder()
 const standBtn = new ButtonBuilder()
     .setCustomId('blackjack-stand')
     .setLabel('Stand!')
-    .setStyle(ButtonStyle.Secondary)
+    .setStyle(ButtonStyle.Secondary);
+
+const doubleDownButton = new ButtonBuilder()
+    .setCustomId('blackjack-double')
+    .setLabel('Hit!')
+    .setStyle(ButtonStyle.Primary);
 
 const row = new ActionRowBuilder()
+    .addComponents(hitBtn, standBtn);
+
+const row_can_double = new ActionRowBuilder()
     .addComponents(hitBtn, standBtn);
 
 const row_willbust = new ActionRowBuilder()
@@ -183,6 +190,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
 
     RemoveFromWallet(interaction.user.id, bet);
+    const can_double_down = GetWallet(interaction.user.id) >= bet;
 
     BetRecovery.set(interaction.user.id, bet);
     const d = new Date();
@@ -219,8 +227,11 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     GamesActive.set(interaction.user.id, game);
 
     const response = await interaction.reply({
-        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`,
-        components: [TallyCards(game.user) == 21 ? row_willbust : row as any],
+        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`,
+        components: [
+            TallyCards(game.user) == 21 ? row_willbust 
+            : (can_double_down ? row_can_double : row ) as any
+        ],
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -239,6 +250,10 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
             case 'blackjack-stand':
                 Stand(interaction, i);
+                break;
+
+            case 'blackjack-double':
+                Hit(interaction, i, true); // hit AND double down
                 break;
         }
     });
@@ -265,7 +280,7 @@ async function CheckGameIdle(interaction: ChatInputCommandInteraction) {
     }
 }
 
-async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) {
+async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, double_down: boolean = false) {
     const game = GamesActive.get(interaction.user.id)!;
 
     if (!game) {
@@ -276,6 +291,11 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
         });
     }
 
+    if (double_down) {
+        RemoveFromWallet(interaction.user.id, game.bet);
+        game.bet += game.bet;
+    }
+
     // deal a card to the user
     game.user.push(game.deck.shift()!);
 
@@ -284,26 +304,20 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any) 
     const dealer_blackjack = TallyCards(game.dealer) == 21;
 
     if (player_busted) {
-        const d = new Date();
-        let xp_limit = false; // limit the user's XP so they can't earn an absurd amount by constantly playing games
-        // if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
-        //     LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
-        //     xp_limit = false; // this can be lifted
-        // }
-
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! ${!xp_limit?'**(+10XP)**':''}`,
+            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
             components: []
         });
 
-        if (!xp_limit)
-            AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
+        AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
 
         GamesActive.delete(interaction.user.id);
     } else {
+        // if we doubled down, you cannot hit again
+
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}`,
-            components: [player_blackjack ? row_willbust : row]
+            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ]\n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}`,
+            components: [player_blackjack || double_down ? row_willbust : row]
         });
     }
 }
@@ -312,12 +326,6 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     // await confirmation.deferUpdate();
 
     const d = new Date();
-    let xp_limit = false; // limit the user's XP so they can't earn an absurd amount by constantly playing games
-    // if (Math.floor(d.getTime() / 1000) >= (LastXPGain.get(interaction.user.id) || 0) + 60) {
-    //     LastXPGain.set(interaction.user.id, Math.floor(d.getTime() / 1000));
-    //     xp_limit = false; // this can be lifted
-    //     console.log('player can earn XP');
-    // }
 
     // get the game
     const game = GamesActive.get(confirmation.user.id)!;
@@ -342,8 +350,8 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     await confirmation.update({
         content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\
-        \n**__Y O U__**: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
-        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} ${!xp_limit?'**(+' + earned_xp + 'XP)**':''}`,
+        \n<@${interaction.user.id}>: [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
+        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+' + ${earned_xp} + 'XP)`,
         components: []
     });
 
