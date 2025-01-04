@@ -12,6 +12,10 @@ export async function HandleCommandCustomize(interaction: ChatInputCommandIntera
         case 'coinflip':
             CustomizeCoinflip(interaction);
             break;
+
+        case 'levelbar':
+            CustomizeLevelBar(interaction);
+            break;
     }
 }
 
@@ -46,5 +50,25 @@ async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
 
     interaction.editReply({
         content:`<:cat_sunglasses:1315853022324326482> **${interaction.user.displayName}**, I've switched your coin out for a \`${customization}\`. Have fun flipping!`
+    });
+}
+
+
+async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
+    const bg = interaction.options.getString('background', true);
+    const fg = interaction.options.getString('foreground', true);
+    const text = interaction.options.getString('xptext', true);
+
+    const profile = GetUserProfile(interaction.user.id);
+    profile.customization.level_banner = {
+        hex_bg: bg,
+        hex_fg: fg,
+        hex_num: text
+    };
+    profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING), 1);
+    UpdateUserProfile(interaction.user.id, profile);
+
+    interaction.editReply({
+        content: `:cat: **${interaction.user.displayName}**, I've updated your custom level bar colors.\nIn order to change them again, you must purchase another Custom Level Bar Color from the shop.`
     });
 }

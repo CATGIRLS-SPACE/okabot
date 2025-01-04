@@ -28,7 +28,8 @@ const PRICES: {
     'level':1,
     'xp level':1,
     'xp level up':1,
-    // 'custom level bar':15_000,
+    'custom level bar':15_000,
+    'reset level bar':1
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
@@ -99,6 +100,12 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
         
         case 'pink level bar':
             return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK, price);
+
+        case 'custom level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM, price);
+
+        case 'reset level bar':
+            return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, price);
     }
 
     // this will only execute if it's a '/use'able item
@@ -127,8 +134,20 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
 function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, unlock: CUSTOMIZATION_UNLOCKS, price: number) {
     const profile = GetUserProfile(interaction.user.id);
 
-    if (profile.customization.unlocked.indexOf(unlock) != -1) return interaction.editReply({
+    if (
+        profile.customization.unlocked.indexOf(unlock) != -1 && 
+        unlock != CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM &&
+        unlock != CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF
+    ) return interaction.editReply({
         content:`:cat: **${interaction.user.displayName}**, you've already got this customization option!`
+    });
+
+    if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING)) return interaction.editReply({
+        content:`:bangbang: **${interaction.user.displayName}**, you've already got a pending custom bar! Use /customize to change your colors!`
+    });
+
+    if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) interaction.editReply({
+        content: `:cat: Kaaaay **${interaction.user.displayName}**! I've reset your level bar to the default colors!`
     });
 
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
@@ -136,19 +155,21 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
 
     switch (unlock) {
         // based on the unlock, we may need to get rid of old unlocks
-        case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK:
+        case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM: case CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF:
             if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED), 1);
             if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE), 1);
             if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN), 1);
             if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK), 1);
+            if (profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM) != -1) profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM), 1);
             break;
     }
 
     RemoveFromWallet(interaction.user.id, price);
     profile.customization.unlocked.push(unlock);
+    if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM) profile.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING); 
     UpdateUserProfile(interaction.user.id, profile);
 
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.`});
+    if (unlock != CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.${(unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM)?'\n\nYou are now able to use /customize to change your colors with hex color codes. Make sure you do it right, because if you mess it up, you\'ll need to purchase another!':''}`});
 }
 
 function AddXPLevel(interaction: ChatInputCommandInteraction) {

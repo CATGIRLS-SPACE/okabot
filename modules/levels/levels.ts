@@ -90,10 +90,19 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const ctx = canvas.getContext('2d');
 
     let bar_color = BAR_COLORS['OKABOT']; // default
+    let num_color = '#fff';
     if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED)) bar_color = BAR_COLORS['RED'];
     if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE)) bar_color = BAR_COLORS['BLUE'];
     if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN)) bar_color = BAR_COLORS['GREEN'];
     if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK)) bar_color = BAR_COLORS['PINK'];
+
+    if (profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM)) {
+        bar_color = {
+            bg: profile.customization.level_banner.hex_bg,
+            fg: profile.customization.level_banner.hex_fg,
+        };
+        num_color = profile.customization.level_banner.hex_num;
+    }
 
     // Background color
     ctx.fillStyle = '#2b2d42';
@@ -146,7 +155,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // XP Text
     ctx.font = 'bold 16px Arial';
-    ctx.fillStyle = '#edf2f4';
+    ctx.fillStyle = num_color;
     ctx.textAlign = 'left';
     ctx.fillText(`${profile.level.current_xp} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';

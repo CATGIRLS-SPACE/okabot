@@ -64,7 +64,27 @@ const commands = [
                     .setName('coin')
                     .setDescription('The coin you want to use when flipping')
                     .setRequired(true))
-                ),
+                )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('levelbar')
+                .setDescription('Customize the colors of your level banner\'s XP bar')
+                .addStringOption(option => 
+                    option
+                        .setName('background')
+                        .setDescription('The background color of the bar. Must be a valid hex code, like #abcdef')
+                        .setRequired(true))
+                .addStringOption(option => 
+                    option
+                        .setName('foreground')
+                        .setDescription('The foreground color of the bar. Must be a valid hex code, like #abcdef')
+                        .setRequired(true))
+                .addStringOption(option => 
+                    option
+                        .setName('xptext')
+                        .setDescription('The text color of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef')
+                        .setRequired(true))
+        ),
 
     new SlashCommandBuilder()
         .setName('toggle')

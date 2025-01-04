@@ -38,7 +38,12 @@ export interface USER_PROFILE {
             coinflip_win: string,
             coinflip_loss: string
         },
-        unlocked: Array<CUSTOMIZATION_UNLOCKS>
+        unlocked: Array<CUSTOMIZATION_UNLOCKS>,
+        level_banner: {
+            hex_bg: string,
+            hex_fg: string,
+            hex_num: string
+        }
     },
     okash_notifications: boolean,
     level: {
@@ -63,7 +68,12 @@ const DEFAULT_DATA: USER_PROFILE = {
             CUSTOMIZATION_UNLOCKS.COIN_DEF,
             CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF,
             CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT,
-        ]
+        ],
+        level_banner: {
+            hex_bg: '#666',
+            hex_fg: '#222',
+            hex_num: '#fff'
+        }
     },
     okash_notifications: true,
     level: {

@@ -40,7 +40,8 @@ export enum CUSTOMIZATION_UNLOCKS {
     COIN_DGREEN, // normal green = reserved for weighted coin
     COIN_RAINBOW,
     CV_LEVEL_BANNER_USER,
-    CV_LEVEL_BAR_CUSTOM
+    CV_LEVEL_BAR_CUSTOM,
+    CV_LEVEL_BAR_CUSTOM_PENDING
 }
 
 export enum ITEM_TYPE {

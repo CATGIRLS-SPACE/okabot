@@ -7,3 +7,4 @@ config.json
 index.js
 .vscode/
 *.oka
+ERROR.LOG

@@ -37,7 +37,8 @@ const AVAILABLE_CUSTOMIZATIONS_PROFILE = new EmbedBuilder()
         {name:`Green Level Bar - ${GetEmoji('okash')} OKA**10,000**`,value:`One time change of your level banner's bar color to green`},
         {name:`Blue Level Bar - ${GetEmoji('okash')} OKA**10,000**`,value:`One time change of your level banner's bar color to blue`},
         {name:`Pink Level Bar - ${GetEmoji('okash')} OKA**10,000**`,value:`One time change of your level banner's bar color to pink`},
-        {name:`Custom Level Bar - ${GetEmoji('okash')} OKA**?????**`,value:`Coming soon! One time change of your level banner's bar color to any color you want (hex color code)`},
+        {name:`Custom Level Bar - ${GetEmoji('okash')} OKA**15,000**`,value:`One time change of your level banner's bar color to any color you want (hex color code)`},
+        {name:`Reset Level Bar - Free`,value:`Resets your level bar to the default colors.`},
     )
 
 export async function HandleCommandShop(interaction: ChatInputCommandInteraction) {
