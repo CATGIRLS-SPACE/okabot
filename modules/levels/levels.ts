@@ -2,7 +2,7 @@ import { AttachmentBuilder, ChatInputCommandInteraction, MessageFlags } from "di
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { BASE_DIRNAME } from "../..";
 import { join, resolve } from "path";
-import { createWriteStream, existsSync, mkdirSync, readdirSync, writeFileSync } from "fs";
+import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { createCanvas, loadImage } from "canvas";
 
 
@@ -160,6 +160,11 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillText(`${profile.level.current_xp} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
     ctx.fillText(`${CalculateTargetXP(profile.level.level)} XP`, barWidth + 10, barY + 19);
+
+    // sticker demo
+    // const sticker = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'okash.png')));
+    // ctx.drawImage(sticker, width-150, height-100, 64, 64);
+    
 
     // Save the image
     const buffer = canvas.toBuffer('image/png');
