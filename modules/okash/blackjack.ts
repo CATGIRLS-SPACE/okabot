@@ -180,6 +180,10 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     const bet = interaction.options.getNumber('bet')!;
 
+    if (bet.toString().includes('.')) return interaction.reply({
+        content:`:x: **${interaction.user.displayName}**, I don't have change!`
+    });
+
     const wallet = GetWallet(interaction.user.id);
     if (wallet < bet) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have that much!`
