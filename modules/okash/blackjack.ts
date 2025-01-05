@@ -107,6 +107,7 @@ interface BlackjackGame {
 }
 const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
 const BetRecovery = new Map<string, number>(); // user_id and bet
+const LastGameFinished = new Map<string, number>(); // user_id and time(d.getTime()/1000)
 
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
@@ -175,6 +176,11 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         content: `:bangbang: Woah there, **${interaction.user.displayName}**! You've already got a blackjack game going!`
     });
 
+    const d = new Date();
+    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 10 >= Math.floor(d.getTime()/1000)) return interaction.reply({
+        content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!!`
+    });
+
     const result = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (result) return;
 
@@ -194,7 +200,6 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const can_double_down = GetWallet(interaction.user.id) >= bet;
 
     BetRecovery.set(interaction.user.id, bet);
-    const d = new Date();
 
     let this_deck = CloneArray(DECK);
     ShuffleCards(this_deck);
@@ -311,6 +316,8 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         });
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
+        const d = new Date();
+        LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
 
         GamesActive.delete(interaction.user.id);
     } else {
@@ -364,8 +371,11 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
     
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
-    game.gameActive = false;
 
+    const d = new Date();
+    LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
+    
+    game.gameActive = false;
     GamesActive.delete(interaction.user.id);
 }
 
