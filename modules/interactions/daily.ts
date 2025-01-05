@@ -10,6 +10,10 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     if (result < 0) {
         // must wait
+        if (interaction.locale = Locale.Japanese) return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, あまりに早くです！あなたの日常の褒美は【<t:${-result}:R>】`
+        })
+
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, it's too early! Come back <t:${-result}:R> to claim your daily.`
         });
@@ -32,6 +36,10 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     
     let percentage = 100+(100*0.05*(streak_count-1));
     if (percentage > 200) percentage = 200;
+
+    if (interaction.locale = Locale.Japanese) return interaction.editReply({
+        content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')}OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`
+    })
     
     interaction.editReply({
         content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')}OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
