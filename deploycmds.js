@@ -4,9 +4,11 @@ const { clientId, token, devtoken, devclientId } = require('./config.json');
 const config = require('./config.json');
 
 const commands = [
-	new SlashCommandBuilder().setName('info').setDescription('Get some info on the bot!'),
+	new SlashCommandBuilder().setName('info').setDescription('Get some info on the bot!')
+        .setNameLocalization('ja', 'インフォ').setDescriptionLocalization('ja', 'okabotのインフォを見って'),
 	new SlashCommandBuilder().setName('debug').setDescription('Replies with debug info!'),
-	new SlashCommandBuilder().setName('daily').setDescription('Get your daily okash reward!'),
+	new SlashCommandBuilder().setName('daily').setDescription('Get your daily okash reward!')
+        .setNameLocalization('ja', '日常の褒美').setDescriptionLocalization('ja', '日常の褒美をゲットする'),
 	new SlashCommandBuilder().setName('okash').setDescription('View your bank balance!'),
     new SlashCommandBuilder().setName('pay').setDescription('Pay someone some okash!')
         .addUserOption(option => option.setName('user').setDescription('The person to pay').setRequired(true))
