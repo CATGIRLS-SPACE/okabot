@@ -2,7 +2,6 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteracti
 import { Logger } from "okayulogger";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "./wallet";
 import { AddXP } from "../levels/onMessage";
-import { DEV } from "../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../user/prefs";
 import { GetEmoji } from "../../util/emoji";
 
@@ -14,21 +13,7 @@ interface HandCard {
     value: number, name: string
 }
 
-const CARDS: Array<HandCard> = [
-    { value: 1, name: 'ca' },
-    { value: 2, name: 'c2' },
-    { value: 3, name: 'c3' },
-    { value: 4, name: 'c4' },
-    { value: 5, name: 'c5' },
-    { value: 6, name: 'c6' },
-    { value: 7, name: 'c7' },
-    { value: 8, name: 'c8' },
-    { value: 9, name: 'c9' },
-    { value: 10, name: 'c10' },
-    { value: 10, name: 'cr' } // redundant to have all the royalty
-]
-
-// 52-card deck
+// 52-card deck? no. 44. royalty was pissing me off.
 const DECK: Array<HandCard> = [
     { value: 1, name: 'ca' },
     { value: 1, name: 'ca' },
@@ -84,17 +69,7 @@ const DECK: Array<HandCard> = [
     { value: 10, name: 'cr' },
     { value: 10, name: 'cr' },
     { value: 10, name: 'cr' },
-
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    // 48
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    { value: 10, name: 'cr' },
-    // 52
+    // 44
 ]
 
 interface BlackjackGame {
