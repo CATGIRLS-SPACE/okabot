@@ -1,5 +1,5 @@
 import { ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { COIN_COLOR, GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { AddToWallet } from "../okash/wallet";
 import { GetEmoji } from "../../util/emoji";
@@ -58,6 +58,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
 
     // splice from inventory
     profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(NAMES[item]), 1);
+    profile.customization.coin_color = COIN_COLOR.DEFAULT;
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({
