@@ -11,7 +11,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
 
     await interaction.reply({
         content: interaction.locale==Locale.Japanese?
-                `${GetEmoji('okash')} **${interaction.user.displayName}**さん、ポケットにOKA**${wallet}**、銀行にOKA**${wallet}**があります`:
+                `${GetEmoji('okash')} **${interaction.user.displayName}**さん、ポケットにOKA**${wallet}**、銀行にOKA**${bank}**があります`:
                 `${GetEmoji('okash')} **${interaction.user.displayName}**, you've got OKA**${wallet}** in your wallet and OKA**${bank}** in your bank.`,
         flags: [MessageFlags.SuppressNotifications]
     });
