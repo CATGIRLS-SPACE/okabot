@@ -30,6 +30,7 @@ import { StartHTTPServer } from './modules/http/server';
 import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 import { HandleCommandSell } from './modules/interactions/sell';
 import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
+import { ScheduleJob } from './modules/tasks/cfResetBonus';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -64,6 +65,7 @@ const client = new Client({
 client.once(Events.ClientReady, (c: Client) => {
     SetupPrefs(__dirname);
     LoadVoiceData();
+    ScheduleJob(c); // schedule the coinflip reset bonus
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
@@ -243,7 +245,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     HandleVoiceEvent(client, oldState, newState);
 });
 
-interface coin_floats {
+export interface CoinFloats {
     coinflip:{
         high: {
             value: number,
@@ -267,13 +269,14 @@ interface coin_floats {
             next: number, // when the next day will start
             high: {
                 value: number,
-                user_id: number,
+                user_id: string,
             },
             low: {
                 value: number,
-                user_id: number
+                user_id: string
             }
-        }
+        },
+        all_rolls: Array<number>
     }
 }
 
@@ -282,9 +285,10 @@ if (!existsSync(join(__dirname, 'stats.oka'))) writeFileSync(join(__dirname, 'st
 async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     const okawaffles = await client.users.fetch("796201956255334452");
 
-    const stats: coin_floats  = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
-    const highest_holder = await client.users.fetch(stats.coinflip.high.user_id);
-    const lowest_holder = await client.users.fetch(stats.coinflip.low.user_id);
+    const stats: CoinFloats = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
+
+    let all_flips = 0;
+    stats.coinflip.all_rolls.forEach(roll => all_flips += roll);
 
     const info_embed = new EmbedBuilder()
     .setTitle(`<:nekoheart:1316232330733682689> okabot v${version} <:nekoheart:1316232330733682689>`)
@@ -297,8 +301,11 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         {name:'Testing', value:'okawaffles, tacobella03', inline: true},
         {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
         {name:'Earthquake Information Sources', value:'Japan Meteorological Agency', inline: false},
-        {name:'Highest coinflip float',value:`${stats.coinflip.high.value} by <@${highest_holder.id}>`, inline:true},
-        {name:'Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${lowest_holder.id}>`, inline:true},
+        {name:'All-time Highest coinflip float',value:`${stats.coinflip.high.value} by <@${stats.coinflip.high.user_id}>`, inline:true},
+        {name:'All-time Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${stats.coinflip.low.user_id}>`, inline:true},
+        {name:'All-time Average coinflip float',value:`${all_flips/stats.coinflip.all_rolls.length}`, inline:false},
+        {name:'Today\'s Highest coinflip float',value:`${stats.coinflip.daily!.high.value} by <@${stats.coinflip.daily!.high.user_id}>`, inline:true},
+        {name:'Today\'s Lowest coinflip float',value:`${stats.coinflip.daily!.low.value} by <@${stats.coinflip.daily!.low.user_id}>`, inline:true},
     )
     .setFooter({text: 'read if cute | thanks for using my bot <3'})
     .setThumbnail(client.user!.avatarURL())

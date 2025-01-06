@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, MessageFlags, TextChannel } from "discord.
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME, CoinFloats } from "../..";
 import { join } from "path";
 import { getRandomValues } from "crypto";
 import { AddXP } from "../levels/onMessage";
@@ -39,19 +39,6 @@ const COIN_EMOJIS_DONE: {
     5:'cff_purple',
     16:'cff_dgreen',
     17:'cff_rainbow'
-}
-
-interface coin_floats {
-    coinflip:{
-        high: {
-            value: number,
-            user_id: string
-        },
-        low: {
-            value: number,
-            user_id: string
-        }
-    }
 }
 
 export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
@@ -160,7 +147,14 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }
 
     setTimeout(() => {
-        const stats: coin_floats = JSON.parse(readFileSync(stats_file, 'utf-8'));
+        const stats: CoinFloats = JSON.parse(readFileSync(stats_file, 'utf-8'));
+
+        // ensure we dont blow up the bot somehow
+        if (!stats.coinflip.daily) stats.coinflip.daily = {
+            next: 0,
+            high: {user_id: 'okabot',value: 0},
+            low: {user_id: 'okabot',value: 1}
+        }
 
         let new_float = '';
         const REWARD = 250;
@@ -177,6 +171,22 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             stats.coinflip.low.user_id = interaction.user.id;
             AddToWallet(interaction.user.id, Math.abs(Math.floor(REWARD - (rolled*REWARD))));
         }
+        
+        // daily rolls
+        if (stats.coinflip.daily.high.value < rolled) {
+            new_float += `\n**NEW DAILY HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled today!`;
+            stats.coinflip.daily.high.value = rolled;
+            stats.coinflip.daily.high.user_id = interaction.user.id;
+        }
+        if (stats.coinflip.daily.low.value > rolled) {
+            new_float += `\n**NEW DAILY LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled today!`;
+            stats.coinflip.daily.low.value = rolled;
+            stats.coinflip.daily.low.user_id = interaction.user.id;
+        }
+
+        // save coinflip for averaging
+        if (!stats.coinflip.all_rolls) stats.coinflip.all_rolls = [];
+        stats.coinflip.all_rolls.push(rolled);
 
         interaction.editReply({
             content: `${emoji_finish} ${next_message}${new_float}`
