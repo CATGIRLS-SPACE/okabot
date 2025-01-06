@@ -31,17 +31,20 @@ const STRINGS: {
     [key:string]: {[key: string]: string}
 } = {
     'bad_item':{
-        'en':":crying_cat_face: Looks like either you don't have that or I don't buy it, **%s**!",
+        'en-US':":crying_cat_face: Looks like either you don't have that or I don't buy it, **%s**!",
         'ja':":crying_cat_face: あのアイテムを売りません"
     },
     'success':{
-        'en':`${GetEmoji('cat_money')} **%s**, you sold your \`%s\` for OKA**%s**!`,
+        'en-US':`${GetEmoji('cat_money')} **%s**, you sold your \`%s\` for OKA**%s**!`,
         'ja':`${GetEmoji('cat_money')} **%s**, あなたの\`%s\`をOKA**%s**で売りました!`
     },
 }
 
 export async function HandleCommandSell(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply({flags:[MessageFlags.SuppressNotifications]});
+
+    let locale = interaction.locale;
+    if (locale != Locale.EnglishUS && locale != Locale.Japanese) locale = Locale.EnglishUS;
 
     // check if the user has this item in their inventory
     const profile = GetUserProfile(interaction.user.id);
