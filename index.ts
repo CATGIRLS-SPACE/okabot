@@ -29,6 +29,7 @@ import { SetupBlackjackMessage } from './modules/okash/blackjack';
 import { StartHTTPServer } from './modules/http/server';
 import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 import { HandleCommandSell } from './modules/interactions/sell';
+import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -62,6 +63,7 @@ const client = new Client({
 
 client.once(Events.ClientReady, (c: Client) => {
     SetupPrefs(__dirname);
+    LoadVoiceData();
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
@@ -237,47 +239,8 @@ client.on(Events.MessageCreate, async message => {
     })
 });
 
-const CHANNEL_CHATSIES = !DEV?'1019089378343137373':'858904835222667315';
-const VoiceData = new Map<string, number>();
-
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-    
-
-    const d = new Date();
-    const event_time = Math.floor(d.getTime() / 1000);
-
-    if (oldState.channelId == null) {
-        // user has joined a channel
-        L.info(`${newState.member!.displayName} joined voice.`);
-
-        VoiceData.set(newState.member!.id, event_time);
-    }
-
-    if (newState.channelId == null) {   
-        // user has left a channel
-        L.info(`${newState.member!.displayName} left voice.`);
-        
-        if (!VoiceData.get(oldState.member!.id)) return;
-
-        console.log(event_time, VoiceData.get(newState.member!.id));
-        
-        if (event_time < VoiceData.get(newState.member!.id)! + 60) return;
-        
-        // calculate amount of XP to award
-        let xp_gained = 0;
-        let minutes_elapsed = Math.floor((event_time - VoiceData.get(newState.member!.id)!) / 60);
-        if (minutes_elapsed == 0) return;
-        for (let i = 0; i <= minutes_elapsed; i++) xp_gained += Math.floor(Math.random() * 7) + 3;
-        
-        const channel = client.channels.cache.get(CHANNEL_CHATSIES) as TextChannel;
-        AddXP(newState.member!.id, channel, xp_gained);
-        
-        channel.send({
-            content:`<@${newState.member!.id}>, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
-        });
-
-        VoiceData.delete(newState.member!.id);
-    }
+    HandleVoiceEvent(client, oldState, newState);
 });
 
 interface coin_floats {
