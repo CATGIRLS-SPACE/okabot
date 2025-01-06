@@ -26,9 +26,9 @@ import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rul
 import { Dangerous_WipeAllLevels, HandleCommandLevel } from './modules/levels/levels';
 import { AddXP, DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/blackjack';
-import { GetEmoji } from './util/emoji';
 import { StartHTTPServer } from './modules/http/server';
 import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
+import { HandleCommandSell } from './modules/interactions/sell';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -174,6 +174,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'buy':
             await HandleCommandBuy(interaction);
+            break;
+        case 'sell':
+            await HandleCommandSell(interaction);
             break;
         case 'pockets':
             await HandleCommandPockets(interaction);
