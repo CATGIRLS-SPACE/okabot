@@ -50,7 +50,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     const profile = GetUserProfile(interaction.user.id);
     const item = interaction.options.getString('item', true).toLowerCase();
     if (!profile.customization.unlocked.includes(NAMES[item])) return interaction.editReply({
-        content: format(STRINGS['bad_item'][interaction.locale], interaction.user.displayName)
+        content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
     });
 
     // sell prices are 70% of the original price
@@ -61,6 +61,6 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({
-        content:format(STRINGS['success'][interaction.locale], interaction.user.displayName, item, SELL_PRICES[item])
+        content:format(STRINGS['success'][locale], interaction.user.displayName, item, SELL_PRICES[item])
     });
 }
