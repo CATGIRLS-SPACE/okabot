@@ -32,11 +32,11 @@ const STRINGS: {
 } = {
     'bad_item':{
         'en-US':":crying_cat_face: Looks like either you don't have that or I don't buy it, **%s**!",
-        'ja':":crying_cat_face: あのアイテムを売りません"
+        'ja':":crying_cat_face: **%s**さん、あのアイテムを売りません"
     },
     'success':{
         'en-US':`${GetEmoji('cat_money')} **%s**, you sold your \`%s\` for OKA**%s**!`,
-        'ja':`${GetEmoji('cat_money')} **%s**, あなたの\`%s\`をOKA**%s**で売りました!`
+        'ja':`${GetEmoji('cat_money')} **%s**さん, あなたの\`%s\`をOKA**%s**で売りました!`
     },
 }
 

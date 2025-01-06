@@ -1,7 +1,8 @@
-import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale } from "discord.js";
 import { GetAllWallets } from "../okash/wallet";
 import { Logger } from "okayulogger";
 import { GetAllLevels } from "../user/prefs";
+import { GetEmoji } from "../../util/emoji";
 
 const L = new Logger('leaderboard');
 
@@ -40,7 +41,7 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
 
     // create the embed
     const embed = new EmbedBuilder()
-        .setTitle(`okash Leaderboard for **${interaction.guild?.name}**`)
+        .setTitle(interaction.locale==Locale.Japanese?`**${interaction.guild!.name}** okashのランキング`:`okash Leaderboard for **${interaction.guild?.name}**`)
         .setAuthor({name:interaction.guild!.name, iconURL:interaction.guild!.iconURL()!})
         .setColor(0x9d60cc);
 
@@ -56,7 +57,10 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
             const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
             
             if (isMember) {
-                fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@${balance.user_id}> has <:okash:1315058783889657928> OKA**${balance.amount}**!`, inline: false});   
+                fields.push({
+                    name: (interaction.locale == Locale.Japanese)?`${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName + 'さん' || '（不明のユーザ）'}`:`${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, 
+                    value: (interaction.locale == Locale.Japanese)?`${GetEmoji('okash')} OKA**${balance.amount}**があります`:`has ${GetEmoji('okash')} OKA**${balance.amount}**!`, 
+                    inline: false});   
                 i++;
             }
         } catch (err) {

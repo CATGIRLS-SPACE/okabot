@@ -1,5 +1,6 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
 import { GetBank, GetWallet } from "../okash/wallet";
+import { GetEmoji } from "../../util/emoji";
 
 
 export async function HandleCommandOkash(interaction: ChatInputCommandInteraction) {
@@ -9,8 +10,9 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     const bank = GetBank(interaction.user.id);
 
     await interaction.reply({
-        // content: `<:okash:1315058783889657928> **${interaction.user.displayName}**, you've got OKA**${wallet}** in your wallet and OKA**${bank}** in your bank.`
-        content: `<:okash:1315058783889657928> **${interaction.user.displayName}**, you've got OKA**${wallet}** in your wallet.`,
+        content: interaction.locale==Locale.Japanese?
+                `${GetEmoji('okash')} **${interaction.user.displayName}**さん、ポケットにOKA**${wallet}**、銀行にOKA**${wallet}**があります`:
+                `${GetEmoji('okash')} **${interaction.user.displayName}**, you've got OKA**${wallet}** in your wallet and OKA**${bank}** in your bank.`,
         flags: [MessageFlags.SuppressNotifications]
     });
 }

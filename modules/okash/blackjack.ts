@@ -152,9 +152,12 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     });
 
     const d = new Date();
-    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 10 >= Math.floor(d.getTime()/1000)) return interaction.reply({
-        content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!!`
-    });
+    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 >= Math.floor(d.getTime()/1000)) {
+        await interaction.reply({
+            content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000)} sec.`
+        });
+        return;
+    }
 
     const result = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (result) return;

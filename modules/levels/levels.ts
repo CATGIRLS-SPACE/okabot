@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { AttachmentBuilder, ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { BASE_DIRNAME } from "../..";
 import { join, resolve } from "path";
@@ -17,25 +17,27 @@ const BAR_COLORS: {
 };
 
 const LEVEL_DICTIONARY = [
-    {name:'Kitten',levels:5},
-    {name:'Catgirl',levels:5},
-    {name:'Silver Bell Trainee',levels:10},
-    {name:'Silver Bell Holder',levels:10},
-    {name:'Gold Bell Trainee',levels:10},
-    {name:'Gold Bell Holder',levels:10},
-    {name:'Waitress',levels:10},
-    {name:'Delivery Maine Coon',levels:10},
-    {name:'Tea-brewing American Curl',levels:10},
-    {name:'Custard Munchkin',levels:10},
-    {name:'Strawberry-polishing Scottish Fold',levels:10},
+    {name:{en:'Kitten',ja:'子猫'},levels:5},
+    {name:{en:'Catgirl',ja:'ネコ'},levels:5},
+    {name:{en:'Silver Bell Trainee',ja:'銀色のベル訓練生'},levels:10},
+    {name:{en:'Silver Bell Holder',ja:'銀色のベル持ち'},levels:10},
+    {name:{en:'Gold Bell Trainee',ja:'金色のベル訓練生'},levels:10},
+    {name:{en:'Gold Bell Holder',ja:'金色のベル持ち'},levels:10},
+    {name:{en:'Waitress',ja:'ウェイトレス'},levels:10},
+    {name:{en:'Delivery Maine Coon',ja:'配達員のメインクーン'},levels:10},
+    {name:{en:'Tea-Brewing American Curl',ja:'お茶のアメリカンカール'},levels:10},
+    {name:{en:'Custard Munchkin',ja:'カスタードのマンチカン'},levels:10},
+    {name:{en:'Strawberry-Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
 ];
 
 // create appropriate level names on boot
 const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']; // im lazy
-export const LEVEL_NAMES: Array<string> = [];
+export const LEVEL_NAMES_EN: Array<string> = [];
+export const LEVEL_NAMES_JA: Array<string> = [];
 
 LEVEL_DICTIONARY.forEach(item => {
-    for (let i = 1; i <= item.levels; i++) LEVEL_NAMES.push(`${item.name} ${ROMAN_NUMERALS[i-1]}`);
+    for (let i = 1; i <= item.levels; i++) LEVEL_NAMES_EN.push(`${item.name.en} ${ROMAN_NUMERALS[i-1]}`);
+    for (let i = 1; i <= item.levels; i++) LEVEL_NAMES_JA.push(`${item.name.ja} ${ROMAN_NUMERALS[i-1]}`);
 });
 
 
@@ -83,6 +85,8 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
+
+    const LEVEL_NAMES = interaction.locale==Locale.Japanese?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
 
     const width = 600; // Banner width
     const height = 150; // Banner height
@@ -135,7 +139,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     // Level
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#b4c1d9';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1]} (${profile.level.level})`, 20, 90);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1] || 'BEYOND'} (${profile.level.level})`, 20, 90);
 
     // XP Bar Background
     const barX = 20;
