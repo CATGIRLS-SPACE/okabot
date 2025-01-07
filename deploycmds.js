@@ -150,7 +150,9 @@ const commands = [
 
 
     new SlashCommandBuilder().setName('blackjack').setDescription('Play a game of blackjack for a chance at increasing your money!')
-        .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(5_000).setMinValue(1))
+        .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(5_000).setMinValue(1)),
+
+    new SlashCommandBuilder().setName('render').setDescription('Render data (coinflip only)').addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false))
 
 ].map(command => command.toJSON());
  

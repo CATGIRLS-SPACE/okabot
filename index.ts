@@ -31,6 +31,7 @@ import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 import { HandleCommandSell } from './modules/interactions/sell';
 import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
 import { ScheduleJob } from './modules/tasks/cfResetBonus';
+import { GenerateCoinflipDataDisplay } from './modules/extra/datarenderer';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -193,6 +194,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'level':
             await HandleCommandLevel(interaction);
+            break;
+        case 'render':
+            await GenerateCoinflipDataDisplay(interaction);
             break;
     }
 });
