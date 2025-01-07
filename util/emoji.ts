@@ -1,6 +1,50 @@
 import { DEV } from ".."
 
-const EMOJI: {
+export enum EMOJI {
+    OKASH = 'okash',
+    NEKOHEART = 'nekoheart',
+    CAT_RAISED_EYEBROWS = 'cat_raised',
+    CAT_SUNGLASSES = 'cat_sunglasses',
+    CAT_MONEY_EYES = 'cat_money',
+    // coins
+    COIN_DEFAULT_FLIPPING = 'cfw',
+    COIN_DEFAULT_STATIONARY = 'cff',
+    COIN_RED_FLIPPING = 'cfw_red',
+    COIN_RED_STATIONARY = 'cff_red',
+    COIN_BLUE_FLIPPING = 'cfw_blue',
+    COIN_BLUE_STATIONARY = 'cff_blue',
+    COIN_DARK_BLUE_FLIPPING = 'cfw_dblue',
+    COIN_DARK_BLUE_STATIONARY = 'cff_dblue',
+    WEIGHTED_COIN_FLIPPING = 'cfw_green',
+    WEIGHTED_COIN_STATIONARY = 'cff_green',
+    COIN_DARK_GREEN_FLIPPING = 'cfw_dgreen',
+    COIN_DARK_GREEN_STATIONARY = 'cff_dgreen',
+    COIN_PINK_FLIPPING = 'cfw_pink',
+    COIN_PINK_STATIONARY = 'cff_pink',
+    COIN_PURPLE_FLIPPING = 'cfw_purple',
+    COIN_PURPLE_STATIONARY = 'cff_purple',
+    COIN_RAINBOW_FLIPPING = 'cfw_rainbow',
+    COIN_RAINBOW_STATIONARY = 'cff_rainbow',
+    // --
+    STREAK_RESTORE_GEM = 'g00',
+    MYSTERY_GEM = 'g01',
+    // cards
+    ACE = 'ca',
+    TWO = 'c2',
+    THREE = 'c3',
+    FOUR = 'c4',
+    FIVE = 'c5',
+    SIX = 'c6',
+    SEVEN = 'c7',
+    EIGHT = 'c8',
+    NINE = 'c9',
+    TEN = 'c10',
+    ROYALTY = 'cr',
+    CARD_BACK = 'cb',
+    //--
+}
+
+const EMOJI_KEYS: {
     [key: string]: {prod:string, dev:string, animated?: boolean}
 } = {
     // main
@@ -48,5 +92,5 @@ const EMOJI: {
 }
 
 export function GetEmoji(name: string): string {
-    return `<${EMOJI[name].animated?'a':''}:${name}:${EMOJI[name][DEV?'dev':'prod']}>`;
+    return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][DEV?'dev':'prod']}>`;
 }
