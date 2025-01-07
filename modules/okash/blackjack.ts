@@ -148,13 +148,15 @@ const row_willbust = new ActionRowBuilder()
 
 export async function SetupBlackjackMessage(interaction: ChatInputCommandInteraction) {
     if (GamesActive.has(interaction.user.id)) return interaction.reply({
-        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You've already got a blackjack game going!`
+        content: `:bangbang: Woah there, **${interaction.user.displayName}**! You've already got a blackjack game going!`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     const d = new Date();
     if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 >= Math.floor(d.getTime()/1000)) {
         await interaction.reply({
-            content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000)} sec.`
+            content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000)} sec.`,
+            flags: [MessageFlags.SuppressNotifications]
         });
         return;
     }
@@ -165,12 +167,14 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const bet = interaction.options.getNumber('bet')!;
 
     if (bet.toString().includes('.')) return interaction.reply({
-        content:`:x: **${interaction.user.displayName}**, I don't have change!`
+        content:`:x: **${interaction.user.displayName}**, I don't have change!`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     const wallet = GetWallet(interaction.user.id);
     if (wallet < bet) return interaction.reply({
-        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have that much!`
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have that much!`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
 
