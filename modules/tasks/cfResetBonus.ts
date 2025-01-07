@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync } from 'fs';
 const DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT = false;
 
 const COINFLIP_MINMAX_BONUS = 1000;
-const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 8 * * *':'0 * * * * *';
+const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 15 * * *':'0 * * * * *';
 const BROADCAST_CHANNEL = !DEV?'1019089378343137373':'941843973641736253'; // #chatsies / #okabot-private-test
 const L = new Logger('coinflip reset bonus');
 
