@@ -78,6 +78,14 @@ export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandI
     });
 }
 
+
+export async function GenerateCoinflipRecentsGraph(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+
+    
+}
+
+
 function randomColor(): string {
     return `rgb(25, ${Math.round(Math.random() * 155)+100}, 50);`
 }

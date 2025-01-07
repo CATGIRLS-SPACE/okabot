@@ -297,6 +297,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 
     const info_embed = new EmbedBuilder()
     .setTitle(`<:nekoheart:1316232330733682689> okabot v${version} <:nekoheart:1316232330733682689>`)
+    .setColor(0x9d60cc)
     .setAuthor({
         name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL() 
     })
