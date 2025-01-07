@@ -5,7 +5,7 @@ import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
 import { HandleCommandDaily } from './modules/interactions/daily.js';
 import { HandleCommandPay } from './modules/interactions/pay.js';
 import { HandleCommandOkash } from './modules/interactions/okash.js';
-import { CheckAdminShorthands, DoRandomOkashRolls } from './modules/passive/onMessage.js';
+import { CheckAdminShorthands, DoRandomOkashRolls, DoRandomLootboxRolls } from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
 export const DEV = config.extra.includes('use dev token'); // load this asap
@@ -221,7 +221,8 @@ client.on(Events.MessageCreate, async message => {
     WordleCheck(message);
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);
-    
+    DoRandomLootboxRolls(message);
+
     if (message.channel.id == "1321639990383476797") {
         let final_message = message.content;
 

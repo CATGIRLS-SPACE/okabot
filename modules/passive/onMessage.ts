@@ -1,6 +1,6 @@
 import { EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { GEMS, ITEM_TYPE } from "../okash/items";
+import { GEMS, ITEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { LISTENING, SetListening } from "../..";
@@ -209,7 +209,7 @@ export async function DoRandomOkashRolls(message: Message) {
     // random cash rolls for each message
     // 1 in 500 seems decent enough for 1-1000 i think...
     const small_roll = Math.floor(Math.random() * 500);
-    // console.log('small roll: ' + small_roll);
+    console.log(`small roll: ${small_roll}`);
     if (small_roll == 250) {
         console.log('trigger small reward');
         const find_money_msg = await message.reply(':grey_question: ...oh? what\'s this..?');
@@ -225,7 +225,7 @@ export async function DoRandomOkashRolls(message: Message) {
     // 1 in 2500 for a BIG payout
     // arbitrary number 1561 cuz why not!
     const big_roll = Math.floor(Math.random() * 2500);
-    // console.log(`big roll: ${big_roll}`);
+    console.log(`big roll: ${big_roll}`);
     if (big_roll == 1561) {
         console.log('trigger big reward');
         const find_money_msg = await message.reply(':question: ...oh? what\'s this..?');
@@ -239,4 +239,37 @@ export async function DoRandomOkashRolls(message: Message) {
             find_money_msg.edit(`:scream_cat: **${message.author.username}**, holy beans!! You found OKA${found_amount}!`);
         }, 3000);
     }
+}
+
+export async function DoRandomLootboxRolls(message: Message) {
+    // Roll for lootbox drop
+    const common_lootbox_roll = Math.floor(Math.random() * 250);  // Roll between 0 and 249
+    console.log(`Rolled number: ${common_lootbox_roll}`);
+    const lootbox_trigger = 13; // The number that triggers a lootbox
+
+    if (common_lootbox_roll === lootbox_trigger) {
+        console.log('Lootbox triggered!');
+        const find_lootbox_message = await message.reply(`:anger: ouch! what the...?`);
+        return setTimeout(() => {
+            // Add lootbox to inventory for later opening            
+            AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_COMMON);
+
+            find_lootbox_message.edit(`:scream_cat: **${message.author.username}**! You tripped over a lootbox!`);
+        },  3000);
+    }
+        // Roll for lootbox drop
+        const rare_lootbox_roll = Math.floor(Math.random() * 750);  // Roll between 0 and 749
+        console.log(`Rolled number: ${rare_lootbox_roll}`);
+        const rare_lootbox_trigger = 1; // The number that triggers a lootbox
+    
+        if (rare_lootbox_roll === rare_lootbox_trigger) {
+            console.log('Lootbox triggered!');
+            const find_lootbox_message = await message.reply(`:anger: ouchies! what was that...?`);
+            return setTimeout(() => {
+                // Add lootbox to inventory for later opening            
+                AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_RARE);
+    
+                find_lootbox_message.edit(`:scream_cat: **${message.author.username}**, woah!! You fell over a rare lootbox!`);
+            },  3000);
+        }
 }
