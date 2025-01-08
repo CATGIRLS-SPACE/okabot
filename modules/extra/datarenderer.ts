@@ -3,6 +3,7 @@ import { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME, CoinFloats } from "../..";
+import { Stocks } from "../okash/stock";
 
 
 export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandInteraction) {
@@ -88,4 +89,9 @@ export async function GenerateCoinflipRecentsGraph(interaction: ChatInputCommand
 
 function randomColor(): string {
     return `rgb(25, ${Math.round(Math.random() * 155)+100}, 50);`
+}
+
+
+export async function RenderStockDisplay(interaction: ChatInputCommandInteraction) {
+    
 }
