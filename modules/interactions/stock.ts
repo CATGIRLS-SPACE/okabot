@@ -29,6 +29,10 @@ const STRINGS: {[key:string]: {en:string,ja:string}} = {
     sell_ok: {
         en:`You sold **%s shares of %s** for %s!`,
         ja:'%s株%sの株式を売りました、総計は%sです'
+    },
+    shares: {
+        en:'-- You own %s shares, totaling %s',
+        ja:'-- %s株持っています、総計は%sです'
     }
 }
 
@@ -53,9 +57,9 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
             fxgl: GetSharePrice(Stocks.FOXGIRL),
         }
 
-        const neko = `**${locale=='ja'?'ネコ':'Catgirl'} - NEKO** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.neko}** ${user_shares.neko!=0?'-- You own ' + user_shares.neko + ' shares totaling ' + GetEmoji(EMOJI.OKASH) + ' OKA**' + Math.round(user_shares.neko*prices.neko) + '**':''}`;
-        const dogy = `**${locale=='ja'?'子犬':'Doggirl'} - DOGY** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.dogy}** ${user_shares.dogy!=0?'-- You own ' + user_shares.dogy + ' shares totaling ' + GetEmoji(EMOJI.OKASH) + ' OKA**' + Math.round(user_shares.dogy*prices.dogy) + '**':''}`
-        const fxgl = `**${locale=='ja'?'狐少女':'Foxgirl'} - FXGL** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.fxgl}** ${user_shares.fxgl!=0?'-- You own ' + user_shares.fxgl + ' shares totaling ' + GetEmoji(EMOJI.OKASH) + ' OKA**' + Math.round(user_shares.fxgl*prices.fxgl) + '**':''}`;
+        const neko = `**${locale=='ja'?'ネコ':'Catgirl'} - NEKO** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.neko}** ${user_shares.neko!=0?format(STRINGS.shares[locale], user_shares.neko, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.neko*prices.neko)}**`):''}`;
+        const dogy = `**${locale=='ja'?'子犬':'Doggirl'} - DOGY** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.dogy}** ${user_shares.dogy!=0?format(STRINGS.shares[locale], user_shares.dogy, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.dogy*prices.dogy)}**`):''}`
+        const fxgl = `**${locale=='ja'?'狐少女':'Foxgirl'} - FXGL** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.fxgl}** ${user_shares.fxgl!=0?format(STRINGS.shares[locale], user_shares.fxgl, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.fxgl*prices.fxgl)}**`):''}`;
 
         // okey
         interaction.editReply({
@@ -78,7 +82,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         BuyShares(interaction.user.id, stock as Stocks, amount);
 
         interaction.editReply({
-            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} You bought **${amount} shares of ${stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL'}** for ${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**!`
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.buy_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
         });
     }
 
@@ -96,7 +100,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         AddToWallet(interaction.user.id, Math.round(amount*share_price));
 
         interaction.editReply({
-            content:`You sold **${amount} shares of ${stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL'}** for ${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount*share_price)}**`
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
         })
     }
 }
