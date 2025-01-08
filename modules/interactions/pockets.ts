@@ -11,9 +11,9 @@ const GEM_NAMES: {
 const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:':package: Lootbox',desc:'A box containing all sorts of goodies!'},
-    1: {name:':package: rare',desc:'A box that has a good chance of giving better items!'},
-    2: {name:':package: rarest',desc:'A fancy box that gives really good items!'},
+    0: {name:':package: Common Lootbox',desc:'A box containing all sorts of goodies!'},
+    1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
+    2: {name:':package: Epic Lootbox',desc:'A fancy box that gives really good items!'},
     3: {name:'<:cff_green:1315843280776462356> Weighted Coin',desc:'Slightly increases your chances at winning your next coinflip.'}
 }
 
