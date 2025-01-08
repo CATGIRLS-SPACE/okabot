@@ -59,7 +59,7 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
             if (isMember) {
                 fields.push({
                     name: (interaction.locale == Locale.Japanese)?`${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName + 'さん' || '（不明のユーザ）'}`:`${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, 
-                    value: (interaction.locale == Locale.Japanese)?`${GetEmoji('okash')} OKA**${balance.amount}**があります`:`has ${GetEmoji('okash')} OKA**${balance.amount}**!`, 
+                    value: (interaction.locale == Locale.Japanese)?`${GetEmoji('okash')} OKA**${balance.amount}**持ちです`:`has ${GetEmoji('okash')} OKA**${balance.amount}**!`, 
                     inline: false});   
                 i++;
             }

@@ -3,15 +3,6 @@ import { GetEmoji } from "../../util/emoji";
 import { GetUserProfile } from "../user/prefs";
 
 
-const AVAILABLE_GEMS = new EmbedBuilder()
-    .setTitle('Available items to buy with your okash')
-    .setAuthor({name:'okabot Shop'})
-    .setColor(0x9d60cc)
-    .setFields(
-        {name:`${GetEmoji('g00')} Streak Restore gem`, value:`${GetEmoji('okash')} OKA**15,000**`},
-    )
-
-
 const AVAILABLE_CUSTOMIZATIONS_COIN = new EmbedBuilder()
     .setTitle('Available coinflip customizations to buy with your okash')
     .setDescription('*These provide no advantage other than making you look cooler than your friends*')
@@ -46,9 +37,19 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
     switch (interaction.options.getString('page')) {
         case 'gems':
             const profile = GetUserProfile(interaction.user.id);
-            const user_specific_embed = AVAILABLE_GEMS;
+            // has user-specific items so we must generate it here
+            const AVAILABLE_GEMS = new EmbedBuilder()
+                .setTitle('Available items to buy with your okash')
+                .setAuthor({name:'okabot Shop'})
+                .setColor(0x9d60cc)
+                .setFields(
+                    {name:`${GetEmoji('g00')} Streak Restore gem`, value:`${GetEmoji('okash')} OKA**15,000**`},
+                    {name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`}
+                );
+
+            
             interaction.reply({embeds:[
-                user_specific_embed.addFields({name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`})
+                AVAILABLE_GEMS
             ]});
             break;
     

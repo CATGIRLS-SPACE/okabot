@@ -152,7 +152,56 @@ const commands = [
     new SlashCommandBuilder().setName('blackjack').setDescription('Play a game of blackjack for a chance at increasing your money!')
         .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(5_000).setMinValue(1)),
 
-    new SlashCommandBuilder().setName('render').setDescription('Render data (coinflip only)').addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false))
+    new SlashCommandBuilder().setName('render').setDescription('Render data (coinflip only)').addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false)),
+
+    new SlashCommandBuilder().setName('stock')
+        .setDescription('Manage stocks')
+        .addSubcommand(sc => sc
+            .setName('purchase')
+            .setDescription('Purchase shares of a stock')
+            .addStringOption(option => option
+                .setName('stock')
+                .setDescription('which stock to buy')
+                .addChoices(
+                    {name:'Foxgirl - FXGL', value:'foxgirl'},
+                    {name:'Doggirl - DOGY', value:'doggirl'},
+                    {name:'Catgirl - NEKO', value:'catgirl'},
+                )
+                .setRequired(true)
+            )
+            .addNumberOption(option => option
+                .setName('amount')
+                .setDescription('amount of shares to buy')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(100)
+            )
+        )
+        .addSubcommand(sc => sc
+            .setName('sell')
+            .setDescription('Sell shares of a stock')
+            .addStringOption(option => option
+                .setName('stock')
+                .setDescription('which stock to sell')
+                .addChoices(
+                    {name:'Foxgirl - FXGL', value:'foxgirl'},
+                    {name:'Doggirl - DOGY', value:'doggirl'},
+                    {name:'Catgirl - NEKO', value:'catgirl'},
+                )
+                .setRequired(true)
+            )
+            .addNumberOption(option => option
+                .setName('amount')
+                .setDescription('amount of shares to sell')
+                .setRequired(true)
+                .setMinValue(1)
+                .setMaxValue(100)
+            )
+        )
+        .addSubcommand(sc => sc
+            .setName('show')
+            .setDescription('Show stock prices and how many shares you own')
+        )
 
 ].map(command => command.toJSON());
  

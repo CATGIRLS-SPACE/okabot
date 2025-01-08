@@ -33,6 +33,8 @@ import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
 import { ScheduleJob } from './modules/tasks/cfResetBonus';
 import { GenerateCoinflipDataDisplay } from './modules/extra/datarenderer';
 import { SetupStocks } from './modules/okash/stock';
+import { HandleCommandStock } from './modules/interactions/stock';
+import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -69,6 +71,7 @@ client.once(Events.ClientReady, (c: Client) => {
     SetupStocks(__dirname);
     LoadVoiceData();
     ScheduleJob(c); // schedule the coinflip reset bonus
+    ScheduleStocksTask();
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
@@ -199,6 +202,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'render':
             await GenerateCoinflipDataDisplay(interaction);
+            break;
+        case 'stock':
+            await HandleCommandStock(interaction);
             break;
     }
 });
