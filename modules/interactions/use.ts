@@ -1,9 +1,9 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { RestoreLastDailyStreak, SkipDailyOnce } from "../okash/daily";
 import { GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { calculateLootboxReward } from "../interactions/lootboxes";
+import { calculateLootboxReward, LOOTBOX_REWARD_TYPE } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
@@ -23,7 +23,7 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
         default:
             interaction.reply({
                 content:':x: No such item exists, silly!',
-                ephemeral: true
+                flags: [MessageFlags.Ephemeral]
             });
             break;
     }
@@ -98,13 +98,18 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     const reward = calculateLootboxReward();
     let rewardMessage = '';
 
-    if (reward.type === 'money') {
-        AddToWallet(interaction.user.id, reward.value)
-        rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`
-    }
-    else {
-        AddOneToInventory(interaction.user.id, ITEM_TYPE.ITEM, reward.value)
-        rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`
+    switch (reward.type) {
+        case LOOTBOX_REWARD_TYPE.ITEM:
+            AddOneToInventory(interaction.user.id, ITEM_TYPE.ITEM, reward.value)
+            rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`
+            break;
+    
+        case LOOTBOX_REWARD_TYPE.OKASH:
+            AddToWallet(interaction.user.id, reward.value)
+            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`
+
+        default:
+            break;
     }
 
 
