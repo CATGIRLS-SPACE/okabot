@@ -90,7 +90,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_COMMON);
     
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their **Common Lootbox** and found...`
+        content: `**${interaction.user.displayName}** opened their :package: **Common Lootbox** and found...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
