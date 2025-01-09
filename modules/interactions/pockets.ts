@@ -1,12 +1,13 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Emoji } from "discord.js";
 import { GetInventory } from "../okash/wallet";
 import { GEMS, ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
+import { GetEmoji, EMOJI } from "../../util/emoji";
 
 const GEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:'<:g00:1315084985589563492> Streak Restore',desc:'Restores your streak to its last amount if it is larger than your current streak.'}
+    0: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'}
 }
 const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
@@ -14,18 +15,19 @@ const ITEM_NAMES: {
     0: {name:':package: Common Lootbox',desc:'A box containing all sorts of goodies!'},
     1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
     2: {name:':package: Epic Lootbox',desc:'A fancy box that gives really good items!'},
-    3: {name:'<:cff_green:1315843280776462356> Weighted Coin',desc:'Slightly increases your chances at winning your next coinflip.'}
+    3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
+    6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
 }
 
 const UNLOCK_NAMES: {
     [key: number]: {name: string, desc: string, hide?: boolean}
 } = {
-    0:  {name:'<:cff:1314729249189400596> Default Coin',desc:'The definitely-not-biased classic yellow coin everyone has, but you\'re still convinced it\'s biased.'},
-    1:  {name:'<:cff_red:1316187598791905280> Red Coin',desc:'A red coin. It resembles strawberries. Using this coin makes you feel like you can do anything, maybe even climbing a mountain?'},
-    2:  {name:'<:cff_dblue:1316187532349935728> Dark Blue Coin',desc:'A dark blue coin. This coin has a deep color resembling the ocean. Hopefully you can make your pockets just as deep using this!'},
-    3:  {name:'<:cff_blue:1316187504067739699> Light Blue Coin',desc:'A light blue coin. Even the sky struggles to reach this shade of pure blue. Just like waffles struggles to win her coinflips.'},
-    4:  {name:'<:cff_pink:1316173446803226665> Pink Coin',desc:'A pink coin. You feel rich just looking at it. Or maybe you\'re feeling more feminine. Oh well, basically the same thing, right?'},
-    5:  {name:'<:cff_purple:1316175038042472491> Purple Coin',desc:'A purple coin. It\'s the slightly-less-rich man\'s pink coin, but you don\'t care because it still looks cool anyways.'},
+    0:  {name:`${GetEmoji(EMOJI.COIN_DEFAULT_STATIONARY)} Default Coin`,desc:'The definitely-not-biased classic yellow coin everyone has, but you\'re still convinced it\'s biased.'},
+    1:  {name:`${GetEmoji(EMOJI.COIN_RED_STATIONARY)} Red Coin`,desc:'A red coin. It resembles strawberries. Using this coin makes you feel like you can do anything, maybe even climbing a mountain?'},
+    2:  {name:`${GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY)} Dark Blue Coin`,desc:'A dark blue coin. This coin has a deep color resembling the ocean. Hopefully you can make your pockets just as deep using this!'},
+    3:  {name:`${GetEmoji(EMOJI.COIN_BLUE_STATIONARY)} Light Blue Coin`,desc:'A light blue coin. Even the sky struggles to reach this shade of pure blue. Just like waffles struggles to win her coinflips.'},
+    4:  {name:`${GetEmoji(EMOJI.COIN_PINK_STATIONARY)} Pink Coin`,desc:'A pink coin. You feel rich just looking at it. Or maybe you\'re feeling more feminine. Oh well, basically the same thing, right?'},
+    5:  {name:`${GetEmoji(EMOJI.COIN_PURPLE_STATIONARY)} Purple Coin`,desc:'A purple coin. It\'s the slightly-less-rich man\'s pink coin, but you don\'t care because it still looks cool anyways.'},
     6:  {name:'CV_LEVEL_BANNER_DEF',desc:'',hide:true},
     7:  {name:'Red Level Bar',desc:'Sets your level bar color to red'},
     8:  {name:'Green Level Bar',desc:'Sets your level bar color to blue'},
@@ -36,8 +38,8 @@ const UNLOCK_NAMES: {
     13: {name:'Custom okash Message',desc:'Lets you change the message you get with /okash'},
     14: {name:'bank access',desc:'this item should not be visible in the customize listing'},
     15: {name:'loan access',desc:'this item should not be visible in the customize listing'},
-    16: {name:'<:cff_dgreen:1316187558375456859> Dark Green Coin',desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
-    17: {name:'<a:cff_rainbow:1316224243855261776> Rainbow Coin',desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
+    16: {name:`${GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY)} Dark Green Coin`,desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
+    17: {name:`${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} Rainbow Coin`,desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
     18: {name:'User Banner Level Background',desc:'Enables your level banner to use your Discord banner as its background'},
     19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
 }

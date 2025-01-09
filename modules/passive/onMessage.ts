@@ -261,9 +261,9 @@ export async function DoRandomLootboxRolls(message: Message) {
     }
         
     // Roll for lootbox drop
-    const rare_lootbox_roll = Math.floor(Math.random() * 750);  // Roll between 0 and 749
+    const rare_lootbox_roll = Math.floor(Math.random() * 1000);  // Roll between 0 and 999 (because they were too common?!)
     // L.info(`Rolled number: ${rare_lootbox_roll}`);
-    const rare_lootbox_trigger = 1; // The number that triggers a lootbox
+    const rare_lootbox_trigger = 37; // The number that triggers a lootbox
 
     if (rare_lootbox_roll == rare_lootbox_trigger) {
         L.info('Lootbox triggered!');

@@ -1,12 +1,16 @@
-import { GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
+import { ChatInputCommandInteraction } from "discord.js";
+import { GEMS, ITEM_TYPE, ITEMS, CUSTOMIZATION_UNLOCKS } from "../okash/items";
+import { GetWallet, GetInventory,} from "../okash/wallet";
+import { GetUserProfile} from "../user/prefs";
 
 export enum LOOTBOX_REWARD_TYPE {
     OKASH = 'money',
-    ITEM = 'item'
+    ITEM = 'item',
+    CUSTOMIZATION = ''
 }
 
 // Function that calculates Lootbox Rewards
-export function calculateLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: number } {
+export function commonLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: number } {
     const roll = Math.floor(Math.random() * 100);  // Roll between 0 and 99
     // console.log(`Reward Roll: ${roll}`);
     
@@ -22,4 +26,32 @@ export function calculateLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: nu
             value: ITEMS.WEIGHTED_COIN_ONE_USE 
         };
     }
+}
+
+export function rareLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: number } {
+    const roll = Math.floor(Math.random() * 1000);  // Roll between 0 and 999
+    console.log(`Reward Roll: ${roll}`);
+    
+    if (roll >= 150) { // if the roll is greater than 150, give Okash (85% chance to get okash)
+        let max = 2500;
+        let min = 500;
+        const moneyAmount = Math.floor(Math.random() * (max-min)) + min;  // Random between 500-2500
+
+        return { 
+            type: LOOTBOX_REWARD_TYPE.OKASH, 
+            value: moneyAmount 
+        };
+    } else if (roll<=149 && roll>=20) {
+        return { 
+            type: LOOTBOX_REWARD_TYPE.ITEM, 
+            value: ITEMS.WEIGHTED_COIN_ONE_USE 
+        };
+    }
+    
+    else {
+        return {
+            type:LOOTBOX_REWARD_TYPE.ITEM,
+            value: ITEMS.SHOP_VOUCHER
+        };
+    } 
 }

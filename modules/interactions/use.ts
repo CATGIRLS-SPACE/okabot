@@ -3,7 +3,7 @@ import { RestoreLastDailyStreak, SkipDailyOnce } from "../okash/daily";
 import { GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { calculateLootboxReward, LOOTBOX_REWARD_TYPE } from "../okash/lootboxes";
+import { commonLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
@@ -19,7 +19,11 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
         case 'common lootbox': case 'cl':
             item_common_lootbox(interaction);
             break;
-    
+        
+        case 'rare lootbox': case 'rl':
+            item_rare_lootbox(interaction);
+            break;
+
         default:
             interaction.reply({
                 content:':x: No such item exists, silly!',
@@ -95,7 +99,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const reward = calculateLootboxReward();
+    const reward = commonLootboxReward();
     let rewardMessage = '';
 
     switch (reward.type) {
@@ -116,5 +120,50 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opened their **Common Lootbox** and found ${rewardMessage}`
     })
+}
+async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
 
+    const inventory = GetInventory(interaction.user.id);
+    // const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
+
+    if (inventory.other.indexOf(ITEMS.RANDOM_DROP_RARE) == -1) {
+        return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any :package: **Rare Lootboxes**!`
+        });
+    }
+
+    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_RARE);
+    
+    await interaction.editReply({
+        content: `**${interaction.user.displayName}** opened their :package: **Rare Lootbox** and found...`
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    const reward = rareLootboxReward();
+    let rewardMessage = '';
+
+    switch (reward.type) {
+        case LOOTBOX_REWARD_TYPE.ITEM:
+            AddOneToInventory(interaction.user.id, ITEM_TYPE.ITEM, reward.value);
+
+            // Dynamic message based on the item received
+            if (reward.value === ITEMS.WEIGHTED_COIN_ONE_USE) {
+                rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`;
+            } else if (reward.value === ITEMS.SHOP_VOUCHER) {
+                rewardMessage = `a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`;
+            }
+            break;
+    
+        case LOOTBOX_REWARD_TYPE.OKASH:
+            AddToWallet(interaction.user.id, reward.value)
+            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`
+
+        default:
+            break;
+    }
+    await interaction.editReply({
+        content: `**${interaction.user.displayName}** opened their **Common Lootbox** and found ${rewardMessage}`
+    })
 }
