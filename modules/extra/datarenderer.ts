@@ -102,6 +102,13 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100);
     const sorted_values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100).sort(sortPrices);
 
+    if (values.length < 25) {
+        const d = new Date();
+        return interaction.editReply({
+            content:`:crying_cat_face: Sorry, there isn't enough data to render this graph yet. Check back <t:${Math.floor(d.getTime() / 1000) + ((26-values.length)*300)}:R>`
+        });
+    }
+
     // bg
     ctx.fillStyle = '#2b2d42';
     ctx.fillRect(0,0,width,height);

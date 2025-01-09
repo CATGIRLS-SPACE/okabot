@@ -16,7 +16,7 @@ const commands = [
 
 	new SlashCommandBuilder()
         .setName('okash').setNameLocalization('ja', 'okash')
-        .setDescription('See how much okash you have on you').setDescriptionLocalization('ja', 'ja translation'),
+        .setDescription('See how much okash you have on you').setDescriptionLocalization('ja', 'ポケットにと銀行にokash持ち見ます'),
 
     new SlashCommandBuilder()
         .setName('pay')

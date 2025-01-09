@@ -120,22 +120,24 @@ export function CheckUserShares(user_id: string, stock: Stocks): number {
  * This is so that the stock prices hopefully don't go insane rollercoaster 24/7.
  */
 export function UpdateMarkets() {
-    L.info('updating markets...');
+    // L.info('updating markets...');
 
     enum Trend {
         POSITIVE = 1,
         NEGATIVE = -1
     };
     let trend = Trend.POSITIVE;
+    let spike = false;
 
-    console.log(MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!?'catgirl trend negative':'catgirl trend positive');
-    console.log(MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!?'doggirl trend negative':'doggirl trend positive');
-    console.log(MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!?'foxgirl trend negative':'foxgirl trend positive');
+    // console.log(MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!?'catgirl trend negative':'catgirl trend positive');
+    // console.log(MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!?'doggirl trend negative':'doggirl trend positive');
+    // console.log(MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!?'foxgirl trend negative':'foxgirl trend positive');
 
     // catgirl market:
     if (MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 0.2) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
-    let change = trend * Math.round((Math.random() * 10) * 100) / 100;
+    if (Math.floor(Math.random() * 50) == 27) spike = true;
+    let change = trend * Math.round((Math.random() * (spike?250:20)) * 100) / 100;
     MARKET.catgirl.price += change;
     if (MARKET.catgirl.price < 0) MARKET.catgirl.price = 0;
     MARKET.catgirl.price_history.push(MARKET.catgirl.price);
@@ -143,7 +145,8 @@ export function UpdateMarkets() {
     // doggirl market:
     if (MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
-    change = trend * Math.round((Math.random() * 5) * 100) / 100;
+    if (Math.floor(Math.random() * 50) == 27) spike = true;
+    change = trend * Math.round((Math.random() * (spike?100:10)) * 100) / 100;
     MARKET.doggirl.price += change;
     if (MARKET.doggirl.price < 0) MARKET.doggirl.price = 0;
     MARKET.doggirl.price_history.push(MARKET.doggirl.price);
@@ -151,14 +154,15 @@ export function UpdateMarkets() {
     // foxgirl market:
     if (MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
-    change = trend * Math.round((Math.random() * 2) * 100) / 100;
+    if (Math.floor(Math.random() * 50) == 27) spike = true;
+    change = trend * Math.round((Math.random() * (spike?50:2)) * 100) / 100;
     MARKET.foxgirl.price += change;
     if (MARKET.foxgirl.price < 0) MARKET.foxgirl.price = 0;
     MARKET.foxgirl.price_history.push(MARKET.foxgirl.price);
 
     // write changes
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
-    L.info(`Done. New market prices are [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
+    L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 }
 
 /**
