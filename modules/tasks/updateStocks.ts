@@ -1,9 +1,10 @@
 import { scheduleJob } from "node-schedule";
 import { UpdateMarkets } from "../okash/stock";
 
+const INTERVAL = '*/5 * * * *';
 
 export function ScheduleStocksTask() {
-    scheduleJob('*/5 * * * *', () => {
+    scheduleJob(INTERVAL, () => {
         UpdateMarkets();
     });
     console.log('Stocks task has been scheduled.');

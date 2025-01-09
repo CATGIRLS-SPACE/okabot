@@ -128,16 +128,20 @@ export function UpdateMarkets() {
     };
     let trend = Trend.POSITIVE;
 
+    console.log(MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!?'catgirl trend negative':'catgirl trend positive');
+    console.log(MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!?'doggirl trend negative':'doggirl trend positive');
+    console.log(MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!?'foxgirl trend negative':'foxgirl trend positive');
+
     // catgirl market:
-    if (MARKET.catgirl.price_history[-1] < MARKET.catgirl.price_history[-2]) trend = Trend.NEGATIVE;
-    if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
+    if (MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
+    if (Math.random() <= 0.2) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
     let change = trend * Math.round((Math.random() * 10) * 100) / 100;
     MARKET.catgirl.price += change;
     if (MARKET.catgirl.price < 0) MARKET.catgirl.price = 0;
     MARKET.catgirl.price_history.push(MARKET.catgirl.price);
 
     // doggirl market:
-    if (MARKET.doggirl.price_history[-1] < MARKET.doggirl.price_history[-2]) trend = Trend.NEGATIVE;
+    if (MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
     change = trend * Math.round((Math.random() * 5) * 100) / 100;
     MARKET.doggirl.price += change;
@@ -145,7 +149,7 @@ export function UpdateMarkets() {
     MARKET.doggirl.price_history.push(MARKET.doggirl.price);
     
     // foxgirl market:
-    if (MARKET.foxgirl.price_history[-1] < MARKET.foxgirl.price_history[-2]) trend = Trend.NEGATIVE;
+    if (MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
     change = trend * Math.round((Math.random() * 2) * 100) / 100;
     MARKET.foxgirl.price += change;
@@ -255,4 +259,9 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
 
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
+}
+
+export function GetLastNumValues(stock: Stocks, length: number) {
+    const list = MARKET[stock].price_history.slice(-length, -1);
+    return list;
 }

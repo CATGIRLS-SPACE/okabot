@@ -201,8 +201,9 @@ client.on(Events.InteractionCreate, async interaction => {
             await HandleCommandLevel(interaction);
             break;
         case 'render':
-            // await GenerateCoinflipDataDisplay(interaction);
-            await RenderStockDisplay(interaction);
+            const sc = interaction.options.getSubcommand();
+            if (sc == 'coinflip') await GenerateCoinflipDataDisplay(interaction);
+            if (sc == 'stocks') await RenderStockDisplay(interaction);
             break;
         case 'stock':
             await HandleCommandStock(interaction);

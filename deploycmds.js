@@ -152,7 +152,29 @@ const commands = [
     new SlashCommandBuilder().setName('blackjack').setDescription('Play a game of blackjack for a chance at increasing your money!')
         .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(5_000).setMinValue(1)),
 
-    new SlashCommandBuilder().setName('render').setDescription('Render data (coinflip only)').addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('render')
+        .setDescription('Render data')
+        .addSubcommand(sc => sc
+            .setName('coinflip')
+            .setDescription('Render coinflip data')
+            .addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false)),
+        )
+        .addSubcommand(sc => sc
+            .setName('stocks')
+            .setDescription('Render stocks graphs')
+            .addStringOption(option => option
+                .setName('stock')
+                .setDescription('the stock to render')
+                .addChoices(
+                    {name:'Catgirl - NEKO', value:'catgirl'},
+                    {name:'Doggirl - DOGY', value:'doggirl'},
+                    {name:'Foxgirl - FXGL', value:'foxgirl'},
+                )
+                .setRequired(true)
+            )
+        ),
+
 
     new SlashCommandBuilder().setName('stock')
         .setDescription('Manage stocks')

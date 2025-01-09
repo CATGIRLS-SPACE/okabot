@@ -3,7 +3,7 @@ import { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME, CoinFloats } from "../..";
-import { Stocks } from "../okash/stock";
+import { GetLastNumValues, Stocks } from "../okash/stock";
 
 
 export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandInteraction) {
@@ -99,14 +99,14 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const canvas = createCanvas(width,height);
     const ctx = canvas.getContext('2d');
 
+    const values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100);
+    const sorted_values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100).sort(sortPrices);
+
     // bg
     ctx.fillStyle = '#2b2d42';
     ctx.fillRect(0,0,width,height);
 
-    ctx.font = 'bold 120px azuki_font';
-    ctx.textAlign = "center";
-    ctx.fillStyle = '#35364a';
-    ctx.fillText('okabot', width/2, height-20);
+    ctx.font = '14px monospace';
 
     // graph
     ctx.fillStyle = '#ddd';
@@ -118,6 +118,72 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const graph_width = width - 50;
     const graph_height = height - 10;
 
+    // we want nine lines for horizontal
+    ctx.strokeStyle = '#cfcfcf';
+    for (let i = 1; i < 10; i++) {
+        ctx.strokeRect(i * (graph_width / 10) + 45, 5, 1, graph_height);
+    }
+
+    const graph_max = Math.round(sorted_values[0]);
+    const graph_min = Math.round(sorted_values.at(-1)!);
+    const graph_line_limit_top = graph_min + (((graph_max - graph_min) / 3) * 2)
+    const graph_line_limit_mid = graph_min + ((graph_max - graph_min) / 3);
+    ctx.fillStyle = '#eee';
+
+    // move the min/max
+    if (values.at(-1)! > graph_line_limit_top) {
+        // only bottom
+        ctx.fillText(graph_max.toString(), 4, height - 24);
+        ctx.fillText(graph_min.toString(), 4, height - 8);
+    } else if (values.at(-1)! < graph_line_limit_mid) {
+        // only top
+        ctx.fillText(graph_max.toString(), 4, 14);
+        ctx.fillText(graph_min.toString(), 4, 34);
+    } else {
+        // top and bottom
+        ctx.fillText(graph_max.toString(), 4, 14);
+        ctx.fillText(graph_min.toString(), 4, height - 8);
+    }
+    
+    const total_range = graph_max - graph_min;
+
+    const total_points = values.length;
+    const x_spacing = (545 - 45) / (total_points - 1); // Evenly space points
+
+    let y2 = 0;
+
+    for (let i = 0; i < total_points - 1; i++) {
+        const target_difference = values[i] - graph_min;
+        const next_difference = values[i + 1] - graph_min;
+
+        // Keep the 5px margin in Y calculation
+        const y_min = 5;
+        const y_max = graph_height - 5;
+        const y1 = y_max - ((target_difference / total_range) * (y_max - y_min));
+        y2 = y_max - ((next_difference / total_range) * (y_max - y_min));
+
+        // Reverse the x calculation to go from right to left
+        const x1 = 45 + i * x_spacing;
+        const x2 = 45 + (i + 1) * x_spacing;
+
+        // Determine trend color
+        const trend_pos = values[i + 1] >= values[i];
+        ctx.strokeStyle = trend_pos ? '#080' : '#f00';
+        ctx.lineWidth = 3;
+
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke(); // Apply the stroke immediately
+
+        // console.log(values[i], x1, y1, "->", values[i + 1], x2, y2, "Color:", ctx.strokeStyle);
+    }
+
+    // render current
+    ctx.fillStyle = '#00bdb0';
+    ctx.fillRect(45, y2, 500, 1);
+    ctx.fillText(Math.round(values.at(-1)!).toString(), 4, y2 + 8);
 
     // save image
     const buffer = canvas.toBuffer('image/png');
@@ -126,7 +192,13 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'render-stock.png'));
     interaction.editReply({
-        content:``,
+        content:`Stock history for ${interaction.options.getString('stock', true)}`,
         files: [image]
     });
+}
+
+function sortPrices(a: number, b: number): -1 | 1 | 0 {
+    if (a < b) return 1;
+    if (a > b) return -1;
+    return 0;
 }
