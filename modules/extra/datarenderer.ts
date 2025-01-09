@@ -93,5 +93,40 @@ function randomColor(): string {
 
 
 export async function RenderStockDisplay(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+
+    const width = 550, height = 125;
+    const canvas = createCanvas(width,height);
+    const ctx = canvas.getContext('2d');
+
+    // bg
+    ctx.fillStyle = '#2b2d42';
+    ctx.fillRect(0,0,width,height);
+
+    ctx.font = 'bold 120px azuki_font';
+    ctx.textAlign = "center";
+    ctx.fillStyle = '#35364a';
+    ctx.fillText('okabot', width/2, height-20);
+
+    // graph
+    ctx.fillStyle = '#ddd';
+    ctx.fillRect(45, 5, width - 50, height - 10);
+    ctx.strokeStyle = '#bfbfbf';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(45, 5, width - 50, height - 10);
+
+    const graph_width = width - 50;
+    const graph_height = height - 10;
+
+
+    // save image
+    const buffer = canvas.toBuffer('image/png');
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+    writeFileSync(join(BASE_DIRNAME, 'temp', 'render-stock.png'), buffer);
     
+    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'render-stock.png'));
+    interaction.editReply({
+        content:``,
+        files: [image]
+    });
 }

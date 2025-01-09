@@ -31,7 +31,7 @@ import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 import { HandleCommandSell } from './modules/interactions/sell';
 import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
 import { ScheduleJob } from './modules/tasks/cfResetBonus';
-import { GenerateCoinflipDataDisplay } from './modules/extra/datarenderer';
+import { GenerateCoinflipDataDisplay, RenderStockDisplay } from './modules/extra/datarenderer';
 import { SetupStocks } from './modules/okash/stock';
 import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
@@ -201,7 +201,8 @@ client.on(Events.InteractionCreate, async interaction => {
             await HandleCommandLevel(interaction);
             break;
         case 'render':
-            await GenerateCoinflipDataDisplay(interaction);
+            // await GenerateCoinflipDataDisplay(interaction);
+            await RenderStockDisplay(interaction);
             break;
         case 'stock':
             await HandleCommandStock(interaction);
