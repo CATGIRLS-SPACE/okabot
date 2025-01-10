@@ -74,7 +74,20 @@ const commands = [
     new SlashCommandBuilder()
         .setName('buy').setNameLocalization('ja', '買い')
         .setDescription('Buy an item from the shop').setDescriptionLocalization('ja', 'アイテムを買います')
-        .addStringOption(option => option.setName('item').setDescription('The item to buy').setRequired(true)),
+        .addStringOption(option => option
+            .setName('item').setNameLocalization('ja', 'アイテム')
+            .setDescription('The item to buy').setDescriptionLocalization('ja', 'ja localization')
+            .setRequired(true)
+        )
+        .addBooleanOption(option => option
+            .setName('voucher')
+            .setDescription('Use a shop voucher (if you have one)?')
+            .setRequired(false)
+            .addChoices(
+                {name: 'Heck yeah!!', value: true},
+                {name: 'No thanks', value: false},
+            )
+        ),
 
     new SlashCommandBuilder()
         .setName('sell').setNameLocalization('ja', '売り')
@@ -92,7 +105,7 @@ const commands = [
 
     new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!')
         .addStringOption(option => option.setName('page').setDescription('The pockets category to display').addChoices(
-            {name:'Items and Gems', value:'items'},
+            {name:'Items', value:'items'},
             {name:'Customization Unlocks', value:'customize'}
         ).setRequired(true)),
 
