@@ -16,7 +16,7 @@ const ITEM_NAMES: {
     1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
     2: {name:':package: Epic Lootbox',desc:'A fancy box that gives really good items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
-    6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
+    6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
 }
 
 const UNLOCK_NAMES: {

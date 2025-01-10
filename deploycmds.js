@@ -79,13 +79,13 @@ const commands = [
             .setDescription('The item to buy').setDescriptionLocalization('ja', 'ja localization')
             .setRequired(true)
         )
-        .addBooleanOption(option => option
+        .addStringOption(option => option
             .setName('voucher')
             .setDescription('Use a shop voucher (if you have one)?')
             .setRequired(false)
             .addChoices(
-                {name: 'Heck yeah!!', value: true},
-                {name: 'No thanks', value: false},
+                {name: 'Heck yeah!!', value: 'true'},
+                {name: 'No thanks', value: 'false'},
             )
         ),
 

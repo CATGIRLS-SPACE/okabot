@@ -124,13 +124,15 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
     
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     const wallet = GetWallet(interaction.user.id);
-    const use_voucher = interaction.options.getBoolean('voucher') || false;
+    const use_voucher = interaction.options.getString('voucher') == 'true';
+
+    // console.log(use_voucher);
 
     if (!use_voucher)
         RemoveFromWallet(interaction.user.id, price);
     else {
         const inventory = GetInventory(interaction.user.id);
-        if (!inventory.other.includes(ITEMS.SHOP_VOUCHER)) return interaction.editReply({
+        if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
@@ -140,7 +142,10 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
     profile.customization.unlocked.push(unlock);
     UpdateUserProfile(interaction.user.id, profile);
 
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you unlocked the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Try it out with /customize!\nYour new balance is OKA**${wallet-price}**.`});
+    if (use_voucher) 
+        interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you unlocked the customization \`${wanted_item}\` for one ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**! Try it out with /customize!`});
+    else
+        interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you unlocked the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Try it out with /customize!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
 function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, unlock: CUSTOMIZATION_UNLOCKS, price: number) {
@@ -164,6 +169,21 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
 
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     const wallet = GetWallet(interaction.user.id);
+    const use_voucher = interaction.options.getString('voucher') == 'true';
+
+    // console.log(use_voucher);
+
+    if (!use_voucher)
+        RemoveFromWallet(interaction.user.id, price);
+    else {
+        const inventory = GetInventory(interaction.user.id);
+        if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
+            content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
+        });
+
+        RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.SHOP_VOUCHER);
+    }
+
 
     switch (unlock) {
         // based on the unlock, we may need to get rid of old unlocks
@@ -176,12 +196,16 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
             break;
     }
 
-    RemoveFromWallet(interaction.user.id, price);
     profile.customization.unlocked.push(unlock);
     if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM) profile.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING); 
     UpdateUserProfile(interaction.user.id, profile);
 
-    if (unlock != CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.${(unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM)?'\n\nYou are now able to use /customize to change your colors with hex color codes. Make sure you do it right, because if you mess it up, you\'ll need to purchase another!':''}`});
+    if (unlock != CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) 
+        interaction.editReply({
+            content: !use_voucher?
+                `:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**! Your profile has been updated.\nYour new balance is OKA**${wallet-price}**.${(unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM)?'\n\nYou are now able to use /customize to change your colors with hex color codes. Make sure you do it right, because if you mess it up, you\'ll need to purchase another!':''}`
+                :`:cat: **${interaction.user.displayName}**, you purchased the customization \`${wanted_item}\` for one ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**! Your profile has been updated.${(unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM)?'\n\nYou are now able to use /customize to change your colors with hex color codes. Make sure you do it right, because if you mess it up, you\'ll need to purchase another!':''}`
+            });
 }
 
 function AddXPLevel(interaction: ChatInputCommandInteraction) {
