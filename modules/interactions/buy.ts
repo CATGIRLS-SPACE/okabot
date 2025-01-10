@@ -1,9 +1,10 @@
 import { ChatInputCommandInteraction, TextChannel } from "discord.js";
-import { AddOneToInventory, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CUSTOMIZATION_UNLOCKS, GEMS, ITEM_TYPE } from "../okash/items";
+import { AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory } from "../okash/wallet";
+import { CUSTOMIZATION_UNLOCKS, GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CalculateTargetXP } from "../levels/levels";
 import { AddXP } from "../levels/onMessage";
+import { EMOJI, GetEmoji } from "../../util/emoji";
 
 
 const LastBoughtLevel = new Map<string, number>();
@@ -129,7 +130,7 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
         RemoveFromWallet(interaction.user.id, price);
     else {
         const inventory = GetInventory(interaction.user.id);
-        if (!inventory.inventory.gems.includes(ITEMS.SHOP_VOUCHER)) return interaction.editReply({
+        if (!inventory.other.includes(ITEMS.SHOP_VOUCHER)) return interaction.editReply({
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
