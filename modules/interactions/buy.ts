@@ -123,8 +123,19 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
     
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     const wallet = GetWallet(interaction.user.id);
+    const use_voucher = interaction.options.getBoolean('voucher') || false;
 
-    RemoveFromWallet(interaction.user.id, price);
+    if (!use_voucher)
+        RemoveFromWallet(interaction.user.id, price);
+    else {
+        const inventory = GetInventory(interaction.user.id);
+        if (!inventory.inventory.gems.includes(ITEMS.SHOP_VOUCHER)) return interaction.editReply({
+            content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
+        });
+
+        RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.SHOP_VOUCHER);
+    }
+
     profile.customization.unlocked.push(unlock);
     UpdateUserProfile(interaction.user.id, profile);
 
