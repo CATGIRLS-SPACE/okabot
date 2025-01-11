@@ -64,7 +64,7 @@ const commands = [
 
     new SlashCommandBuilder()
         .setName('use').setNameLocalization('ja', '使う')
-        .setDescription('Use an item or gem from your pockets!').setDescriptionLocalization('ja', 'ポケットでアイテムを使う')
+        .setDescription('Use an item from your pockets!').setDescriptionLocalization('ja', 'ポケットでアイテムを使う')
         .addStringOption(option => 
             option.setName('item').setNameLocalization('ja', 'アイテム')
             .setDescription('The item to use').setDescriptionLocalization('ja', 'どのアイテムを使う')
@@ -98,18 +98,25 @@ const commands = [
         .setName('shop').setNameLocalization('ja', 'カタログ')
         .setDescription('Get the shop item and price listings').setDescriptionLocalization('ja', 'アイテムのカタログを見る')
         .addStringOption(option => option.setName('page').setDescription('The shop category to display').addChoices(
-            {name:'Gems', value: 'gems'},
-            {name:'Customization - Coinflip', value:'customization.coin'},
-            {name:'Customization - Profile', value:'customization.profile'},
+            {name:'Items', value: 'gems', name_localizations:{ja:'アイテム'}},
+            {name:'Customization - Coinflip', value:'customization.coin', name_localizations:{ja:'コイントスのカスタマイズ'}},
+            {name:'Customization - Profile', value:'customization.profile', name_localizations:{ja:'プロフィールのカスタマイズ'}},
         ).setRequired(true)),
 
-    new SlashCommandBuilder().setName('pockets').setDescription('See what you\'ve got on you!')
-        .addStringOption(option => option.setName('page').setDescription('The pockets category to display').addChoices(
-            {name:'Items', value:'items'},
-            {name:'Customization Unlocks', value:'customize'}
+    new SlashCommandBuilder()
+        .setName('pockets').setNameLocalization('ja', 'ポケット')
+        .setDescription('See what you\'ve got on you!').setDescriptionLocalization('ja', 'ポケットにアイテムとカスタマイズ化を見る')
+        .addStringOption(option => option
+            .setName('page').setNameLocalization('ja', 'カテゴリー')
+            .setDescription('The pockets category to display').setDescriptionLocalization('ja', 'ポケットのカテゴリー')
+            .addChoices(
+                {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
+                {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}}
         ).setRequired(true)),
 
-    new SlashCommandBuilder().setName('customize').setDescription('Customize your experience with your unlocked customizations')
+    new SlashCommandBuilder()
+        .setName('customize').setNameLocalization('ja', 'カスタマイズ')
+        .setDescription('Customize your experience with your unlocked customizations').setDescriptionLocalization('ja', 'okabotをカスタマイズするであなたのカスタマイズ化')
         .addSubcommand(subcommand => 
             subcommand
                 .setName('coinflip')

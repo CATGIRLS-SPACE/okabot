@@ -164,6 +164,6 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
             break;
     }
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their **Common Lootbox** and found ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opened their **Rare Lootbox** and found ${rewardMessage}`
     })
 }

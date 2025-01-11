@@ -149,8 +149,9 @@ client.on(Events.InteractionCreate, async interaction => {
             await GetInfoEmbed(interaction);
             break;
         case 'debug':
+            const d = new Date();
             await interaction.reply({
-                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\nUptime: ${Math.round(process.uptime()/60*100)/100} min`,
+                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`,
                 ephemeral: true
             });
             break;
