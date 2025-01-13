@@ -95,6 +95,30 @@ export function RemoveFromWallet(user_id: string, amount: number) {
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
 
+export function AddToBank(user_id: string, amount: number) {
+    CheckVersion(user_id);
+    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+
+    data.bank = Math.floor(data.bank + amount);
+
+    if (amount > 50000)
+        L.warn(`LARGE BANK ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
+    
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+}
+
+export function RemoveFromBank(user_id: string, amount: number) {
+    CheckVersion(user_id);
+    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
+
+    data.bank = Math.floor(data.bank - amount);
+
+    if (amount > 50000)
+        L.warn(`LARGE BANK REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
+    
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+}
+
 export function GetWallet(user_id: string): number {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));

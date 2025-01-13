@@ -35,6 +35,7 @@ import { GenerateCoinflipDataDisplay, RenderStockDisplay } from './modules/extra
 import { SetupStocks } from './modules/okash/stock';
 import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
+import { HandleCommandHelp } from './modules/interactions/help';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -208,6 +209,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'stock':
             await HandleCommandStock(interaction);
+            break;
+        case 'help':
+            await HandleCommandHelp(interaction);
             break;
     }
 });

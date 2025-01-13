@@ -154,7 +154,7 @@ export function UpdateMarkets() {
     // foxgirl market:
     if (MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
     if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
-    if (Math.floor(Math.random() * 50) == 27) spike = true;
+    if (Math.floor(Math.random() * 25) == 13) spike = true;
     change = trend * Math.round((Math.random() * (spike?50:2)) * 100) / 100;
     MARKET.foxgirl.price += change;
     if (MARKET.foxgirl.price < 0) MARKET.foxgirl.price = 0;

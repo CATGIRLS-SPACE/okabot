@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Locale } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetSharePrice, SellShares, Stocks } from "../okash/stock";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
+import { AddToBank, GetBank, RemoveFromBank } from "../okash/wallet";
 import { format } from "util";
 
 
@@ -72,13 +72,13 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock as Stocks);
 
-        const wallet = GetWallet(interaction.user.id);
+        const wallet = GetBank(interaction.user.id);
         if (amount * share_price > wallet) return interaction.editReply({
             content:`:crying_cat_face: ${format(STRINGS.insufficient_balance[locale], interaction.user.displayName)}`
         });
 
         // remove from wallet first
-        RemoveFromWallet(interaction.user.id, Math.round(amount * share_price));
+        RemoveFromBank(interaction.user.id, Math.round(amount * share_price));
         BuyShares(interaction.user.id, stock as Stocks, amount);
 
         interaction.editReply({
@@ -97,7 +97,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         });
 
         SellShares(interaction.user.id, stock, amount);
-        AddToWallet(interaction.user.id, Math.round(amount*share_price));
+        AddToBank(interaction.user.id, Math.round(amount*share_price));
 
         interaction.editReply({
             content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
