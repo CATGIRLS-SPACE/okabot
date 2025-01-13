@@ -153,13 +153,14 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     });
 
     const d = new Date();
-    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 >= Math.floor(d.getTime()/1000)) {
-        await interaction.reply({
-            content: `:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000)} sec.`,
-            flags: [MessageFlags.SuppressNotifications]
-        });
-        return;
-    }
+    // if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 >= Math.floor(d.getTime()/1000)) {
+    //     const can_next_play = LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000);
+    //     await interaction.reply({
+    //         content: can_next_play!=0?`:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${can_next_play} sec.`:`:bangbang: Woah there, **${interaction.user.displayName}**, finish reading this message and try again!`,
+    //         flags: [MessageFlags.SuppressNotifications]
+    //     });
+    //     return;
+    // }
 
     const result = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (result) return;
