@@ -67,7 +67,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         })
     }
 
-    if (command == 'purchase') {
+    if (command == 'purchase-shares') {
         const stock = interaction.options.getString('stock', true);
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock as Stocks);
@@ -86,7 +86,29 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         });
     }
 
-    if (command == 'sell') {
+    if (command == 'purchase-okash') {
+        const stock = interaction.options.getString('stock', true);
+        const amount = interaction.options.getNumber('amount', true);
+        if (amount.toString().includes('.')) return interaction.editReply({
+            content: `:crying_cat_face: Not a whole number amount of okash.`
+        });
+        const share_price = GetSharePrice(stock as Stocks);
+
+        const bank = GetBank(interaction.user.id);
+        if (amount > bank) return interaction.editReply({
+            content:`:crying_cat_face: ${format(STRINGS.insufficient_balance[locale], interaction.user.displayName)}`
+        });
+
+        // remove from bank first
+        RemoveFromBank(interaction.user.id, Math.round(amount));
+        BuyShares(interaction.user.id, stock as Stocks, Math.floor(amount/share_price));
+
+        interaction.editReply({
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.buy_ok[locale], amount/share_price, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${amount}**`)}`
+        });
+    }
+
+    if (command == 'sell-shares') {
         const stock = interaction.options.getString('stock', true) as Stocks;
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock);
@@ -101,6 +123,29 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
 
         interaction.editReply({
             content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
+        })
+    }
+
+    if (command == 'sell-okash') {
+        const stock = interaction.options.getString('stock', true) as Stocks;
+        const amount = interaction.options.getNumber('amount', true);
+        if (amount.toString().includes('.')) return interaction.editReply({
+            content: `:crying_cat_face: Not a whole number amount of okash.`
+        });
+
+        const share_price = GetSharePrice(stock);
+        const owned_shares = CheckUserShares(interaction.user.id, stock);
+        const owned_amount = owned_shares * share_price;
+
+        if (owned_amount < amount) return interaction.editReply({
+            content: `:crying_cat_face: ${format(STRINGS.insufficient_shares[locale])}`
+        });
+
+        SellShares(interaction.user.id, stock, amount/Math.round(share_price));
+        AddToBank(interaction.user.id, Math.round(amount));
+
+        interaction.editReply({
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount/share_price, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${amount}**`)}`
         })
     }
 }
