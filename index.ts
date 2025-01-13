@@ -36,6 +36,7 @@ import { SetupStocks } from './modules/okash/stock';
 import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
+import { HandleCommandTransfer } from './modules/interactions/transfer';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -213,6 +214,9 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'help':
             await HandleCommandHelp(interaction);
             break;
+        case 'transfer':
+            await HandleCommandTransfer(interaction);
+            break;
     }
 });
 
@@ -318,7 +322,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     })
     .setDescription('A bot that "serves zero purpose" and exists "just because it can."')
     .addFields(
-        {name:'Development', value: 'okawaffles', inline: true},
+        {name:'Development', value: 'okawaffles, tacobella03', inline: true},
         {name:'Testing', value:'okawaffles, tacobella03', inline: true},
         {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
         {name:'Earthquake Information Sources', value:'Japan Meteorological Agency', inline: false},

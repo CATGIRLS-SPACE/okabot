@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, Routes, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
 const { clientId, token, devtoken, devclientId } = require('./config.json');
 const config = require('./config.json');
@@ -19,43 +19,66 @@ const commands = [
         .setDescription('See how much okash you have on you').setDescriptionLocalization('ja', 'ポケットにと銀行にokash持ち見ます'),
 
     new SlashCommandBuilder()
-        .setName('pay')
+        .setName('pay').setNameLocalization('ja', '払う')
         .setDescription('Pay someone some okash')
         .addUserOption(option => 
-            option.setName('user')
-            .setDescription('The person to pay')
+            option.setName('user').setNameLocalization('ja', 'ユーザ')
+            .setDescription('The person to pay').setDescriptionLocalization('ja', '誰を払う')
             .setRequired(true)
         )
         .addNumberOption(option => 
-            option.setName('amount')
-            .setDescription('The amount to pay them')
+            option.setName('amount').setNameLocalization('ja', '高')
+            .setDescription('The amount to pay them').setDescriptionLocalization('ja', 'okashの分量を払う')
             .setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName('transfer').setNameLocalization('ja', '動く')
+        .setDescription('Transfer between your wallet and bank').setDescriptionLocalization('ja', 'okashポケットから銀行へのokash動かします')
+        .addNumberOption(option => option
+            .setName('amount').setNameLocalization('ja', '高')
+            .setDescription('How much to transfer').setDescriptionLocalization('ja', 'okashの分量を動く')
+            .setRequired(true)
+            .setMinValue(1)
+        )
+        .addStringOption(option => option
+            .setName('source').setDescriptionLocalization('ja', '行き先')
+            .setDescription('Which way to transfer').setDescriptionLocalization('ja', 'どこからどこへのokash動く')
+            .setRequired(true)
+            .addChoices(
+                {name:'Wallet -> Bank', value:'wallet', name_localizations:{ja:'ポケット ➞ 銀行'}},
+                {name:'Bank -> Wallet', value:'bank', name_localizations:{ja:'銀行 ➞ ポケット'}},
+            )
         ),
     
     new SlashCommandBuilder()
-        .setName('leaderboard')
-        .setDescription('Get the leaderboard of a set category')
+        .setName('leaderboard').setNameLocalization('ja', 'ランキング')
+        .setDescription('Get the leaderboard of a set category').setDescriptionLocalization('ja', 'カテゴリーのランキングを見る')
         .addStringOption(option => 
-            option.setName('category')
-            .setDescription('Which leaderboard category to display')
-            .setRequired(true).addChoices(
-            {name:'okash', value:'okash'},
-            {name:'XP Levels', value:'levels'}
-        )),
+            option
+                .setName('category').setNameLocalization('ja', 'カテゴリー')
+                .setDescription('Which leaderboard category to display').setDescriptionLocalization('ja', '何がカテゴリーをランキング見て')
+                .setRequired(true)
+                .addChoices(
+                    {name:'okash', value:'okash'},
+                    {name:'XP Levels', value:'levels', name_localizations:{ja:'XPのレベル'}}
+                )),
 
 	new SlashCommandBuilder().setName('coinflip').setNameLocalization('ja', 'コイントス')
-        .setDescription('Flip a coin with a chance of doubling your amount')
+        .setDescription('Flip a coin with a chance to double your okash').setDescriptionLocalization('ja', 'コインを裏返すと、賭け金が2倍になります')
         .addNumberOption(option => 
-            option.setName('amount')
-            .setDescription('The amount of okash you want to bet')
-            .setRequired(true).setMinValue(1).setMaxValue(10_000)
+            option
+                .setName('amount').setNameLocalization('ja', '高')
+                .setDescription('The amount of okash you want to bet').setDescriptionLocalization('ja', 'okashの分量がベットします')
+                .setRequired(true).setMinValue(1).setMaxValue(10_000)
         )
         .addStringOption(option => 
-            option.setName('side')
-            .setDescription('Optionally, pick heads or tails')
-            .addChoices(
-            {name:'heads', value:'heads'},
-            {name:'tails', value:'tails'}
+            option
+                .setName('side').setNameLocalization('ja','裏か表か')
+                .setDescription('Optionally, pick heads or tails').setDescription('裏か表かを選ぶ')
+                .addChoices(
+                {name:'heads', value:'heads', name_localizations:{ja:'表'}},
+                {name:'tails', value:'tails', name_localizations:{ja:'裏'}}
         ).setRequired(false)),
 
     new SlashCommandBuilder()
@@ -80,12 +103,12 @@ const commands = [
             .setRequired(true)
         )
         .addStringOption(option => option
-            .setName('voucher')
-            .setDescription('Use a shop voucher (if you have one)?')
+            .setName('voucher').setNameLocalization('ja', '引換券')
+            .setDescription('Use a shop voucher (if you have one)?').setDescriptionLocalization('ja', '引換券を使う？')
             .setRequired(false)
             .addChoices(
-                {name: 'Heck yeah!!', value: 'true'},
-                {name: 'No thanks', value: 'false'},
+                {name: 'Heck yeah!!', value: 'true', name_localizations:{ja:'うん！'}},
+                {name: 'No thanks', value: 'false', name_localizations:{ja:'いや'}},
             )
         ),
 
@@ -165,12 +188,23 @@ const commands = [
             )),
         
 
-    new SlashCommandBuilder().setName('level').setDescription('Get information on your current level!')
-        .addUserOption(option => option.setName('user').setDescription('Get another user\'s level info').setRequired(false)),
+    new SlashCommandBuilder()
+        .setName('level').setNameLocalization('ja', 'レベル')
+        .setDescription('Get information on your current level!').setDescriptionLocalization('ja', 'レベルを見て')
+        .addUserOption(option => option
+            .setName('user').setNameLocalization('ja', 'ユーザ')
+            .setDescription('Get another user\'s level info').setDescriptionLocalization('ja', '誰のレベルを見て')
+            .setRequired(false)),
 
 
-    new SlashCommandBuilder().setName('blackjack').setDescription('Play a game of blackjack for a chance at increasing your money!')
-        .addNumberOption(option => option.setName('bet').setRequired(true).setDescription('The amount of okash to bet').setMaxValue(5_000).setMinValue(1)),
+    new SlashCommandBuilder()
+        .setName('blackjack')
+        .setDescription('Play a game of blackjack for a chance at increasing your money!')
+        .addNumberOption(option => option
+            .setName('bet')
+            .setRequired(true)
+            .setDescription('The amount of okash to bet')
+            .setMaxValue(5_000).setMinValue(1)),
 
     new SlashCommandBuilder()
         .setName('render')

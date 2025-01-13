@@ -72,12 +72,12 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock as Stocks);
 
-        const wallet = GetBank(interaction.user.id);
-        if (amount * share_price > wallet) return interaction.editReply({
+        const bank = GetBank(interaction.user.id);
+        if (amount * share_price > bank) return interaction.editReply({
             content:`:crying_cat_face: ${format(STRINGS.insufficient_balance[locale], interaction.user.displayName)}`
         });
 
-        // remove from wallet first
+        // remove from bank first
         RemoveFromBank(interaction.user.id, Math.round(amount * share_price));
         BuyShares(interaction.user.id, stock as Stocks, amount);
 
