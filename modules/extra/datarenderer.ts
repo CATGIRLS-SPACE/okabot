@@ -99,8 +99,8 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const canvas = createCanvas(width,height);
     const ctx = canvas.getContext('2d');
 
-    const values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100);
-    const sorted_values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, 100).sort(sortPrices);
+    const values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, parseInt(interaction.options.getString('length', true)));
+    const sorted_values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, parseInt(interaction.options.getString('length', true))).sort(sortPrices);
 
     if (values.length < 25) {
         const d = new Date();

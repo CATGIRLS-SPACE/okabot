@@ -227,6 +227,16 @@ const commands = [
                 )
                 .setRequired(true)
             )
+            .addStringOption(option => option
+                .setName('length')
+                .setDescription('how long ago to render to')
+                .addChoices(
+                    {name:'Last 100',value:'100'},
+                    {name:'Last 24h',value:'288'},
+                    {name:'Last 7d',value:'2016'},
+                )
+                .setRequired(true)
+            )
         ),
 
 
