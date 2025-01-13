@@ -96,3 +96,6 @@ const EMOJI_KEYS: {
 export function GetEmoji(name: string): string {
     return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][DEV?'dev':'prod']}>`;
 }
+export function GetEmojiID(name: string): string {
+    return EMOJI_KEYS[name][DEV?'dev':'prod'];
+}
