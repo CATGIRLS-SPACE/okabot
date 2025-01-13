@@ -7,8 +7,8 @@ import { format } from "util";
 
 const STRINGS: {[key:string]: {en:string,ja:string}} = {
     current: {
-        en: '### Current Stock Information',
-        ja: '**現在の株式市場値段**\n-# げんざい　の　かぶしきしじょう　ねだん'
+        en: '### Current Stock Information\n-# psst, view this online at <https://bot.lilycatgirl.dev/stocks>!',
+        ja: '**現在の株式市場値段**\n-# ねえねえ！オンラインで見ては<https://bot.lilycatgirl.dev/stocks>！'
     },
     shares_owned: {
         en:'-- You own %s shares totaling %s',

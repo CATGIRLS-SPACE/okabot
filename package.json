@@ -1,6 +1,6 @@
 {
   "name": "okabot",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "body-parser": "^1.20.3",
     "canvas": "^2.11.2",
     "discord.js": "^14.17.2",
+    "ejs": "^3.1.10",
     "express": "^4.21.2",
     "json": "^11.0.0",
     "node-schedule": "^2.1.1",

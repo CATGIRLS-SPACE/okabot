@@ -1,13 +1,16 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
-import { DEV } from '../..';
+import { BASE_DIRNAME, DEV } from '../..';
 import { Client, EmbedBuilder, MessageFlags, TextChannel } from 'discord.js';
+import { join } from 'path';
+import { GetSharePrice, Stocks } from '../okash/stock';
 const server = express();
 
 let channelId = "1321639990383476797";
 let channel: TextChannel;
 
 server.use(json());
+server.set('view engine', 'ejs');
 
 server.get('/minecraft', (req, res) => {
     res.send('cannot get this route, please post instead.');
@@ -72,6 +75,19 @@ server.post('/minecraft', (req: Request, res: Response) => {
             });
             break;
     }
+});
+
+// live stock view
+server.get('/stock', (req: Request, res: Response) => {
+    res.render(join(BASE_DIRNAME, 'modules', 'http', 'page', 'stock'));
+});
+server.get('/api/stock', (req: Request, res: Response) => {
+    const prices = {
+        neko:GetSharePrice(Stocks.NEKO),
+        dogy:GetSharePrice(Stocks.DOGY),
+        fxgl:GetSharePrice(Stocks.FXGL),
+    };
+    res.json(prices);
 });
 
 export function StartHTTPServer(c: Client) {
