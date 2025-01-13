@@ -1,127 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>???? | ???? | ???? | okabot live stock view</title>
-</head>
-<body>
-    <h1 class="title" id="title">okabot live stock view</h1>
-    <div class="stocks">
-        <div class="stock neko">
-            <h3>NEKO</h3>
-            <h4 id="neko-price">0</h4>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>???? | ???? | ???? | okabot live stock view</title>
+    </head>
+    <body>
+        <h1 class="title" id="title">okabot live stock view</h1>
+        <div class="stocks">
+            <div class="stock neko">
+                <h3>NEKO</h3>
+                <h4 id="neko-price">0</h4>
+            </div>
+            <div class="stock dogy">
+                <h3>DOGY</h3>
+                <h4 id="dogy-price">0</h4>
+            </div>
+            <div class="stock fxgl">
+                <h3>FXGL</h3>
+                <h4 id="fxgl-price">0</h4>
+            </div>
         </div>
-        <div class="stock dogy">
-            <h3>DOGY</h3>
-            <h4 id="dogy-price">0</h4>
-        </div>
-        <div class="stock fxgl">
-            <h3>FXGL</h3>
-            <h4 id="fxgl-price">0</h4>
-        </div>
-    </div>
-    <footer>2025 lilycatgirl</footer>
-</body>
+        <footer>2025 lilycatgirl</footer>
+    </body>
 
-<style>
-    @font-face {
-        font-family: GenJyuuGothic;
-        src: url(https://okayucdn.com/assets/fonts/GenJyuuGothic.ttf);
-    }
-    body {
-        font-family: GenJyuuGothic;
-        background-color: black;
-        color: white;
-        overflow: hidden;
-    }
-    footer {
-        text-align: center;
-        width: 100%;
-        position: absolute;
-        bottom: 8px;
-    }
-    .title {
-        text-align: center;
-        font-size: 3rem;
-    }
-    .stocks {
-        display: flex;
-        width: 100%;
-        justify-content: space-evenly;
-        text-align: center;
-    }
-    .stocks .stock h3 {
-        font-size: 2.5rem;
-        margin: 0;
-    }
-    .stocks .stock h4 {
-        font-size: 4rem;
-        margin: 0;
-    }
-
-    @media screen and (max-width: 600px) {
-        .stocks {
-            display: block;
+    <style>
+        @font-face {
+            font-family: GenJyuuGothic;
+            src: url(https://okayucdn.com/assets/fonts/GenJyuuGothic.ttf);
         }
-    }
-</style>
+        body {
+            font-family: GenJyuuGothic;
+            background-color: black;
+            color: white;
+            overflow: hidden;
+        }
+        footer {
+            text-align: center;
+            width: 100%;
+            position: absolute;
+            bottom: 8px;
+        }
+        .title {
+            text-align: center;
+            font-size: 3rem;
+        }
+        .stocks {
+            display: flex;
+            width: 100%;
+            justify-content: space-evenly;
+            text-align: center;
+        }
+        .stocks .stock h3 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        .stocks .stock h4 {
+            font-size: 4rem;
+            margin: 0;
+        }
 
-<script>
-    let last_prices = {
-        neko: 0,
-        dogy: 0,
-        fxgl: 0
-    };
-    let first = true;
+        @media screen and (max-width: 600px) {
+            .stocks {
+                display: block;
+            }
+        }
+    </style>
 
-    function UpdatePrices() {
-        const d = new Date();
-        if (d.getMinutes() % 5 != 0 && d.getSeconds() > 10 && !first) return setTimeout(UpdatePrices, 1000);
+    <script>
+        let last_prices = {
+            neko: 0,
+            dogy: 0,
+            fxgl: 0,
+        };
+        let first = true;
 
-        fetch(
-            '/api/stock'
-        ).then(async data => {
-            setTimeout(UpdatePrices, first?6000:5*60000);
-            const json = await data.json();
+        function scheduleNextUpdate() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
 
-            document.querySelector('#neko-price').innerHTML = (last_prices.neko<json.neko?'↑':last_prices.neko>json.neko?'↓':'⇅') + ' ' + json.neko;
-            document.querySelector('#dogy-price').innerHTML = (last_prices.dogy<json.dogy?'↑':last_prices.dogy>json.dogy?'↓':'⇅') + ' ' + json.dogy;
-            document.querySelector('#fxgl-price').innerHTML = (last_prices.fxgl<json.fxgl?'↑':last_prices.fxgl>json.fxgl?'↓':'⇅') + ' ' + json.fxgl;
+            // Calculate time until the next multiple of 5 minutes
+            const delay = ((5 - (minutes % 5)) * 60 - seconds) * 1000;
 
-            if (!first) {
-                document.getElementById('neko-price').style.color = last_prices.neko<json.neko?'#0f0':last_prices.neko>json.neko?'#f00':'#55e';
-                document.getElementById('dogy-price').style.color = last_prices.dogy<json.dogy?'#0f0':last_prices.dogy>json.dogy?'#f00':'#55e';
-                document.getElementById('fxgl-price').style.color = last_prices.fxgl<json.fxgl?'#0f0':last_prices.fxgl>json.fxgl?'#f00':'#55e';
-            } else first = false;
+            setTimeout(UpdatePrices, delay);
+        }
 
-            document.title = `
-                ${last_prices.neko<json.neko?'UP':last_prices.neko>json.neko?'DOWN':'NC'} ${json.neko} | 
-                ${last_prices.dogy<json.dogy?'UP':last_prices.dogy>json.dogy?'DOWN':'NC'} ${json.dogy} | 
-                ${last_prices.fxgl<json.fxgl?'UP':last_prices.fxgl>json.fxgl?'DOWN':'NC'} ${json.fxgl} | 
+        function UpdatePrices() {
+            fetch("/api/stock")
+                .then(async (data) => {
+                    const json = await data.json();
+
+                    // Update each stock price
+                    updateStockDisplay("neko", json.neko);
+                    updateStockDisplay("dogy", json.dogy);
+                    updateStockDisplay("fxgl", json.fxgl);
+
+                    // Update the page title
+                    document.title = `
+                ${getTrend(last_prices.neko, json.neko)} ${json.neko} | 
+                ${getTrend(last_prices.dogy, json.dogy)} ${json.dogy} | 
+                ${getTrend(last_prices.fxgl, json.fxgl)} ${json.fxgl} | 
                 okabot live stock view
-                `;
+            `;
 
-            last_prices.neko = json.neko;
-            last_prices.dogy = json.dogy;
-            last_prices.fxgl = json.fxgl;
+                    // store new prices
+                    last_prices = { ...json };
 
-            const title = document.getElementById('title');
-            title.innerHTML = 'okabot live stock view';
-            title.style.color = '#fff';
-        }).catch(err => {
-            const title = document.getElementById('title');
-            title.innerHTML = 'DISCONNECTED!';
-            title.style.color = '#f00';
+                    // reset first-run flag
+                    first = false;
 
-            document.title = 'DISCONNECTED | okabot live stock view'
+                    // schedule the next update
+                    scheduleNextUpdate();
+                })
+                .catch((err) => {
+                    console.error("Fetch error:", err);
 
-            setTimeout(UpdatePrices, 1000);
-        });
-    }
-    
+                    // if something disconnected it somehow, it's not accurate anymore
+                    const title = document.getElementById("title");
+                    title.innerHTML = "DISCONNECTED!";
+                    title.style.color = "#f00";
+                    document.title = "DISCONNECTED | okabot live stock view";
 
-    UpdatePrices();
-</script>
+                    // retry in 1 second if disconnected
+                    setTimeout(UpdatePrices, 1000);
+                });
+        }
 
+        function updateStockDisplay(id, newPrice) {
+            const element = document.querySelector(`#${id}-price`);
+            const trend = getTrend(last_prices[id], newPrice);
+            element.innerHTML = `${trend} ${newPrice}`;
+            element.style.color = getTrendColor(last_prices[id], newPrice);
+        }
+
+        function getTrend(oldPrice, newPrice) {
+            return oldPrice < newPrice ? "↑" : oldPrice > newPrice ? "↓" : "⇅";
+        }
+
+        function getTrendColor(oldPrice, newPrice) {
+            return oldPrice < newPrice
+                ? "#0f0"
+                : oldPrice > newPrice
+                ? "#f00"
+                : "#55e";
+        }
+
+        // start the first update
+        UpdatePrices();
+    </script>
 </html>
