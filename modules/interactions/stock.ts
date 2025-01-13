@@ -27,8 +27,8 @@ const STRINGS: {[key:string]: {en:string,ja:string}} = {
         ja:'%s株%sの株式を買いました、総計は%sだった'
     },
     sell_ok: {
-        en:`You sold **%s shares of %s** for %s!`,
-        ja:'%s株%sの株式を売りました、総計は%sです'
+        en:`You sold **%s shares of %s** for %s!\n-# To prevent abuse, a small fee of %s was applied to your transaction.`,
+        ja:'%s株%sの株式を売りました、総計は%sです\n-# 乱用を戦うから、料金の%sを付けります'
     },
     shares: {
         en:'-- You own %s shares, totaling %s',
@@ -115,14 +115,17 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         const owned_shares = CheckUserShares(interaction.user.id, stock);
 
         if (owned_shares < amount) return interaction.editReply({
-            content: `:crying_cat_face: ${format(STRINGS.insufficient_shares[locale])}`
+            content: `:crying_cat_face: ${format(STRINGS.insufficient_shares[locale], interaction.user.displayName)}`
         });
 
         SellShares(interaction.user.id, stock, amount);
-        AddToBank(interaction.user.id, Math.round(amount*share_price));
+
+        const total_sell_price = Math.round(amount*share_price);
+
+        AddToBank(interaction.user.id, total_sell_price - Math.round(total_sell_price * 0.035));
 
         interaction.editReply({
-            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(total_sell_price * 0.0035)}**`)}`
         })
     }
 
@@ -138,7 +141,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         const owned_amount = owned_shares * share_price;
 
         if (owned_amount < amount) return interaction.editReply({
-            content: `:crying_cat_face: ${format(STRINGS.insufficient_shares[locale])}`
+            content: `:crying_cat_face: ${format(STRINGS.insufficient_shares[locale], interaction.user.displayName)}`
         });
 
         SellShares(interaction.user.id, stock, amount/Math.round(share_price));

@@ -81,7 +81,8 @@
             const seconds = now.getSeconds();
 
             // Calculate time until the next multiple of 5 minutes
-            const delay = ((5 - (minutes % 5)) * 60 - seconds) * 1000;
+            // const delay = ((5 - (minutes % 5)) * 60 - seconds) * 1000;
+            const delay = 1000;
 
             setTimeout(UpdatePrices, delay);
         }
@@ -89,6 +90,10 @@
         function UpdatePrices() {
             fetch("/api/stock")
                 .then(async (data) => {
+                    const title = document.getElementById("title");
+                    title.innerHTML = "okabot live stock view";
+                    title.style.color = "#fff";
+
                     const json = await data.json();
 
                     // Update each stock price

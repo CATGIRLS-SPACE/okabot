@@ -82,6 +82,7 @@ export function GetSharePrice(stock: Stocks): number {
     return Math.round(MARKET[stock].price);
 }
 
+
 /**
  * Check how many shares a user has of a given stock
  * @param user_id ID of the user to check
@@ -177,7 +178,7 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
     switch (stock) {
         case Stocks.CATGIRL: case Stocks.NEKO:
             // check if they dont hold any shares yet
-            const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
+            let neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
             if (neko_holder == undefined) {MARKET.catgirl.holders.push({user_id, amount}); break;}
             // they already hold shares
             // store where it was located because we can't use indexOf after modifying it
@@ -205,6 +206,21 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
     
         default:
             return L.error(`unknown case ${stock}?`);
+    }
+
+    // pump the price a little bit based on their investment
+    switch (stock) {
+        case Stocks.CATGIRL:
+            MARKET.catgirl.price += (amount * MARKET.catgirl.price * 0.001);
+            break;
+
+        case Stocks.DOGGIRL:
+            MARKET.doggirl.price += (amount * MARKET.doggirl.price * 0.001);
+            break;
+
+        case Stocks.FOXGIRL:
+            MARKET.foxgirl.price += (amount * MARKET.foxgirl.price * 0.001);
+            break;
     }
 
     // write the database
@@ -259,6 +275,21 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
     
         default:
             return L.error(`unknown case ${stock}?`);
+    }
+
+    // dump the price a little bit based on their sell
+    switch (stock) {
+        case Stocks.CATGIRL:
+            MARKET.catgirl.price -= (amount * MARKET.catgirl.price * 0.00025);
+            break;
+
+        case Stocks.DOGGIRL:
+            MARKET.doggirl.price -= (amount * MARKET.doggirl.price * 0.00025);
+            break;
+
+        case Stocks.FOXGIRL:
+            MARKET.foxgirl.price -= (amount * MARKET.foxgirl.price * 0.00025);
+            break;
     }
 
     // write the database

@@ -41,6 +41,21 @@ const COIN_EMOJIS_DONE: {
     17:'cff_rainbow'
 }
 
+const STRINGS: {[key: string]: {en:string,ja:string}} = {
+    flipping: {
+        en: '%s %s flips a coin for %s on %s...',
+        ja: '%s %sさん%sをコイントスします、%sを求めります…'
+    },
+    flipped_win: {
+        en: '%s %s flips a coin for %s on %s... and it lands on %s, doubling the bet!',
+        ja: '%s %sさん%sをコイントスします、%sを求めります…とは%sを止めります、ベット倍増します！'
+    },
+    flipped_loss: {
+        en: '%s %s flips a coin for %s on %s... and it lands on %s, losing the money!',
+        ja: '%s %sさん%sをコイントスします、%sを求めります…とは%sを止めります、ベットなくした！'
+    }
+}
+
 export async function HandleCommandCoinflip(interaction: ChatInputCommandInteraction) {
     const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (has_restriction) return;
