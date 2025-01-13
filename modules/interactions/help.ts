@@ -1,4 +1,5 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, MessageFlags, SelectMenuBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { EMOJI, GetEmoji, GetEmojiID } from "../../util/emoji";
 
 
 const STRINGS: {[key: string]: {en:string,ja:string}} = {
@@ -39,6 +40,164 @@ okabot must draw to at least 17 and then stand. You have these options:
 Winning will double your bet, winning with a Blackjack hand will give you 3x your bet, and tying will refund you.
 `
 
+const StockPage =
+`
+## okash Stocks
+You can invest your okash into the stock market, too!
+The okabot stock market consists of three stocks:
+- Catgirl: The most expensive, but the highest change in cost per update.
+- Doggirl: A middle-ground that's not too expensive, but still worth investment.
+- Foxgirl: A low-priced stock that has the highest chance of spiking, but less movement in price.
+Stocks update every 5 minutes, and you can only invest with money in your bank.
+You don't have to purchase a whole-number amount of shares, so you can buy half a share if you want.
+`
+
+const DailyRewardPage =
+`
+## Daily Rewards
+Every 24 hours, you can claim your daily reward.
+In your daily reward, you are guaranteed OKA**750** and a weighted coin.
+For each day in your daily reward streak, you gain 5% more okash, up to 200%.
+`
+
+const LevelPage = 
+`
+## The okabot Level System
+Talking in the server and playing games all give you XP.
+This XP will help you level up.
+Levels 1-100 have unlockable titles which show on your /level banner.
+When you level up, you will get a small okash reward, increasing with each level.
+`
+
+const DropsPage = 
+`
+## Drops
+Each message you send in the server has a chance of gaining you a random drop.
+These drops include:
+- Lootboxes
+- okash Drops
+Lootboxes include okash rewards, customizations, and Shop Vouchers, which can be used to get a free customization\*
+okash Drops are either small or large. Small drops are less okash but more common, 
+whereas large drops are more okash but less common.
+-# \*Some rarer customizations cannot be unlocked via Shop Vouchers.
+`
+
+const ExtraPage =
+`
+## Extra info
+okabot is created with the intent to be free and fun. If you want to support, you can do so [here](<https://ko-fi.com/okawaffles>).
+okabot is available in English and Japanese. If you would like to help translate okabot into another language, please contact me.
+okabot is only available in CATGIRL CENTRAL. This may change in the coming future as okabot expands to be a more-polished bot.
+
+Thanks for using okabot ${GetEmoji(EMOJI.NEKOHEART)}
+`
+
+
+const select_menu = new StringSelectMenuBuilder()
+    .setCustomId('page')
+    .setPlaceholder('Select a page')
+    .addOptions(
+        new StringSelectMenuOptionBuilder()
+            .setLabel('okash')
+            .setDescription('Get information on okash')
+            .setValue('okash')
+            .setEmoji(GetEmojiID(EMOJI.OKASH)),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Games')
+            .setDescription('Get information on okabot games')
+            .setValue('games')
+            .setEmoji('🎲'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Stocks')
+            .setDescription('Get information on the stock system')
+            .setValue('stocks')
+            .setEmoji('📈'),
+        
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Daily Rewards')
+            .setDescription('Get information on the daily reward')
+            .setValue('daily')
+            .setEmoji('📅'),
+        
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Leveling')
+            .setDescription('Get information on the leveling system')
+            .setValue('level')
+            .setEmoji('⬆️'),
+        
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Drops')
+            .setDescription('Get information on drops')
+            .setValue('drops')
+            .setEmoji('📦'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Extra')
+            .setDescription('See some extra information')
+            .setValue('extra')
+            .setEmoji('❓'),
+    )
+
 export async function HandleCommandHelp(interaction: ChatInputCommandInteraction) {
-    
+    const row = new ActionRowBuilder<SelectMenuBuilder>()
+        .addComponents(select_menu);
+
+    const response = await interaction.reply({
+        content: FirstPage,
+        components: [row]
+    });
+
+    const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 300_000});
+    collector.on('collect', async i => {
+        const selection = i.values[0];
+        switch (selection) { 
+            case 'okash':
+                await i.reply({
+                    content: CurrencyPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+            case 'games':
+                await i.reply({
+                    content: GamesPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+            case 'stocks':
+                await i.reply({
+                    content: StockPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+            case 'daily':
+                await i.reply({
+                    content: DailyRewardPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+            
+            case 'level':
+                await i.reply({
+                    content: LevelPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+                
+            case 'drops':
+                await i.reply({
+                    content: DropsPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+
+            case 'extra':
+                await i.reply({
+                    content: ExtraPage,
+                    flags: [MessageFlags.Ephemeral]
+                });
+                break;
+        }
+    });  
 }

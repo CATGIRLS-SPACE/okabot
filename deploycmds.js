@@ -119,17 +119,17 @@ const commands = [
         .setDescription('Customize your experience with your unlocked customizations').setDescriptionLocalization('ja', 'okabotをカスタマイズするであなたのカスタマイズ化')
         .addSubcommand(subcommand => 
             subcommand
-                .setName('coinflip')
-                .setDescription('Customize your coinflip experience')
+                .setName('coinflip').setNameLocalization('ja', 'コイントス')
+                .setDescription('Customize your coinflip experience').setDescriptionLocalization('ja', 'コイントスをカスタマイズ')
                 .addStringOption(option => option
-                    .setName('coin')
-                    .setDescription('The coin you want to use when flipping')
+                    .setName('coin').setNameLocalization('ja', 'コイン')
+                    .setDescription('The coin you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
                     .setRequired(true))
                 )
         .addSubcommand(subcommand =>
             subcommand
-                .setName('levelbar')
-                .setDescription('Customize the colors of your level banner\'s XP bar')
+                .setName('levelbar').setNameLocalization('ja', 'レベルバー')
+                .setDescription('Customize the colors of your level banner\'s XP bar').setDescriptionLocalization('ja', 'あなたのレベルバーの色をカスタマイズ')
                 .addStringOption(option => 
                     option
                         .setName('background')
@@ -243,7 +243,11 @@ const commands = [
         .addSubcommand(sc => sc
             .setName('show')
             .setDescription('Show stock prices and how many shares you own')
-        )
+        ),
+
+    new SlashCommandBuilder()
+        .setName('help')
+        .setDescription('Get information on everything okabot')
 
 ].map(command => command.toJSON());
  
