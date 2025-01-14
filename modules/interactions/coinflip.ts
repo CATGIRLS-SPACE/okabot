@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, MessageFlags, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -6,7 +6,8 @@ import { BASE_DIRNAME, CoinFloats } from "../..";
 import { join } from "path";
 import { getRandomValues } from "crypto";
 import { AddXP } from "../levels/onMessage";
-import { GetEmoji } from "../../util/emoji";
+import { EMOJI, GetEmoji } from "../../util/emoji";
+import { format } from "util";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -43,16 +44,24 @@ const COIN_EMOJIS_DONE: {
 
 const STRINGS: {[key: string]: {en:string,ja:string}} = {
     flipping: {
-        en: '%s %s flips a coin for %s on %s...',
-        ja: '%s %sさん%sをコイントスします、%sを求めります…'
+        en: '**%s** flips a coin for %s on **%s**...',
+        ja: '**%s**さん%sをコイントスします、**%s**を求めります…'
     },
     flipped_win: {
-        en: '%s %s flips a coin for %s on %s... and it lands on %s, doubling the bet!',
-        ja: '%s %sさん%sをコイントスします、%sを求めります…とは%sを止めります、ベット倍増します！'
+        en: '**%s** flips a coin for %s on **%s**... and it lands on **%s**, doubling the bet!',
+        ja: '**%s**さん%sをコイントスします、**%s**を求めります…とは**%s**を止めります、ベット倍増します！'
     },
     flipped_loss: {
-        en: '%s %s flips a coin for %s on %s... and it lands on %s, losing the money!',
-        ja: '%s %sさん%sをコイントスします、%sを求めります…とは%sを止めります、ベットなくした！'
+        en: '**%s** flips a coin for %s on **%s**... and it lands on **%s**, losing the money!',
+        ja: '**%s**さん%sをコイントスします、**%s**を求めります…とは**%s**を止めります、ベットなくした！'
+    },
+    heads: {
+        en: 'heads',
+        ja: '表'
+    },
+    tails: {
+        en: 'tails',
+        ja: '裏'
     }
 }
 
@@ -82,6 +91,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         });
     }
 
+    const locale = interaction.locale == Locale.Japanese?'ja':'en';
+
     const wallet = GetWallet(interaction.user.id);
     const bet = interaction.options.getNumber('amount')!;
     const side = interaction.options.getString('side');
@@ -109,28 +120,47 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     
     // set probabilities and decide outcome
     const rolled = Math.random();
+    // const rolled = 0.5;
     let win: boolean = false; 
 
     // .5 is always inclusive bc idgaf
-    if (side == 'heads') win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-    else if (side == 'tails') win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-    else win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+    let picked_side: string;
+    if (side == 'heads') {
+        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+        picked_side = 'heads';
+    }
+    else if (side == 'tails') {
+        win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+        picked_side = 'tails';
+    }
+    else { 
+        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+        picked_side = 'heads';
+    }
         
         
-    let first_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**...`
-    let next_message = `**${interaction.user.displayName}** flips a coin for ${GetEmoji('okash')} OKA**${bet}** on **${side || 'heads'}**... and ${win?'won the bet, doubling the money!' + GetEmoji('cat_money') + '**(+15XP)**':'lost the bet, losing the money. :crying_cat_face: **(+5XP)**'}\n-# ${rolled} (must be ${(side=='heads'||!side)?'>=':'<='} ${weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE} to win)` + ``;
+    let first_message = format(STRINGS['flipping'][locale], 
+        interaction.user.displayName, 
+        `${GetEmoji(EMOJI.OKASH)} OKA**${bet}**`, 
+        STRINGS[side || 'heads'][locale]);
+
+    let next_message = format(STRINGS[win?'flipped_win':'flipped_loss'][locale] + `${win?GetEmoji(EMOJI.CAT_MONEY_EYES)+' **(+15XP)**':':crying_cat_face: **(+5XP)**'}\n-# ${rolled}`, 
+        interaction.user.displayName, 
+        `${GetEmoji(EMOJI.OKASH)} OKA**${bet}**`, 
+        STRINGS[side || 'heads'][locale],
+        STRINGS[picked_side][locale])
 
     // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
-    if (USE_CUSTOMIZATION) {
-        const prefs = GetUserProfile(interaction.user.id);
-        first_message = prefs.customization.messages.coinflip_first
-            .replaceAll('{user}', `**${interaction.user.displayName}**`)
-            .replaceAll('{amount}', `OKA**${bet}**`);
+    // if (USE_CUSTOMIZATION) {
+    //     const prefs = GetUserProfile(interaction.user.id);
+    //     first_message = prefs.customization.messages.coinflip_first
+    //         .replaceAll('{user}', `**${interaction.user.displayName}**`)
+    //         .replaceAll('{amount}', `OKA**${bet}**`);
 
-        next_message = (win?prefs.customization.messages.coinflip_win:prefs.customization.messages.coinflip_loss)
-            .replaceAll('{user}', `**${interaction.user.displayName}**`)
-            .replaceAll('{amount}', `OKA**${bet}**`);
-    }
+    //     next_message = (win?prefs.customization.messages.coinflip_win:prefs.customization.messages.coinflip_loss)
+    //         .replaceAll('{user}', `**${interaction.user.displayName}**`)
+    //         .replaceAll('{amount}', `OKA**${bet}**`);
+    // }
 
     await interaction.reply({
         content: `${emoji_waiting} ${first_message}`,
