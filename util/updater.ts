@@ -4,13 +4,15 @@ import { Logger } from "okayulogger";
 
 const PL = new Logger('child process');
 
-export async function SelfUpdate(message: Message) {
+export async function SelfUpdate(message: Message, commit?: string) {
     const L = new Logger('self updater');
     L.info('beginning update...');
+    const changes = (commit?'`git reset --hard ' + commit + '`':'Pulling latest changes from GitHub...')
+    const changes_done = (commit?'`git reset --hard ' + commit + '`':'Pulled latest changes from GitHub!')
 
     const status = await message.reply({
         content: `
-        :arrow_right: Pulling latest changes from GitHub...\n
+        :arrow_right: ${changes}\n
 :hourglass: Install npm packages\n
 :hourglass: Re-compile\n
 :hourglass: Deploy commands\n
@@ -18,12 +20,12 @@ export async function SelfUpdate(message: Message) {
         `
     });
 
-    await pull_changes();
+    await pull_changes(commit);
     L.info('pull ok');
 
     await status.edit({
         content: `
-        :ballot_box_with_check: Pulled latest changes from GitHub\n
+        :ballot_box_with_check: ${changes_done}\n
 :arrow_right: Installing npm packages...\n
 :hourglass: Re-compile\n
 :hourglass: Deploy commands\n
@@ -36,7 +38,7 @@ export async function SelfUpdate(message: Message) {
 
     await status.edit({
         content: `
-        :ballot_box_with_check: Pulled latest changes from GitHub\n
+        :ballot_box_with_check: ${changes_done}\n
 :ballot_box_with_check: Installed npm packages\n
 :arrow_right: Re-compiling...\n
 :hourglass: Deploy commands\n
@@ -49,7 +51,7 @@ export async function SelfUpdate(message: Message) {
 
     await status.edit({
         content: `
-        :ballot_box_with_check: Pulled latest changes from GitHub\n
+        :ballot_box_with_check: ${changes_done}\n
 :ballot_box_with_check: Installed npm packages\n
 :ballot_box_with_check: Re-compiled\n
 :arrow_right: Deploying commands...\n
@@ -62,7 +64,7 @@ export async function SelfUpdate(message: Message) {
 
     await status.edit({
         content: `
-        :ballot_box_with_check: Pulled latest changes from GitHub\n
+        :ballot_box_with_check: ${changes_done}\n
 :ballot_box_with_check: Installed npm packages\n
 :ballot_box_with_check: Re-compiled\n
 :ballot_box_with_check: Deployed commands\n
@@ -74,9 +76,9 @@ export async function SelfUpdate(message: Message) {
     process.exit();
 }
 
-async function pull_changes(): Promise<void> {
+async function pull_changes(commit?: string): Promise<void> {
     return new Promise((resolve) => {
-        exec('git pull', () => {
+        exec(commit?`git reset --hard ${commit}`:'git pull', () => {
             resolve();
         }).on('message', (m: string) => {
             PL.warn(m);

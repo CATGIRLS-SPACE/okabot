@@ -176,6 +176,12 @@ export async function CheckAdminShorthands(message: Message) {
                 SelfUpdate(message);
             }
 
+            if (message.content.startsWith('oka rollback ')) {
+                const regex = /"([^"]+)"|(\S+)/g;
+                const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+                SelfUpdate(message, params[2]);
+            }
+
             // oka level <user> <+-amt>
             if (message.content.startsWith('oka level ')) {
                 const regex = /"([^"]+)"|(\S+)/g;

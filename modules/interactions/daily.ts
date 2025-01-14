@@ -37,7 +37,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         collector.on('collect', async i => {
             const d = new Date;
-            const ready = d.getTime() + -(result * 1000);
+            const ready = -(result * 1000);
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
         
             i.update({
