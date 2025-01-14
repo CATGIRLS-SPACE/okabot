@@ -44,27 +44,33 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
     const locale = interaction.locale == Locale.Japanese?'ja':'en';
 
     if (command == 'show') {
-        // get all the user's shares
-        const user_shares = {
-            neko: CheckUserShares(interaction.user.id, Stocks.NEKO),
-            dogy: CheckUserShares(interaction.user.id, Stocks.DOGY),
-            fxgl: CheckUserShares(interaction.user.id, Stocks.FXGL),
-        }
-        // get all prices
-        const prices = {
-            neko: GetSharePrice(Stocks.CATGIRL),
-            dogy: GetSharePrice(Stocks.DOGGIRL),
-            fxgl: GetSharePrice(Stocks.FOXGIRL),
-        }
+        try {
+            // get all the user's shares
+            const user_shares = {
+                neko: CheckUserShares(interaction.user.id, Stocks.NEKO),
+                dogy: CheckUserShares(interaction.user.id, Stocks.DOGY),
+                fxgl: CheckUserShares(interaction.user.id, Stocks.FXGL),
+            }
+            // get all prices
+            const prices = {
+                neko: GetSharePrice(Stocks.CATGIRL),
+                dogy: GetSharePrice(Stocks.DOGGIRL),
+                fxgl: GetSharePrice(Stocks.FOXGIRL),
+            }
 
-        const neko = `**${locale=='ja'?'ネコ':'Catgirl'} - NEKO** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.neko}** ${user_shares.neko!=0?format(STRINGS.shares[locale], user_shares.neko, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.neko*prices.neko)}**`):''}`;
-        const dogy = `**${locale=='ja'?'子犬':'Doggirl'} - DOGY** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.dogy}** ${user_shares.dogy!=0?format(STRINGS.shares[locale], user_shares.dogy, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.dogy*prices.dogy)}**`):''}`
-        const fxgl = `**${locale=='ja'?'狐少女':'Foxgirl'} - FXGL** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.fxgl}** ${user_shares.fxgl!=0?format(STRINGS.shares[locale], user_shares.fxgl, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.fxgl*prices.fxgl)}**`):''}`;
+            const neko = `**${locale=='ja'?'ネコ':'Catgirl'} - NEKO** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.neko}** ${user_shares.neko!=0?format(STRINGS.shares[locale], user_shares.neko, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.neko*prices.neko)}**`):''}`;
+            const dogy = `**${locale=='ja'?'子犬':'Doggirl'} - DOGY** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.dogy}** ${user_shares.dogy!=0?format(STRINGS.shares[locale], user_shares.dogy, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.dogy*prices.dogy)}**`):''}`
+            const fxgl = `**${locale=='ja'?'狐少女':'Foxgirl'} - FXGL** : ${GetEmoji(EMOJI.OKASH)} OKA**${prices.fxgl}** ${user_shares.fxgl!=0?format(STRINGS.shares[locale], user_shares.fxgl, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(user_shares.fxgl*prices.fxgl)}**`):''}`;
 
-        // okey
-        interaction.editReply({
-            content:`${STRINGS.current[locale]}\n${neko}\n${dogy}\n${fxgl}`
-        })
+            // okey
+            interaction.editReply({
+                content:`${STRINGS.current[locale]}\n${neko}\n${dogy}\n${fxgl}`
+            });
+        } catch {
+            interaction.editReply({
+                content:`:warning: The database may be corrupted/damaged. It is recommended you do not use stocks until the issue is fixed.`
+            });
+        }
     }
 
     if (command == 'purchase-shares') {

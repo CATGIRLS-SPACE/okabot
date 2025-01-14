@@ -1,7 +1,17 @@
-import { ChatInputCommandInteraction, Locale, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, TextChannel } from "discord.js";
 import { ClaimDaily, GetDailyStreak } from "../okash/daily";
 import { GetEmoji } from "../../util/emoji";
+import { ScheduleDailyReminder } from "../tasks/dailyRemind";
 
+const remindButton = new ButtonBuilder()
+    .setCustomId('remindme')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Remind Me');
+
+const earlyBar = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        remindButton
+    );
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -9,14 +19,33 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const result: number = ClaimDaily(interaction.user.id, false, interaction.channel as TextChannel);
 
     if (result < 0) {
-        // must wait
-        if (interaction.locale == Locale.Japanese) return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, あまりに早くです！あなたの日常の褒美は【<t:${-result}:R>】`
-        })
+        let response;
 
-        return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, it's too early! Come back <t:${-result}:R> to claim your daily.`
+        // must wait
+        if (interaction.locale == Locale.Japanese) response = await interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, あまりに早くです！あなたの日常の褒美は【<t:${-result}:R>】`,
+            components: [earlyBar]
         });
+        else response = await interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, it's too early! Come back <t:${-result}:R> to claim your daily.`,
+            components: [earlyBar]
+        });
+
+        const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+
+        const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+
+        collector.on('collect', async i => {
+            const d = new Date;
+            const ready = d.getTime() + 5000;
+            ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
+        
+            i.update({
+                content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`
+            });
+        });
+
+        return;
     }
 
     if (result == 750) {

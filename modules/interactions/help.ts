@@ -154,48 +154,48 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
         const selection = i.values[0];
         switch (selection) { 
             case 'okash':
-                await i.reply({
+                await i.update({
                     content: CurrencyPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
             case 'games':
-                await i.reply({
+                await i.update({
                     content: GamesPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
             case 'stocks':
-                await i.reply({
+                await i.update({
                     content: StockPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
             case 'daily':
-                await i.reply({
+                await i.update({
                     content: DailyRewardPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
             
             case 'level':
-                await i.reply({
+                await i.update({
                     content: LevelPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
                 
             case 'drops':
-                await i.reply({
+                await i.update({
                     content: DropsPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
 
             case 'extra':
-                await i.reply({
+                await i.update({
                     content: ExtraPage,
-                    flags: [MessageFlags.Ephemeral]
+                    components: [row]
                 });
                 break;
         }
