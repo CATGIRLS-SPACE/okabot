@@ -1,11 +1,12 @@
-import { EmbedBuilder, Message, TextChannel } from "discord.js";
+import { Client, EmbedBuilder, Message, TextChannel } from "discord.js";
 import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { GEMS, ITEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
-import { LISTENING, SetListening } from "../..";
+import { DEV, LISTENING, SetListening } from "../..";
 import { SelfUpdate } from "../../util/updater";
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { UpdateMarkets } from "../okash/stock";
 
 const L = new Logger('onMessage.ts');
 
@@ -201,6 +202,20 @@ export async function CheckAdminShorthands(message: Message) {
 
                 UpdateUserProfile(params[2], profile);
 
+                message.react('✅');
+            }
+
+
+            // DEV only ones
+            if (message.content == 'oka stock update') {
+                if (!DEV) {
+                    message.react('❌');
+                    return message.reply({
+                        content:'Bot does not have the `use dev token` flag. This command is only available on devmode bots.'
+                    });
+                }
+
+                UpdateMarkets(message.client);
                 message.react('✅');
             }
         }

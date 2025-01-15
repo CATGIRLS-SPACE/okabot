@@ -54,7 +54,7 @@ const WIPE = process.argv.includes('--wipe');
 const WIPE_TYPE = WIPE?process.argv[process.argv.indexOf('--wipe') + 1]:'none';
 
 // bot code start
-const client = new Client({ 
+export const client = new Client({ 
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.MessageContent,
@@ -73,7 +73,7 @@ client.once(Events.ClientReady, (c: Client) => {
     SetupStocks(__dirname);
     LoadVoiceData();
     ScheduleJob(c); // schedule the coinflip reset bonus
-    ScheduleStocksTask();
+    ScheduleStocksTask(c);
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 

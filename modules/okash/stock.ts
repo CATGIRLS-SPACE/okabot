@@ -1,6 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { Logger } from "okayulogger";
 import { join } from "path";
+import { client, DEV } from "../..";
+import { Client, TextChannel } from "discord.js";
 
 export interface Stock {
     price: number,
@@ -84,6 +86,25 @@ export function GetSharePrice(stock: Stocks): number {
 
 
 /**
+ * Get the current status of the stock market
+ * @returns All market prices and the latest event (or undefined if an event hasn't happened yet)
+ */
+export function GetMarketStatus(): {
+    neko: number,
+    dogy: number,
+    fxgl: number,
+    last_event: StockEvent | undefined
+} {
+    return {
+        neko: Math.round(MARKET[Stocks.CATGIRL].price),
+        dogy: Math.round(MARKET[Stocks.DOGGIRL].price),
+        fxgl: Math.round(MARKET[Stocks.FOXGIRL].price),
+        last_event: LastEvent
+    }
+}
+
+
+/**
  * Check how many shares a user has of a given stock
  * @param user_id ID of the user to check
  * @param stock The stock to check
@@ -120,7 +141,7 @@ export function CheckUserShares(user_id: string, stock: Stocks): number {
  * If the trend is no change (e.g. 150,150) then it will assume a positive trend.
  * This is so that the stock prices hopefully don't go insane rollercoaster 24/7.
  */
-export function UpdateMarkets() {
+export function UpdateMarkets(c: Client) {
     // L.info('updating markets...');
 
     enum Trend {
@@ -140,7 +161,7 @@ export function UpdateMarkets() {
     if (Math.floor(Math.random() * 50) == 27) spike = true;
     let change = trend * Math.round(((Math.random() * (spike?250:20)) + Number.EPSILON) * 100) / 100;
     MARKET.catgirl.price += change;
-    if (MARKET.catgirl.price < 0) MARKET.catgirl.price = 0;
+    if (MARKET.catgirl.price < 1) MARKET.catgirl.price = 1;
     MARKET.catgirl.price_history.push(MARKET.catgirl.price);
 
     // doggirl market:
@@ -149,7 +170,7 @@ export function UpdateMarkets() {
     if (Math.floor(Math.random() * 50) == 27) spike = true;
     change = trend * Math.round(((Math.random() * (spike?100:10)) + Number.EPSILON) * 100) / 100;
     MARKET.doggirl.price += change;
-    if (MARKET.doggirl.price < 0) MARKET.doggirl.price = 0;
+    if (MARKET.doggirl.price < 1) MARKET.doggirl.price = 1;
     MARKET.doggirl.price_history.push(MARKET.doggirl.price);
     
     // foxgirl market:
@@ -158,12 +179,14 @@ export function UpdateMarkets() {
     if (Math.floor(Math.random() * 25) == 13) spike = true;
     change = trend * Math.round(((Math.random() * (spike?50:2)) + Number.EPSILON) * 100) / 100;
     MARKET.foxgirl.price += change;
-    if (MARKET.foxgirl.price < 0) MARKET.foxgirl.price = 0;
+    if (MARKET.foxgirl.price < 1) MARKET.foxgirl.price = 1;
     MARKET.foxgirl.price_history.push(MARKET.foxgirl.price);
 
     // write changes
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
+
+    DoEventCheck(c);
 }
 
 /**
@@ -299,4 +322,82 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
 export function GetLastNumValues(stock: Stocks, length: number) {
     const list = MARKET[stock].price_history.slice(-length, -1);
     return list;
+}
+
+
+interface StockEvent {
+    name: string,
+    positive: boolean
+}
+
+const EVENTS: Array<StockEvent> = [
+    {"name":"#STOCK# experts predict a major #ABBR# boom is incoming","positive":true},
+    {"name":"#STOCK# experts say now is the time to invest in #ABBR#","positive":true},
+    {"name":"#STOCK# investors left speechless as #ABBR# collapses","positive":false},
+    {"name":"Analysts say #STOCK# (#ABBR#) investment was a mistake","positive":false},
+    {"name":"#STOCK# soars as #ABBR# investors celebrate record highs", "positive":true},
+    {"name":"Big money moves: #ABBR# is the next big thing, say analysts", "positive":true},
+    {"name":"#STOCK# CEO winks at press conference, stocks skyrocket", "positive":true},
+    {"name":"Mysterious billionaire just bought a ton of #ABBR# shares", "positive":true},
+    {"name":"#STOCK# investors rejoice as #ABBR# becomes \"too big to fail\"", "positive":true},
+    {"name":"Experts claim #ABBR# is \"the future\" — nobody knows what that means", "positive":true},
+    {"name":"#STOCK# rises after a single catgirl mentioned #ABBR# on stream", "positive":true},
+    {"name":"#STOCK# in shambles as #ABBR# CEO tweets 'oops'", "positive":false},
+    {"name":"Investors panic as #ABBR# gets listed in 'Top 10 Worst Buys'", "positive":false},
+    {"name":"Market chaos: #STOCK# drops after CFO was seen buying ramen noodles", "positive":false},
+    {"name":"#STOCK# plummets as #ABBR# gets called 'mid' on social media", "positive":false},
+    {"name":"Financial disaster: #ABBR# stock crashes after a catgirl said 'meh'", "positive":false},
+    {"name":"Insiders report that #STOCK# execs \"have no idea what they're doing\"", "positive":false},
+    {"name":"#ABBR# stock tanks as investors realize it's just a meme", "positive":false},
+    {"name":"#STOCK# skyrockets as #ABBR# CEO changes profile picture", "positive":true},
+    {"name":"#STOCK# jumps 300% after a catgirl tweets 'nyan~' about #ABBR#", "positive":true},
+    {"name":"Investors call #ABBR# 'the next big thing' after seeing a cool product proposal", "positive":true},
+    {"name":"#STOCK# mooning as billionaire says '#ABBR# just feels right'", "positive":true},
+    {"name":"#ABBR# price skyrockets after CEO responds with 'lol' to a tweet", "positive":true},
+    {"name":"#STOCK# shares explode as #ABBR# appears in a viral TikTok", "positive":true},
+    {"name":"Market experts agree: #ABBR# is a 'vibe' now", "positive":true},
+    {"name":"#STOCK# surges as the internet collectively forgets what #ABBR# actually does", "positive":true},
+    {"name":"#STOCK# crumbles after #ABBR# CEO is caught using Internet Explorer", "positive":false},
+    {"name":"Panic as #ABBR# website goes down for 5 minutes", "positive":false},
+    {"name":"#STOCK# plummets after someone says '#ABBR# is kinda mid' on Discord", "positive":false},
+    {"name":"Investors panic-sell #ABBR# after finding out it's 'just vibes'", "positive":false},
+    {"name":"#STOCK# free-falls as CEO admits 'we have no idea what we're doing'", "positive":false},
+    {"name":"#ABBR# collapses after grandma tries to buy shares at a bank", "positive":false},
+    {"name":"#STOCK# dips as catgirl streamers start talking about a different stock", "positive":false},
+    {"name":"#ABBR# takes a nosedive after someone changes its Wikipedia page", "positive":false},
+    {"name":"#STOCK# hit with a disaster as CEO crashes out on Twitter", "positive":false},
+];
+
+
+let LastEvent: StockEvent;
+
+// This will be triggered every 5 minutes, so maybe a good chance would be like...
+// 1/10 i guess we'll see lol
+function DoEventCheck(c: Client) {
+    // should we do an event?
+    if (Math.floor(Math.random() * 10) != 5) return;
+
+    L.info('event is happening!');
+    let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
+
+    // yes, what event?
+    LastEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+
+    // what stock?
+    const stock_roll = Math.floor(Math.random() * 3);
+    const stock = [Stocks.CATGIRL, Stocks.DOGGIRL, Stocks.FOXGIRL][stock_roll];
+
+    // update the market accordingly
+    if (LastEvent.positive) MARKET[stock].price += Math.floor(Math.random() * 700) + 50; // random from 50-750 okash increase/decrease
+    else MARKET[stock].price -= Math.floor(Math.random() * 200) + 50;
+
+    writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
+
+    const channel = c.channels.cache.get(BROADCAST_CHANNEL_ID) as TextChannel;
+    L.info(`channel: #${channel.name}`);
+
+    // send the event to the channel
+   channel.send({
+        content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`
+    });
 }
