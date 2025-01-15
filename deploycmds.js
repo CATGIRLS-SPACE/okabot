@@ -243,7 +243,7 @@ const commands = [
     new SlashCommandBuilder().setName('stock')
         .setDescription('Manage stocks')
         .addSubcommand(sc => sc
-            .setName('purchase-shares')
+            .setName('purchase')
             .setDescription('Purchase shares of a stock')
             .addStringOption(option => option
                 .setName('stock')
@@ -264,27 +264,7 @@ const commands = [
             )
         )
         .addSubcommand(sc => sc
-            .setName('purchase-okash')
-            .setDescription('Purchase shares of a stock based on an okash amount')
-            .addStringOption(option => option
-                .setName('stock')
-                .setDescription('which stock to buy')
-                .addChoices(
-                    {name:'Foxgirl - FXGL', value:'foxgirl'},
-                    {name:'Doggirl - DOGY', value:'doggirl'},
-                    {name:'Catgirl - NEKO', value:'catgirl'},
-                )
-                .setRequired(true)
-            )
-            .addNumberOption(option => option
-                .setName('amount')
-                .setDescription('amount of okash to spend')
-                .setRequired(true)
-                .setMinValue(1)
-            )
-        )
-        .addSubcommand(sc => sc
-            .setName('sell-shares')
+            .setName('sell')
             .setDescription('Sell shares of a stock')
             .addStringOption(option => option
                 .setName('stock')
@@ -302,26 +282,6 @@ const commands = [
                 .setRequired(true)
                 .setMinValue(0.00000000000000000000001)
                 .setMaxValue(100)
-            )
-        )
-        .addSubcommand(sc => sc
-            .setName('sell-okash')
-            .setDescription('Sell shares of a stock based on an okash amount')
-            .addStringOption(option => option
-                .setName('stock')
-                .setDescription('which stock to sell')
-                .addChoices(
-                    {name:'Foxgirl - FXGL', value:'foxgirl'},
-                    {name:'Doggirl - DOGY', value:'doggirl'},
-                    {name:'Catgirl - NEKO', value:'catgirl'},
-                )
-                .setRequired(true)
-            )
-            .addNumberOption(option => option
-                .setName('amount')
-                .setDescription('amount of shares to sell')
-                .setRequired(true)
-                .setMinValue(1)
             )
         )
         .addSubcommand(sc => sc

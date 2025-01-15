@@ -372,10 +372,10 @@ const EVENTS: Array<StockEvent> = [
 let LastEvent: StockEvent;
 
 // This will be triggered every 5 minutes, so maybe a good chance would be like...
-// 1/10 i guess we'll see lol
+// 1/25 i guess we'll see lol
 function DoEventCheck(c: Client) {
     // should we do an event?
-    if (Math.floor(Math.random() * 10) != 5) return;
+    if (Math.floor(Math.random() * 25) != 5) return;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
