@@ -351,6 +351,7 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# dips as catgirl streamers start talking about a different stock", "positive":false},
     {"name":"#ABBR# takes a nosedive after someone changes its Wikipedia page", "positive":false},
     {"name":"#STOCK# hit with a disaster as CEO crashes out on Twitter", "positive":false},
+    {"name":"#STOCK# prospers after okabot bug was discovered, mistakenly prioritizing #ABBR# over other stocks", "positive":true},
 ];
 
 
