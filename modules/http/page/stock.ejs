@@ -11,14 +11,17 @@
             <div class="stock neko">
                 <h3>NEKO</h3>
                 <h4 id="neko-price">0</h4>
+                <h5 id="neko-prev-price">PREV: 0</h5>
             </div>
             <div class="stock dogy">
                 <h3>DOGY</h3>
                 <h4 id="dogy-price">0</h4>
+                <h5 id="dogy-prev-price">PREV: 0</h5>
             </div>
             <div class="stock fxgl">
                 <h3>FXGL</h3>
                 <h4 id="fxgl-price">0</h4>
+                <h5 id="fxgl-prev-price">PREV: 0</h5>
             </div>
         </div>
         <footer>2025 lilycatgirl</footer>
@@ -59,6 +62,10 @@
             font-size: 4rem;
             margin: 0;
         }
+        .stocks .stock h5 {
+            font-size: 2rem;
+            margin: 0;
+        }
 
         @media screen and (max-width: 600px) {
             .stocks {
@@ -69,9 +76,9 @@
 
     <script>
         let last_prices = {
-            neko: 0,
-            dogy: 0,
-            fxgl: 0,
+            neko: '?',
+            dogy: '?',
+            fxgl: '?',
         };
         let first = true;
 
@@ -100,6 +107,16 @@
                     updateStockDisplay("neko", json.neko);
                     updateStockDisplay("dogy", json.dogy);
                     updateStockDisplay("fxgl", json.fxgl);
+
+                    if (
+                        !(last_prices.neko == json.neko ||
+                        last_prices.dogy == json.dogy ||
+                        last_prices.fxgl == json.fxgl)
+                    ) {
+                        updateStockDisplay("neko-prev", last_prices.neko);
+                        updateStockDisplay("dogy-prev", last_prices.dogy);
+                        updateStockDisplay("fxgl-prev", last_prices.fxgl);
+                    }
 
                     // Update the page title
                     document.title = `
@@ -135,7 +152,7 @@
         function updateStockDisplay(id, newPrice) {
             const element = document.querySelector(`#${id}-price`);
             const trend = getTrend(last_prices[id], newPrice);
-            element.innerHTML = `${trend} ${newPrice}`;
+            element.innerHTML = `${id.includes('prev')?'PREVIOUS:':trend} ${newPrice}`;
             element.style.color = getTrendColor(last_prices[id], newPrice);
         }
 
