@@ -262,7 +262,11 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.toLocaleLowerCase() == 'thank you okabot') message.reply({
         content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
-    })
+    });
+
+    if (message.content.toLocaleLowerCase().includes('massive')) message.reply({
+        content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
+    });
 });
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {

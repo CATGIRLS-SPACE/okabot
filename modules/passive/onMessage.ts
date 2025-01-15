@@ -3,10 +3,12 @@ import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../
 import { GEMS, ITEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
-import { DEV, LISTENING, SetListening } from "../..";
+import { BASE_DIRNAME, client, DEV, LISTENING, SetListening } from "../..";
 import { SelfUpdate } from "../../util/updater";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { UpdateMarkets } from "../okash/stock";
+import { join } from "path";
+import { readdirSync } from "fs";
 
 const L = new Logger('onMessage.ts');
 
@@ -38,6 +40,38 @@ export async function CheckAdminShorthands(message: Message) {
                 message.react('✅');
                 (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
             }
+
+            if (message.content.startsWith('oka depa ')) {
+                const regex = /"([^"]+)"|(\S+)/g;
+                const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+
+                if (Number.isNaN(parseInt(params[2]))) return message.react('❌');
+
+                const wallet_dir = join(BASE_DIRNAME, 'money', 'wallet');
+
+                readdirSync(wallet_dir).forEach(file => {
+                    const user_id = file.split('.oka')[0];
+                    const user = client.users.cache.get(user_id);
+
+                    AddToWallet(user_id, parseInt(params[2]));
+
+                    const receiver_embed = new EmbedBuilder()
+                        .setColor(0x9d60cc)
+                        .setTitle(`You received some okash!`)
+                        .addFields(
+                            {name:'⬆️ Sender', value:'SYSTEM', inline: true},
+                            {name:'⬇️ Receiver', value:''+user?.displayName, inline: true},
+                        )
+                        .setDescription(`okash Transfer of OKA${params[2]}.`);
+
+                    user?.send({
+                        embeds:[receiver_embed]
+                    });
+                });
+
+                message.react('✅');
+            }
+
             if (message.content.startsWith('oka wd ')) {
                 const params = message.content.split(' ');
                 if (params.length != 4) return message.react('❌');
