@@ -44,12 +44,19 @@ const StockPage =
 `
 ## okash Stocks
 You can invest your okash into the stock market, too!
+You don't have to purchase a whole-number amount of shares, 
+so you can buy half a share, quarter of a share, however much you want!
+
 The okabot stock market consists of three stocks:
 - Catgirl: The most expensive, but the highest change in cost per update.
 - Doggirl: A middle-ground that's not too expensive, but still worth investment.
 - Foxgirl: A low-priced stock that has the highest chance of spiking, but less movement in price.
+
 Stocks update every 5 minutes, and you can only invest with money in your bank.
-You don't have to purchase a whole-number amount of shares, so you can buy half a share if you want.
+There's a chance that an event might happen, too! Keep an eye out for these events,
+they could really help your investment portfolio!
+
+As of okabot 3.0.3, there is a small fee when selling. This is only to prevent abuse.
 `
 
 const DailyRewardPage =
@@ -86,7 +93,11 @@ const ExtraPage =
 `
 ## Extra info
 okabot is created with the intent to be free and fun. If you want to support, you can do so [here](<https://ko-fi.com/okawaffles>).
-okabot is available in English and Japanese. If you would like to help translate okabot into another language, please contact me.
+
+okabot is available in English and Japanese. It will reflect your Discord language. 
+Not all features are 100% translated, and some translations may be inaccurate.
+If you would like to help translate okabot into another language, please contact me.
+
 okabot is only available in CATGIRL CENTRAL. This may change in the coming future as okabot expands to be a more-polished bot.
 
 Thanks for using okabot ${GetEmoji(EMOJI.NEKOHEART)}
