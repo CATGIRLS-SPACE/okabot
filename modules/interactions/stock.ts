@@ -109,7 +109,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         AddToBank(interaction.user.id, total_sell_price - Math.round(total_sell_price * 0.035));
 
         interaction.editReply({
-            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(total_sell_price * 0.0035)}**`)}`
+            content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(total_sell_price * 0.035)}**`)}`
         })
     }
 }
