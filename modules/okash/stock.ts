@@ -200,14 +200,10 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
 
     switch (stock) {
         case Stocks.CATGIRL: case Stocks.NEKO:
-            // check if they dont hold any shares yet
-            let neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
+            const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
             if (neko_holder == undefined) {MARKET.catgirl.holders.push({user_id, amount}); break;}
-            // they already hold shares
-            // store where it was located because we can't use indexOf after modifying it
             const neko_where = MARKET.catgirl.holders.indexOf(neko_holder);
             neko_holder.amount += amount;
-            // update the record
             MARKET.catgirl.holders[neko_where] = neko_holder;
             break;
 
@@ -280,9 +276,9 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
             const dogy_where = MARKET.doggirl.holders.indexOf(dogy_holder);
             dogy_holder.amount -= amount;
             if (dogy_holder.amount != 0)
-                MARKET.catgirl.holders[dogy_where] = dogy_holder;
+                MARKET.doggirl.holders[dogy_where] = dogy_holder;
             else
-                MARKET.catgirl.holders.splice(dogy_where, 1); // remove them if they don't hold any shares;
+                MARKET.doggirl.holders.splice(dogy_where, 1); // remove them if they don't hold any shares;
             break;
 
         case Stocks.FOXGIRL: case Stocks.FXGL:
@@ -291,9 +287,9 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
             const fxgl_where = MARKET.foxgirl.holders.indexOf(fxgl_holder);
             fxgl_holder.amount -= amount;
             if (fxgl_holder.amount != 0)
-                MARKET.catgirl.holders[fxgl_where] = fxgl_holder;
+                MARKET.foxgirl.holders[fxgl_where] = fxgl_holder;
             else
-                MARKET.catgirl.holders.splice(fxgl_where, 1); // remove them if they don't hold any shares;
+                MARKET.foxgirl.holders.splice(fxgl_where, 1); // remove them if they don't hold any shares;
             break;
     
         default:
