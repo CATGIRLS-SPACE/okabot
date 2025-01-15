@@ -228,19 +228,8 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
     }
 
     // pump the price a little bit based on their investment
-    switch (stock) {
-        case Stocks.CATGIRL:
-            MARKET.catgirl.price += (amount * MARKET.catgirl.price * 0.001);
-            break;
-
-        case Stocks.DOGGIRL:
-            MARKET.doggirl.price += (amount * MARKET.doggirl.price * 0.001);
-            break;
-
-        case Stocks.FOXGIRL:
-            MARKET.foxgirl.price += (amount * MARKET.foxgirl.price * 0.001);
-            break;
-    }
+    MARKET[stock].price += (amount * MARKET.foxgirl.price * 0.001);
+    MARKET[stock].price_history.push(MARKET[stock].price);
 
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
