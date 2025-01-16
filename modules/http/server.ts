@@ -138,6 +138,12 @@ wss.on('connection', (ws) => {
                 break;
         }
     });
+
+    // remove on disconnect
+    ws.on('close', () => {
+        L.info('websocket has disconnected');
+        aliveConnections.splice(aliveConnections.indexOf(ws), 1);
+    })
 });
 
 export enum WSSStockMessage {
@@ -170,6 +176,15 @@ export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
                 value: Math.floor(data.value)
             };
             break;
+
+        case WSSStockMessage.EVENT_UPDATE_POSITIVE: case WSSStockMessage.EVENT_UPDATE_NEGATIVE:
+            payload = {
+                _type: type,
+                neko:GetSharePrice(Stocks.NEKO),
+                dogy:GetSharePrice(Stocks.DOGY),
+                fxgl:GetSharePrice(Stocks.FXGL),
+                event: data.name
+            };
     
         default:
             break;

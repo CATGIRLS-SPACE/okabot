@@ -187,8 +187,8 @@ export function UpdateMarkets(c: Client) {
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
-    WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
-    DoEventCheck(c);
+    const is_event = DoEventCheck(c);
+    if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
 }
 
 /**
@@ -367,9 +367,9 @@ let LastEvent: StockEvent;
 
 // This will be triggered every 5 minutes, so maybe a good chance would be like...
 // 1/25 i guess we'll see lol
-function DoEventCheck(c: Client) {
+function DoEventCheck(c: Client): boolean {
     // should we do an event?
-    if (Math.floor(Math.random() * 10) != 5) return;
+    // if (Math.floor(Math.random() * 10) != 5) return false;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
@@ -391,7 +391,10 @@ function DoEventCheck(c: Client) {
     L.info(`channel: #${channel.name}`);
 
     // send the event to the channel
-   channel.send({
+    channel.send({
         content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`
     });
+
+    WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent);
+    return true;
 }
