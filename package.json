@@ -20,7 +20,8 @@
     "express": "^4.21.2",
     "json": "^11.0.0",
     "node-schedule": "^2.1.1",
-    "okayulogger": "^3.0.0"
+    "okayulogger": "^3.0.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",

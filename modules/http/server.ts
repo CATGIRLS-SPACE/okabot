@@ -4,10 +4,15 @@ import { BASE_DIRNAME, DEV } from '../..';
 import { Client, EmbedBuilder, MessageFlags, TextChannel } from 'discord.js';
 import { join } from 'path';
 import { GetSharePrice, Stocks } from '../okash/stock';
+import { createServer } from 'http';
+import { Logger } from 'okayulogger';
+import { Server } from 'ws';
 const server = express();
 
 let channelId = "1321639990383476797";
 let channel: TextChannel;
+
+const L = new Logger('http');
 
 server.use(json());
 server.set('view engine', 'ejs');
@@ -81,6 +86,12 @@ server.post('/minecraft', (req: Request, res: Response) => {
 server.get('/stock', (req: Request, res: Response) => {
     res.render(join(BASE_DIRNAME, 'modules', 'http', 'page', 'stock'));
 });
+server.get('/stock.js', (req: Request, res: Response) => {
+    res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'stock.js'));
+});
+server.get('/asset/:item', (req: Request, res: Response) => {
+    res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'assets', req.params.item));
+});
 server.get('/api/stock', (req: Request, res: Response) => {
     const prices = {
         neko:GetSharePrice(Stocks.NEKO),
@@ -90,8 +101,34 @@ server.get('/api/stock', (req: Request, res: Response) => {
     res.json(prices);
 });
 
+const SERVER = createServer(server);
+const wss = new Server({server: SERVER});
+
 export function StartHTTPServer(c: Client) {
     channel = c.channels.cache.get(channelId)! as TextChannel;
 
-    server.listen(9256);
+    SERVER.listen(9256).on('listening', () => {
+        L.info('Server listening on :9256');
+    });
 }
+
+wss.on('connection', (ws) => {
+    L.info('new websocket connection...');
+
+    ws.on('message', (message) => {
+        switch (message.toString()) {
+            case 'stocks latest':
+                const prices = {
+                    _type:'stocks',
+                    neko:GetSharePrice(Stocks.NEKO),
+                    dogy:GetSharePrice(Stocks.DOGY),
+                    fxgl:GetSharePrice(Stocks.FXGL),
+                };
+                ws.send(JSON.stringify(prices));
+                break;
+            default:
+                ws.send('bad message');
+                break;
+        }
+    });
+});
