@@ -369,7 +369,7 @@ let LastEvent: StockEvent;
 // 1/25 i guess we'll see lol
 function DoEventCheck(c: Client): boolean {
     // should we do an event?
-    // if (Math.floor(Math.random() * 10) != 5) return false;
+    if (Math.floor(Math.random() * 10) != 5) return false;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 

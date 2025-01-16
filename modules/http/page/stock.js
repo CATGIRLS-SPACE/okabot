@@ -123,6 +123,6 @@ const sfx_SSD = new Audio('/asset/stock-spike-down.wav');
 const sfx_SEP = new Audio('/asset/stock-event-positive.wav');
 const sfx_SEN = new Audio('/asset/stock-event-negative.wav');
 
-if (!Notification.permission) {
+if (Notification.permission == 'default') {
     Notification.requestPermission();
 }
