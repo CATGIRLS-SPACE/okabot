@@ -83,8 +83,6 @@ function UpdatePriceDisplay(data, is_event, _type) {
         new Notification(`${positive?'📈':'📉'} STOCK MARKET NEWS`, {body:data.event,icon:''});
     }
 
-    new Notification(`${true?'📈':'📉'} STOCK MARKET NEWS`, {body:data.event,icon:''});
-
     document.querySelector('#neko-prev-price').innerHTML = 'was ' + LAST_PRICES.neko;
     document.querySelector('#dogy-prev-price').innerHTML = 'was ' + LAST_PRICES.dogy;
     document.querySelector('#fxgl-prev-price').innerHTML = 'was ' + LAST_PRICES.fxgl;
