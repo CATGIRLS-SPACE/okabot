@@ -75,7 +75,7 @@ const commands = [
         .addStringOption(option => 
             option
                 .setName('side').setNameLocalization('ja','裏か表か')
-                .setDescription('Optionally, pick heads or tails').setDescription('裏か表かを選ぶ')
+                .setDescription('Optionally, pick heads or tails').setDescriptionLocalization('ja', '裏か表かを選ぶ')
                 .addChoices(
                 {name:'heads', value:'heads', name_localizations:{ja:'表'}},
                 {name:'tails', value:'tails', name_localizations:{ja:'裏'}}
