@@ -3,6 +3,7 @@ import { Logger } from "okayulogger";
 import { join } from "path";
 import { client, DEV } from "../..";
 import { Client, TextChannel } from "discord.js";
+import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 
 export interface Stock {
     price: number,
@@ -186,6 +187,7 @@ export function UpdateMarkets(c: Client) {
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
+    WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
     DoEventCheck(c);
 }
 
@@ -233,6 +235,9 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
 
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
+
+    // send WSS update
+    WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_POSITIVE, {stock, value: MARKET[stock].price});
 }
 
 
@@ -302,6 +307,9 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
 
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
+
+    // send WSS update
+    WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_NEGATIVE, {stock, value: MARKET[stock].price});
 }
 
 export function GetLastNumValues(stock: Stocks, length: number) {

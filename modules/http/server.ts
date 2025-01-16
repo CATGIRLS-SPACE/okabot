@@ -112,10 +112,14 @@ export function StartHTTPServer(c: Client) {
     });
 }
 
+const aliveConnections: import("ws")[] = [];
+
 wss.on('connection', (ws) => {
     L.info('new websocket connection...');
 
     ws.on('message', (message) => {
+        L.info('(ws message) ' + message.toString());
+
         switch (message.toString()) {
             case 'stocks latest':
                 const prices = {
@@ -126,9 +130,52 @@ wss.on('connection', (ws) => {
                 };
                 ws.send(JSON.stringify(prices));
                 break;
+            case 'nya~':
+                aliveConnections.push(ws);
+                break;
             default:
                 ws.send('bad message');
                 break;
         }
     });
 });
+
+export enum WSSStockMessage {
+    NATURAL_UPDATE = 'stocks',
+    NATURAL_UPDATE_SPIKE_UP = 'spike_up',
+    NATURAL_UPDATE_SPIKE_DOWN = 'spike_down',
+    EVENT_UPDATE_POSITIVE = 'event_positive',
+    EVENT_UPDATE_NEGATIVE = 'event_negative',
+    USER_UPDATE_POSITIVE = 'user_positive',
+    USER_UPDATE_NEGATIVE = 'user_negative'
+}
+
+export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
+    let payload = {};
+
+    switch (type) {
+        case WSSStockMessage.NATURAL_UPDATE:
+            payload = {
+                _type: type,
+                neko:GetSharePrice(Stocks.NEKO),
+                dogy:GetSharePrice(Stocks.DOGY),
+                fxgl:GetSharePrice(Stocks.FXGL),
+            };
+            break;
+        
+        case WSSStockMessage.USER_UPDATE_POSITIVE: case WSSStockMessage.USER_UPDATE_NEGATIVE:
+            payload = {
+                _type: type,
+                stock: data.stock,
+                value: Math.floor(data.value)
+            };
+            break;
+    
+        default:
+            break;
+    }
+
+    aliveConnections.forEach(connection => {
+        connection.send(JSON.stringify(payload));
+    });
+}
