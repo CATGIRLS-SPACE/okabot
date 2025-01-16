@@ -3,6 +3,7 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetSharePrice, SellShares, Stocks } from "../okash/stock";
 import { AddToBank, GetBank, RemoveFromBank } from "../okash/wallet";
 import { format } from "util";
+import { HandleCommandLink } from "./link";
 
 
 const STRINGS: {[key:string]: {en:string,ja:string}} = {
@@ -38,12 +39,12 @@ const STRINGS: {[key:string]: {en:string,ja:string}} = {
 
 
 export async function HandleCommandStock(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-
     const command = interaction.options.getSubcommand();
     const locale = interaction.locale == Locale.Japanese?'ja':'en';
 
     if (command == 'show') {
+        await interaction.deferReply();
+        
         try {
             // get all the user's shares
             const user_shares = {
@@ -74,6 +75,8 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
     }
 
     if (command == 'purchase') {
+        await interaction.deferReply();
+    
         const stock = interaction.options.getString('stock', true);
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock as Stocks);
@@ -93,6 +96,8 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
     }
 
     if (command == 'sell') {
+        await interaction.deferReply();
+
         const stock = interaction.options.getString('stock', true) as Stocks;
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock);
@@ -111,5 +116,9 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         interaction.editReply({
             content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock=='catgirl'?'NEKO':stock=='doggirl'?'DOGY':'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(total_sell_price * 0.035)}**`)}`
         })
+    }
+
+    if (command == 'link') {
+        HandleCommandLink(interaction);
     }
 }

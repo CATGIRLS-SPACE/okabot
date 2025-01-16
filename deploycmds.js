@@ -287,11 +287,20 @@ const commands = [
         .addSubcommand(sc => sc
             .setName('show')
             .setDescription('Show stock prices and how many shares you own')
+        )
+        .addSubcommand(sc => sc
+            .setName('link')
+            .setDescription('Link a browser session to your account')
+            .addStringOption(option => option
+                .setName('code')
+                .setDescription('the code shown in the browser')
+                .setRequired(true)
+            )
         ),
 
     new SlashCommandBuilder()
         .setName('help')
-        .setDescription('Get information on everything okabot')
+        .setDescription('Get information on everything okabot'),
 
 ].map(command => command.toJSON());
  

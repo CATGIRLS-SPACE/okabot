@@ -1,7 +1,7 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
 import { BASE_DIRNAME, DEV } from '../..';
-import { Client, EmbedBuilder, MessageFlags, TextChannel } from 'discord.js';
+import { Client, EmbedBuilder, MessageFlags, TextChannel, User } from 'discord.js';
 import { join } from 'path';
 import { GetSharePrice, Stocks } from '../okash/stock';
 import { createServer } from 'http';
@@ -113,6 +113,16 @@ export function StartHTTPServer(c: Client) {
 }
 
 const aliveConnections: import("ws")[] = [];
+const linkedConnections: {
+    [key:string]: import('ws')
+} = {};
+
+const alpha = 'ABCDEF1234567890';
+function GenerateLinkCode(): string {
+    let code = '';
+    for (let i = 0; i < 6; i++) code += alpha[Math.floor(Math.random() * alpha.length)];
+    return code;
+}
 
 wss.on('connection', (ws) => {
     L.info('new websocket connection...');
@@ -132,6 +142,7 @@ wss.on('connection', (ws) => {
                 break;
             case 'nya~':
                 aliveConnections.push(ws);
+                ws.send(`woof! ${GenerateLinkCode()}`)
                 break;
             default:
                 ws.send('bad message');
@@ -153,7 +164,8 @@ export enum WSSStockMessage {
     EVENT_UPDATE_POSITIVE = 'event_positive',
     EVENT_UPDATE_NEGATIVE = 'event_negative',
     USER_UPDATE_POSITIVE = 'user_positive',
-    USER_UPDATE_NEGATIVE = 'user_negative'
+    USER_UPDATE_NEGATIVE = 'user_negative',
+    LINK_BALANCE = 'link_balance'
 }
 
 export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
@@ -183,7 +195,7 @@ export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
                 neko:GetSharePrice(Stocks.NEKO),
                 dogy:GetSharePrice(Stocks.DOGY),
                 fxgl:GetSharePrice(Stocks.FXGL),
-                event: data.name
+                event: data
             };
     
         default:
@@ -192,5 +204,17 @@ export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
 
     aliveConnections.forEach(connection => {
         connection.send(JSON.stringify(payload));
+    });
+}
+
+export function LinkWSToUserId(user: User, link_code: string) {
+    aliveConnections.forEach(connection => {
+        connection.send(`LINK ${link_code} ${user.username}`);
+
+        connection.on('message', (message) => {
+            if (message.toString() == `ACCEPT ${link_code}`) {
+                linkedConnections[user.id] = connection;
+            }
+        });
     });
 }

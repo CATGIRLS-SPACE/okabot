@@ -395,6 +395,6 @@ function DoEventCheck(c: Client): boolean {
         content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`
     });
 
-    WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent);
+    WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id));
     return true;
 }

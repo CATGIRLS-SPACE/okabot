@@ -1,4 +1,7 @@
-const socket = new WebSocket(`${window.location.toString().startsWith('https')?'wss://bot.lilycatgirl.dev':'ws://localhost:9256'}`);
+const custom_url = prompt('use custom url? (leave blank for no)');
+const url = custom_url!=''?custom_url:`${window.location.toString().startsWith('https')?'wss://bot.lilycatgirl.dev':'ws://localhost:9256'}`;
+
+const socket = new WebSocket(url);
 
 let CURRENT_PRICES = {
     neko: 0,
@@ -11,8 +14,35 @@ let LAST_PRICES = {
     fxgl: '?'
 }
 
+let link_code = '';
+let linked_user = '';
+
+socket.onopen = function(ws) {
+    socket.send('nya~');
+    socket.send('stocks latest');
+}
+
 socket.onmessage = function(message) {
     console.log(message);
+
+    if (message.data.startsWith('woof! ')) {
+        link_code = message.data.split('woof! ')[1];
+        document.getElementById('footer').innerHTML = `2025 lilycatgirl | link code: ${link_code}`;
+        return;
+    }
+    if (message.data.startsWith('LINK ')) {
+        let req_code = message.data.split(' ')[1];
+        
+        if (req_code == link_code) {
+            socket.send(`ACCEPT ${link_code}`);
+            linked_user = message.data.split(' ')[2];
+            document.getElementById('footer').innerHTML = `2025 lilycatgirl | linked to ${linked_user}`;
+            sfx_LINK.play();
+
+            socket.send(`balance ${linked_user}`)
+        }
+        return;
+    }
 
     const data = JSON.parse(message.data);
 
@@ -30,11 +60,6 @@ socket.onmessage = function(message) {
             break;
     }
 };
-
-socket.onopen = function(ws) {
-    socket.send('nya~');
-    socket.send('stocks latest');
-}
 
 
 function UpdatePriceDisplay(data, is_event, _type) {
@@ -120,6 +145,7 @@ const sfx_SSU = new Audio('/asset/stock-spike-up.wav');
 const sfx_SSD = new Audio('/asset/stock-spike-down.wav');
 const sfx_SEP = new Audio('/asset/stock-event-positive.wav');
 const sfx_SEN = new Audio('/asset/stock-event-negative.wav');
+const sfx_LINK = new Audio('/asset/link.wav');
 
 if (Notification.permission == 'default') {
     Notification.requestPermission();
