@@ -16,6 +16,7 @@ let LAST_PRICES = {
 
 let link_code = '';
 let linked_user = '';
+let linked_user_id = '';
 
 socket.onopen = function(ws) {
     socket.send('nya~');
@@ -30,16 +31,22 @@ socket.onmessage = function(message) {
         document.getElementById('footer').innerHTML = `2025 lilycatgirl | link code: ${link_code}`;
         return;
     }
-    if (message.data.startsWith('LINK ')) {
-        let req_code = message.data.split(' ')[1];
-        
-        if (req_code == link_code) {
+    if (message.data.startsWith('LINK')) {
+        if (message.data.startsWith(`LINK ${link_code}`)) {
             socket.send(`ACCEPT ${link_code}`);
             linked_user = message.data.split(' ')[2];
+            linked_user_id = message.data.split(' ')[3];
+            document.getElementById('footer').innerHTML = `2025 lilycatgirl | awaiting link...`;
+        }
+
+        if (message.data == `LINK GOOD ${link_code} READY`) {
+            socket.send(`balance ${linked_user_id}`);
             document.getElementById('footer').innerHTML = `2025 lilycatgirl | linked to ${linked_user}`;
             sfx_LINK.play();
+        }
 
-            socket.send(`balance ${linked_user}`)
+        if (message.data == `LINK ERROR ${link_code} NOT VALID`) {
+            document.getElementById('footer').innerHTML = `2025 lilycatgirl | linking failed, reload page`;
         }
         return;
     }
@@ -58,14 +65,19 @@ socket.onmessage = function(message) {
         case 'event_positive': case 'event_negative':
             UpdatePriceDisplay(data, true, data._type);
             break;
+        
+        case 'link balance':
+            UpdateUserPrices(data);
     }
 };
 
 
 function UpdatePriceDisplay(data, is_event, _type) {
-    document.querySelector('#neko-price').innerHTML = data.neko;
-    document.querySelector('#dogy-price').innerHTML = data.dogy;
-    document.querySelector('#fxgl-price').innerHTML = data.fxgl;
+    if (linked_user != '') socket.send(`balance ${linked_user_id}`);
+    
+    document.querySelector('#neko-price').innerHTML = 'OKA' + data.neko;
+    document.querySelector('#dogy-price').innerHTML = 'OKA' + data.dogy;
+    document.querySelector('#fxgl-price').innerHTML = 'OKA' + data.fxgl;
 
     document.title = `${data.neko} | ${data.dogy} | ${data.fxgl} | okabot live stock view`
 
@@ -108,9 +120,9 @@ function UpdatePriceDisplay(data, is_event, _type) {
         new Notification(`${positive?'📈':'📉'} STOCK MARKET NEWS`, {body:data.event,icon:''});
     }
 
-    document.querySelector('#neko-prev-price').innerHTML = 'was ' + LAST_PRICES.neko;
-    document.querySelector('#dogy-prev-price').innerHTML = 'was ' + LAST_PRICES.dogy;
-    document.querySelector('#fxgl-prev-price').innerHTML = 'was ' + LAST_PRICES.fxgl;
+    document.querySelector('#neko-prev-price').innerHTML = 'was OKA' + LAST_PRICES.neko;
+    document.querySelector('#dogy-prev-price').innerHTML = 'was OKA' + LAST_PRICES.dogy;
+    document.querySelector('#fxgl-prev-price').innerHTML = 'was OKA' + LAST_PRICES.fxgl;
 
     LAST_PRICES = {
         neko: data.neko,
@@ -133,6 +145,14 @@ function ManualPriceUpdate(stock, price) {
     } else {
         if (LAST_PRICES[stock] - price > 25) sfx_SUDL.play(); else sfx_SUDS.play(); 
     }
+
+    if (linked_user != '')  socket.send(`balance ${linked_user_id}`);
+}
+
+function UpdateUserPrices(data) {
+    document.getElementById('user-share-amount-neko').innerText = 'OKA' + data.neko;
+    document.getElementById('user-share-amount-dogy').innerText = 'OKA' + data.dogy;
+    document.getElementById('user-share-amount-fxgl').innerText = 'OKA' + data.fxgl;
 }
 
 const sfx_SUUS = new Audio('/asset/stock-user-up-small.wav');

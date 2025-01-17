@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { BASE_DIRNAME, DEV } from '../..';
 import { Client, EmbedBuilder, MessageFlags, TextChannel, User } from 'discord.js';
 import { join } from 'path';
-import { GetSharePrice, Stocks } from '../okash/stock';
+import { CheckUserShares, GetSharePrice, Stocks } from '../okash/stock';
 import { createServer } from 'http';
 import { Logger } from 'okayulogger';
 import { Server } from 'ws';
@@ -113,9 +113,8 @@ export function StartHTTPServer(c: Client) {
 }
 
 const aliveConnections: import("ws")[] = [];
-const linkedConnections: {
-    [key:string]: import('ws')
-} = {};
+const linkedConnections = new Map<string, import('ws')>();
+const awaitingLinking: {[key:string]: User} = {};
 
 const alpha = 'ABCDEF1234567890';
 function GenerateLinkCode(): string {
@@ -130,6 +129,19 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         L.info('(ws message) ' + message.toString());
 
+        if (message.toString().startsWith('balance ')) {
+            return SendUserStocks(message.toString().split(' ')[1]);
+        }
+        if (message.toString().startsWith('ACCEPT ')) {
+            const user = awaitingLinking[message.toString().split(' ')[1]];
+            console.log(user);
+            if (!user) return ws.send(`LINK ERROR ${message.toString().split(' ')[1]} NOT VALID`);
+
+            L.info(`link for ${user.username} success!`);
+            linkedConnections.set(user.id, ws);
+            ws.send(`LINK GOOD ${message.toString().split(' ')[1]} READY`);
+        }
+
         switch (message.toString()) {
             case 'stocks latest':
                 const prices = {
@@ -142,7 +154,7 @@ wss.on('connection', (ws) => {
                 break;
             case 'nya~':
                 aliveConnections.push(ws);
-                ws.send(`woof! ${GenerateLinkCode()}`)
+                ws.send(`woof! ${GenerateLinkCode()}`);
                 break;
             default:
                 ws.send('bad message');
@@ -197,6 +209,10 @@ export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
                 fxgl:GetSharePrice(Stocks.FXGL),
                 event: data
             };
+            break;
+
+        case WSSStockMessage.LINK_BALANCE:
+            return SendUserStocks(data.user.id);
     
         default:
             break;
@@ -209,12 +225,20 @@ export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
 
 export function LinkWSToUserId(user: User, link_code: string) {
     aliveConnections.forEach(connection => {
-        connection.send(`LINK ${link_code} ${user.username}`);
-
-        connection.on('message', (message) => {
-            if (message.toString() == `ACCEPT ${link_code}`) {
-                linkedConnections[user.id] = connection;
-            }
-        });
+        awaitingLinking[link_code.toLocaleUpperCase()] = user;
+        connection.send(`LINK ${link_code.toLocaleUpperCase()} ${user.username} ${user.id}`);
     });
+}
+
+function SendUserStocks(user_id: string) {
+    L.info(`getting linked stock info for ${user_id}`);
+
+    const payload = {
+        _type: 'link balance',
+        neko: Math.floor(CheckUserShares(user_id, Stocks.NEKO) * GetSharePrice(Stocks.NEKO)),
+        dogy: Math.floor(CheckUserShares(user_id, Stocks.DOGY) * GetSharePrice(Stocks.DOGY)),
+        fxgl: Math.floor(CheckUserShares(user_id, Stocks.FXGL) * GetSharePrice(Stocks.FXGL)),
+    };
+
+    linkedConnections.get(user_id)!.send(JSON.stringify(payload));
 }
