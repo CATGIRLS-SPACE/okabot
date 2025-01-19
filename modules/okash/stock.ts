@@ -419,7 +419,7 @@ const STARTING_VALUES = {
 // 1/10 and 1/25 was too much, 1/50 testing now
 function DoEventCheck(c: Client): boolean {
     // should we do an event?
-    // if (Math.floor(Math.random() * 50) != 5) return false;
+    if (Math.floor(Math.random() * 50) != 5) return false;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
