@@ -151,25 +151,25 @@ enum Trend {
  * @param starting_price The set starting price of the stock
  */
 function CalculateNextTrend(trend: Trend, price: number, starting_price: number): Trend {
-    const amount_changed = Math.abs(trend - starting_price);
-    // if the price is 1000 above starting price, heavy chance to go down
-    // if it's already negative, it should have a tiny chance to flip
-    if (price > starting_price + 1000) {
-        let roll = Math.floor(Math.random() * 6);
-        if (trend == Trend.NEGATIVE) return roll==2?Trend.POSITIVE:Trend.NEGATIVE;
+    // const amount_changed = Math.abs(trend - starting_price);
+    // // if the price is 1000 above starting price, heavy chance to go down
+    // // if it's already negative, it should have a tiny chance to flip
+    // if (price > starting_price + 1000) {
+    //     let roll = Math.floor(Math.random() * 6);
+    //     if (trend == Trend.NEGATIVE) return roll==2?Trend.POSITIVE:Trend.NEGATIVE;
 
-        roll = Math.floor(Math.random() * 4);
-        return roll<2+(amount_changed*0.0023)?Trend.NEGATIVE:Trend.POSITIVE;
-    }
+    //     roll = Math.floor(Math.random() * 4);
+    //     return roll<2+(amount_changed*0.0023)?Trend.NEGATIVE:Trend.POSITIVE;
+    // }
 
-    // if the price is 1000 below, yeah yeah do opposite
-    if (price < starting_price - 1000) {
-        let roll = Math.floor(Math.random() * 6);
-        if (trend == Trend.POSITIVE) return roll==2?Trend.NEGATIVE:Trend.POSITIVE;
+    // // if the price is 1000 below, yeah yeah do opposite
+    // if (price < starting_price - 1000) {
+    //     let roll = Math.floor(Math.random() * 6);
+    //     if (trend == Trend.POSITIVE) return roll==2?Trend.NEGATIVE:Trend.POSITIVE;
 
-        roll = Math.floor(Math.random() * 4);
-        return roll<2+(amount_changed*0.0023)?Trend.POSITIVE:Trend.NEGATIVE;
-    }
+    //     roll = Math.floor(Math.random() * 4);
+    //     return roll<2+(amount_changed*0.0023)?Trend.POSITIVE:Trend.NEGATIVE;
+    // }
 
     // otherwise keep the stupid other whatever
     // this stocks system kind of pisses me off
@@ -360,6 +360,13 @@ interface StockEvent {
     positive: boolean
 }
 
+enum EventWeight {
+    GOOD = 1,
+    VERY_GOOD = 2,
+    BAD = -1,
+    VERY_BAD = -2
+}
+
 const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# experts predict a major #ABBR# boom is incoming","positive":true},
     {"name":"#STOCK# experts say now is the time to invest in #ABBR#","positive":true},
@@ -402,12 +409,17 @@ const EVENTS: Array<StockEvent> = [
 
 
 let LastEvent: StockEvent;
+const STARTING_VALUES = {
+    catgirl: 25000,
+    doggirl: 5000,
+    foxgirl: 1000
+}
 
 // This will be triggered every 5 minutes when the markets update
 // 1/10 and 1/25 was too much, 1/50 testing now
 function DoEventCheck(c: Client): boolean {
     // should we do an event?
-    if (Math.floor(Math.random() * 50) != 5) return false;
+    // if (Math.floor(Math.random() * 50) != 5) return false;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
@@ -419,9 +431,22 @@ function DoEventCheck(c: Client): boolean {
     const stock_roll = Math.floor(Math.random() * 3);
     const stock = [Stocks.CATGIRL, Stocks.DOGGIRL, Stocks.FOXGIRL][stock_roll];
 
-    // update the market accordingly
-    if (LastEvent.positive) MARKET[stock].price += Math.floor(Math.random() * 700) + 50; // random from 50-750 okash increase/decrease
-    else MARKET[stock].price -= Math.floor(Math.random() * 200) + 50;
+    if (!LastEvent.positive) {
+        const base_crash_probability = 0.05;
+        const sensitivity = 0.2;
+        
+        const crash_chance = Math.min(base_crash_probability + (sensitivity * (MARKET[stock].price - STARTING_VALUES[stock]) / STARTING_VALUES[stock]), 1);
+        const crash_roll = Math.random();
+
+        console.log(crash_roll, crash_chance);
+
+        if (crash_roll < crash_chance) {
+            L.info('stock crash triggered');
+            MARKET[stock].price -= Math.floor(Math.random() * 2500) + 500; // -_-
+        }
+        else MARKET[stock].price -= Math.floor(Math.random() * 500) + 50; // BOOOOOOORING
+    }
+    else MARKET[stock].price += Math.floor(Math.random() * 500) + 50; // still BOOOOOORIIIINNGGG
 
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
 
