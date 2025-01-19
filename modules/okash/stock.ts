@@ -136,6 +136,47 @@ export function CheckUserShares(user_id: string, stock: Stocks): number {
     return count;
 }
 
+
+enum Trend {
+    POSITIVE = 1,
+    NEGATIVE = -1
+};
+
+
+/**
+ * Create arbitrary trends based on current data to prevent stocks
+ * from getting stupidly out of hand
+ * @param trend The current trend
+ * @param price The current price
+ * @param starting_price The set starting price of the stock
+ */
+function CalculateNextTrend(trend: Trend, price: number, starting_price: number): Trend {
+    const amount_changed = Math.abs(trend - starting_price);
+    // if the price is 1000 above starting price, heavy chance to go down
+    // if it's already negative, it should have a tiny chance to flip
+    if (price > starting_price + 1000) {
+        let roll = Math.floor(Math.random() * 6);
+        if (trend == Trend.NEGATIVE) return roll==2?Trend.POSITIVE:Trend.NEGATIVE;
+
+        roll = Math.floor(Math.random() * 4);
+        return roll<2+(amount_changed*0.0023)?Trend.NEGATIVE:Trend.POSITIVE;
+    }
+
+    // if the price is 1000 below, yeah yeah do opposite
+    if (price < starting_price - 1000) {
+        let roll = Math.floor(Math.random() * 6);
+        if (trend == Trend.POSITIVE) return roll==2?Trend.NEGATIVE:Trend.POSITIVE;
+
+        roll = Math.floor(Math.random() * 4);
+        return roll<2+(amount_changed*0.0023)?Trend.POSITIVE:Trend.NEGATIVE;
+    }
+
+    // otherwise keep the stupid other whatever
+    // this stocks system kind of pisses me off
+    return (Math.random() <= 0.2)?trend:trend*-1;
+}
+
+
 /**
  * Updates the prices of the stocks slightly.
  * It will take note of the current trend and have a 1/8 chance of flipping the trend.
@@ -145,10 +186,6 @@ export function CheckUserShares(user_id: string, stock: Stocks): number {
 export function UpdateMarkets(c: Client) {
     // L.info('updating markets...');
 
-    enum Trend {
-        POSITIVE = 1,
-        NEGATIVE = -1
-    };
     let trend = Trend.POSITIVE;
     let spike = false;
 
@@ -158,7 +195,7 @@ export function UpdateMarkets(c: Client) {
 
     // catgirl market:
     if (MARKET.catgirl.price_history.at(-1)! < MARKET.catgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
-    if (Math.random() <= 0.2) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
+    trend = CalculateNextTrend(trend, MARKET.catgirl.price, 25000);
     if (Math.floor(Math.random() * 50) == 27) spike = true;
     let change = trend * Math.round(((Math.random() * (spike?250:20)) + Number.EPSILON) * 100) / 100;
     MARKET.catgirl.price += change;
@@ -167,7 +204,7 @@ export function UpdateMarkets(c: Client) {
 
     // doggirl market:
     if (MARKET.doggirl.price_history.at(-1)! < MARKET.doggirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
-    if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
+    trend = CalculateNextTrend(trend, MARKET.doggirl.price, 5000);
     if (Math.floor(Math.random() * 50) == 27) spike = true;
     change = trend * Math.round(((Math.random() * (spike?100:10)) + Number.EPSILON) * 100) / 100;
     MARKET.doggirl.price += change;
@@ -176,7 +213,7 @@ export function UpdateMarkets(c: Client) {
     
     // foxgirl market:
     if (MARKET.foxgirl.price_history.at(-1)! < MARKET.foxgirl.price_history.at(-2)!) trend = Trend.NEGATIVE; else trend = Trend.POSITIVE;
-    if (Math.random() <= 1/8) trend = trend * -1; // flips polarity on the 1/8 chance, essentially swapping it
+    trend = CalculateNextTrend(trend, MARKET.foxgirl.price, 1000);
     if (Math.floor(Math.random() * 25) == 13) spike = true;
     change = trend * Math.round(((Math.random() * (spike?50:2)) + Number.EPSILON) * 100) / 100;
     MARKET.foxgirl.price += change;
@@ -360,16 +397,17 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#ABBR# takes a nosedive after someone changes its Wikipedia page", "positive":false},
     {"name":"#STOCK# hit with a disaster as CEO crashes out on Twitter", "positive":false},
     {"name":"#STOCK# prospers after okabot bug was discovered, mistakenly prioritizing #ABBR# over other stocks", "positive":true},
+    {"name":"#STOCK# crumbles after okabot 3.1.6 patch nerfed trends", "positive":false},
 ];
 
 
 let LastEvent: StockEvent;
 
-// This will be triggered every 5 minutes, so maybe a good chance would be like...
-// 1/25 i guess we'll see lol
+// This will be triggered every 5 minutes when the markets update
+// 1/10 and 1/25 was too much, 1/50 testing now
 function DoEventCheck(c: Client): boolean {
     // should we do an event?
-    if (Math.floor(Math.random() * 10) != 5) return false;
+    if (Math.floor(Math.random() * 50) != 5) return false;
 
     L.info('event is happening!');
     let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
