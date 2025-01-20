@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -247,3 +247,22 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             AddToWallet(interaction.user.id, bet*2);
     }, 3000);
 }
+
+export const CoinflipSlashCommand = 
+    new SlashCommandBuilder()
+        .setName('coinflip').setNameLocalization('ja', 'コイントス')
+        .setDescription('Flip a coin with a chance to double your okash').setDescriptionLocalization('ja', 'コインを裏返すと、賭け金が2倍になります')
+        .addNumberOption(option => 
+            option
+                .setName('amount').setNameLocalization('ja', '高')
+                .setDescription('The amount of okash you want to bet').setDescriptionLocalization('ja', 'okashの分量がベットします')
+                .setRequired(true).setMinValue(1).setMaxValue(10_000)
+        )
+        .addStringOption(option => 
+            option
+                .setName('side').setNameLocalization('ja','裏か表か')
+                .setDescription('Optionally, pick heads or tails').setDescriptionLocalization('ja', '裏か表かを選ぶ')
+                .addChoices(
+                {name:'heads', value:'heads', name_localizations:{ja:'表'}},
+                {name:'tails', value:'tails', name_localizations:{ja:'裏'}}
+        ).setRequired(false))

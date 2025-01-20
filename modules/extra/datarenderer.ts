@@ -1,5 +1,5 @@
 import { createCanvas } from "canvas";
-import { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
+import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME, CoinFloats } from "../..";
@@ -209,3 +209,37 @@ function sortPrices(a: number, b: number): -1 | 1 | 0 {
     if (a > b) return -1;
     return 0;
 }
+
+
+export const RenderSlashCommand = new SlashCommandBuilder()
+    .setName('render')
+    .setDescription('Render data')
+    .addSubcommand(sc => sc
+        .setName('coinflip')
+        .setDescription('Render coinflip data')
+        .addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false)),
+    )
+    .addSubcommand(sc => sc
+        .setName('stocks')
+        .setDescription('Render stocks graphs')
+        .addStringOption(option => option
+            .setName('stock')
+            .setDescription('the stock to render')
+            .addChoices(
+                {name:'Catgirl - NEKO', value:'catgirl'},
+                {name:'Doggirl - DOGY', value:'doggirl'},
+                {name:'Foxgirl - FXGL', value:'foxgirl'},
+            )
+            .setRequired(true)
+        )
+        .addStringOption(option => option
+            .setName('length')
+            .setDescription('how long ago to render to')
+            .addChoices(
+                {name:'Last 100',value:'100'},
+                {name:'Last 24h',value:'288'},
+                {name:'Last 7d',value:'2016'},
+            )
+            .setRequired(true)
+        )
+    );

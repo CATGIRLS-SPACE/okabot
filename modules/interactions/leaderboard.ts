@@ -1,4 +1,4 @@
-import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale } from "discord.js";
+import { APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashCommandBuilder } from "discord.js";
 import { GetAllWallets } from "../okash/wallet";
 import { Logger } from "okayulogger";
 import { GetAllLevels } from "../user/prefs";
@@ -118,3 +118,19 @@ async function LevelsLeaderboard(interaction: ChatInputCommandInteraction) {
 
     interaction.editReply({embeds:[embed]});
 }
+
+
+export const LeaderboardSlashCommand = 
+new SlashCommandBuilder()
+    .setName('leaderboard').setNameLocalization('ja', 'ランキング')
+    .setDescription('Get the leaderboard of a set category').setDescriptionLocalization('ja', 'カテゴリーのランキングを見る')
+    .addStringOption(option => 
+        option
+            .setName('category').setNameLocalization('ja', 'カテゴリー')
+            .setDescription('Which leaderboard category to display').setDescriptionLocalization('ja', '何がカテゴリーをランキング見て')
+            .setRequired(true)
+            .addChoices(
+                {name:'okash', value:'okash'},
+                {name:'XP Levels', value:'levels', name_localizations:{ja:'XPのレベル'}}
+            )
+        )

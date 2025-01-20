@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, MessageFlags, SelectMenuBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, MessageFlags, SelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../util/emoji";
 
 
@@ -212,3 +212,8 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
         }
     });  
 }
+
+
+export const HelpSlashCommand = new SlashCommandBuilder()
+    .setName('help')
+    .setDescription('Get information on everything okabot');

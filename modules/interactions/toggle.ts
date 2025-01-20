@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 
 
@@ -21,3 +21,21 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
             break;
     }
 }
+
+
+export const ToggleSlashCommand = new SlashCommandBuilder()
+    .setName('toggle')
+    .setDescription('Change a toggleable okabot setting!')
+    .addStringOption(option => option.setName('setting')
+        .setDescription('The toggle to change')
+        .setRequired(true)
+        .addChoices(
+            { name:'okash notifications when money is transferred/received on your account', value: 'okash_notifications' }
+        ))
+    .addStringOption(option => option.setName('active')
+        .setDescription('whether you want the option on or off')
+        .setRequired(true)
+        .addChoices(
+            {name:'ON', value:'on'},
+            {name:'OFF', value:'off'}
+        ))

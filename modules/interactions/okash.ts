@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { GetBank, GetWallet } from "../okash/wallet";
 import { GetEmoji } from "../../util/emoji";
 
@@ -16,3 +16,9 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
         flags: [MessageFlags.SuppressNotifications]
     });
 }
+
+
+export const OkashSlashCommand = 
+    new SlashCommandBuilder()
+        .setName('okash').setNameLocalization('ja', 'okash')
+        .setDescription('See how much okash you have on you').setDescriptionLocalization('ja', 'ポケットにと銀行にokash持ち見ます');

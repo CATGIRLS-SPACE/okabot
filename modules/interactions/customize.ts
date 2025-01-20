@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 
@@ -72,3 +72,37 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
         content: `:cat: **${interaction.user.displayName}**, I've updated your custom level bar colors.\nIn order to change them again, you must purchase another Custom Level Bar Color from the shop.`
     });
 }
+
+
+export const CustomizeSlashCommand = new SlashCommandBuilder()
+    .setName('customize').setNameLocalization('ja', 'カスタマイズ')
+    .setDescription('Customize your experience with your unlocked customizations').setDescriptionLocalization('ja', 'okabotをカスタマイズするであなたのカスタマイズ化')
+    .addSubcommand(subcommand => 
+        subcommand
+            .setName('coinflip').setNameLocalization('ja', 'コイントス')
+            .setDescription('Customize your coinflip experience').setDescriptionLocalization('ja', 'コイントスをカスタマイズ')
+            .addStringOption(option => option
+                .setName('coin').setNameLocalization('ja', 'コイン')
+                .setDescription('The coin you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
+                .setRequired(true))
+            )
+    .addSubcommand(subcommand =>
+        subcommand
+            .setName('levelbar').setNameLocalization('ja', 'レベルバー')
+            .setDescription('Customize the colors of your level banner\'s XP bar').setDescriptionLocalization('ja', 'あなたのレベルバーの色をカスタマイズ')
+            .addStringOption(option => 
+                option
+                    .setName('background')
+                    .setDescription('The background color of the bar. Must be a valid hex code, like #abcdef')
+                    .setRequired(true))
+            .addStringOption(option => 
+                option
+                    .setName('foreground')
+                    .setDescription('The foreground color of the bar. Must be a valid hex code, like #abcdef')
+                    .setRequired(true))
+            .addStringOption(option => 
+                option
+                    .setName('xptext')
+                    .setDescription('The text color of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef')
+                    .setRequired(true))
+    )

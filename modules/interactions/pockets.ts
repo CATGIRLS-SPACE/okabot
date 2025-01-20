@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Emoji } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, Emoji, SlashCommandBuilder } from "discord.js";
 import { GetInventory } from "../okash/wallet";
 import { GEMS, ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
@@ -109,3 +109,15 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         
     interaction.editReply({embeds:[embed]});
 }
+
+
+export const PocketsSlashCommand = new SlashCommandBuilder()
+    .setName('pockets').setNameLocalization('ja', 'ポケット')
+    .setDescription('See what you\'ve got on you!').setDescriptionLocalization('ja', 'ポケットにアイテムとカスタマイズ化を見る')
+    .addStringOption(option => option
+        .setName('page').setNameLocalization('ja', 'カテゴリー')
+        .setDescription('The pockets category to display').setDescriptionLocalization('ja', 'ポケットのカテゴリー')
+        .addChoices(
+            {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
+            {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}}
+    ).setRequired(true));

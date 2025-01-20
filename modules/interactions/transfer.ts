@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 
@@ -37,3 +37,23 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
         content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, moved ${GetEmoji(EMOJI.OKASH)} OKA**${amount}**!`
     });
 }
+
+export const MoveMoneySlashCommand = 
+    new SlashCommandBuilder()
+        .setName('move').setNameLocalization('ja', '動く')
+        .setDescription('Move okash between your wallet and bank').setDescriptionLocalization('ja', 'okashポケットから銀行へのokash動かします')
+        .addNumberOption(option => option
+            .setName('amount').setNameLocalization('ja', '高')
+            .setDescription('How much to move').setDescriptionLocalization('ja', 'okashの分量を動く')
+            .setRequired(true)
+            .setMinValue(1)
+        )
+        .addStringOption(option => option
+            .setName('source').setDescriptionLocalization('ja', '行き先')
+            .setDescription('Which way to move').setDescriptionLocalization('ja', 'どこからどこへのokash動く')
+            .setRequired(true)
+            .addChoices(
+                {name:'Wallet -> Bank', value:'wallet', name_localizations:{ja:'ポケット ➞ 銀行'}},
+                {name:'Bank -> Wallet', value:'bank', name_localizations:{ja:'銀行 ➞ ポケット'}},
+            )
+        )

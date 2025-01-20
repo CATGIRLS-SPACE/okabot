@@ -1,4 +1,4 @@
-import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel } from 'discord.js';
+import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder } from 'discord.js';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
@@ -142,3 +142,8 @@ async function RunEarthquakeFetch(client: Client) {
         console.error(`RunEarthquakeFetch error: ${err}`);
     }
 }
+
+
+export const RecentEarthquakeSlashCommand = new SlashCommandBuilder()
+    .setName('recent-eq').setNameLocalization('ja', '地震')
+    .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency').setDescriptionLocalization('ja', '気象庁から最近の地震データを見る')

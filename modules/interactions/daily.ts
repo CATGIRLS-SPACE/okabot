@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel } from "discord.js";
 import { ClaimDaily, GetDailyStreak } from "../okash/daily";
 import { GetEmoji } from "../../util/emoji";
 import { ScheduleDailyReminder } from "../tasks/dailyRemind";
@@ -74,3 +74,9 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')}OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
     });
 }
+
+
+export const DailySlashCommand = 
+    new SlashCommandBuilder()
+        .setName('daily').setNameLocalization('ja', '日常の褒美')
+        .setDescription('Get your daily okash reward').setDescriptionLocalization('ja', '日常の褒美をゲットする');

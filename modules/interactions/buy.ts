@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory } from "../okash/wallet";
 import { CUSTOMIZATION_UNLOCKS, GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
@@ -224,3 +224,22 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
     
     AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level));
 }
+
+
+export const BuySlashCommand = new SlashCommandBuilder()
+    .setName('buy').setNameLocalization('ja', '買い')
+    .setDescription('Buy an item from the shop').setDescriptionLocalization('ja', 'アイテムを買います')
+    .addStringOption(option => option
+        .setName('item').setNameLocalization('ja', 'アイテム')
+        .setDescription('The item to buy').setDescriptionLocalization('ja', 'ja localization')
+        .setRequired(true)
+    )
+    .addStringOption(option => option
+        .setName('voucher').setNameLocalization('ja', '引換券')
+        .setDescription('Use a shop voucher (if you have one)?').setDescriptionLocalization('ja', '引換券を使う？')
+        .setRequired(false)
+        .addChoices(
+            {name: 'Heck yeah!!', value: 'true', name_localizations:{ja:'うん！'}},
+            {name: 'No thanks', value: 'false', name_localizations:{ja:'いや'}},
+        )
+    )

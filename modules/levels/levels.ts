@@ -1,4 +1,4 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
+import { AttachmentBuilder, ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { BASE_DIRNAME } from "../..";
 import { join, resolve } from "path";
@@ -235,4 +235,12 @@ async function fetchImage(url: string) {
 }
 
 
-// unlocks
+
+
+export const LevelSlashCommand = new SlashCommandBuilder()
+    .setName('level').setNameLocalization('ja', 'レベル')
+    .setDescription('Get information on your current level!').setDescriptionLocalization('ja', 'レベルを見て')
+    .addUserOption(option => option
+        .setName('user').setNameLocalization('ja', 'ユーザ')
+        .setDescription('Get another user\'s level info').setDescriptionLocalization('ja', '誰のレベルを見て')
+        .setRequired(false))

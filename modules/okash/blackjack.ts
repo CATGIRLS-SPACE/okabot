@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, TextChannel, User } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel, User } from "discord.js";
 import { Logger } from "okayulogger";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "./wallet";
 import { AddXP } from "../levels/onMessage";
@@ -388,3 +388,13 @@ function CloneArray(array: Array<any>): Array<any> {
 
     return cloned;
 }
+
+
+export const BlackjackSlashCommand = new SlashCommandBuilder()
+    .setName('blackjack')
+    .setDescription('Play a game of blackjack for a chance at increasing your money!')
+    .addNumberOption(option => option
+        .setName('bet')
+        .setRequired(true)
+        .setDescription('The amount of okash to bet')
+        .setMaxValue(5_000).setMinValue(1))

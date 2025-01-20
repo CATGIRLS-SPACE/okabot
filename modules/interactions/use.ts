@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { RestoreLastDailyStreak, SkipDailyOnce } from "../okash/daily";
 import { GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
@@ -167,3 +167,13 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
         content: `**${interaction.user.displayName}** opened their **Rare Lootbox** and found ${rewardMessage}`
     })
 }
+
+
+export const UseSlashCommand = new SlashCommandBuilder()
+    .setName('use').setNameLocalization('ja', '使う')
+    .setDescription('Use an item from your pockets!').setDescriptionLocalization('ja', 'ポケットでアイテムを使う')
+    .addStringOption(option => 
+        option.setName('item').setNameLocalization('ja', 'アイテム')
+        .setDescription('The item to use').setDescriptionLocalization('ja', 'どのアイテムを使う')
+        .setRequired(true)
+    )

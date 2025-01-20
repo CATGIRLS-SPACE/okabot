@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { COIN_COLOR, GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { AddToWallet } from "../okash/wallet";
@@ -65,3 +65,9 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
         content:format(STRINGS['success'][locale], interaction.user.displayName, item, SELL_PRICES[item])
     });
 }
+
+
+export const SellSlashCommand = new SlashCommandBuilder()
+    .setName('sell').setNameLocalization('ja', '売り')
+    .setDescription('Sell an item from your pockets').setDescriptionLocalization('ja', 'ポケットでアイテムを売り')
+    .addStringOption(option => option.setName('item').setDescription('The item to sell').setRequired(true))

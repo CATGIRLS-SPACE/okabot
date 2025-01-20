@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { GetUserProfile } from "../user/prefs";
 
@@ -66,3 +66,13 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
             break;
     }
 }
+
+
+export const ShopSlashCommand = new SlashCommandBuilder()
+    .setName('shop').setNameLocalization('ja', 'カタログ')
+    .setDescription('Get the shop item and price listings').setDescriptionLocalization('ja', 'アイテムのカタログを見る')
+    .addStringOption(option => option.setName('page').setDescription('The shop category to display').addChoices(
+        {name:'Items', value: 'gems', name_localizations:{ja:'アイテム'}},
+        {name:'Customization - Coinflip', value:'customization.coin', name_localizations:{ja:'コイントスのカスタマイズ'}},
+        {name:'Customization - Profile', value:'customization.profile', name_localizations:{ja:'プロフィールのカスタマイズ'}},
+    ).setRequired(true))

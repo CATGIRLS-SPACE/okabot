@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, ManageDebt, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
@@ -117,3 +117,19 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${sender_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});
     });
 }
+
+
+export const PaySlashCommand = 
+    new SlashCommandBuilder()
+        .setName('pay').setNameLocalization('ja', '払う')
+        .setDescription('Pay someone some okash')
+        .addUserOption(option => 
+            option.setName('user').setNameLocalization('ja', 'ユーザ')
+            .setDescription('The person to pay').setDescriptionLocalization('ja', '誰を払う')
+            .setRequired(true)
+        )
+        .addNumberOption(option => 
+            option.setName('amount').setNameLocalization('ja', '高')
+            .setDescription('The amount to pay them').setDescriptionLocalization('ja', 'okashの分量を払う')
+            .setRequired(true)
+        );

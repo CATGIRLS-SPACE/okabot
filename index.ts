@@ -37,6 +37,7 @@ import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
+import { DeployCommands } from './modules/deployment/commands';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -50,6 +51,7 @@ Object.keys(pj_dep).forEach((key: string) => {
 });
 
 const NO_LAUNCH = process.argv.includes('--no-launch');
+const DEPLOY = process.argv.includes('--deploy');
 const WIPE = process.argv.includes('--wipe');
 const WIPE_TYPE = WIPE?process.argv[process.argv.indexOf('--wipe') + 1]:'none';
 
@@ -120,6 +122,7 @@ if (WIPE) {
 }
 
 if (!NO_LAUNCH) client.login((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token);
+if (DEPLOY) DeployCommands((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token, (config.extra && config.extra.includes('use dev token'))?config.devclientId:config.clientId);
 
 // Handling slash commands:
 client.on(Events.InteractionCreate, async interaction => {
