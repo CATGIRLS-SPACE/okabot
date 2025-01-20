@@ -138,7 +138,7 @@ export function GetAllWallets(): Array<{user_id: string, amount: number}> {
 
     readdirSync(WALLET_PATH).forEach(file => {
         const user_id: string = file.split('.oka')[0];
-        const amount = GetWallet(user_id);
+        const amount = GetWallet(user_id) + GetBank(user_id);
         wallets.push({user_id, amount});
     });
 
