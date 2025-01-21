@@ -41,7 +41,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
         
             i.update({
-                content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`
+                content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+                components:[]
             });
         });
 
