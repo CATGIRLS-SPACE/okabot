@@ -217,7 +217,7 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'help':
             await HandleCommandHelp(interaction);
             break;
-        case 'transfer':
+        case 'move':
             await HandleCommandTransfer(interaction);
             break;
     }

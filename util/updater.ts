@@ -108,7 +108,7 @@ async function recompile(): Promise<void> {
 
 async function deploycmds(): Promise<void> {
     return new Promise((resolve) => {
-        exec('node deploycmds.js', () => {
+        exec('node . --no-launch --deploy', () => {
             resolve();
         }).on('message', (m: string) => {
             PL.warn(m);
