@@ -89,6 +89,24 @@ whereas large drops are more okash but less common.
 -# \*Some rarer customizations cannot be unlocked via Shop Vouchers.
 `
 
+
+const EarthquakePage = 
+`
+## Earthquakes
+okabot makes a request to the Japan Meteorological Agency every 30 seconds to get the latest earthquake.
+When a new one is detected, a message is sent in the <#1313343448354525214>
+## Magnitude vs Shindo
+okabot shows both the earthquake magnitude and Shindo level. So what's the difference?
+The magnitude of an earthquake is the educated estimation of the intensity at the epicenter.
+The Shindo level is a recorded intensity felt at a station (listed as "Maximum Intensity").
+okabot will show the maxmimum recorded Shindo intensity on the embed. Shindo is the most
+common method of showing intensity in Japanese earthquake research.
+
+You see the difference between the levels [here](<https://www.data.jma.go.jp/multi/quake/quake_advisory.html>).
+-# This method of earthquake fetching is not endorsed by the JMA.
+`
+
+
 const ExtraPage =
 `
 ## Extra info
@@ -113,6 +131,12 @@ const select_menu = new StringSelectMenuBuilder()
             .setDescription('Get information on okash')
             .setValue('okash')
             .setEmoji(GetEmojiID(EMOJI.OKASH)),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Earthquakes')
+            .setDescription('Get information on the earthquake information system')
+            .setValue('earthquakes')
+            .setEmoji('🌏'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('Games')
@@ -167,6 +191,12 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
             case 'okash':
                 await i.update({
                     content: CurrencyPage,
+                    components: [row]
+                });
+                break;
+            case 'earthquakes':
+                await i.update({
+                    content: EarthquakePage,
                     components: [row]
                 });
                 break;

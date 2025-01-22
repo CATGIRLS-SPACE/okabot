@@ -1,4 +1,8 @@
 import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder } from 'discord.js';
+import { join } from 'path';
+import { BASE_DIRNAME } from '../..';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { createCanvas } from 'canvas';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
@@ -141,6 +145,20 @@ async function RunEarthquakeFetch(client: Client) {
     } catch (err) {
         console.error(`RunEarthquakeFetch error: ${err}`);
     }
+}
+
+// lat_min 	    lat_max 	lon_min 	    lon_max
+// 20.2145811 	45.7112046 	122.7141754 	154.205541
+
+export function RenderNewEarthquakeImage() {
+    const SAVE_LOCATION = join(BASE_DIRNAME, 'temp', 'earthquake.png');
+    const canvas = createCanvas(500, 500);
+
+
+    // save image
+    const buffer = canvas.toBuffer('image/png');
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+    writeFileSync(join(BASE_DIRNAME, 'temp', 'render-stock.png'), buffer);
 }
 
 
