@@ -18,6 +18,7 @@ import { StockSlashCommand } from "../interactions/stock";
 import { HelpSlashCommand } from "../interactions/help";
 import { REST } from "@discordjs/rest";
 import { Logger } from "okayulogger";
+import { RenderSlashCommand } from "../extra/datarenderer";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -53,7 +54,8 @@ const COMMANDS_TO_REGISTER = [
     LevelSlashCommand,
     BlackjackSlashCommand,
     StockSlashCommand,
-    HelpSlashCommand
+    HelpSlashCommand,
+    RenderSlashCommand
 ].map(command => command.toJSON());
 
 
