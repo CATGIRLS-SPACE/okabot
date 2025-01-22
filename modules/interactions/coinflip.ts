@@ -123,21 +123,15 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     // const rolled = 0.5;
     let win: boolean = false; 
 
-    // .5 is always inclusive bc idgaf
-    let picked_side: string;
-    if (side == 'heads') {
+    let picked_side: 'heads' | 'tails' = 'heads';
+    if (side == 'heads' || !side) {
         win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-        picked_side = 'heads';
+        picked_side = win?'heads':'tails';
     }
     else if (side == 'tails') {
-        win = rolled <= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-        picked_side = 'tails';
+        win = rolled < (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
+        picked_side = win?'tails':'heads';
     }
-    else { 
-        win = rolled >= (weighted_coin_equipped?WEIGHTED_WIN_CHANCE:WIN_CHANCE);
-        picked_side = 'heads';
-    }
-        
         
     let first_message = format(STRINGS['flipping'][locale], 
         interaction.user.displayName, 
