@@ -78,7 +78,9 @@ async function GetWebsocketTicket(api_key: string) {
         },
         body: JSON.stringify({
             classifications: [
-                "telegram.earthquake"
+                "telegram.earthquake",
+                "eew.forecast",
+                "eew.warning"
             ],
             test:'including'
         })
