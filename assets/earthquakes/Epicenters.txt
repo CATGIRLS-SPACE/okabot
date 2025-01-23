@@ -1,0 +1,371 @@
+-1,相模湾海底,Sagami Bay Region,,
+11,北海道地方,Hokkaido Region,,
+12,東北地方,Tohoku Region,,
+13,北陸地方,Hokuriku Region,,
+14,関東甲信地方,Kanto Region,,
+15,小笠原地方,Ogasawara Region,,
+16,東海地方,Tokai Region,,
+17,近畿地方,Kinki Region,,
+18,中国地方,Chugoku Region,,
+19,四国地方,Shikoku Region,,
+20,九州地方,Kyushu Region,,
+21,沖縄地方,Okinawa Region,,
+100,石狩地方北部,Hokkaido Northern Part of Ishikari,10,43.4151931842515,141.49525560707
+101,石狩地方中部,Hokkaido Central Part of Ishikari,10,43.010872239411,141.291800149006
+102,石狩地方南部,Hokkaido Southern Part of Ishikari,10,42.8401853638524,141.496898327669
+105,渡島地方北部,Hokkaido Northern Part of Oshima,11,42.2715261571357,140.227924212031
+106,渡島地方東部,Hokkaido Eastern Part of Oshima,11,41.9171303977866,140.730104639953
+107,渡島地方西部,Hokkaido Western Part of Oshima,11,41.5890677088811,140.250720331631
+110,檜山地方,Hokkaido Hiyama Region,11,42.1200892176946,140.117224870458
+115,後志地方北部,Hokkaido Northern Shiribeshi,10,43.1570832606841,140.766313140274
+116,後志地方東部,Hokkaido Eastern Shiribeshi,10,42.8279967803352,140.848074079286
+117,後志地方西部,Hokkaido Western Shiribeshi,10,42.8212795958583,140.381809567057
+119,北海道奥尻島,Hokkaido Okushiri Island Region,11,42.1553384492168,139.473175204362
+120,空知地方北部,Hokkaido Northern Part of Sorachi,10,43.8088241231416,142.003884974433
+121,空知地方中部,Hokkaido Central Part of Sorachi,10,43.510911886567,141.982748253998
+122,空知地方南部,Hokkaido Southern Part of Sorachi,10,43.1340267466936,141.912806597305
+125,上川地方北部,Hokkaido Northern Part of Kamikawa,12,44.3385114570841,142.392451316326
+126,上川地方中部,Hokkaido Central Part of Kamikawa,12,43.735583365414,142.644551805745
+127,上川地方南部,Hokkaido Southern Part of Kamikawa,12,43.2002642741056,142.504343797753
+130,留萌地方中北部,Hokkaido Northern Central Rumoi,12,44.4989700095592,141.878134955653
+131,留萌地方南部,Hokkaido Southern Part of Rumoi,12,43.9417545962386,141.733774434506
+135,宗谷地方北部,Hokkaido Northern Part of Soya,12,45.1894445178067,141.918210986196
+136,宗谷地方南部,Hokkaido Southern Part of Soya,12,44.8665568352299,142.43855171702
+139,北海道利尻礼文,Hokkaido Rishiri Ribun Island ,12,45.2387861660525,141.166627699514
+140,網走地方,Hokkaido Abashiri Region,13,43.8152965753998,144.382103894481
+141,北見地方,Hokkaido Kitami Region,13,43.8226200374306,143.673887997429
+142,紋別地方,Hokkaido Mombetsu Region,13,44.1637059557543,143.183999955972
+145,胆振地方西部,Hokkaido Western Part of Iburi,11,42.613359798762,140.894124905183
+146,胆振地方中東部,Hokkaido Central Eastern Iburi,11,42.6805610965227,141.697396642325
+150,日高地方西部,Hokkaido Western Part of Hidaka,11,42.7170038822428,142.406748749235
+151,日高地方中部,Hokkaido Central Part of Hidaka,11,42.4684979347206,142.58710610633
+152,日高地方東部,Hokkaido Eastern Part of Hidaka,11,42.2081311544082,142.999868946709
+155,十勝地方北部,Hokkaido Northern Part of Tokachi,13,43.3665628834425,143.2988585723
+156,十勝地方中部,Hokkaido Central Part of Tokachi,13,42.9092933852102,143.296318802107
+157,十勝地方南部,Hokkaido Southern Part of Tokachi,13,42.4845011298408,143.153859068292
+160,釧路地方北部,Hokkaido Northern Part of Kushiro,13,43.5472480898255,144.399883448184
+161,釧路地方中南部,Hokkaido Southern Central Kushiro,13,43.180280482733,144.390527256347
+165,根室地方北部,Hokkaido Northern Part of Nemuro,13,43.7457962290942,144.960978939025
+166,根室地方中部,Hokkaido Central Part of Nemuro,13,43.3921494419389,145.017145856032
+167,根室地方南部,Hokkaido Southern Part of Nemuro,13,43.3154699204573,145.585475423304
+180,北海道南西沖,Off South-West of Hokkaido,,
+181,北海道西方沖,Off West of Hokkaido,,
+182,石狩湾,Ishikari Bay Region,,
+183,北海道北西沖,Off North-West of Hokkaido ,,
+184,宗谷海峡,Soya Strait Region,,
+186,国後島付近,Near Kunashiri Island,,
+187,択捉島付近,Near Etorofu Island,,
+188,北海道東方沖,Off Hokkaido Toho,,
+189,根室半島南東沖,Off SE of Nemuro Peninsula,,
+190,釧路沖,Off Kushiro,,
+191,十勝沖,Off Tokachi,,
+192,浦河沖,Off Urakawa,,
+193,苫小牧沖,Off Tomakomai,,
+194,内浦湾,Uchiura Bay Region,,
+195,宗谷東方沖,Off Soya,,
+196,網走沖,Off Abashiri,,
+197,択捉島南東沖,Off South-East of Etorofu Island,,
+200,青森県津軽北部,Aomori Pref. Northern Tsugaru,20,40.9012879819584,140.602759340444
+201,青森県津軽南部,Aomori Pref. Southern Tsugaru,20,40.5837111506307,140.355676664483
+202,青森県三八上北地方,Aomori Pref. Sampachi-Kamikita,20,40.6162098596363,141.217603896412
+203,青森県下北地方,Aomori Pref. Shimokita Region,20,41.3095280542848,141.077901041411
+210,岩手県沿岸北部,North Coastal Region of Iwate Pref.,21,39.8488708107972,141.720190761799
+211,岩手県沿岸南部,South Coastal Region of Iwate Pref.,21,39.2071220069916,141.702753491058
+212,岩手県内陸北部,North Inland Region of Iwate Pref.,21,39.931554542287,141.183482398172
+213,岩手県内陸南部,South Inland Region of Iwate Pref.,21,39.2215346022004,141.160891785618
+220,宮城県北部,Northern Part of Miyagi Pref.,22,38.7081798510326,141.022771333641
+221,宮城県南部,Southern Part of Miyagi Pref.,22,38.0409381021126,140.661089277841
+222,宮城県中部,Central Part of Miyagi Pref.,22,38.3899877375334,141.004064365124
+230,秋田県沿岸北部,North Coastal Region of Akita Pref.,23,40.1200513403522,140.096455999147
+231,秋田県沿岸南部,South Coastal Region of Akita Pref.,23,39.4444677774327,140.171307132117
+232,秋田県内陸北部,North Inland Region of Akita Pref.,23,40.169818598738,140.578371768009
+233,秋田県内陸南部,South Inland Region of Akita Pref.,23,39.4107479536497,140.555936110668
+240,山形県庄内地方,Yamagata Pref. Shonai Region,24,38.7268035929364,139.885451803039
+241,山形県最上地方,Yamagata Pref. Mogami Region,24,38.7924891508531,140.295120305627
+242,山形県村山地方,Yamagata Pref. Murayama Region,24,38.3859722184277,140.279056046712
+243,山形県置賜地方,Yamagata Pref. Okitama Region,24,37.9990598165106,139.976229298984
+250,福島県中通り,Fukushima Pref. Nakadoori Region,25,37.3914691547508,140.412029876442
+251,福島県浜通り,Fukushima Pref. Hamadoori Region,25,37.3509163241567,140.838009636233
+252,福島県会津,Fukushima Pref. Aizu Region,25,37.3884896876914,139.696186888682
+280,津軽海峡,Tsugaru Strait Region,,
+281,山形県沖,Off Yamagata Prefecture,,
+282,秋田県沖,Off Akita Prefecture,,
+283,青森県西方沖,Off West of Aomori Pref.,,
+284,陸奥湾,Mutsu Bay Region,,
+285,青森県東方沖,Off Aomori Prefecture,,
+286,岩手県沖,Off Iwate Prefecture,,
+287,宮城県沖,Off Miyagi Prefecture,,
+288,三陸沖,Off Sanriku,,
+289,福島県沖,Off Fukushima Prefecture,,
+300,茨城県北部,Northern Part of Ibaraki Pref.,30,36.5650203041214,140.4501572932
+301,茨城県南部,Southern Part of Ibaraki Pref.,30,36.0932846746818,140.201946458283
+309,千葉県南東沖,Off SE of Chiba Pref.,,
+310,栃木県北部,Northern Part of Tochigi Pref.,31,36.8824768612142,139.796845705343
+311,栃木県南部,Southern Part of Tochigi Pref.,31,36.512030461272,139.834443306022
+320,群馬県北部,Northern Part of Gumma Pref.,32,36.6945826617991,138.928782969845
+321,群馬県南部,Southern Part of Gunma Pref.,32,36.3350541464469,139.031683822158
+330,埼玉県北部,Northern Part of Saitama Pref.,33,36.120612876943,139.362415936756
+331,埼玉県南部,Southern Part of Saitama Pref.,33,35.9073583025148,139.545329395159
+332,埼玉県秩父地方,Saitama Pref. Chichibu Region,33,35.9859328237761,138.960967734764
+340,千葉県北東部,North-Eastern Part of Chiba Pref.,34,35.651395253314,140.471172440167
+341,千葉県北西部,North-Western Part of Chiba Pref.,34,35.6937245250665,140.134108404433
+342,千葉県南部,Southern Part of Chiba Pref.,34,35.203428130897,140.046035650559
+349,房総半島南方沖,Off Boso Peninsula,,
+350,東京都２３区,The 23 Wards of Tokyo,35,35.6910145729301,139.735181991436
+351,東京都多摩東部,Tokyo Pref. Eastern Tama Region,35,35.676657079624,139.404014712941
+352,東京都多摩西部,Tokyo Pref. Western Tama Region,35,35.7841008782466,139.133267741272
+354,神津島,Kozushima Island Region,35,34.2141240116488,139.14756016141
+355,伊豆大島,Izu Oshima Island Region,35,34.737504801755,139.398860680118
+356,新島,Niijima Island Region,35,34.3908705243122,139.261953719004
+357,三宅島,Miyakejima Island Region,35,34.0281970490155,139.543209588378
+358,八丈島,Hachijojima Island Region,35,33.0582036184704,139.791238765374
+359,小笠原,Ogasawara Island Region,35,26.4684789419563,142.005446132563
+360,神奈川県東部,Eastern Part of Kanagawa Pref.,36,35.4158798516042,139.541830262692
+361,神奈川県西部,Western Part of Kanagawa Pref.,36,35.4187572372285,139.170065099832
+370,新潟県上越地方,Niigata Pref. Joetsu Region,37,37.028577309026,138.153987349162
+371,新潟県中越地方,Niigata Pref. Chuetsu Region,37,37.2523218878926,138.885591560404
+372,新潟県下越地方,Niigata Pref. Kaetsu Region,37,37.9351085765371,139.396426040876
+375,新潟県佐渡,Niigata Pref. Sado Island Region,37,38.0443952706501,138.389834987216
+378,新潟県下越沖,Off Niigata Pref. Kaetsu,,
+379,新潟県上中越沖,Off Niigata Pref. Jochuetsu,,
+380,富山県東部,Eastern Part of Toyama Pref.,38,36.6540191718457,137.437080599991
+381,富山県西部,Western Part of Toyama Pref.,38,36.6116154042673,136.942745221795
+390,石川県能登地方,Ishikawa Pref. Noto Region,39,37.2064867460047,136.948180718148
+391,石川県加賀地方,Ishikawa Pref. Kaga Region,39,36.3778009761394,136.609662359906
+400,福井県嶺北,Fukui Pref. Reihoku Region,40,35.9656984036161,136.361479635618
+401,福井県嶺南,Fukui Pref. Reinan Region,40,35.5232068049401,135.839517060097
+411,山梨県中・西部,Western-Central Yamanashi Pref,41,35.6343864344763,138.493498877733
+412,山梨県東部・富士五湖,Eastern Yamanashi Pref. Fujigoko,41,35.5700482506783,138.883889021463
+420,長野県北部,Northern Part of Nagano Pref.,42,36.6881921251618,138.150078155994
+421,長野県中部,Central Part of Nagano Pref.,42,36.1891456600816,138.169651115476
+422,長野県南部,Southern Part of Nagano Pref.,42,35.654790923255,137.82736831621
+430,岐阜県飛騨地方,Gifu Pref. Hida Region,43,36.1187019703343,137.226141814707
+431,岐阜県美濃東部,Gifu Pref. Eastern Part of Mino,43,35.4816794817731,137.316761509708
+432,岐阜県美濃中西部,Gifu Pref. Western Central Mino,43,35.6069261648036,136.719663959301
+440,静岡県伊豆地方,Shizuoka Pref. Izu Region,44,34.8745640375043,138.938865846631
+441,静岡県東部,Eastern Part of Shizuoka Pref.,44,35.2402420829625,138.771488626138
+442,静岡県中部,Central Part of Shizuoka Pref.,44,35.1039139770262,138.238197712947
+443,静岡県西部,Western Part of Shizuoka Pref.,44,34.8836462400842,137.853989125771
+450,愛知県東部,Eastern Part of Aichi Pref.,45,34.9312735856154,137.485860953082
+451,愛知県西部,Western Part of Aichi Pref.,45,35.0894580120775,137.073328534043
+460,三重県北部,Northern Part of Mie Pref.,46,35.0047600275823,136.526626961888
+461,三重県中部,Central Part of Mie Pref.,46,34.6191734898224,136.313318480575
+462,三重県南部,Southern Part of Mie Pref.,46,34.213724255505,136.371820296006
+469,三重県南東沖,Off SE of Mie Pref.,,
+471,茨城県沖,Off Ibaraki Prefecture,,
+472,関東東方沖,Off East of Kanto,,
+473,千葉県東方沖,Off East of Chiba Pref.,,
+475,八丈島東方沖,Off E of Hachijojima Island,,
+476,八丈島近海,Sea near Hachijojima Island,,
+477,東京湾,Tokyo Bay Region,,
+478,相模湾,Sagami Bay Region,,
+480,伊豆大島近海,Near Izu-Oshima Island ,,
+481,伊豆半島東方沖,Off East of Izu Peninsula,,
+482,三宅島近海,Sea near Miyakejima Island,,
+483,新島・神津島近海,Sea near Niijima / Kozu Island,,
+485,駿河湾,Suruga Bay Region,,
+486,駿河湾南方沖,Off S of Suruga Bay,,
+487,遠州灘,Enshu-nada Sea Region,,
+489,三河湾,Mikawa Bay Region,,
+490,伊勢湾,Ise Bay Region,,
+492,若狭湾,Wakasa Bay Region,,
+493,福井県沖,Off Fukui Prefecture,,
+494,石川県西方沖,Off West of Ishikawa Pref.,,
+495,能登半島沖,Off Noto Peninsula,,
+497,富山湾,Toyama Bay Region,,
+498,佐渡付近,Near Sado Island,,
+499,東海道南方沖,Off South of Tokai District,,
+500,滋賀県北部,Northern Part of Shiga Pref.,50,35.3900869659917,136.165278079797
+501,滋賀県南部,Southern Part of Shiga Pref.,50,35.0456639623281,136.104847445449
+510,京都府北部,Northern Part of Kyoto Pref.,51,35.46787882351,135.184751464577
+511,京都府南部,Southern Part of Kyoto Pref.,51,35.0789732223378,135.65562115477
+520,大阪府北部,Northern Part of Osaka Pref.,52,34.783462719498,135.548853115561
+521,大阪府南部,Southern Part of Osaka Pref.,52,34.4415819650787,135.455666991985
+530,兵庫県北部,Northern Part of Hyogo Pref.,53,35.4408410901881,134.71872293536
+531,兵庫県南東部,South Eastern Part of Hyogo Pref.,53,34.9317329074819,135.099406804436
+532,兵庫県南西部,South Western Part of Hyogo Pref.,53,34.9963324958315,134.553780088888
+535,兵庫県淡路島,Hyogo Pref. Awaji Island Region,53,34.3621637869522,134.838411125225
+540,奈良県,Nara Pref.,54,34.3192656265881,135.868735482575
+550,和歌山県北部,Northern Part of Wakayama Pref.,55,34.1028777946241,135.3608210494
+551,和歌山県南部,Southern Part of Wakayama Pref.,55,33.726110390324,135.656947155252
+560,鳥取県東部,Eastern Part of Tottori Pref.,56,35.3918635375182,134.24926000843
+562,鳥取県中部,Central Part of Tottori Pref.,56,35.4044079729083,133.789229650776
+563,鳥取県西部,Western Part of Tottori Pref.,56,35.2994577316796,133.386845026069
+570,島根県東部,Eastern Part of Shimane Pref.,57,35.2992242948002,132.951146669834
+571,島根県西部,Western Part of Shimane Pref.,57,34.7928361651109,132.192509559817
+575,島根県隠岐,Shimane Pref. Oki Islands Region,57,36.2013585892796,133.208945191763
+580,岡山県北部,Northern Part of Okayama Pref.,58,35.0926200808239,133.823930457215
+581,岡山県南部,Southern Part of Okayama Pref.,58,34.7162121935879,133.802434935664
+590,広島県北部,Northern Part of Hiroshima Pref.,59,34.7991919297154,132.765038747369
+591,広島県南東部,South Eastern Hiroshima Pref.,59,34.5591852337011,133.169466482037
+592,広島県南西部,South Western Hiroshima Pref.,59,34.3973239449629,132.518452780871
+600,徳島県北部,Northern Part of Tokushima Pref.,60,34.0127123218254,134.155924755563
+601,徳島県南部,Southern Part of Tokushima Pref.,60,33.786975641433,134.365503868782
+610,香川県東部,Eastern Part of Kagawa Pref.,61,34.3007139401047,134.167233844802
+611,香川県西部,Western Part of  Kagawa Pref.,61,34.1906564629378,133.817468763363
+620,愛媛県東予,Ehime Pref. Toyo Region,62,33.9500060023073,133.220443392779
+621,愛媛県中予,Ehime Pref. Chuyo Region,62,33.7395076842639,132.869283566924
+622,愛媛県南予,Ehime Pref. Nanyo Region,62,33.3472717034619,132.610302944072
+630,高知県東部,Eastern Part of Kochi Pref.,63,33.5201666208914,134.065073389848
+631,高知県中部,Central Part of Kochi Pref.,63,33.6512155360333,133.501258893035
+632,高知県西部,Western Part of Kochi Pref.,63,33.133110128076,132.935115295384
+673,土佐湾,Tosa Bay Region,,
+674,紀伊水道,Kii Channel Region,,
+675,大阪湾,Osaka Bay Region,,
+676,播磨灘,Harima-nada Sea,,
+677,瀬戸内海中部,Central Setonaikai,,
+678,安芸灘,Aki-nada Sea,,
+679,周防灘,Suo-nada Sea,,
+680,伊予灘,Iyo-nada Sea,,
+681,豊後水道,Bungo Channel,,
+682,山口県北西沖,Off NE of Yamaguchi Pref.,,
+683,島根県沖,Off Shimane Prefecture,,
+684,鳥取県沖,Off Tottori Prefecture,,
+685,隠岐島近海,Seas near Oki Islands Region,,
+686,兵庫県北方沖,Off North-West of Hyogo Pref.,,
+687,京都府沖,Off Kyoto Prefecture,,
+688,淡路島付近,Sea Near Awajishima Island,,
+689,和歌山県南方沖,Off South of Wakayama Pref.,,
+700,山口県北部,Northern Part of Yamaguchi Pref.,70,34.3572476995743,131.359776226827
+702,山口県西部,Western  Part of Yamaguchi Pref.,70,34.1223591161337,131.082290946589
+703,山口県東部,Eastern Part of Yamaguchi Pref.,70,34.1095644130935,132.089922630929
+704,山口県中部,Central Part of Yamaguchi Pref.,70,34.1800151405053,131.673551454039
+710,福岡県福岡地方,Fukuoka Pref. Fukuoka Region,71,33.5952497614343,130.403935574232
+711,福岡県北九州地方,Fukuoka Pref. Kitakyushu Region,71,33.741810156755,130.908182834785
+712,福岡県筑豊地方,Fukuoka Pref. Chikuho Region,71,33.6260119930602,130.73968769485
+713,福岡県筑後地方,Fukuoka Pref. Chikugo Region,71,33.2675430810854,130.636383954678
+720,佐賀県北部,Northern Part of Saga Pref.,72,33.3679017829721,129.948976438451
+721,佐賀県南部,Southern Part of Saga Pref.,72,33.2461579827258,130.202283894043
+730,長崎県北部,Northern Part of Nagasaki Pref.,73,33.2292689757298,129.696488221909
+731,長崎県南西部,SW Part of Nagasaki Pref.,73,32.8706410511579,129.881495729514
+732,長崎県島原半島,Nagasaki Pref. Shimabara Peninsula,73,32.745846722548,130.257068659466
+735,長崎県対馬,Nagasaki Pref. Tsushima Island,73,34.4084515600988,129.32597991825
+736,長崎県壱岐,Nagasaki Pref. Iki Island Region,73,33.7855297970237,129.716691163743
+737,長崎県五島,Nagasaki Pref. Goto Islands Region,73,32.818834297997,128.886870310454
+740,熊本県阿蘇地方,Kumamoto Pref. Aso Region,74,32.9619259755635,131.108361031715
+741,熊本県熊本地方,Kumamoto Pref. Kumamoto Region,74,32.7626764454036,130.784193436199
+742,熊本県球磨地方,Kumamoto Pref. Kuma Region,74,32.2823561048014,130.847453124349
+743,熊本県天草・芦北地方,Kumamoto Pref. Amakusa/Ashikita,74,32.3538263913408,130.287882170458
+750,大分県北部,Northern Part of Oita Pref.,75,33.4988415016572,131.359900066464
+751,大分県中部,Central Part of Oita Pref.,75,33.2228447448591,131.583987201979
+752,大分県南部,Southern Part of Oita Pref.,75,32.9206720136167,131.670221607535
+753,大分県西部,Western Part of Oita Pref.,75,33.1772178549274,131.133437868809
+760,宮崎県北部平野部,Miyazaki Pref. Northern Heiyabu,76,32.4260541648634,131.521245562521
+761,宮崎県北部山沿い,Miyazaki Pref. Northern Yamazoi,76,32.5122652343594,131.26564109005
+762,宮崎県南部平野部,Miyazaki Pref. Southern Heiyabu,76,31.7648845865247,131.319831819666
+763,宮崎県南部山沿い,Miyazaki Pref. Southern Yamazoi,76,31.924251908024,131.029034121253
+770,鹿児島県薩摩地方,Kagoshima Pref. Satsuma Region,77,31.7496641914499,130.484942719855
+771,鹿児島県大隅地方,Kagoshima Pref. Osumi Region,77,31.4208972338992,130.924936450357
+774,鹿児島県十島村,Kagoshima Toshima Islands Region,77,29.6888031620734,129.712994312664
+775,鹿児島県甑島,Kagoshima Koshikijima Islands,77,31.755201316317,129.786634664733
+776,鹿児島県種子島,Kagoshima Tanegashima Islands,77,30.5980929866606,130.918494282116
+777,鹿児島県屋久島,Kagoshima Yakushima Islands Region,77,30.346878132117,130.501382304569
+778,鹿児島県奄美北部,Kagoshima Northern Part of Amami ,77,28.2881614692973,129.439179108493
+779,鹿児島県奄美南部,Kagoshima Southern Part of Amami ,77,27.6311862243228,128.829035604575
+783,五島列島近海,Seas near Goto Islands,,
+784,天草灘,Amakusa-Nada Sea,,
+785,有明海,Ariake Sea,,
+786,橘湾,Tachibana Bay Region,,
+787,鹿児島湾,Kagoshima Bay Region,,
+790,種子島近海,Seas near Tanegashima,,
+791,日向灘,Hyuga-nada Sea,,
+793,奄美大島近海,Seas near Amami Island,,
+795,壱岐・対馬近海,Seas near Iki and Tsushima Islands,,
+796,福岡県北西沖,Off North West of Fukuoka Pref.,,
+797,薩摩半島西方沖,Off W of Satsuma Peninsula,,
+798,トカラ列島近海,Seas near Tokara Islands,,
+799,奄美大島北西沖,Off North West of Amami Island,,
+800,沖縄県本島北部,N Part of Okinawa Main Island,80,26.6554705574845,128.058172038374
+801,沖縄県本島中南部,S-Central Okinawa Main Island,80,26.2609127490052,127.732601148849
+802,沖縄県久米島,Okinawa Kumejima Island Region,80,26.4106427459504,126.83288263237
+804,沖縄県宮古島,Okinawa Miyakojima Island Region ,80,24.7741858594093,125.242722844898
+805,沖縄県石垣島,Okinawa Ishigakijima Island Region,80,24.4656012809041,124.188763379481
+806,沖縄県与那国島,Okinawa Yonagunijima,80,24.454165,122.9904
+807,沖縄県西表島,Okinawa Iriomotejima Island Region,80,24.3219449294693,123.82817843395
+820,大隅半島東方沖,Off E of the Osumi Peninsula,,
+821,九州地方南東沖,Off South-East of Kyushu ,,
+822,種子島南東沖,Off Tanegashima,,
+823,奄美大島北東沖,Off North-East of Amami Island,,
+850,沖縄本島近海,Seas near Okinawa Main Island,,
+851,南大東島近海,Sea near Southern Daito Islands,,
+852,沖縄本島南方沖,Offshore of Okinawa Main Island,,
+853,宮古島近海,Sea near Miyakojima Island,,
+854,石垣島近海,Sea near Ishigakijima  Island,,
+855,石垣島南方沖,Off S of Ishigakijima Island,,
+856,西表島付近,Sea near Iriomote Island,,
+857,与那国島近海,Sea near Yonagunijima Island,,
+858,沖縄本島北西沖,Off NW of Okinawa Main Island,,
+859,宮古島北西沖,Off NW of Miyakojima,,
+860,石垣島北西沖,Off NW of Ishigakijima,,
+900,台湾付近,Near the coast of Taiwan,,
+901,東シナ海,Eastern Chinese Sea,,
+902,四国沖,Off Shikoku,,
+903,鳥島近海,Seas near Torishima Island,,
+904,鳥島東方沖,Off Torishima,,
+905,オホーツク海南部,South of the coast of Okhotsk,,
+906,サハリン西方沖,Off the west coast of Sakhalin,,
+907,日本海北部,Northern Sea of Japan ,,
+908,日本海中部,Central Sea of Japan,,
+909,日本海西部,Western Sea of Japan,,
+911,父島近海,Sea near Chichijima Island,,
+912,千島列島,Kuril Islands Region,,
+913,千島列島南東沖,Off SE of Kuril Islands,,
+914,北海道南東沖,Off South-East of Hokkaido,,
+915,東北地方東方沖,Off East of Tohoku,,
+916,小笠原諸島西方沖,Off W of Ogasawara Islands,,
+917,硫黄島近海,Seas near Iwo Jima Islands,,
+918,小笠原諸島東方沖,Off E of Ogasawara Islands,,
+919,南海道南方沖,Off South of Nankai Region,,
+920,薩南諸島東方沖,Off E of Satsunan Islands,,
+921,本州南方沖,Off South-East of Honshu,,
+922,サハリン南部付近,Seas near Southern Sakhalin,,
+930,北西太平洋,North-Western Pacific Ocean,,
+932,マリアナ諸島,Mariana Islands Region,,
+933,黄海,Yellow Sea,,
+934,朝鮮半島南部,Southern Part of Korean Peninsula,,
+935,朝鮮半島北部,Northern Part of Korean Peninsula,,
+936,中国東北部,North-Eastern Part of China,,
+937,ウラジオストク付近,Near Vladivostok,,
+938,シベリア南部,Southern Siberia,,
+939,サハリン近海,Sea of Sakhalin,,
+940,アリューシャン列島,Aleutin Islands Region,,
+941,カムチャツカ半島付近,Near Kamchatka Peninsula,,
+942,北米西部,Western Part of North America,,
+943,北米中部,Central Part of North America,,
+944,北米東部,Eastern Part of North America,,
+945,中米,Central America,,
+946,南米西部,Western Part of South America,,
+947,南米中部,Central Part of South America,,
+948,南米東部,Eastern Part of South America,,
+949,北東太平洋,North-Eastern Pacific Ocean,,
+950,南太平洋,Southern Pacific Ocean,,
+951,インドシナ半島付近,Near the Indochinese Peninsula,,
+952,フィリピン付近,Near the Philippines,,
+953,インドネシア付近,Near Indonesia,,
+954,グアム付近,Near Guam,,
+955,ニューギニア付近,Near New Guinea,,
+956,ニュージーランド付近,Near New Zealand,,
+957,オーストラリア付近,Near Australia,,
+958,シベリア付近,Near Siberia,,
+959,ロシア西部,Western Part of Russia,,
+960,ロシア中部,Central Part of Russia,,
+961,ロシア東部,Eastern Part of Russia,,
+962,中央アジア,Central Part of Asia,,
+963,中国西部,Western Part of China,,
+964,中国中部,Central Part of China,,
+965,中国東部,Eastern Part of China,,
+966,インド付近,Near India,,
+967,インド洋,The Indian Ocean,,
+968,中東,The Middle East,,
+969,ヨーロッパ西部,Western Part of Europe,,
+970,ヨーロッパ中部,Central Part of Europe,,
+971,ヨーロッパ東部,Eastern Part of Europe,,
+972,地中海,Mediterranean Sea,,
+973,アフリカ西部,Western Part of Africa,,
+974,アフリカ中部,Central Part of Africa,,
+975,アフリカ東部,Eastern Part of Africa,,
+976,北大西洋,Northern Atlantic Ocean,,
+977,南大西洋,Southern Atlantic Ocean,,
+978,北極付近,Near the North Pole,,
+979,南極付近,Near the South Pole,,
+999,遠地,Far away,,

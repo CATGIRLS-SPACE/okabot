@@ -1,59 +1,28 @@
 import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder } from 'discord.js';
 import { join } from 'path';
-import { BASE_DIRNAME } from '../..';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { BASE_DIRNAME, client, DMDATA_API_KEY } from '../..';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { createCanvas } from 'canvas';
+import { GetLatestEarthquake } from './dmdata';
+import { Logger } from 'okayulogger';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
-const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/'
+const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/';
+const L = new Logger('earthquakes');
 
-const DAYS_OF_WEEK = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday'
-]
+const locations_english: {[key: string]: string} = {};
 
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
-    const feed = await fetch(URL);
-    const list = await feed.json();
+    const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
 
-    let item = list[0];
+    const OriginTime = new Date(earthquake.originTime);
+    const Magnitude = earthquake.magnitude.value;
+    const MaxInt = earthquake.maxInt;
+    const HypocenterName = earthquake.hypocenter.name;
+    const HypocenterDepth = earthquake.hypocenter.depth.value;
 
-    const info = await fetch(`${INDV_URL}${item.json}`);
-    const earthquake = await info.json();
-
-    const OriginTime = new Date(earthquake.Body.Earthquake.OriginTime);
-    const Magnitude = earthquake.Body.Earthquake.Magnitude;
-    const MaxInt = earthquake.Body.Intensity.Observation.MaxInt;
-    const HypocenterName = earthquake.Body.Earthquake.Hypocenter.Area.enName;
-    const HypocenterCoords = earthquake.Body.Earthquake.Hypocenter.Area.Coordinate;
-
-    const month = OriginTime.getMonth()+1<10?`0${OriginTime.getMonth()+1}`:OriginTime.getMonth()+1;
-    const day = OriginTime.getDate()<10?`0${OriginTime.getDate()}`:OriginTime.getDate();
-    const hour = OriginTime.getHours()<10?`0${OriginTime.getHours()}`:OriginTime.getHours();
-    const minute = OriginTime.getMinutes()<10?`0${OriginTime.getMinutes()}`:OriginTime.getMinutes();
-    const readableDate = `Most recent earthquake was **${DAYS_OF_WEEK[OriginTime.getDay()]}, ${OriginTime.getFullYear()}-${month}-${day}, ${hour}:${minute}**.`;
-
-    const lat = HypocenterCoords.split('+')[1];
-    const lon = HypocenterCoords.split('+')[2].split('-')[0];
-    const depth = HypocenterCoords.split('-')[1].split('/')[0] / 1000; // in km, 10000 = 10km
-
-    const readableMeta = `Maximum Intensity of Shindo ${MaxInt}, approx M${Magnitude}. Depth of ${depth} km`;
-    const readableLoc = `Hypocenter location: ${HypocenterName} (${HypocenterCoords}).`
-
-    const disclaimer = '-# Times are provided in UTC-6 format, relative to the DST condition of the hosting environment.';
-
-    // interaction.editReply({
-    //     content: `${readableDate}\n${readableMeta}\n${readableLoc}\n${disclaimer}`,
-    //     ephemeral: false
-    // });
-
-    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName);
+    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName);
     interaction.editReply({embeds:[embed]});
 }
 
@@ -69,23 +38,18 @@ const SHINDO_IMG: { [key: string]: string } = {
     '7':'7.png'
 }
 
-async function BuildEarthquakeEmbed(origin_time: Date, magnitude: number, max_intensity: number, hypocenter_coords: string, hypocenter_name: string, automatic = false) {
-    // example: +34.0+133.0-10000/
-    const lat = hypocenter_coords.split('+')[1];
-    const lon = hypocenter_coords.split('+')[2].split('-')[0];
-    const depth = parseInt(hypocenter_coords.split('-')[1].split('/')[0]) / 1000; // in km, 10000 = 10km
-
+export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
     const embed = new EmbedBuilder()
-        .setColor(0x42f5da)
+        .setColor(0x9d60cc)
         .setTitle(automatic?'New entry in Japan earthquake data feed':'Most recent earthquake in Japan')
         .setTimestamp(origin_time)
-        .setAuthor({name:'Japan Meteorological Agency',url:`https://www.jma.go.jp/bosai/map.html#11/${lat}/${lon}/&elem=int&contents=earthquake_map`})
+        .setAuthor({name:'Japan Meteorological Agency',url:`https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
             {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
             {name:'Depth', value: `**${depth} km**`, inline: true},
-            {name:'Location', value: hypocenter_name},
+            {name:'Location', value: locations_english[hypocenter_name]},
         );
         
     return embed;
@@ -95,8 +59,24 @@ const MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
 
-export async function StartEarthquakeMonitoring(client: Client) {
-    console.log('Starting Earthquake Monitoring...')
+export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
+    L.info('Loading all locations...');
+
+    const data = readFileSync(join(BASE_DIRNAME, 'assets', 'earthquakes', 'Epicenters.txt'), 'utf-8');
+    const lines = data.split('\n');
+    lines.forEach(line => {
+        const key = line.split(',')[1];
+        const value = line.split(',')[2];
+
+        locations_english[key] = value;
+    });
+
+    L.info('Loaded all locations!');
+
+    if (disable_fetching) return;
+
+    L.info('Starting Earthquake Monitoring...');
+
     try {
         const feed = await fetch(URL);
         const list = await feed.json();
@@ -112,7 +92,7 @@ export async function StartEarthquakeMonitoring(client: Client) {
  * Check if there is a new earthquake, and if so, send an update to the channel
  * @param {Client} client 
  */
-async function RunEarthquakeFetch(client: Client) {
+async function RunEarthquakeFetch(client_2: Client) {
     console.log('fetching latest earthquake...');
     try {
         const feed = await fetch(URL);
@@ -130,6 +110,8 @@ async function RunEarthquakeFetch(client: Client) {
         const info = await fetch(`${INDV_URL}${latest.json}`);
         const earthquake = await info.json();
 
+        // const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
+
         const OriginTime = new Date(earthquake.Body.Earthquake.OriginTime);
         const Magnitude = earthquake.Body.Earthquake.Magnitude;
         const MaxInt = earthquake.Body.Intensity.Observation.MaxInt;
@@ -140,7 +122,7 @@ async function RunEarthquakeFetch(client: Client) {
         const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName, true);
 
         // send embed
-        const channel = client.channels.cache.get(MONITORING_CHANNEL);
+        const channel = client_2.channels.cache.get(MONITORING_CHANNEL);
         (channel as TextChannel)!.send({embeds:[embed]});
     } catch (err) {
         console.error(`RunEarthquakeFetch error: ${err}`);
@@ -159,6 +141,23 @@ export function RenderNewEarthquakeImage() {
     const buffer = canvas.toBuffer('image/png');
     if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
     writeFileSync(join(BASE_DIRNAME, 'temp', 'render-stock.png'), buffer);
+}
+
+
+export async function SendNewReportNow() {
+    const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
+
+    const OriginTime = new Date(earthquake.originTime);
+    const Magnitude = earthquake.magnitude.value;
+    const MaxInt = earthquake.maxInt;
+    const HypocenterName = earthquake.hypocenter.name;
+    const HypocenterDepth = earthquake.hypocenter.depth.value;
+
+    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName, true);
+
+    // send embed
+    const channel = client.channels.cache.get(MONITORING_CHANNEL);
+    (channel as TextChannel)!.send({embeds:[embed]});
 }
 
 

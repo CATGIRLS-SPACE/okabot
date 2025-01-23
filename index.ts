@@ -8,6 +8,7 @@ import { HandleCommandOkash } from './modules/interactions/okash.js';
 import { CheckAdminShorthands, DoRandomOkashRolls, DoRandomLootboxRolls } from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
+export const DMDATA_API_KEY = config.dmdata_api_key;
 export const DEV = config.extra.includes('use dev token'); // load this asap
 import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
@@ -38,6 +39,7 @@ import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
 import { DeployCommands } from './modules/deployment/commands';
+import { StartDMDataWS } from './modules/earthquakes/dmdata';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -96,8 +98,8 @@ client.once(Events.ClientReady, (c: Client) => {
 
     StartHTTPServer(c);
 
-    if (config.extra && config.extra.includes('disable jma fetching')) return;
-    StartEarthquakeMonitoring(client);
+    StartDMDataWS(DMDATA_API_KEY);
+    StartEarthquakeMonitoring(client, config.extra.includes('disable jma fetching'));
 });
 
 if (WIPE) {
