@@ -48,7 +48,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setFields(
             {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
             {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
-            {name:'Depth', value: `**${depth} km**`, inline: true},
+            // {name:'Depth', value: `**${depth} km**`, inline: true},
             {name:'Location', value: locations_english[hypocenter_name]},
         );
         
@@ -144,14 +144,17 @@ export function RenderNewEarthquakeImage() {
 }
 
 
-export async function SendNewReportNow() {
-    const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
+export async function SendNewReportNow(data: any) {
+    // const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
 
-    const OriginTime = new Date(earthquake.originTime);
-    const Magnitude = earthquake.magnitude.value;
-    const MaxInt = earthquake.maxInt;
-    const HypocenterName = earthquake.hypocenter.name;
-    const HypocenterDepth = earthquake.hypocenter.depth.value;
+    const eq = data.Report.Body.Earthquake;
+    const obs = data.Report.Body.Observation;
+
+    const OriginTime = new Date(eq.OriginTime._text);
+    const MaxInt = obs.MaxInt._text;
+    const Magnitude = eq['jmx_eb:Magnitude']._text;
+    const HypocenterName = obs.Pref.Area.Name._text;
+    const HypocenterDepth = 'unknown';
 
     const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName, true);
 

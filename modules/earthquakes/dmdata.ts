@@ -4,6 +4,8 @@ import { WebSocket } from "ws";
 import { BASE_DIRNAME } from "../..";
 import { appendFileSync, writeFileSync } from "fs";
 import { gunzip } from "zlib";
+import { xml2js, xml2json } from "xml-js";
+import { SendNewReportNow } from "./earthquakes";
 
 
 const L = new Logger('dmdata');
@@ -39,12 +41,13 @@ export async function StartDMDataWS(api_key: string) {
                     if (err) return L.error(`error decompressing data: ${err}`);
 
                     const xmlString = decompressed_buffer.toString('utf-8');
-                    console.log('Decompressed XML:', xmlString);
+                    // console.log('Decompressed XML:', xmlString);
                     
-                    writeFileSync(join(BASE_DIRNAME, 'TEST.XML'), xmlString);
+                    const json = xml2js(xmlString, {compact: true});
+                    SendNewReportNow(json);
                 });
             } else {
-                L.info('HOLY BEANS IT IS A MESSAGE THAT IS NOT PING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+                L.info('HOLY BEANS IT IS A MESSAGE THAT IS NOT PING OR DATA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
                 appendFileSync(p, msg + '\n');
             }
         });
