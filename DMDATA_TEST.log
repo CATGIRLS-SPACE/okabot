@@ -1,1 +1,1 @@
-{"type":"start","socketId":5216494,"classifications":["telegram.earthquake","eew.forecast","eew.warning"],"types":null,"test":"including","formats":["xml","a/n","binary"],"appName":null,"time":"2025-01-23T21:21:35.765Z"}
+{"type":"start","socketId":5221216,"classifications":["telegram.earthquake","eew.forecast","eew.warning"],"types":null,"test":"including","formats":["xml","a/n","binary"],"appName":null,"time":"2025-01-24T22:10:36.620Z"}

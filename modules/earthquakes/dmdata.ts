@@ -44,6 +44,7 @@ export async function StartDMDataWS(api_key: string) {
                     // console.log('Decompressed XML:', xmlString);
                     
                     const json = xml2js(xmlString, {compact: true});
+                    console.log(json);
                     SendNewReportNow(json);
                 });
             } else {

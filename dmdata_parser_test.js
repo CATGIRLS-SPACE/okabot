@@ -1,4 +1,4 @@
-const { xml2json } = require("xml-js");
+const { xml2json, xml2js } = require("xml-js");
 const { gunzip } = require("zlib");
 
 const data = `{"type":"data","version":"2.0","id":"dfb2577c49a0d4d3ed866316e77587a7acefc155c28e5e087e55baf87a3f18e8140c75f95c0aea164b5081259b94ab8d","classification":"telegram.earthquake","passing":[{"name":"socket-02","time":"2025-01-23T02:35:04.947Z"},{"name":"ires-12","time":"2025-01-23T02:35:04.950Z"},{"name":"websocket-02","time":"2025-01-23T02:35:04.952Z"}],"head":{"type":"VXSE53","author":"RJTD","time":"2025-01-23T02:35:00.000Z","designation":null,"test":false,"xml":true},"xmlReport":{"control":{"title":"震源・震度に関する情報","dateTime":"2025-01-23T02:35:04Z","status":"通常","editorialOffice":"気象庁本庁","publishingOffice":"気象庁"},"head":{"title":"震源・震度情報","reportDateTime":"2025-01-23T11:35:00+09:00","targetDateTime":"2025-01-23T11:35:00+09:00","eventId":"20250123113236","serial":"1","infoType":"発表","infoKind":"地震情報","infoKindVersion":"1.0_1","headline":"２３日１１時３２分ころ、地震がありました。"}},"format":"xml","compression":"gzip","encoding":"base64","body":"H4sIAAAAAAAAAI1WXVPbRhR996/w6JXBK8l8NIysTAPJlOmQZFo3D33JCLwYEVtyJcGYN2RKk1IIpDC4EFOSDNBOSQgE0lLjtj9mWQk/+S/0riTkzxbPeKzV7t2z95577tVKt/PZTHQWG6aqawlOiPFcFGsTekrV0gnuq+S93k+423JE+gLndMOKgrFmJrgpy8oNIQRvsSeqOaXPxNJ6bDqHprMKzAmI8w2HprP5LowBfljXLEPPwCipWhksV0tPnfIaWbiAAS0fEPuwuvmG2Fuk8IOzsEhfnUjIN4xII4qFk2oWyyIv9vfyQq8YT/LiULx/iO/7WkLhckT60lKsGVOuzm/T83MJBa8R6W5KtXRDVTIPJifVCSw7x8Wrk9e0bDult/AvoVaDiPRwZjwDsQBJrXsk1LYWkVA9vs+wkuqWRlWb1I2sYkFq7iimavpcdWSolRU/X524EQSPG76HvwX/EmqxBHzFSOOutrZYApOzWLNGR7w9vCDGBSEuxgeAwGA+Io1CSMm5HJbdrfLV618lFE5AfjDjWBYgNf7IN/9c1VIyLR2ziIMow+m6xSNfwjIo+LFQt7ie9onPqJoXIc5bcq3yY62y7hT3a5UX8HO2CvAKk/TZd8ReJ4UVMm/7pxJ7mdgFUlgi9t/ELhJ7l8wXIHqGArltAPbG8Lyjp+a6TfI42CITq2ZWz+jpuabieYzHbwbAGZwFehsUclcxrKlvZpQnzKcHhppWtU6pFBtS2WAVkT41DHVWydy0p9EM+J3L6RPgBzY8BKzA474CS+7BKj393S0tX1a2nbN9CXmzrOZTOGpB6hMc0/DeEbBN11Y4WewXWcWkmJFPwtCwrhvQkkBp0RQ2Jww1Z3n9ii4X3T/ee4kr1irPa5U11i3m552dE/fjspdZWNryljb8JWJvEHvV+bhI7G+5aAp6QDbBgQyg2J3zt+CDe3rByT3xwRjfI8Rvxfp6eCShNj9YtoMoUVPogeWYktZUayYMcWyaa3a9VnnnSRA8K0LMscHwkHArw27K5SicoZmqNcfyOm5iY9ZrDgGZI3gy0DecGM3nFGsqwT008KRHJtdUQ7XKanXhr6q9TsslSI377nsQtF+GbbtZmJ0h3LNjKBe6XKa7uzftB68DEL9XQusKymvhwrUP6clJCEvPC+5G2dl50YVbDDakhbV04CM4x++MVwenkFe38GeIhJrIGlPysF8GyQUj6O4AL7eIN5CtR7TMDwYC7bTbU8X/Sd/HqKu8EwiLKwBxfis5P+/QD2tASIsX8YE+Voj/idJKTAfEy/Ml58Mpfb5bqyy1o4shegDNHlIb4R6pvizDovBIhGezTlGjhIf1LOtc7Bt8TzfwhGJawVQUbiA46RUOfVmmR9uXFz/RpVfO5lPuun+zJm0fXXfoQ1J4xi4HZ/vO6Rs2/89CdXGF2O8bOvdLUlhv7Nx+mKLQH3Yb1OIGTD1SjO59Ag7pyjGcGl4HLi/26d4mONQiRuaxvQctiNhwuznypU/sX9gdp93FgXpDRHWHfCmHFCL21WFP/4suR/4FG0B8v9wJAAA="}`;
@@ -8,8 +8,19 @@ const decoded_buffer = Buffer.from(parsed.body, 'base64');
 gunzip(decoded_buffer, (err, decompressed_buffer) => {
     if (err) return L.error(`error decompressing data: ${err}`);
     const xmlString = decompressed_buffer.toString('utf-8');
-    console.log('Decompressed XML:', xmlString);
+    // console.log('Decompressed XML:', xmlString);
+
+    const result = xml2js(xmlString, {compact: true, spaces: 4, });
+
+    const eq = result.Report.Body.Earthquake;
+    const obs = result.Report.Body.Intensity.Observation;
+
+    const OriginTime = new Date(eq.OriginTime._text);
+    const MaxInt = obs.MaxInt._text;
+    const Magnitude = eq['jmx_eb:Magnitude']._text;
+    const HypocenterName = obs.Pref.Area.Name._text;
+
+    console.log(OriginTime, MaxInt, Magnitude, HypocenterName);
     
-    const result = xml2json(xmlString, {compact: true, spaces: 4, });
-    console.log(result);
+    // console.log(result);
 });

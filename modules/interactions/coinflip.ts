@@ -138,7 +138,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         `${GetEmoji(EMOJI.OKASH)} OKA**${bet}**`, 
         STRINGS[side || 'heads'][locale]);
 
-    let next_message = format(STRINGS[win?'flipped_win':'flipped_loss'][locale] + `${win?GetEmoji(EMOJI.CAT_MONEY_EYES)+' **(+15XP)**':':crying_cat_face: **(+5XP)**'}\n-# ${rolled}`, 
+    let next_message = format(STRINGS[win?'flipped_win':'flipped_loss'][locale] + ` ${win?GetEmoji(EMOJI.CAT_MONEY_EYES)+' **(+15XP)**':' :crying_cat_face: **(+5XP)**'}\n-# ${rolled}`, 
         interaction.user.displayName, 
         `${GetEmoji(EMOJI.OKASH)} OKA**${bet}**`, 
         STRINGS[side || 'heads'][locale],

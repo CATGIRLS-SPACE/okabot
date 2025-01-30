@@ -98,7 +98,7 @@ client.once(Events.ClientReady, (c: Client) => {
 
     StartHTTPServer(c);
 
-    StartDMDataWS(DMDATA_API_KEY);
+    // StartDMDataWS(DMDATA_API_KEY);
     StartEarthquakeMonitoring(client, config.extra.includes('disable jma fetching'));
 });
 

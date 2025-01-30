@@ -1,10 +1,13 @@
 import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder } from 'discord.js';
 import { join } from 'path';
-import { BASE_DIRNAME, client, DMDATA_API_KEY } from '../..';
+import { BASE_DIRNAME, client, DEV, DMDATA_API_KEY } from '../..';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { createCanvas } from 'canvas';
 import { GetLatestEarthquake } from './dmdata';
 import { Logger } from 'okayulogger';
+import { DMDataWebSocket } from 'lily-dmdata/socket';
+import { Classification, WebSocketEvent } from 'lily-dmdata/types';
+import { EarthquakeInformationSchema } from 'lily-dmdata/schema';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/';
@@ -43,7 +46,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setColor(0x9d60cc)
         .setTitle(automatic?'New entry in Japan earthquake data feed':'Most recent earthquake in Japan')
         .setTimestamp(origin_time)
-        .setAuthor({name:'Japan Meteorological Agency',url:`https://www.jma.go.jp/bosai/map.html`})
+        .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
@@ -55,7 +58,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
     return embed;
 }
 
-const MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
+const MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
 
@@ -73,10 +76,52 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     L.info('Loaded all locations!');
 
-    if (disable_fetching) return;
+    if (disable_fetching) return L.warn('Earthquake monitoring is disabled. lily-dmdata won\'t run!');
 
     L.info('Starting Earthquake Monitoring...');
 
+    // new
+    const SOCKET = new DMDataWebSocket(DMDATA_API_KEY);
+    
+    SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, (body: EarthquakeInformationSchema) => {
+        const channel = client.channels.cache.get(MONITORING_CHANNEL);
+        (channel as TextChannel)!.send({
+            content:'New earthquake happened, expecting data soon! parsed body: ```' + body + '\n' + JSON.stringify(body) + '```\n-# This is primarily for testing purposes, and live feed is still fetched via constant data GET.\n-# The /recent-eq command now uses Project DM-D.S.S for data.'
+        });
+    });
+
+    SOCKET.on(WebSocketEvent.PING, () => {
+        L.debug('dmdata ping');
+    });
+
+    SOCKET.on(WebSocketEvent.OPENED, () => {
+        L.debug('dmdata connection opened ok!');
+        const channel = client.channels.cache.get(MONITORING_CHANNEL);
+        (channel as TextChannel)!.send({
+            content:'lily-dmdata has successfully connected.',
+            flags:'SuppressNotifications'
+        });
+    });
+
+    SOCKET.on(WebSocketEvent.CLOSED, () => {
+        L.debug('dmdata connection closed!');
+        const channel = client.channels.cache.get(MONITORING_CHANNEL);
+        (channel as TextChannel)!.send({
+            content:'lily-dmdata was disconnected from the websocket, and will not try and reconnect.',
+            flags:'SuppressNotifications'
+        });
+    });
+
+    SOCKET.OpenSocket({
+        classifications: [
+            Classification.EEW_FORECAST,
+            Classification.EEW_WARNING,
+            Classification.TELEGRAM_EARTHQUAKE
+        ]
+    });
+
+
+    // old
     try {
         const feed = await fetch(URL);
         const list = await feed.json();
@@ -148,7 +193,7 @@ export async function SendNewReportNow(data: any) {
     // const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
 
     const eq = data.Report.Body.Earthquake;
-    const obs = data.Report.Body.Observation;
+    const obs = data.Report.Body.Intensity.Observation;
 
     const OriginTime = new Date(eq.OriginTime._text);
     const MaxInt = obs.MaxInt._text;
