@@ -50,7 +50,11 @@ export interface USER_PROFILE {
         level: number,
         current_xp: number
     },
-    owes: {[key: string]: number}
+    owes: {[key: string]: number},
+    pass?: {
+        is_active: boolean, 
+        valid_until: number,
+    }
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -80,7 +84,11 @@ const DEFAULT_DATA: USER_PROFILE = {
         level: 1,
         current_xp: 0
     },
-    owes: {}
+    owes: {},
+    pass: {
+        valid_until: 0,
+        is_active: false
+    }
 }
 
 let PROFILES_DIR: string;

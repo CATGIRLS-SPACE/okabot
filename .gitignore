@@ -2,7 +2,7 @@ config.json
 /money
 /node_modules
 /temp
-/modules/*/*.js
+/modules/**/*.js
 /util/*.js
 index.js
 .vscode/
