@@ -97,10 +97,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     // this will need massive changes!! lily-dmdata is broken!
     SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, async (data: any) => {
         const channel = client.channels.cache.get(MONITORING_CHANNEL);
-        // (channel as TextChannel)!.send({
-        //     content:'New earthquake happened, expecting data soon! parsed body: ```' + body + '\n' + JSON.stringify(body) + '```\n-# This is primarily for testing purposes, and live feed is still fetched via constant data GET.\n-# The /recent-eq command now uses Project DM-D.S.S for data.'
-        // });
-        
         // make embed
         const embed = await BuildEarthquakeEmbed(
             new Date(data.reportDateTime), 
