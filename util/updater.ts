@@ -78,8 +78,12 @@ export async function SelfUpdate(message: Message, commit?: string) {
 
 async function pull_changes(commit?: string): Promise<void> {
     return new Promise((resolve) => {
-        exec(commit?`git reset --hard ${commit}`:'git pull', () => {
-            resolve();
+        exec('git reset --hard', () => {
+            exec(commit?`git reset --hard ${commit}`:'git pull', () => {
+                resolve();
+            }).on('message', (m: string) => {
+                PL.warn(m);
+            });
         }).on('message', (m: string) => {
             PL.warn(m);
         });
