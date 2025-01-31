@@ -8,6 +8,7 @@ import { Logger } from 'okayulogger';
 import { DMDataWebSocket } from 'lily-dmdata/socket';
 import { Classification, WebSocketEvent } from 'lily-dmdata/types';
 import { EarthquakeInformationSchema } from 'lily-dmdata/schema';
+import { EarthquakeComponent } from 'lily-dmdata/component';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/';
@@ -51,7 +52,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setFields(
             {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
             {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
-            // {name:'Depth', value: `**${depth} km**`, inline: true},
+            {name:'Depth', value: `**${depth} km**`, inline: true},
             {name:'Location', value: locations_english[hypocenter_name]},
         );
         
@@ -61,6 +62,16 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
 const MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
+
+function open_socket(SOCKET: DMDataWebSocket) {
+    SOCKET.OpenSocket({
+        classifications: [
+            Classification.EEW_FORECAST,
+            Classification.EEW_WARNING,
+            Classification.TELEGRAM_EARTHQUAKE
+        ]
+    });
+}
 
 export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
     L.info('Loading all locations...');
@@ -83,11 +94,24 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     // new
     const SOCKET = new DMDataWebSocket(DMDATA_API_KEY);
     
-    SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, (body: EarthquakeInformationSchema) => {
+    // this will need massive changes!! lily-dmdata is broken!
+    SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, async (data: any) => {
         const channel = client.channels.cache.get(MONITORING_CHANNEL);
-        (channel as TextChannel)!.send({
-            content:'New earthquake happened, expecting data soon! parsed body: ```' + body + '\n' + JSON.stringify(body) + '```\n-# This is primarily for testing purposes, and live feed is still fetched via constant data GET.\n-# The /recent-eq command now uses Project DM-D.S.S for data.'
-        });
+        // (channel as TextChannel)!.send({
+        //     content:'New earthquake happened, expecting data soon! parsed body: ```' + body + '\n' + JSON.stringify(body) + '```\n-# This is primarily for testing purposes, and live feed is still fetched via constant data GET.\n-# The /recent-eq command now uses Project DM-D.S.S for data.'
+        // });
+        
+        // make embed
+        const embed = await BuildEarthquakeEmbed(
+            new Date(data.reportDateTime), 
+            data.body.earthquake.magnitude.value,
+            data.body.intensity.maxInt,
+            data.body.earthquake.hypocenter.depth.value, //this is actually depth 
+            data.body.earthquake.hypocenter.name, 
+            true);
+
+        // send embed
+        (channel as TextChannel)!.send({embeds:[embed]});
     });
 
     SOCKET.on(WebSocketEvent.PING, () => {
@@ -107,30 +131,27 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         L.debug('dmdata connection closed!');
         const channel = client.channels.cache.get(MONITORING_CHANNEL);
         (channel as TextChannel)!.send({
-            content:'lily-dmdata was disconnected from the websocket, and will not try and reconnect.',
+            content:'lily-dmdata was disconnected from the websocket, I will try and reconnect...',
             flags:'SuppressNotifications'
         });
+
+        setTimeout(() => {
+            open_socket(SOCKET);
+        }, 3000);
     });
 
-    SOCKET.OpenSocket({
-        classifications: [
-            Classification.EEW_FORECAST,
-            Classification.EEW_WARNING,
-            Classification.TELEGRAM_EARTHQUAKE
-        ]
-    });
-
+    open_socket(SOCKET);
 
     // old
-    try {
-        const feed = await fetch(URL);
-        const list = await feed.json();
-        last_known_quake = list[0].json;
+    // try {
+    //     const feed = await fetch(URL);
+    //     const list = await feed.json();
+    //     last_known_quake = list[0].json;
 
-        setInterval(() => RunEarthquakeFetch(client), 30*1000);
-    } catch (err) {
-        console.error();
-    }
+    //     setInterval(() => RunEarthquakeFetch(client), 30*1000);
+    // } catch (err) {
+    //     console.error();
+    // }
 }
 
 /**
