@@ -9,6 +9,7 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { UpdateMarkets } from "../okash/stock";
 import { join } from "path";
 import { readdirSync } from "fs";
+import { DoEarthquakeTest, SOCKET } from "../earthquakes/earthquakes";
 
 const L = new Logger('onMessage.ts');
 
@@ -250,6 +251,20 @@ export async function CheckAdminShorthands(message: Message) {
                 }
 
                 UpdateMarkets(message.client);
+                message.react('✅');
+            }
+
+            // DEV only ones
+            if (message.content == 'oka eq test') {
+                if (!DEV) {
+                    message.react('❌');
+                    return message.reply({
+                        content:'Bot does not have the `use dev token` flag. This command is only available on devmode bots.'
+                    });
+                }
+
+                DoEarthquakeTest();
+                
                 message.react('✅');
             }
         }
