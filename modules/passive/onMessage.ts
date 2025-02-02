@@ -255,7 +255,17 @@ export async function CheckAdminShorthands(message: Message) {
             }
 
             // DEV only ones
-            if (message.content == 'oka eq test') {
+            if (message.content.startsWith('oka eq test')) {
+                const data = message.content.split('oka eq test ')[1];
+
+                // if (params.length != 4) {
+                //     message.react('❌');
+                //     console.log(params);
+                //     return message.reply({
+                //         content:`Malformed command. (params is ${params.length} long, it should only be four!!!)`
+                //     });
+                // }
+
                 if (!DEV) {
                     message.react('❌');
                     return message.reply({
@@ -263,7 +273,7 @@ export async function CheckAdminShorthands(message: Message) {
                     });
                 }
 
-                DoEarthquakeTest();
+                DoEarthquakeTest(JSON.parse(data));
                 
                 message.react('✅');
             }
