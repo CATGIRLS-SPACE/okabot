@@ -194,7 +194,6 @@ export const StockSlashCommand = new SlashCommandBuilder()
             .setDescription('amount of shares to buy')
             .setRequired(true)
             .setMinValue(0.00000000000000000000001)
-            .setMaxValue(100)
         )
     )
     .addSubcommand(sc => sc
