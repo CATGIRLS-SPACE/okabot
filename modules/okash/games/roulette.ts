@@ -1,7 +1,7 @@
 // users bet on a number, color (red/black), or section (odd/even, 1-18, 19-36). 
 // a virtual wheel spins, and if the ball lands on their chosen option, they win based on the payout odds (e.g., betting on a single number pays 35:1).
 
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, Message, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
@@ -12,6 +12,7 @@ enum RouletteGameType {
     LARGE_SECTION = 'large-section', // lg sect has a lower payout eg 1-18
     SMALL_SECTION = 'small-section', // sm sect has a higher payout eg 1-12
     NUMBER = 'number',
+    NUMBER_MULTIPLE = 'number-multiple',
 }
 
 enum RouletteColor {
@@ -29,11 +30,13 @@ enum RouletteSection {
 
 interface RouletteGame {
     game_type: RouletteGameType,
-    selection: RouletteColor | RouletteSection | number,
+    selection: RouletteColor | RouletteSection | number | Array<number>,
     bet: number,
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction,
+    response?: InteractionResponse
 }
 
+const GAMES_ACTIVE = new Map<string, RouletteGame>();
 
 /**
  * Determine whether a user has won a game based on their RouletteGame and the rolled number
@@ -58,6 +61,11 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
         case RouletteGameType.NUMBER:
             win = number_picked == game.selection;
             multiplier = 35;
+            break;
+
+        case RouletteGameType.NUMBER_MULTIPLE:
+            win = (game.selection as Array<number>).indexOf(number_picked) != -1;
+            multiplier = ((game.selection as Array<number>).length/36) - 1;
             break;
             
         case RouletteGameType.LARGE_SECTION:
@@ -100,6 +108,10 @@ async function StartRoulette(game: RouletteGame) {
             second_half = `betting on the ball landing on the number **${game.selection}**...`;
             break;
 
+        case RouletteGameType.NUMBER_MULTIPLE:
+            second_half = `betting on the ball landing on the numbers **${(game.selection as Array<number>).join(', ')}**...`;
+            break;
+
         case RouletteGameType.LARGE_SECTION: case RouletteGameType.SMALL_SECTION:
             second_half = `betting on the ball landing between **${['1-18','19-36','1-12','13-24','25-36'][<number> game.selection]}**...`;
             break;
@@ -112,11 +124,11 @@ async function StartRoulette(game: RouletteGame) {
     const roll = Math.round(Math.random() * 36);
     const win = DetermineWinCase(game, roll);
 
-    // TODO: XP
     let earned_xp = win.win?10:5;
     earned_xp += win.win?({
         'color': 10,
         'number': 35,
+        'number-multiple': (1 - ((game.selection as Array<number>).length/36)) * 35,
         'large-section': 15,
         'small-section': 20
     }[<string> game.game_type]!):0;
@@ -125,7 +137,7 @@ async function StartRoulette(game: RouletteGame) {
         if (win.win) {
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
             await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet * win.multiplier}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
+                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
         } else {
             await game.interaction!.editReply({
@@ -149,8 +161,14 @@ const InitialTypePicker = new StringSelectMenuBuilder()
         new StringSelectMenuOptionBuilder()
             .setLabel('A specific number (pays 35:1)')
             .setValue('number')
-            .setEmoji('🔢')
+            .setEmoji('1️⃣')
             .setDescription('The highest risk, but highest reward option. The ball must land exactly on that number or you lose.'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Pick multiple numbers (pays relative to amount)')
+            .setValue('number-multiple')
+            .setEmoji('🔢')
+            .setDescription('The ball must land on one of the numbers you chose or you lose.'),
             
         new StringSelectMenuOptionBuilder()
             .setLabel('Red or Black (pays 2:1)')
@@ -238,8 +256,54 @@ const SmallSectionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
     .addComponents(SmallSectionPick);
 
 
-// user_id and game
-const GAMES_ACTIVE = new Map<string, RouletteGame>();
+// confirmation components
+const ConfirmButton = new ButtonBuilder()
+    .setCustomId('accept')
+    .setStyle(ButtonStyle.Success)
+    .setLabel('Spin the wheel!');
+
+const CancelButton = new ButtonBuilder()
+    .setCustomId('decline')
+    .setStyle(ButtonStyle.Danger)
+    .setLabel('Wait, I changed my mind!');
+
+const ConfirmationBar = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        ConfirmButton,
+        CancelButton
+    );
+
+async function ConfirmMultiNumberGame(user_id: string) {
+    const game = GAMES_ACTIVE.get(user_id)!;
+
+    const payout_multiplier = (36/(game.selection as Array<number>).length)-1;
+    const win_chance = Math.round(((game.selection as Array<number>).length/36)*100);
+
+    const response = await game.interaction.editReply({
+        content:`## okabot Roulette\nPlay Roulette for ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}**?\nYou bet on numbers **${(game.selection as Array<number>).join(', ')}**.\nYou have a **${win_chance}%** of winning, so you'd get ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * payout_multiplier)}**.\n\nDo you want to play?`,
+        components: [ConfirmationBar]
+    });
+
+    const collectorFilter = (i: any) => i.user.id === game.interaction.user.id;
+    const collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
+
+    collector.on('collect', async i => {
+        const selection = i.customId;
+
+        if (selection == 'accept') return StartRoulette(game);
+        else if (selection == 'decline') {
+            GAMES_ACTIVE.delete(user_id);
+            AddToWallet(user_id, game.bet);
+            i.update({
+                content: 'Game cancelled, your bet has been refunded.',
+                components: []
+            });
+            return;
+        }
+    });
+}
+
+
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
     if (GAMES_ACTIVE.has(interaction.user.id)) {
@@ -256,6 +320,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
         });
     }
 
+    // if (bet <= 0)
+
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
     GAMES_ACTIVE.set(interaction.user.id, {
@@ -266,7 +332,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     });
 
     const response = await interaction.reply({
-        content: `## okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.`,
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.`,
         components: [InitialTypeRow]
     });
 
@@ -287,7 +353,21 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     interaction: interaction
                 });
                 i.update({
-                    content:`:1234: Please reply to this message with the number you'd like to bet on (1-36).`,
+                    content:`:1: Please reply to this message with the number you'd like to bet on (1-36).`,
+                    components: [],
+                });
+                break;
+
+            case RouletteGameType.NUMBER_MULTIPLE:
+                GAMES_ACTIVE.set(interaction.user.id, {
+                    bet,
+                    game_type: selection,
+                    selection: 0,
+                    interaction: interaction,
+                    response
+                });
+                i.update({
+                    content:`:1234: Please reply to this message with the numbers you'd like to bet on (1-36, eg: "3, 6, 9").`,
                     components: [],
                 });
                 break;
@@ -367,25 +447,54 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 export async function ListenForRouletteReply(message: Message) {
     if (!GAMES_ACTIVE.has(message.author.id)) return;
     if (GAMES_ACTIVE.get(message.author.id)!.selection != 0) return;
-    if (message.reference && (await message.fetchReference()).author.id == client.user!.id)
+    if (!(message.reference && (await message.fetchReference()).author.id == client.user!.id)) return;
 
-    try {
-        const pick = parseInt(message.content);
-        if (isNaN(pick) || pick > 36 || pick < 1) throw new Error('bad number'); // unnecessary throw but im lazy
-        
-        const game = GAMES_ACTIVE.get(message.author.id)!;
-        game.selection = pick;
-        GAMES_ACTIVE.set(message.author.id, game);
+    const game = GAMES_ACTIVE.get(message.author.id)!;
 
-        if (message.deletable) message.delete();
-        StartRoulette(game);
-    } catch {
-        message.react('❌');
-        const reply = await message.reply(':x: Please pick a number between 1-36!');
-        setTimeout(() => {
+    if (game.game_type == RouletteGameType.NUMBER) {        
+        try {
+            const pick = parseInt(message.content);
+            if (isNaN(pick) || pick > 36 || pick < 1) throw new Error('bad number'); // unnecessary throw but im lazy
+            
+            game.selection = pick;
+            GAMES_ACTIVE.set(message.author.id, game);
+
             if (message.deletable) message.delete();
-            if (reply.deletable) reply.delete();
-        }, 5000);
+            StartRoulette(game);
+        } catch {
+            message.react('❌');
+            const reply = await message.reply(':x: Please pick a number between 1-36!');
+            setTimeout(() => {
+                if (message.deletable) message.delete();
+                if (reply.deletable) reply.delete();
+            }, 5000);
+        }
+    }
+
+    if (game.game_type == RouletteGameType.NUMBER_MULTIPLE) {
+        game.selection = [];
+
+        try {
+            const items = message.content.split(', ');
+
+            for (const item in items) {
+                const pick = parseInt(items[item]);
+                if (isNaN(pick) || pick > 36 || pick < 1) throw new Error('bad number');
+
+                game.selection.push(pick);
+            }
+
+            GAMES_ACTIVE.set(game.interaction.user.id, game);
+            if (message.deletable) message.delete();
+            ConfirmMultiNumberGame(game.interaction.user.id);
+        } catch {
+            message.react('❌');
+            const reply = await message.reply(':x: Please pick __numbers__ between 1-36!\nexample reply: `4, 5, 10, 13, 16`');
+            setTimeout(() => {
+                if (message.deletable) message.delete();
+                if (reply.deletable) reply.delete();
+            }, 5000);
+        }
     }
 }
 

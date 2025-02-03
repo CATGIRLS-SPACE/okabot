@@ -9,13 +9,13 @@ const STRINGS: {[key: string]: {en:string,ja:string}} = {
 
 const FirstPage = 
 `
-## Welcome to okabot!
+# Welcome to okabot!
 Choose a menu below to see information!
 `
 
 const CurrencyPage =
 `
-## The okash Currency
+# The okash Currency
 okash is okabot's currency. It can be earned by playing games,
 leveling up, claiming your daily rewards, and more!
 
@@ -24,12 +24,12 @@ You can use okash in the shop to buy items or cosmetics.
 
 const GamesPage =
 `
-## okash Games
-### Coinflip
+# okash Games (page 1)
+## Coinflip
 Bet some okash and flip a coin for a 50/50 chance at doubling your money.
 You can earn a one-time-use weighted coin from claiming your daily, 
 which gives you a 70/30 chance of landing on heads!
-### Blackjack
+## Blackjack
 Bet some okash on a game of Blackjack for a chance at doubling or tripling your money.
 In Blackjack, you and okabot start with two cards each. Your goal is to get to 21.
 But be careful! If you go over 21, you lose! 
@@ -38,11 +38,22 @@ okabot must draw to at least 17 and then stand. You have these options:
 - Stand: Finish drawing and show the game results.
 - Double Down: Only available on the first hit, you double your money and draw one card, then you must stand.
 Winning will double your bet, winning with a Blackjack hand will give you 3x your bet, and tying will refund you.
+-# requires a Discord client which supports message components
+`
+
+const GamesPage2 = 
+`
+# okash Games (page 2)
+## Roulette
+Bet some okash on a roulette spin.
+You can bet on numbers, sections, or a color.
+The lower the chance of winning, the higher the reward!
+-# requires a Discord client which supports message components
 `
 
 const StockPage =
 `
-## okash Stocks
+# okash Stocks
 You can invest your okash into the stock market, too!
 You don't have to purchase a whole-number amount of shares, 
 so you can buy half a share, quarter of a share, however much you want!
@@ -61,7 +72,7 @@ As of okabot 3.0.3, there is a small fee when selling. This is only to prevent a
 
 const DailyRewardPage =
 `
-## Daily Rewards
+# Daily Rewards
 Every 24 hours, you can claim your daily reward.
 In your daily reward, you are guaranteed OKA**750** and a weighted coin.
 For each day in your daily reward streak, you gain 5% more okash, up to 200%.
@@ -69,7 +80,7 @@ For each day in your daily reward streak, you gain 5% more okash, up to 200%.
 
 const LevelPage = 
 `
-## The okabot Level System
+# The okabot Level System
 Talking in the server and playing games all give you XP.
 This XP will help you level up.
 Levels 1-100 have unlockable titles which show on your /level banner.
@@ -78,7 +89,7 @@ When you level up, you will get a small okash reward, increasing with each level
 
 const DropsPage = 
 `
-## Drops
+# Drops
 Each message you send in the server has a chance of gaining you a random drop.
 These drops include:
 - Lootboxes
@@ -92,9 +103,9 @@ whereas large drops are more okash but less common.
 
 const EarthquakePage = 
 `
-## Earthquakes
-okabot makes a request to the Japan Meteorological Agency every 30 seconds to get the latest earthquake.
-When a new one is detected, a message is sent in the <#1313343448354525214>
+# Earthquakes
+okabot is connected to [Project DM-D.S.S](<https://dmdata.jp>) to get live earthquake information.
+When a new one is detected, a message is sent in <#1313343448354525214>
 ## Magnitude vs Shindo
 okabot shows both the earthquake magnitude and Shindo level. So what's the difference?
 The magnitude of an earthquake is the educated estimation of the intensity at the epicenter.
@@ -103,13 +114,12 @@ okabot will show the maxmimum recorded Shindo intensity on the embed. Shindo is 
 common method of showing intensity in Japanese earthquake research.
 
 You see the difference between the levels [here](<https://www.data.jma.go.jp/multi/quake/quake_advisory.html>).
--# This method of earthquake fetching is not endorsed by the JMA.
 `
 
 
 const ExtraPage =
 `
-## Extra info
+# Extra info
 okabot is created with the intent to be free and fun. If you want to support, you can do so [here](<https://ko-fi.com/okawaffles>).
 
 okabot is available in English and Japanese. It will reflect your Discord language. 
@@ -139,9 +149,14 @@ const select_menu = new StringSelectMenuBuilder()
             .setEmoji('🌏'),
 
         new StringSelectMenuOptionBuilder()
-            .setLabel('Games')
+            .setLabel('Games (1/2)')
             .setDescription('Get information on okabot games')
             .setValue('games')
+            .setEmoji('🎲'),
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Games (2/2)')
+            .setDescription('Get information on okabot games')
+            .setValue('games2')
             .setEmoji('🎲'),
 
         new StringSelectMenuOptionBuilder()
@@ -203,6 +218,12 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
             case 'games':
                 await i.update({
                     content: GamesPage,
+                    components: [row]
+                });
+                break;
+            case 'games2':
+                await i.update({
+                    content: GamesPage2,
                     components: [row]
                 });
                 break;
