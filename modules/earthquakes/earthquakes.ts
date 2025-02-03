@@ -108,7 +108,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     // new
     SOCKET = new DMDataWebSocket(DMDATA_API_KEY);
-    const channel = client.channels.cache.get('858904835222667315');
+    const channel = client.channels.cache.get(MONITORING_CHANNEL);
     
     // this will need massive changes!! lily-dmdata is broken!
     SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, async (data: EarthquakeInformationSchemaBody) => {
