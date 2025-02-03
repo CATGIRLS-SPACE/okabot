@@ -163,7 +163,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         try {
             (channel as TextChannel)!.send({
                 content:message,
-                flags:'SuppressNotifications'
+                flags:!EXISTING_EARTHQUAKES.has(data._originalId)?undefined:'SuppressNotifications'
             });
         } catch (err: any) {
             L.error(err);
@@ -182,7 +182,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         try {
             (channel as TextChannel)!.send({
                 content:message,
-                flags:'SuppressNotifications'
+                flags:!EXISTING_EARTHQUAKES.has(data._originalId)?undefined:'SuppressNotifications'
             });
         } catch (err: any) {
             L.error(err);
