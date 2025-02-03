@@ -8,3 +8,4 @@ index.js
 .vscode/
 *.oka
 ERROR.LOG
+package-lock.json

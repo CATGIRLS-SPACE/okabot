@@ -1,9 +1,10 @@
 // users bet on a number, color (red/black), or section (odd/even, 1-18, 19-36). 
 // a virtual wheel spins, and if the ball lands on their chosen option, they win based on the payout odds (e.g., betting on a single number pays 35:1).
 
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, Message, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, Message, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
+import { AddXP } from "../../levels/onMessage";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -43,7 +44,7 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
     let win = false;
     let multiplier = 0;
 
-    console.log(`roulette game time is ${game.game_type}`);
+    // console.log(`roulette game type is ${game.game_type}`);
     switch (game.game_type) {
         case RouletteGameType.COLOR:
             // RED if has remainder, BLACK if no remainder
@@ -99,7 +100,7 @@ async function StartRoulette(game: RouletteGame) {
             break;
 
         case RouletteGameType.LARGE_SECTION: case RouletteGameType.SMALL_SECTION:
-            second_half = `betting on the ball landing between **${['1-18','19-36','1-12','13-24','25-36'][<number> game.selection]}**`;
+            second_half = `betting on the ball landing between **${['1-18','19-36','1-12','13-24','25-36'][<number> game.selection]}**...`;
             break;
     }
 
@@ -111,18 +112,27 @@ async function StartRoulette(game: RouletteGame) {
     const win = DetermineWinCase(game, roll);
 
     // TODO: XP
+    let earned_xp = win.win?10:5;
+    earned_xp += win.win?({
+        'color': 10,
+        'number': 35,
+        'large-section': 15,
+        'small-section': 20
+    }[<string> game.game_type]!):0;
 
     setTimeout(async () => {        
         if (win.win) {
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
             await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}\nand wins ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet * win.multiplier}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)}`
+                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet * win.multiplier}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
         } else {
             await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}\nand loses their money! :crying_cat_face:`
+                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
             });
         }
+
+        AddXP(game.interaction.user.id, game.interaction.channel as TextChannel, earned_xp);
 
         GAMES_ACTIVE.delete(game.interaction.user.id);
     }, 5000);
@@ -178,12 +188,53 @@ const ColorPick = new StringSelectMenuBuilder()
             .setValue('black'),
     )
 
+const LargeSectionPick = new StringSelectMenuBuilder()
+    .setCustomId('large-section')
+    .setPlaceholder('What section do you want to bet on?')
+    .addOptions(
+        new StringSelectMenuOptionBuilder()
+            .setLabel('1-18')
+            .setDescription('The ball landing on any number within 1-18')
+            .setValue('0'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('19-36')
+            .setDescription('The ball landing on any number within 19-36')
+            .setValue('1'),
+    )
+
+const SmallSectionPick = new StringSelectMenuBuilder()
+    .setCustomId('large-section')
+    .setPlaceholder('What section do you want to bet on?')
+    .addOptions(
+        new StringSelectMenuOptionBuilder()
+            .setLabel('1-12')
+            .setDescription('The ball landing on any number within 1-12')
+            .setValue('0'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('13-24')
+            .setDescription('The ball landing on any number within 13-24')
+            .setValue('1'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('25-36')
+            .setDescription('The ball landing on any number within 25-36')
+            .setValue('2'),
+    )
+
 
 const InitialTypeRow = new ActionRowBuilder<StringSelectMenuBuilder>()
     .addComponents(InitialTypePicker);
 
 const ColorRow = new ActionRowBuilder<StringSelectMenuBuilder>()
     .addComponents(ColorPick);
+
+const LargeSectionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(LargeSectionPick);
+
+const SmallSectionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
+    .addComponents(SmallSectionPick);
 
 
 // user_id and game
@@ -260,13 +311,59 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     return;
                 });
                 break;
+
+            case RouletteGameType.LARGE_SECTION:
+                i.update({
+                    content:`:1234: Please choose the section to bet on.`,
+                    components: [LargeSectionRow]
+                });
+                const large_collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});
+                large_collector.on('collect', async ii => {
+                    await ii.update({
+                        content:`*one second...*`,
+                        components: []
+                    });
+                    const selection = ii.values[0];
+                    const game = GAMES_ACTIVE.get(interaction.user.id)!;
+                    game.game_type = RouletteGameType.LARGE_SECTION;
+                    game.selection = (parseInt(selection)==RouletteSection.ONE_TO_EIGHTEEN)?RouletteSection.ONE_TO_EIGHTEEN:RouletteSection.NINETEEN_TO_THIRTYSIX;
+                    GAMES_ACTIVE.set(interaction.user.id, game);
+                    StartRoulette(game);
+                    return;
+                });
+                break;
+
+            case RouletteGameType.SMALL_SECTION:
+                i.update({
+                    content:`:1234: Please choose the section to bet on.`,
+                    components: [SmallSectionRow]
+                });
+                const small_collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});
+                small_collector.on('collect', async ii => {
+                    await ii.update({
+                        content:`*one second...*`,
+                        components: []
+                    });
+                    const selection = ii.values[0];
+                    const game = GAMES_ACTIVE.get(interaction.user.id)!;
+                    game.game_type = RouletteGameType.SMALL_SECTION;
+                    game.selection = [
+                        RouletteSection.ONE_TO_TWELVE,
+                        RouletteSection.THIRTEEN_TO_TWENTYFOUR,
+                        RouletteSection.TWENTYFIVE_TO_THIRTYSIX
+                    ][parseInt(selection)];
+                    GAMES_ACTIVE.set(interaction.user.id, game);
+                    StartRoulette(game);
+                    return;
+                });
+                break;
         }
     });
 }
 
 // -- reply listener --
 
-export function ListenForRouletteReply(message: Message) {
+export async function ListenForRouletteReply(message: Message) {
     if (!GAMES_ACTIVE.has(message.author.id)) return;
     if (GAMES_ACTIVE.get(message.author.id)!.selection != 0) return;
 
@@ -278,9 +375,15 @@ export function ListenForRouletteReply(message: Message) {
         game.selection = pick;
         GAMES_ACTIVE.set(message.author.id, game);
 
+        if (message.deletable) message.delete();
         StartRoulette(game);
     } catch {
         message.react('❌');
+        const reply = await message.reply(':x: Please pick a number between 1-36!');
+        setTimeout(() => {
+            if (message.deletable) message.delete();
+            if (reply.deletable) reply.delete();
+        }, 5000);
     }
 }
 
