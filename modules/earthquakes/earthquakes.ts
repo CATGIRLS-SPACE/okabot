@@ -71,7 +71,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
     return embed;
 }
 
-const MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
+let MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
 let last_known_quake = {};
 export let SOCKET: DMDataWebSocket;
@@ -108,13 +108,15 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     // new
     SOCKET = new DMDataWebSocket(DMDATA_API_KEY);
+    MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // reassign because discordjs is stupid
     const channel = client.channels.cache.get(MONITORING_CHANNEL);
     
     // this will need massive changes!! lily-dmdata is broken!
     SOCKET.on(WebSocketEvent.EARTHQUAKE_REPORT, async (data: EarthquakeInformationSchemaBody) => {
         // make embed
+        console.log(data);
         const embed = await BuildEarthquakeEmbed(
-            new Date(data.reportDateTime), 
+            new Date(data.earthquake.originTime), 
             data.earthquake.magnitude.value,
             data.intensity.maxInt,
             data.earthquake.hypocenter.depth.value, //this is actually depth 
