@@ -40,6 +40,7 @@ import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
 import { DeployCommands } from './modules/deployment/commands';
 import { StartDMDataWS } from './modules/earthquakes/dmdata';
+import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -222,6 +223,9 @@ client.on(Events.InteractionCreate, async interaction => {
         case 'move':
             await HandleCommandTransfer(interaction);
             break;
+        case 'roulette':
+            await HandleCommandRoulette(interaction);
+            break;
     }
 });
 
@@ -246,6 +250,7 @@ client.on(Events.MessageCreate, async message => {
     CheckAdminShorthands(message);
     DoRandomOkashRolls(message);
     DoRandomLootboxRolls(message);
+    ListenForRouletteReply(message);
 
     if (message.channel.id == "1321639990383476797") {
         let final_message = message.content;

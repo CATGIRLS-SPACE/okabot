@@ -53,6 +53,8 @@ export enum EMOJI {
     SHINDO_6_UPPER = 'eq6u',
     SHINDO_7 = 'eq7',
     SHINDO_UNKNOWN = 'equ',
+    // roulette
+    ROULETTE_COLORS = 'rrb',
 }
 
 const EMOJI_KEYS: {
@@ -112,6 +114,8 @@ const EMOJI_KEYS: {
     'eq6u':{prod:'1335463269678452747','dev':'1335475398665965648'},
     'eq7':{prod:'1335463297079840871','dev':'1335475421600419902'},
     'equ':{prod:'1335463317325746187','dev':'1335475441930207263'},
+    // roulette
+    'rrb':{prod:'1335792608278085644',dev:'1335792470402928650'},
 }
 
 export function GetEmoji(name: string): string {
