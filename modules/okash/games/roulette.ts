@@ -5,6 +5,7 @@ import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, Message, 
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
+import { client } from "../../..";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -366,10 +367,11 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 export async function ListenForRouletteReply(message: Message) {
     if (!GAMES_ACTIVE.has(message.author.id)) return;
     if (GAMES_ACTIVE.get(message.author.id)!.selection != 0) return;
+    if (message.reference && (await message.fetchReference()).author.id == client.user!.id)
 
     try {
         const pick = parseInt(message.content);
-        if (pick > 36 || pick < 1) throw new Error('bad number'); // unnecessary throw but im lazy
+        if (isNaN(pick) || pick > 36 || pick < 1) throw new Error('bad number'); // unnecessary throw but im lazy
         
         const game = GAMES_ACTIVE.get(message.author.id)!;
         game.selection = pick;
@@ -396,4 +398,6 @@ export const RouletteSlashCommand = new SlashCommandBuilder()
         .setName('bet')
         .setDescription('how much money to bet')
         .setRequired(true)
+        .setMinValue(1)
+        .setMaxValue(50000)
     )
