@@ -454,7 +454,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     });
 
     collector.on('end', async i => {
-        if (GAMES_ACTIVE.has(interaction.user.id) && GAMES_ACTIVE.get(interaction.user.id)?.picked) return;
+        if (!GAMES_ACTIVE.has(interaction.user.id)) return;
+        if (GAMES_ACTIVE.get(interaction.user.id)?.picked) return;
 
         AddToWallet(interaction.user.id, bet);
         GAMES_ACTIVE.delete(interaction.user.id);
