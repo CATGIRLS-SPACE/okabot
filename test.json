@@ -1,105 +1,59 @@
 {
-    "_originalId": "45ac1c3bd494bb16bbb57766b09a65beb31647a2be2f003d88c8cf8d6579290b184dd8a8a1019995e257ec2ed501dee2",
-    "_schema": {
-        "type": "earthquake-information",
-        "version": "1.1.0"
-    },
-    "type": "震源・震度に関する情報",
-    "title": "震源・震度情報",
+    "_originalId": "c44ad83482090c4408f4076fc76d9f159e428c5e1591dbdf0619eef84a890a248424f0a84378c30eb630748b96ff5b97",
+    "_schema": { "type": "eew-information", "version": "1.0.0" },
+    "type": "緊急地震速報（予報）",
+    "title": "緊急地震速報（予報）",
     "status": "通常",
     "infoType": "発表",
     "editorialOffice": "気象庁本庁",
-    "publishingOffice": [
-        "気象庁"
-    ],
-    "pressDateTime": "2025-01-31T06:46:39Z",
-    "reportDateTime": "2025-01-31T15:46:00+09:00",
-    "targetDateTime": "2025-01-31T15:46:00+09:00",
-    "eventId": "20250131154405",
+    "publishingOffice": ["気象庁"],
+    "pressDateTime": "2025-02-04T01:37:45Z",
+    "reportDateTime": "2025-02-04T10:37:45+09:00",
+    "targetDateTime": "2025-02-04T10:37:45+09:00",
+    "eventId": "20250204103736",
     "serialNo": "1",
-    "infoKind": "地震情報",
-    "infoKindVersion": "1.0_1",
-    "headline": "３１日１５時４４分ころ、地震がありました。",
+    "infoKind": "緊急地震速報",
+    "infoKindVersion": "1.0_0",
+    "headline": null,
     "body": {
+        "isLastInfo": false,
+        "isCanceled": false,
+        "isWarning": false,
         "earthquake": {
-            "originTime": "2025-01-31T15:43:00+09:00",
-            "arrivalTime": "2025-01-31T15:44:00+09:00",
+            "originTime": "2025-02-04T10:37:21+09:00",
+            "arrivalTime": "2025-02-04T10:37:36+09:00",
             "hypocenter": {
-                "code": "252",
-                "name": "福島県会津",
+                "code": "300",
+                "name": "茨城県北部",
                 "coordinate": {
-                    "latitude": {
-                        "text": "37.0˚N",
-                        "value": "37.0000"
-                    },
-                    "longitude": {
-                        "text": "139.4˚E",
-                        "value": "139.4000"
-                    },
+                    "latitude": { "text": "36.6˚N", "value": "36.6000" },
+                    "longitude": { "text": "140.5˚E", "value": "140.5000" },
                     "height": {
                         "type": "高さ",
                         "unit": "m",
-                        "value": "0"
+                        "value": "-110000"
                     },
                     "geodeticSystem": "日本測地系"
                 },
-                "depth": {
-                    "type": "深さ",
-                    "unit": "km",
-                    "value": "0",
-                    "condition": "ごく浅い"
+                "depth": { "type": "深さ", "unit": "km", "value": "110" },
+                "reduce": { "code": "9080", "name": "茨城県" },
+                "landOrSea": "内陸",
+                "accuracy": {
+                    "epicenters": ["4", "4"],
+                    "depth": "4",
+                    "magnitudeCalculation": "2",
+                    "numberOfMagnitudeCalculation": "0"
                 }
             },
             "magnitude": {
                 "type": "マグニチュード",
-                "value": "2.7",
+                "value": "3.5",
                 "unit": "Mj"
             }
         },
         "intensity": {
-            "maxInt": "2",
-            "prefectures": [
-                {
-                    "code": "07",
-                    "name": "福島県",
-                    "maxInt": "2"
-                }
-            ],
-            "regions": [
-                {
-                    "code": "252",
-                    "name": "福島県会津",
-                    "maxInt": "2"
-                }
-            ],
-            "cities": [
-                {
-                    "code": "0736400",
-                    "name": "檜枝岐村",
-                    "maxInt": "2"
-                }
-            ],
-            "stations": [
-                {
-                    "code": "0736420",
-                    "name": "檜枝岐村上河原＊",
-                    "int": "2"
-                }
-            ]
-        },
-        "comments": {
-            "forecast": {
-                "text": "この地震による津波の心配はありません。",
-                "codes": [
-                    "0215"
-                ]
-            },
-            "var": {
-                "text": "＊印は気象庁以外の震度観測点についての情報です。",
-                "codes": [
-                    "0262"
-                ]
-            }
+            "forecastMaxInt": { "from": "2", "to": "2" },
+            "regions": []
         }
     }
 }

@@ -274,6 +274,14 @@ client.on(Events.MessageCreate, async message => {
         content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
     });
 
+    if (message.content.toLocaleLowerCase().includes('fuck you') && (
+        message.content.toLocaleLowerCase().includes('okabot') ||
+        message.content.toLocaleLowerCase().includes('okaboob') ||
+        (message.reference && (await message.fetchReference()).author.id == client.user!.id)
+    )) message.reply({
+        content:'https://tenor.com/view/sanae-dekomori-crying-anime-gif-6076570'
+    });
+
     if (message.content.toLocaleLowerCase().includes('massive')) message.reply({
         content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
     });

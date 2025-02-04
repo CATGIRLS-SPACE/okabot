@@ -1,4 +1,4 @@
-import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder } from 'discord.js';
+import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder, Message } from 'discord.js';
 import { join } from 'path';
 import { BASE_DIRNAME, client, DEV, DMDATA_API_KEY } from '../..';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
@@ -57,7 +57,7 @@ const SHINDO_EMOJI: { [key: string]: EMOJI } = {
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
     const embed = new EmbedBuilder()
         .setColor(0x9d60cc)
-        .setTitle(automatic?'New entry in Japan earthquake data feed':'Most recent earthquake in Japan')
+        .setTitle(automatic?`A Shindo ${max_intensity} earthquake occurred.`:'Most recent earthquake in Japan')
         .setTimestamp(origin_time)
         .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
@@ -70,6 +70,24 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         
     return embed;
 }
+
+function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, warning: boolean, report_count: number = 1) {
+    const embed = new EmbedBuilder()
+        .setColor(warning?0xd61111:0xff8519)
+        .setTitle((warning?'Earthquake Early Warning':'Earthquake Early Warning (Forecast)') + ` (Report ${report_count})`)
+        .setTimestamp(origin_time)
+        .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
+        .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setFields(
+            {name:"Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
+            {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
+            {name:'Depth', value: `**${depth} km**`, inline: true},
+            {name:'Location', value: locations_english[hypocenter_name]},
+        );
+        
+    return embed;
+}
+
 
 let MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
 // const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
@@ -86,7 +104,7 @@ function open_socket(SOCKET: DMDataWebSocket) {
     });
 }
 
-const EXISTING_EARTHQUAKES = new Map<string, number>();
+const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
 
 export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
     L.info('Loading all locations...');
@@ -107,7 +125,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     L.info('Starting Earthquake Monitoring...');
 
     // new
-    SOCKET = new DMDataWebSocket(DMDATA_API_KEY);
+    SOCKET = new DMDataWebSocket(DMDATA_API_KEY, 'okabot', false);
     MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // reassign because discordjs is stupid
     const channel = client.channels.cache.get(MONITORING_CHANNEL);
     
@@ -121,7 +139,10 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             data.intensity.maxInt,
             data.earthquake.hypocenter.depth.value, //this is actually depth 
             data.earthquake.hypocenter.name, 
-            true);
+            true
+        );
+
+        EXISTING_EARTHQUAKES.delete(data.eventId);
 
         // send embed
         (channel as TextChannel)!.send({embeds:[embed]});
@@ -151,39 +172,87 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         }, 3000);
     });
 
-    SOCKET.on(WebSocketEvent.EEW_FORECAST, (data: EEWInformationSchemaBody) => {
+    SOCKET.on(WebSocketEvent.EEW_FORECAST, async (data: EEWInformationSchemaBody) => {
+        console.log(data);
 
-        let message = `:warning: **EEW Forecast** issued for ${locations_english[data.earthquake.hypocenter.name]}\nMax expected intensity of ${GetEmoji(SHINDO_EMOJI[data.intensity.forecastMaxInt.to])}!`;
+        let embed = BuildEEWEmbed(
+            new Date(data.earthquake.originTime),
+            data.earthquake.magnitude.value,
+            data.intensity.forecastMaxInt.to,
+            data.earthquake.hypocenter.depth.value,
+            data.earthquake.hypocenter.name,
+            false
+        );
 
-        if (EXISTING_EARTHQUAKES.has(data._originalId)) {
-            EXISTING_EARTHQUAKES.set(data._originalId, EXISTING_EARTHQUAKES.get(data._originalId)! + 1);
-            message = `:asterisk: Update received for earthquake. Max expected intensity is ${GetEmoji(SHINDO_EMOJI[data.intensity.forecastMaxInt.to])}.`
-        } else EXISTING_EARTHQUAKES.set(data._originalId, 0);
+        if (EXISTING_EARTHQUAKES.has(data.eventId)) {
+            const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
+            event.report_count += 1;
+            EXISTING_EARTHQUAKES.set(data.eventId, event);
+
+            embed = BuildEEWEmbed(
+                new Date(data.earthquake.originTime),
+                data.earthquake.magnitude.value,
+                data.intensity.forecastMaxInt.to,
+                data.earthquake.hypocenter.depth.value,
+                data.earthquake.hypocenter.name,
+                false,
+                event.report_count
+            );
+
+            return await event.message.edit({
+                embeds: [embed]
+            });
+        }
 
         try {
-            (channel as TextChannel)!.send({
-                content:message,
-                flags:!EXISTING_EARTHQUAKES.has(data._originalId)?undefined:'SuppressNotifications'
+            const sent = await (channel as TextChannel)!.send({
+                content:'',
+                embeds: [embed]
             });
+            EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: false, report_count: 1});
         } catch (err: any) {
             L.error(err);
         }
     });
 
-    SOCKET.on(WebSocketEvent.EEW_WARNING, (data: EEWInformationSchemaBody) => {
+    SOCKET.on(WebSocketEvent.EEW_WARNING, async (data: EEWInformationSchemaBody) => {
+        console.log(data);
 
-        let message = `:sos: **EEW Warning** issued for ${locations_english[data.earthquake.hypocenter.name]}\nMax expected intensity of ${GetEmoji(SHINDO_EMOJI[data.intensity.forecastMaxInt.to])}!`;
+        let embed = BuildEEWEmbed(
+            new Date(data.earthquake.originTime),
+            data.earthquake.magnitude.value,
+            data.intensity.forecastMaxInt.to,
+            data.earthquake.hypocenter.depth.value,
+            data.earthquake.hypocenter.name,
+            true
+        );
 
-        if (EXISTING_EARTHQUAKES.has(data._originalId)) {
-            EXISTING_EARTHQUAKES.set(data._originalId, EXISTING_EARTHQUAKES.get(data._originalId)! + 1);
-            message = `:bangbang: Update received for earthquake. Max expected intensity is ${GetEmoji(SHINDO_EMOJI[data.intensity.forecastMaxInt.to])}.`
-        } else EXISTING_EARTHQUAKES.set(data._originalId, 0);
+        if (EXISTING_EARTHQUAKES.has(data.eventId)) {
+            const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
+            event.report_count += 1;
+            EXISTING_EARTHQUAKES.set(data.eventId, event);
+
+            embed = BuildEEWEmbed(
+                new Date(data.earthquake.originTime),
+                data.earthquake.magnitude.value,
+                data.intensity.forecastMaxInt.to,
+                data.earthquake.hypocenter.depth.value,
+                data.earthquake.hypocenter.name,
+                true,
+                event.report_count
+            );
+
+            return event.message.edit({
+                embeds: [embed]
+            });
+        }
 
         try {
-            (channel as TextChannel)!.send({
-                content:message,
-                flags:!EXISTING_EARTHQUAKES.has(data._originalId)?undefined:'SuppressNotifications'
+            const sent = await (channel as TextChannel)!.send({
+                content:'',
+                embeds: [embed]
             });
+            EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: true, report_count: 1});
         } catch (err: any) {
             L.error(err);
         }

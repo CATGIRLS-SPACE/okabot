@@ -33,7 +33,8 @@ interface RouletteGame {
     selection: RouletteColor | RouletteSection | number | Array<number>,
     bet: number,
     interaction: ChatInputCommandInteraction,
-    response?: InteractionResponse
+    response?: InteractionResponse,
+    picked: boolean
 }
 
 const GAMES_ACTIVE = new Map<string, RouletteGame>();
@@ -65,7 +66,7 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
 
         case RouletteGameType.NUMBER_MULTIPLE:
             win = (game.selection as Array<number>).indexOf(number_picked) != -1;
-            multiplier = ((game.selection as Array<number>).length/36) - 1;
+            multiplier = (36/(game.selection as Array<number>).length)-1;
             break;
             
         case RouletteGameType.LARGE_SECTION:
@@ -94,9 +95,6 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
 
 
 async function StartRoulette(game: RouletteGame) {
-    // take their money !!!
-    RemoveFromWallet(game.interaction!.user.id, game.bet);
-
     let second_half = '';
 
     switch (game.game_type) {
@@ -128,10 +126,12 @@ async function StartRoulette(game: RouletteGame) {
     earned_xp += win.win?({
         'color': 10,
         'number': 35,
-        'number-multiple': (1 - ((game.selection as Array<number>).length/36)) * 35,
+        'number-multiple': Math.floor((1 - ((game.selection as Array<number>).length/36)) * 35),
         'large-section': 15,
         'small-section': 20
     }[<string> game.game_type]!):0;
+
+    console.log(win);
 
     setTimeout(async () => {        
         if (win.win) {
@@ -290,8 +290,13 @@ async function ConfirmMultiNumberGame(user_id: string) {
     collector.on('collect', async i => {
         const selection = i.customId;
 
-        if (selection == 'accept') return StartRoulette(game);
-        else if (selection == 'decline') {
+        if (selection == 'accept') {
+            await i.update({
+                content: '*interaction ack\'d, one second...*',
+                components: []
+            });
+            return StartRoulette(game);
+        } else if (selection == 'decline') {
             GAMES_ACTIVE.delete(user_id);
             AddToWallet(user_id, game.bet);
             i.update({
@@ -320,7 +325,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
         });
     }
 
-    // if (bet <= 0)
+    // take their money !!!
+    RemoveFromWallet(interaction.user.id, bet);
 
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
@@ -328,11 +334,12 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
         bet,
         game_type: RouletteGameType.NUMBER,
         interaction,
-        selection: -1
+        selection: -1,
+        picked: false,
     });
 
     const response = await interaction.reply({
-        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.`,
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 60 seconds to pick before the game will auto-close.`,
         components: [InitialTypeRow]
     });
 
@@ -350,10 +357,11 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     bet,
                     game_type: selection,
                     selection: 0,
-                    interaction: interaction
+                    interaction: interaction,
+                    picked: true,
                 });
                 i.update({
-                    content:`:1: Please reply to this message with the number you'd like to bet on (1-36).`,
+                    content:`:one: Please reply to this message with the number you'd like to bet on (1-36).`,
                     components: [],
                 });
                 break;
@@ -364,7 +372,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     game_type: selection,
                     selection: 0,
                     interaction: interaction,
-                    response
+                    response,
+                    picked: true,
                 });
                 i.update({
                     content:`:1234: Please reply to this message with the numbers you'd like to bet on (1-36, eg: "3, 6, 9").`,
@@ -440,6 +449,17 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                 break;
         }
     });
+
+    collector.on('end', async i => {
+        if (GAMES_ACTIVE.has(interaction.user.id) && GAMES_ACTIVE.get(interaction.user.id)?.picked) return;
+
+        AddToWallet(interaction.user.id, bet);
+        GAMES_ACTIVE.delete(interaction.user.id);
+        interaction.editReply({
+            content:`Ummm, **${interaction.user.displayName}**, you didn't interact, so I cancelled your game...`,
+            components: []
+        });
+    });
 }
 
 // -- reply listener --
@@ -481,7 +501,7 @@ export async function ListenForRouletteReply(message: Message) {
                 const pick = parseInt(items[item]);
                 if (isNaN(pick) || pick > 36 || pick < 1) throw new Error('bad number');
 
-                game.selection.push(pick);
+                if (game.selection.indexOf(pick) == -1) game.selection.push(pick);
             }
 
             GAMES_ACTIVE.set(game.interaction.user.id, game);
