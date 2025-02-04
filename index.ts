@@ -378,12 +378,17 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     L.error('okabot has encountered an uncaught rejection!');
     console.error('Unhandled Rejection:', reason);
-    logError(reason);
+    try {
+        const channel = client.channels.cache.get("1315805846910795846") as TextChannel;
+        channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ reason +'```'});
+    } catch {
+        logError(reason);
+    }
 });
 
 // Catch termination signals (e.g., CTRL+C, kill)
 process.on('SIGINT', () => {
-    L.warn('unsafe shutdown!!!');
-    console.log('Process terminated (SIGINT).');
+    // L.warn('unsafe shutdown!!!');
+    // console.log('Process terminated (SIGINT).');
     process.exit(0);
 });
