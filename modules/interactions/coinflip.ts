@@ -8,6 +8,7 @@ import { getRandomValues } from "crypto";
 import { AddXP } from "../levels/onMessage";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { format } from "util";
+import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -112,6 +113,9 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     ActiveFlips.push(interaction.user.id);
     RemoveFromWallet(interaction.user.id, bet);
 
+    RecordMonitorEvent(EventType.GAMBLE, {user_id: interaction.user.id});
+    RecordMonitorEvent(EventType.COINFLIP_START, {user_id: interaction.user.id, bet}, `${interaction.user.username} started a coinflip`);
+
     // check if user has weighted coin
     const prefs = GetUserProfile(interaction.user.id);
     const weighted_coin_equipped = (prefs.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED) != -1);
@@ -176,6 +180,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             });
         }, 3000);
 
+        RecordMonitorEvent(EventType.COINFLIP_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended a coinflip`);
+
         return;
     }
 
@@ -234,6 +240,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
+
+        RecordMonitorEvent(EventType.COINFLIP_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended a coinflip`);
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 

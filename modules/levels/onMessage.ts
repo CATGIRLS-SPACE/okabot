@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, Message, MessageFlags, TextChannel } from 
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN, LEVEL_NAMES_JA } from "./levels";
 import { AddToWallet } from "../okash/wallet";
+import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 
 let XPCooldown: Map<string, number> = new Map<string, number>();
 
@@ -38,7 +39,11 @@ export async function AddXP(user_id: string, channel: TextChannel, amount?: numb
             content: `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[profile.level.level - 1]}** (${profile.level.level})!\nYou earned <:okash:1315058783889657928> OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
             flags: [MessageFlags.SuppressNotifications]
         });
+
+        RecordMonitorEvent(EventType.GAIN_LEVEL, {user_id, level:profile.level.level}, `${user_id} is now level ${profile.level.level}`)
     }
 
     UpdateUserProfile(user_id, profile);
+
+    RecordMonitorEvent(EventType.GAIN_XP, {user_id, xp:profile.level.current_xp}, `${user_id} now has ${profile.level.current_xp} XP`);
 }

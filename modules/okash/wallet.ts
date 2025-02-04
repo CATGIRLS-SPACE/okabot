@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
 import { GEMS, ITEM_TYPE, ITEMS } from "./items";
 import { Logger } from "okayulogger";
+import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 
 export interface Wallet {
     version: number,
@@ -81,6 +82,8 @@ export function AddToWallet(user_id: string, amount: number) {
         L.warn(`LARGE WALLET ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+
+    RecordMonitorEvent(EventType.BALANCE_CHANGE, {user_id, amount}, `${amount} okash was added to ${user_id}'s wallet`);
 }
 
 export function RemoveFromWallet(user_id: string, amount: number) {
@@ -93,6 +96,8 @@ export function RemoveFromWallet(user_id: string, amount: number) {
         L.warn(`LARGE WALLET REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+
+    RecordMonitorEvent(EventType.BALANCE_CHANGE, {user_id, amount}, `${amount} okash was removed from ${user_id}'s wallet`);
 }
 
 export function AddToBank(user_id: string, amount: number) {
@@ -105,6 +110,8 @@ export function AddToBank(user_id: string, amount: number) {
         L.warn(`LARGE BANK ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+
+    RecordMonitorEvent(EventType.BANK_CHANGE, {user_id, amount}, `${amount} okash was added to ${user_id}'s bank`);
 }
 
 export function RemoveFromBank(user_id: string, amount: number) {
@@ -117,6 +124,8 @@ export function RemoveFromBank(user_id: string, amount: number) {
         L.warn(`LARGE BANK REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
     
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+
+    RecordMonitorEvent(EventType.BANK_CHANGE, {user_id, amount}, `${amount} okash was removed from ${user_id}'s bank`);
 }
 
 export function GetWallet(user_id: string): number {
@@ -170,7 +179,9 @@ export function RemoveOneFromInventory(user_id: string, type: ITEM_TYPE, item: G
             break;
     }
 
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+
+    RecordMonitorEvent(EventType.POCKETS_MODIFIED, {user_id, type, item}, `${type}-type item ${item} was removed from ${user_id}'s pockets`);
 }
 
 export function AddOneToInventory(user_id: string, type: ITEM_TYPE, item: GEMS | ITEMS) {
@@ -189,6 +200,8 @@ export function AddOneToInventory(user_id: string, type: ITEM_TYPE, item: GEMS |
     }
 
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
+
+    RecordMonitorEvent(EventType.POCKETS_MODIFIED, {user_id, type, item}, `${type}-type item ${item} was added to ${user_id}'s pockets`);
 }
 
 export function Dangerous_WipeAllWallets() {

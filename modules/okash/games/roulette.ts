@@ -1,12 +1,13 @@
 // users bet on a number, color (red/black), or section (odd/even, 1-18, 19-36). 
 // a virtual wheel spins, and if the ball lands on their chosen option, they win based on the payout odds (e.g., betting on a single number pays 35:1).
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, MessageFlags, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
 import { client } from "../../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
+import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -116,6 +117,8 @@ async function StartRoulette(game: RouletteGame) {
             break;
     }
 
+    RecordMonitorEvent(EventType.GAMBLE, {user_id: game.interaction.user.id, bet:game.bet});
+
     await game.interaction!.editReply({
         content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}`,
         components: []
@@ -150,6 +153,7 @@ async function StartRoulette(game: RouletteGame) {
         AddXP(game.interaction.user.id, game.interaction.channel as TextChannel, earned_xp);
 
         GAMES_ACTIVE.delete(game.interaction.user.id);
+        RecordMonitorEvent(EventType.ROULETTE_END, {user_id: game.interaction.user.id, bet:game.bet}, `${game.interaction.user.username} ended roulette`);
     }, 5000);
 }
 
@@ -269,6 +273,11 @@ const CancelButton = new ButtonBuilder()
     .setStyle(ButtonStyle.Danger)
     .setLabel('Wait, I changed my mind!');
 
+const CancelWaitButton = new ButtonBuilder()
+    .setCustomId('cancel')
+    .setStyle(ButtonStyle.Danger)
+    .setLabel('Nevermind');
+
 const ConfirmationBar = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
         ConfirmButton,
@@ -277,7 +286,7 @@ const ConfirmationBar = new ActionRowBuilder<ButtonBuilder>()
 
 const CancelNumericBar = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
-        CancelButton
+        CancelWaitButton
     );
 
 async function ConfirmMultiNumberGame(user_id: string) {
@@ -337,6 +346,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     // take their money !!!
     RemoveFromWallet(interaction.user.id, bet);
 
+    RecordMonitorEvent(EventType.ROULETTE_START, {user_id: interaction.user.id, bet}, `${interaction.user.username} started roulette`);
+
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
     GAMES_ACTIVE.set(interaction.user.id, {
@@ -349,7 +360,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 
     const response = await interaction.reply({
         content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 5 minutes to pick before the game will auto-close.`,
-        components: [InitialTypeRow]
+        components: [InitialTypeRow],
+        flags: [MessageFlags.SuppressEmbeds]
     });
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
@@ -486,6 +498,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
             content:`Ummm, **${interaction.user.displayName}**, you didn't interact, so I cancelled your game...`,
             components: []
         });
+        RecordMonitorEvent(EventType.ROULETTE_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended roulette`);
     });
 }
 
