@@ -16,11 +16,11 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_weighted_coin(interaction);
             break;
 
-        case 'common lootbox': case 'cl':
+        case 'common lootbox': case 'clb': case 'lb':
             item_common_lootbox(interaction);
             break;
         
-        case 'rare lootbox': case 'rl':
+        case 'rare lootbox': case 'rlb':
             item_rare_lootbox(interaction);
             break;
 

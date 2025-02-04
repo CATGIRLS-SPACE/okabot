@@ -6,6 +6,7 @@ import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
 import { client } from "../../..";
+import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -116,7 +117,8 @@ async function StartRoulette(game: RouletteGame) {
     }
 
     await game.interaction!.editReply({
-        content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}`
+        content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}`,
+        components: []
     });
 
     const roll = Math.floor(Math.random() * 36) + 1;
@@ -316,6 +318,8 @@ async function ConfirmMultiNumberGame(user_id: string) {
 
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
+    if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
+
     if (GAMES_ACTIVE.has(interaction.user.id)) {
         return interaction.reply({
             content:`:x: Woah there, **${interaction.user.displayName}**, you've already got a roulette game going!` 
