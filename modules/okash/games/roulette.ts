@@ -119,7 +119,7 @@ async function StartRoulette(game: RouletteGame) {
         content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}`
     });
 
-    const roll = Math.round(Math.random() * 36);
+    const roll = Math.floor(Math.random() * 36) + 1;
     const win = DetermineWinCase(game, roll);
 
     let earned_xp = win.win?10:5;
