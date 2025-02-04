@@ -180,7 +180,7 @@ const InitialTypePicker = new StringSelectMenuBuilder()
             .setLabel('A large section (pays 2:1)')
             .setValue('large-section')
             .setEmoji('🔆')
-            .setDescription('A low risk with mediocre reward. The ball must land within your chosen section or you lose.'),
+            .setDescription('The lowest risk but lowest reward. The ball must land within your chosen section or you lose.'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('A small section (pays 3:1)')
@@ -273,6 +273,11 @@ const ConfirmationBar = new ActionRowBuilder<ButtonBuilder>()
         CancelButton
     );
 
+const CancelNumericBar = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        CancelButton
+    );
+
 async function ConfirmMultiNumberGame(user_id: string) {
     const game = GAMES_ACTIVE.get(user_id)!;
 
@@ -362,7 +367,14 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                 });
                 i.update({
                     content:`:one: Please reply to this message with the number you'd like to bet on (1-36).`,
-                    components: [],
+                    components: [CancelNumericBar],
+                });
+                const single_collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
+                single_collector.on('collect', async ii => {
+                    await ii.update({content:'Okaaay, your game has been cancelled!',components:[]});
+                    GAMES_ACTIVE.delete(interaction.user.id);
+                    AddToWallet(interaction.user.id, bet);
+                    return;
                 });
                 break;
 
@@ -377,7 +389,14 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                 });
                 i.update({
                     content:`:1234: Please reply to this message with the numbers you'd like to bet on (1-36, eg: "3, 6, 9").`,
-                    components: [],
+                    components: [CancelNumericBar],
+                });
+                const multi_collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
+                multi_collector.on('collect', async ii => {
+                    await ii.update({content:'Okaaay, your game has been cancelled!',components:[]});
+                    GAMES_ACTIVE.delete(interaction.user.id);
+                    AddToWallet(interaction.user.id, bet);
+                    return;
                 });
                 break;
             
