@@ -339,12 +339,12 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     });
 
     const response = await interaction.reply({
-        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 60 seconds to pick before the game will auto-close.`,
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 5 minutes to pick before the game will auto-close.`,
         components: [InitialTypeRow]
     });
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
-    const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});
+    const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 300_000, filter: collectorFilter});
 
     collector.on('collect', async i => {
         const selection = i.values[0];
@@ -396,6 +396,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     const game = GAMES_ACTIVE.get(interaction.user.id)!;
                     game.game_type = RouletteGameType.COLOR;
                     game.selection = selection as RouletteColor;
+                    game.picked = true;
                     GAMES_ACTIVE.set(interaction.user.id, game);
                     StartRoulette(game);
                     return;
@@ -417,6 +418,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     const game = GAMES_ACTIVE.get(interaction.user.id)!;
                     game.game_type = RouletteGameType.LARGE_SECTION;
                     game.selection = (parseInt(selection)==RouletteSection.ONE_TO_EIGHTEEN)?RouletteSection.ONE_TO_EIGHTEEN:RouletteSection.NINETEEN_TO_THIRTYSIX;
+                    game.picked = true;
                     GAMES_ACTIVE.set(interaction.user.id, game);
                     StartRoulette(game);
                     return;
@@ -442,6 +444,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                         RouletteSection.THIRTEEN_TO_TWENTYFOUR,
                         RouletteSection.TWENTYFIVE_TO_THIRTYSIX
                     ][parseInt(selection)];
+                    game.picked = true;
                     GAMES_ACTIVE.set(interaction.user.id, game);
                     StartRoulette(game);
                     return;
