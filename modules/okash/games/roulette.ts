@@ -409,6 +409,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                 });
                 const multi_collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
                 multi_collector.on('collect', async ii => {
+                    if (ii.customId != 'cancel') return;
                     await ii.update({content:'Okaaay, your game has been cancelled!',components:[]});
                     GAMES_ACTIVE.delete(interaction.user.id);
                     AddToWallet(interaction.user.id, bet);

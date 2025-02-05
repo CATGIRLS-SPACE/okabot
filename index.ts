@@ -41,6 +41,8 @@ import { HandleCommandTransfer } from './modules/interactions/transfer';
 import { DeployCommands } from './modules/deployment/commands';
 import { StartDMDataWS } from './modules/earthquakes/dmdata';
 import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
+import { GetMostRecentEvents } from './util/monitortool';
+import { all } from 'axios';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -158,8 +160,11 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'debug':
             const d = new Date();
+            const allEvents = GetMostRecentEvents();
+            let recent_events = '';
+            allEvents.forEach(evt => { recent_events = recent_events + `(${evt.event_id}) - ${JSON.stringify(evt.data)} - ${evt.readable_message}\n` })
             await interaction.reply({
-                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`,
+                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nRecent Events:` + '```' + recent_events + '```',
                 ephemeral: true
             });
             break;

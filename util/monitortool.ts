@@ -43,12 +43,16 @@ export function RecordMonitorEvent(type: EventType, data: any, readable_message:
     const event_data: MonitoringToolEvent = {
         event_id: `${type}-${Math.random().toString(16).slice(2)}`,
         type,
-        caller_function: new Error().stack!.split('\n')[2],
+        caller_function: new Error().stack!.split('\n')[2].trim(),
         data,
         readable_message
     };
 
-    console.log(event_data, new Error().stack!.split('\n')[2]);
+    // console.log(event_data, new Error().stack!.split('\n')[2]);
 
     MONITORING_EVENTS.push(event_data);
+}
+
+export function GetMostRecentEvents(): Array<MonitoringToolEvent> {
+    return MONITORING_EVENTS.slice(0, 25);
 }
