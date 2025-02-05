@@ -389,7 +389,7 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     console.error('Unhandled Rejection:', reason);
     try {
         const channel = client.channels.cache.get("1315805846910795846") as TextChannel;
-        channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ reason +'```'});
+        channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason instanceof reason ? reason.stack || reason.message : reason) +'```'});
     } catch {
         logError(reason);
     }
