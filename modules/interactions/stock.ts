@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetSharePrice, SellShares, Stocks } from "../okash/stock";
-import { AddToBank, GetBank, RemoveFromBank } from "../okash/wallet";
+import { AddToBank, AddToWallet, GetBank, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
 import { format } from "util";
 import { HandleCommandLink } from "./link";
 
@@ -87,7 +87,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         });
 
         // remove from bank first
-        RemoveFromBank(interaction.user.id, Math.round(amount * share_price));
+        RemoveFromWallet(interaction.user.id, Math.round(amount * share_price));
         BuyShares(interaction.user.id, stock as Stocks, amount);
 
         interaction.editReply({
@@ -163,7 +163,7 @@ async function HandleSellConfirmation(interaction: ChatInputCommandInteraction, 
         }
 
         SellShares(interaction.user.id, stock, amount);
-        AddToBank(interaction.user.id, total_sell_price - Math.round(total_sell_price * 0.035));
+        AddToWallet(interaction.user.id, total_sell_price - Math.round(total_sell_price * 0.035));
 
         i.update({
             content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.sell_ok[locale], amount, stock_name, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`, `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(total_sell_price * 0.035)}**`)}`,
