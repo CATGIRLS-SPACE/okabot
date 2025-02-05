@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetSharePrice, SellShares, Stocks } from "../okash/stock";
-import { AddToBank, AddToWallet, GetBank, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
+import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
 import { format } from "util";
 import { HandleCommandLink } from "./link";
 
@@ -81,7 +81,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         const amount = interaction.options.getNumber('amount', true);
         const share_price = GetSharePrice(stock as Stocks);
 
-        const bank = GetBank(interaction.user.id);
+        const bank = GetWallet(interaction.user.id);
         if (amount * share_price > bank) return interaction.editReply({
             content: `:crying_cat_face: ${format(STRINGS.insufficient_balance[locale], interaction.user.displayName)}`
         });
