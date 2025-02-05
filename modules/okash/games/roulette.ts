@@ -331,7 +331,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 
     if (GAMES_ACTIVE.has(interaction.user.id)) {
         return interaction.reply({
-            content:`:x: Woah there, **${interaction.user.displayName}**, you've already got a roulette game going!` 
+            content:`:x: Woah there, **${interaction.user.displayName}**, you've already got a roulette game going!`,
+            flags:[MessageFlags.SuppressNotifications]
         });
     }
 
@@ -339,7 +340,8 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 
     if (GetWallet(interaction.user.id) < bet) {
         return interaction.reply({
-            content:`:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!` 
+            content:`:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!`,
+            flags:[MessageFlags.SuppressNotifications]
         });
     }
 
@@ -361,7 +363,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     const response = await interaction.reply({
         content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 5 minutes to pick before the game will auto-close.`,
         components: [InitialTypeRow],
-        flags: [MessageFlags.SuppressEmbeds]
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;

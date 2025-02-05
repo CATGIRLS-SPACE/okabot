@@ -110,26 +110,35 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     }
 
     // bg
-    ctx.fillStyle = '#2b2d42';
+    ctx.fillStyle = '#2f1c3d00';
     ctx.fillRect(0,0,width,height);
 
     ctx.font = '14px monospace';
 
     // graph
-    ctx.fillStyle = '#ddd';
-    ctx.fillRect(45, 5, width - 50, height - 10);
-    ctx.strokeStyle = '#bfbfbf';
+    ctx.fillStyle = '#2c2630';
+    ctx.beginPath();
+    ctx.roundRect(5, 5, width - 10, height - 10, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#9e8bad';
     ctx.lineWidth = 2;
-    ctx.strokeRect(45, 5, width - 50, height - 10);
+    ctx.beginPath();
+    ctx.roundRect(5, 5, width - 10, height - 10, 12);
+    ctx.stroke();
 
-    const graph_width = width - 50;
+    const graph_width = width - 10;
     const graph_height = height - 10;
 
     // we want nine lines for horizontal
-    ctx.strokeStyle = '#cfcfcf';
-    for (let i = 1; i < 10; i++) {
-        ctx.strokeRect(i * (graph_width / 10) + 45, 5, 1, graph_height);
-    }
+    // ctx.strokeStyle = '#cfcfcf';
+    // for (let i = 1; i < 10; i++) {
+    //     ctx.strokeRect(i * (graph_width / 10) + 45, 5, 1, graph_height);
+    // }
+
+    ctx.font = '100px azuki_font';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = '#9d60cc33';
+    ctx.fillText('okabot', 125, 5);
 
     const graph_max = Math.round(sorted_values[0]);
     const graph_min = Math.round(sorted_values.at(-1)!);
@@ -137,26 +146,32 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const graph_line_limit_mid = graph_min + ((graph_max - graph_min) / 3);
     ctx.fillStyle = '#eee';
 
+    ctx.font = 'bold 16px monospace';
+    ctx.textBaseline = 'alphabetic';
+
+    let current_hilow: 'high' | 'low' = 'high';
+
     // move the min/max
     if (values.at(-1)! > graph_line_limit_top) {
         // only bottom
-        ctx.fillText(graph_max.toString(), 4, height - 24);
-        ctx.fillText(graph_min.toString(), 4, height - 8);
+        current_hilow = 'high';
     } else if (values.at(-1)! < graph_line_limit_mid) {
         // only top
-        ctx.fillText(graph_max.toString(), 4, 14);
-        ctx.fillText(graph_min.toString(), 4, 34);
+        current_hilow = 'low';
     } else {
         // top and bottom
-        ctx.fillText(graph_max.toString(), 4, 14);
-        ctx.fillText(graph_min.toString(), 4, height - 8);
+        current_hilow = 'low';
     }
+
+    ctx.fillText(graph_max.toString(), 10, 22);
+    ctx.fillText(graph_min.toString(), 10, height - 14);
     
     const total_range = graph_max - graph_min;
 
     const total_points = values.length;
-    const x_spacing = (545 - 45) / (total_points - 1); // Evenly space points
+    const x_spacing = (545 - 5) / (total_points - 1); // Evenly space points
 
+    let x2 = 0;
     let y2 = 0;
 
     for (let i = 0; i < total_points - 1; i++) {
@@ -164,18 +179,18 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
         const next_difference = values[i + 1] - graph_min;
 
         // Keep the 5px margin in Y calculation
-        const y_min = 5;
-        const y_max = graph_height - 5;
+        const y_min = 8;
+        const y_max = graph_height;
         const y1 = y_max - ((target_difference / total_range) * (y_max - y_min));
         y2 = y_max - ((next_difference / total_range) * (y_max - y_min));
 
         // Reverse the x calculation to go from right to left
-        const x1 = 45 + i * x_spacing;
-        const x2 = 45 + (i + 1) * x_spacing;
+        const x1 = 5 + i * x_spacing;
+        x2 = 5 + (i + 1) * x_spacing;
 
         // Determine trend color
         const trend_pos = values[i + 1] >= values[i];
-        ctx.strokeStyle = trend_pos ? '#080' : '#f00';
+        ctx.strokeStyle = trend_pos ? '#54d672' : '#f76571';
         ctx.lineWidth = 3;
 
         // Draw segment
@@ -188,9 +203,37 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     }
 
     // render current
-    ctx.fillStyle = '#00bdb0';
-    ctx.fillRect(45, y2, 500, 1);
-    ctx.fillText(Math.round(values.at(-1)!).toString(), 4, y2 + 8);
+    ctx.fillStyle = '#204037';
+    ctx.textAlign = 'center';
+    if (current_hilow == 'high') {
+        ctx.beginPath();
+        ctx.roundRect((550/2)-50, 10, 100, 20, 6);
+        ctx.fill();
+
+        ctx.fillStyle = '#b5ffeb';
+        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, 24);
+
+        ctx.strokeStyle = '#b5ffeb66';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo((550/2) + 52, 20);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    } else {
+        ctx.beginPath();
+        ctx.roundRect((550/2)-50, height-30, 100, 20, 6);
+        ctx.fill();
+
+        ctx.fillStyle = '#b5ffeb';
+        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, height-16);
+
+        ctx.strokeStyle = '#b5ffeb66';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo((550/2) + 52, height - 20);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+    }
 
     // save image
     const buffer = canvas.toBuffer('image/png');
