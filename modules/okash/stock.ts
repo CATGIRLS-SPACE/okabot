@@ -82,6 +82,7 @@ export function SetupStocks(dirname: string) {
  * @returns the current price
  */
 export function GetSharePrice(stock: Stocks): number {
+    if (MARKET[stock].price <= 0) MARKET[stock].price = 1;
     return Math.round(MARKET[stock].price);
 }
 
@@ -270,6 +271,8 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
     MARKET[stock].price += (amount * MARKET.foxgirl.price * 0.001);
     MARKET[stock].price_history.push(MARKET[stock].price);
 
+    if (MARKET[stock].price <= 0) MARKET[stock].price = 1;
+
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
 
@@ -341,6 +344,8 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
             MARKET.foxgirl.price -= (amount * MARKET.foxgirl.price * 0.00025);
             break;
     }
+
+    if (MARKET[stock].price <= 0) MARKET[stock].price = 1;
 
     // write the database
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
@@ -447,6 +452,8 @@ function DoEventCheck(c: Client): boolean {
         else MARKET[stock].price -= Math.floor(Math.random() * 500) + 50; // BOOOOOOORING
     }
     else MARKET[stock].price += Math.floor(Math.random() * 500) + 50; // still BOOOOOORIIIINNGGG
+
+    if (MARKET[stock].price <= 0) MARKET[stock].price = 1;
 
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
 
