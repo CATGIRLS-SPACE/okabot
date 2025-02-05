@@ -43,6 +43,7 @@ import { StartDMDataWS } from './modules/earthquakes/dmdata';
 import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
 import { GetMostRecentEvents } from './util/monitortool';
 import { all } from 'axios';
+import { HandleCommandRob } from './modules/okash/games/rob';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -230,6 +231,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'roulette':
             await HandleCommandRoulette(interaction);
+            break;
+        case 'rob':
+            await HandleCommandRob(interaction);
             break;
     }
 });
