@@ -11,20 +11,32 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
 
     if (amount.toString().includes('.')) return interaction.editReply({
         content: `:x: Cannot move a non-whole amount of okash`
-    })
+    });
+
+    const bank = GetBank(interaction.user.id);
     
     switch (source) {
         case 'wallet':
             const wallet = GetWallet(interaction.user.id);
+            
             if (wallet < amount) return interaction.editReply({
-                content: `:x: Sorry **${interaction.user.displayName}**, but you don't have enough okash in your wallet to move!`
+                content: `:x: Sorry **${interaction.user.displayName}**, but you don't have enough okash in your wallet to move!`,
             });
+
+            // 500K is the max amount of okash you can have in your bank
+            if (bank >= 500_000) return interaction.editReply({
+                content: `:crying_cat_face: Sorry **${interaction.user.displayName}**, but you've hit the max amount of okash you can have in your bank`
+            });
+
+            if (bank + amount > 500_000) return interaction.editReply({
+                content: `:crying_cat_face: Sorry **${interaction.user.displayName}**, but you can only move ${GetEmoji(EMOJI.OKASH)} OKA**${500_000 - bank}** until you hit your limit`
+            });
+
             RemoveFromWallet(interaction.user.id, amount);
             AddToBank(interaction.user.id, amount);
             break;
 
         case 'bank':
-            const bank = GetBank(interaction.user.id);
             if (bank < amount) return interaction.editReply({
                 content: `:x: Sorry **${interaction.user.displayName}**, but you don't have enough okash in your bank to move!`
             });

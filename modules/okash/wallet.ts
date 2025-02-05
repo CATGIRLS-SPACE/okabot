@@ -3,6 +3,8 @@ import { join } from "node:path";
 import { GEMS, ITEM_TYPE, ITEMS } from "./items";
 import { Logger } from "okayulogger";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
+import { client } from "../..";
+import { EMOJI, GetEmoji } from "../../util/emoji";
 
 export interface Wallet {
     version: number,
@@ -139,6 +141,22 @@ export function GetBank(user_id: string): number {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
     data.bank = Math.floor(data.bank);
+
+    if (data.bank > 500_000) {
+        AddToWallet(user_id, data.bank - 500_000);
+        data.wallet += (data.bank - 500_000);
+        RemoveFromBank(user_id, data.bank - 500_000);
+        
+        try {
+            client.users.cache.get(user_id)?.send({
+                content: `Your bank balance was over ${GetEmoji(EMOJI.OKASH)} OKA**500,000**. It has been adjusted to ${GetEmoji(EMOJI.OKASH)} OKA**500,000** and the extra (${GetEmoji(EMOJI.OKASH)} OKA**${data.bank - 500_000}**) was moved to your wallet.`
+            });
+        } catch (err) {
+            console.log(`wasn't able to send them a message, ignoring, they'll find out eventually.`);
+        }
+        data.bank -= (data.bank - 500_000);
+    }
+
     return data.bank;
 }
 

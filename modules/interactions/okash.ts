@@ -6,8 +6,8 @@ import { GetEmoji } from "../../util/emoji";
 export async function HandleCommandOkash(interaction: ChatInputCommandInteraction) {
     // await interaction.deferReply();
 
-    const wallet = GetWallet(interaction.user.id);
     const bank = GetBank(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id);
 
     await interaction.reply({
         content: interaction.locale==Locale.Japanese?
