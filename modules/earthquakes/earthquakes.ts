@@ -154,10 +154,10 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     SOCKET.on(WebSocketEvent.OPENED, () => {
         L.debug('dmdata connection opened ok!');
-        (channel as TextChannel)!.send({
-            content:'lily-dmdata has successfully connected.',
-            flags:'SuppressNotifications'
-        });
+        // (channel as TextChannel)!.send({
+        //     content:'lily-dmdata has successfully connected.',
+        //     flags:'SuppressNotifications'
+        // });
     });
 
     SOCKET.on(WebSocketEvent.CLOSED, () => {
