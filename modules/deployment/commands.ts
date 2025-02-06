@@ -13,7 +13,7 @@ import { ShopSlashCommand } from "../interactions/shop";
 import { PocketsSlashCommand } from "../interactions/pockets";
 import { CustomizeSlashCommand } from "../interactions/customize";
 import { LevelSlashCommand } from "../levels/levels";
-import { BlackjackSlashCommand } from "../okash/blackjack";
+import { BlackjackSlashCommand } from "../okash/games/blackjack";
 import { StockSlashCommand } from "../interactions/stock";
 import { HelpSlashCommand } from "../interactions/help";
 import { REST } from "@discordjs/rest";

@@ -149,7 +149,7 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     ctx.font = 'bold 16px monospace';
     ctx.textBaseline = 'alphabetic';
 
-    let current_hilow: 'high' | 'low' = 'high';
+    let current_hilow: 'high' | 'low' = 'low';
 
     // move the min/max
     if (values.at(-1)! > graph_line_limit_top) {
@@ -158,13 +158,24 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     } else if (values.at(-1)! < graph_line_limit_mid) {
         // only top
         current_hilow = 'low';
-    } else {
-        // top and bottom
-        current_hilow = 'low';
     }
 
-    ctx.fillText(graph_max.toString(), 10, 22);
-    ctx.fillText(graph_min.toString(), 10, height - 14);
+    if (values[3] > graph_line_limit_top) {
+        // bottom
+        ctx.fillText('⬆️ ' + graph_max.toString(), 10, height - 14 - 14);
+        ctx.fillText('⬇️ ' + graph_min.toString(), 10, height - 14);
+    } else if (values[3] < graph_line_limit_mid) {
+        // top
+        ctx.fillText('⬆️ ' + graph_max.toString(), 10, 22);
+        ctx.fillText('⬇️ ' + graph_min.toString(), 10, 22 + 14);
+    } else {
+        // split
+        ctx.fillText(graph_max.toString(), 10, 22);
+        ctx.fillText(graph_min.toString(), 10, height - 14);
+    }
+
+
+    
     
     const total_range = graph_max - graph_min;
 
@@ -211,10 +222,10 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
         ctx.fill();
 
         ctx.fillStyle = '#b5ffeb';
-        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, 24);
+        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, 25);
 
         ctx.strokeStyle = '#b5ffeb66';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo((550/2) + 52, 20);
         ctx.lineTo(x2, y2);
@@ -225,10 +236,10 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
         ctx.fill();
 
         ctx.fillStyle = '#b5ffeb';
-        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, height-16);
+        ctx.fillText(Math.round(values.at(-1)!).toString(), 550/2, height-14);
 
         ctx.strokeStyle = '#b5ffeb66';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo((550/2) + 52, height - 20);
         ctx.lineTo(x2, y2);
@@ -242,7 +253,7 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'render-stock.png'));
     interaction.editReply({
-        content:`Stock history for ${interaction.options.getString('stock', true)}`,
+        content:``,
         files: [image]
     });
 }

@@ -26,7 +26,7 @@ import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
 import { Dangerous_WipeAllLevels, HandleCommandLevel } from './modules/levels/levels';
 import { AddXP, DoLeveling } from './modules/levels/onMessage';
-import { SetupBlackjackMessage } from './modules/okash/blackjack';
+import { SetupBlackjackMessage } from './modules/okash/games/blackjack';
 import { StartHTTPServer } from './modules/http/server';
 import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
 import { HandleCommandSell } from './modules/interactions/sell';

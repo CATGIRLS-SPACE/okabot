@@ -1,9 +1,9 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel, User } from "discord.js";
 import { Logger } from "okayulogger";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "./wallet";
-import { AddXP } from "../levels/onMessage";
-import { CheckOkashRestriction, OKASH_ABILITY } from "../user/prefs";
-import { GetEmoji } from "../../util/emoji";
+import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
+import { AddXP } from "../../levels/onMessage";
+import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
+import { GetEmoji } from "../../../util/emoji";
 
 
 const L = new Logger('blackjack');
