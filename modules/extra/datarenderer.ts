@@ -203,7 +203,7 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     }
 
     // render current
-    ctx.fillStyle = '#204037';
+    ctx.fillStyle = '#20403799';
     ctx.textAlign = 'center';
     if (current_hilow == 'high') {
         ctx.beginPath();
