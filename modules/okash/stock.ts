@@ -10,7 +10,12 @@ export interface Stock {
     price_history: Array<number>,
     holders: Array<{user_id:string,amount:number}>,
     name: string,
-    id: string
+    id: string,
+    shares: {
+        total: number,
+        available: number,
+        max_holdable: number
+    }
 }
 
 export interface StockMarket {
@@ -51,25 +56,40 @@ export function SetupStocks(dirname: string) {
     // really likes to fuck with randomness whenever possible it seems...
     MARKET = {
         catgirl: {
+            price: 100000,
+            price_history: [100000,100000],
+            holders: [],
+            name: 'Catgirl',
+            id: 'NEKO',
+            shares: {
+                total: 100,
+                available: 100,
+                max_holdable: 20,
+            }
+        },
+        doggirl: {
+            price: 50000,
+            price_history: [50000,50000],
+            holders: [],
+            name: 'Doggirl',
+            id: 'DOGY',
+            shares: {
+                total: 100,
+                available: 100,
+                max_holdable: 10,
+            }
+        },
+        foxgirl: {
             price: 25000,
             price_history: [25000,25000],
             holders: [],
-            name: 'Catgirl',
-            id: 'NEKO'
-        },
-        doggirl: {
-            price: 5000,
-            price_history: [5000,5000],
-            holders: [],
-            name: 'Doggirl',
-            id: 'DOGY'
-        },
-        foxgirl: {
-            price: 1000,
-            price_history: [1000,1000],
-            holders: [],
             name: 'Foxgirl',
-            id: 'FXGL'
+            id: 'FXGL',
+            shares: {
+                total: 100,
+                available: 100,
+                max_holdable: 5,
+            }
         },
     };
 

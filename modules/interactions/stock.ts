@@ -290,46 +290,46 @@ async function HandleSellConfirmation(interaction: ChatInputCommandInteraction, 
 export const StockSlashCommand = new SlashCommandBuilder()
     .setName('stock')
     .setDescription('Manage stocks')
-    .addSubcommand(sc => sc
-        .setName('purchase')
-        .setDescription('Purchase shares of a stock')
-        .addStringOption(option => option
-            .setName('stock')
-            .setDescription('which stock to buy')
-            .addChoices(
-                { name: 'Foxgirl - FXGL', value: 'foxgirl' },
-                { name: 'Doggirl - DOGY', value: 'doggirl' },
-                { name: 'Catgirl - NEKO', value: 'catgirl' },
-            )
-            .setRequired(true)
-        )
-        .addNumberOption(option => option
-            .setName('amount')
-            .setDescription('amount of shares to buy')
-            .setRequired(true)
-            .setMinValue(0.00000000000000000000001)
-        )
-    )
-    .addSubcommand(sc => sc
-        .setName('sell')
-        .setDescription('Sell shares of a stock')
-        .addStringOption(option => option
-            .setName('stock')
-            .setDescription('which stock to sell')
-            .addChoices(
-                { name: 'Foxgirl - FXGL', value: 'foxgirl' },
-                { name: 'Doggirl - DOGY', value: 'doggirl' },
-                { name: 'Catgirl - NEKO', value: 'catgirl' },
-            )
-            .setRequired(true)
-        )
-        .addNumberOption(option => option
-            .setName('amount')
-            .setDescription('amount of shares to sell')
-            .setRequired(true)
-            .setMinValue(0.00000000000000000000001)
-        )
-    )
+    // .addSubcommand(sc => sc
+    //     .setName('purchase')
+    //     .setDescription('Purchase shares of a stock')
+    //     .addStringOption(option => option
+    //         .setName('stock')
+    //         .setDescription('which stock to buy')
+    //         .addChoices(
+    //             { name: 'Foxgirl - FXGL', value: 'foxgirl' },
+    //             { name: 'Doggirl - DOGY', value: 'doggirl' },
+    //             { name: 'Catgirl - NEKO', value: 'catgirl' },
+    //         )
+    //         .setRequired(true)
+    //     )
+    //     .addNumberOption(option => option
+    //         .setName('amount')
+    //         .setDescription('amount of shares to buy')
+    //         .setRequired(true)
+    //         .setMinValue(0.00000000000000000000001)
+    //     )
+    // )
+    // .addSubcommand(sc => sc
+    //     .setName('sell')
+    //     .setDescription('Sell shares of a stock')
+    //     .addStringOption(option => option
+    //         .setName('stock')
+    //         .setDescription('which stock to sell')
+    //         .addChoices(
+    //             { name: 'Foxgirl - FXGL', value: 'foxgirl' },
+    //             { name: 'Doggirl - DOGY', value: 'doggirl' },
+    //             { name: 'Catgirl - NEKO', value: 'catgirl' },
+    //         )
+    //         .setRequired(true)
+    //     )
+    //     .addNumberOption(option => option
+    //         .setName('amount')
+    //         .setDescription('amount of shares to sell')
+    //         .setRequired(true)
+    //         .setMinValue(0.00000000000000000000001)
+    //     )
+    // )
     .addSubcommand(sc => sc
         .setName('show')
         .setDescription('Show stock prices and how many shares you own')

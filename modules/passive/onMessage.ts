@@ -38,8 +38,26 @@ export async function CheckAdminShorthands(message: Message) {
                 receiver_bank_amount += parseInt(params[3]);
                 AddToWallet(params[2], parseInt(params[3]));
 
+                const user = client.users.cache.get(params[2]);
+
+                const receiver_embed = new EmbedBuilder()
+                    .setColor(0x9d60cc)
+                    .setTitle(`You received some okash!`)
+                    .addFields(
+                        {name:'⬆️ Sender', value:'SYSTEM', inline: true},
+                        {name:'⬇️ Receiver', value:''+user?.displayName, inline: true},
+                    )
+                    .setDescription(`okash Transfer of OKA${params[2]}.`);
+                    
+                try {
+                    user?.send({
+                        embeds:[receiver_embed]
+                    });
+                } catch (err) {
+                    message.react('⚠️');
+                }
+
                 message.react('✅');
-                (message.channel as TextChannel).send(`<@!${params[2]}>, your new balance is OKA${receiver_bank_amount}.`);
             }
 
             if (message.content.startsWith('oka depa ')) {
