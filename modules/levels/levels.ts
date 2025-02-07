@@ -3,7 +3,7 @@ import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { BASE_DIRNAME } from "../..";
 import { join, resolve } from "path";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
-import { createCanvas, loadImage } from "canvas";
+import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
 
 
 const BAR_COLORS: {
@@ -83,6 +83,16 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
+function roundRectClip(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+  }
+
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
 
@@ -128,7 +138,13 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const pfp_url = interaction.user.avatarURL({extension:'png', size:128})!;
     const pfp_buffer = await fetchImage(pfp_url);
     const pfp_img = await loadImage(pfp_buffer);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(560-66, 20, 80, 80, 12);
+    ctx.closePath();
+    ctx.clip();
     ctx.drawImage(pfp_img, 560-66, 20, 80, 80);
+    ctx.restore();
     
 
     // User Name
@@ -161,7 +177,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.font = 'bold 16px Arial';
     ctx.fillStyle = num_color;
     ctx.textAlign = 'left';
-    ctx.fillText(`${profile.level.current_xp} XP`, barX + 10, barY + 19);
+    ctx.fillText(`${Math.floor(profile.level.current_xp)} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
     ctx.fillText(`${CalculateTargetXP(profile.level.level)} XP`, barWidth + 10, barY + 19);
 
