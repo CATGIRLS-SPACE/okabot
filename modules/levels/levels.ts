@@ -83,15 +83,17 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
-function roundRectClip(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
-    ctx.beginPath();
+const roundRectClip = function(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
     ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
     ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.lineTo(x + width, y + height - radius);
     ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.lineTo(x + radius, y + height);
     ctx.arcTo(x, y + height, x, y, radius);
-    ctx.arcTo(x, y, x + width, y, radius);
-    ctx.closePath();
-  }
+    ctx.lineTo(x, y + radius);
+    ctx.arcTo(x, y, x + radius, y, radius);
+  };
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
@@ -141,10 +143,13 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.save();
     ctx.beginPath();
     ctx.roundRect(560-66, 20, 80, 80, 12);
+    // roundRectClip(ctx, 560-66, 20, 80, 80, 12);
     ctx.closePath();
     ctx.clip();
     ctx.drawImage(pfp_img, 560-66, 20, 80, 80);
     ctx.restore();
+    ctx.fillStyle = '#ffffff00';
+    ctx.fill();
     
 
     // User Name
@@ -163,6 +168,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const barWidth = 560;
     const barHeight = 25;
     ctx.fillStyle = bar_color.bg;
+    ctx.beginPath();
     ctx.roundRect(barX, barY, barWidth, barHeight, 8);
     ctx.fill();
 
