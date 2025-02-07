@@ -38,10 +38,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         collector.on('collect', async i => {
             const d = new Date;
             const ready = -(result * 1000);
-            ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
+            const success = ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
         
             i.update({
-                content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+                content: success?`:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`
+                :`:pouting_cat: **${interaction.user.displayName}**, I already told you I'd remind you!!`,
                 components:[]
             });
         });

@@ -44,6 +44,7 @@ import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/g
 import { GetMostRecentEvents } from './util/monitortool';
 import { all } from 'axios';
 import { HandleCommandRob } from './modules/okash/games/rob';
+import { LoadReminders } from './modules/tasks/dailyRemind';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -80,6 +81,7 @@ client.once(Events.ClientReady, (c: Client) => {
     SetupPrefs(__dirname);
     SetupStocks(__dirname);
     LoadVoiceData();
+    LoadReminders();
     ScheduleJob(c); // schedule the coinflip reset bonus
     ScheduleStocksTask(c);
     L.info(`Successfully logged in as ${c.user!.tag}`);
