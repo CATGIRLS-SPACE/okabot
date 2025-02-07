@@ -34,7 +34,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     const robbed_user_balance = GetWallet(robbed_user.id);
 
-    if (robbed_user_balance <= 0) {
+    if (robbed_user_balance < 250) {
         return interaction.reply({
             content: `:crying_cat_face: **${robbed_user.displayName}** has too little okash in their pockets to rob!`,
             flags: [MessageFlags.Ephemeral]
