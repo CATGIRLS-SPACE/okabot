@@ -105,6 +105,17 @@ export function GetMarketStatus(): {
     }
 }
 
+export function GetLastPrices(): {
+    neko: number,
+    dogy: number,
+    fxgl: number,
+} {
+    return {
+        neko: Math.round(MARKET[Stocks.CATGIRL].price_history.at(-2)!),
+        dogy: Math.round(MARKET[Stocks.DOGGIRL].price_history.at(-2)!),
+        fxgl: Math.round(MARKET[Stocks.FOXGIRL].price_history.at(-2)!),
+    };
+}
 
 /**
  * Check how many shares a user has of a given stock

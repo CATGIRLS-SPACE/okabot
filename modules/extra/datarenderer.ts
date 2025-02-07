@@ -80,11 +80,7 @@ export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandI
 }
 
 
-export async function GenerateCoinflipRecentsGraph(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
 
-    
-}
 
 
 function randomColor(): string {
@@ -210,7 +206,6 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
         ctx.lineTo(x2, y2);
         ctx.stroke(); // Apply the stroke immediately
 
-        // console.log(values[i], x1, y1, "->", values[i + 1], x2, y2, "Color:", ctx.strokeStyle);
     }
 
     // render current
