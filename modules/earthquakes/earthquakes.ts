@@ -178,7 +178,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         let embed = BuildEEWEmbed(
             new Date(data.earthquake.originTime),
             data.earthquake.magnitude.value,
-            data.intensity.forecastMaxInt.to,
+            (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
             data.earthquake.hypocenter.depth.value,
             data.earthquake.hypocenter.name,
             false
@@ -192,7 +192,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             embed = BuildEEWEmbed(
                 new Date(data.earthquake.originTime),
                 data.earthquake.magnitude.value,
-                data.intensity.forecastMaxInt.to,
+                (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
                 false,
