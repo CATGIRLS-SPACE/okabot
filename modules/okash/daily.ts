@@ -88,8 +88,8 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
     if (data.last_get.time + ONE_DAY <= d.getTime() || reclaim) {
         if (data.streak.count == 0 || data.last_get.time + ONE_DAY*2 < d.getTime()) {
             console.log('daily is new streak');
-            data.streak.count = 1;
             data.streak.last_count = data.streak.count;
+            data.streak.count = 1;
             data.last_get.time = d.getTime();
             data.streak.restored = false;
             data.streak.double_claimed = false;
@@ -149,6 +149,13 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
             content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> **Streak Restore** gem right now!`
         });
         return false;
+    }
+
+    // false because not implemented
+    if (false) {
+        await interaction.editReply({
+            content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only restore a streak once!`
+        })
     }
 
     data.streak.count = data.streak.last_count;
