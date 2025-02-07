@@ -91,7 +91,10 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
             data.streak.last_count = data.streak.count;
             data.streak.count = 1;
             data.last_get.time = d.getTime();
-            data.streak.restored = false;
+            if (data.streak.restored) {
+                data.streak.last_count = 0;
+                data.streak.restored = false;
+            }
             data.streak.double_claimed = false;
 
             AddToWallet(user_id, 750);
@@ -146,28 +149,30 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
 
     if (data.streak.count >= data.streak.last_count) {
         await interaction.editReply({
-            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> **Streak Restore** gem right now!`
+            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> **Streak Restore** right now!`
         });
         return false;
     }
 
-    // false because not implemented
-    if (false) {
+    if (data.streak.restored) {
+        data.streak.restored = false;
+        data.streak.last_count = 0;
+
         await interaction.editReply({
             content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only restore a streak once!`
-        })
+        });
+    } else {
+        data.streak.count = data.streak.last_count;
+        data.streak.restored = true;
+        
+        await interaction.editReply({
+            content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
+        });
     }
-
-    data.streak.count = data.streak.last_count;
-    data.streak.restored = true;
-
-    await interaction.editReply({
-        content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
-    });
-
+        
     writeFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), JSON.stringify(data), 'utf8');
 
-    return true;
+    return data.streak.restored;
 }
 
 /**
