@@ -79,11 +79,11 @@ export const client = new Client({
 
 client.once(Events.ClientReady, (c: Client) => {
     SetupPrefs(__dirname);
-    SetupStocks(__dirname);
+    // SetupStocks(__dirname);
     LoadVoiceData();
     LoadReminders();
     ScheduleJob(c); // schedule the coinflip reset bonus
-    ScheduleStocksTask(c);
+    // ScheduleStocksTask(c);
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
