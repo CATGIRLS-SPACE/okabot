@@ -16,6 +16,7 @@ const L = new Logger('http');
 
 server.use(json());
 server.set('view engine', 'ejs');
+server.set('views', join(__dirname, 'page'));
 
 server.get('/minecraft', (req, res) => {
     res.send('cannot get this route, please post instead.');
@@ -82,23 +83,12 @@ server.post('/minecraft', (req: Request, res: Response) => {
     }
 });
 
-// live stock view
-server.get('/stock', (req: Request, res: Response) => {
-    res.render(join(BASE_DIRNAME, 'modules', 'http', 'page', 'stock'));
-});
-server.get('/stock.js', (req: Request, res: Response) => {
-    res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'stock.js'));
-});
 server.get('/asset/:item', (req: Request, res: Response) => {
     res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'assets', req.params.item));
 });
-server.get('/api/stock', (req: Request, res: Response) => {
-    const prices = {
-        neko:GetSharePrice(Stocks.NEKO),
-        dogy:GetSharePrice(Stocks.DOGY),
-        fxgl:GetSharePrice(Stocks.FXGL),
-    };
-    res.json(prices);
+
+server.get('/management', (req: Request, res: Response) => {
+    res.render('admin.ejs');
 });
 
 const SERVER = createServer(server);
@@ -123,15 +113,13 @@ function GenerateLinkCode(): string {
     return code;
 }
 
+
 wss.on('connection', (ws) => {
     L.info('new websocket connection...');
 
     ws.on('message', (message) => {
         L.info('(ws message) ' + message.toString());
 
-        if (message.toString().startsWith('balance ')) {
-            return SendUserStocks(message.toString().split(' ')[1]);
-        }
         if (message.toString().startsWith('ACCEPT ')) {
             const user = awaitingLinking[message.toString().split(' ')[1]];
             console.log(user);
@@ -144,13 +132,7 @@ wss.on('connection', (ws) => {
 
         switch (message.toString()) {
             case 'stocks latest':
-                const prices = {
-                    _type:'stocks',
-                    neko:GetSharePrice(Stocks.NEKO),
-                    dogy:GetSharePrice(Stocks.DOGY),
-                    fxgl:GetSharePrice(Stocks.FXGL),
-                };
-                ws.send(JSON.stringify(prices));
+                ws.send('discontinued');
                 break;
             case 'nya~':
                 aliveConnections.push(ws);
@@ -181,46 +163,7 @@ export enum WSSStockMessage {
 }
 
 export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
-    let payload = {};
-
-    switch (type) {
-        case WSSStockMessage.NATURAL_UPDATE:
-            payload = {
-                _type: type,
-                neko:GetSharePrice(Stocks.NEKO),
-                dogy:GetSharePrice(Stocks.DOGY),
-                fxgl:GetSharePrice(Stocks.FXGL),
-            };
-            break;
-        
-        case WSSStockMessage.USER_UPDATE_POSITIVE: case WSSStockMessage.USER_UPDATE_NEGATIVE:
-            payload = {
-                _type: type,
-                stock: data.stock,
-                value: Math.floor(data.value)
-            };
-            break;
-
-        case WSSStockMessage.EVENT_UPDATE_POSITIVE: case WSSStockMessage.EVENT_UPDATE_NEGATIVE:
-            payload = {
-                _type: type,
-                neko:GetSharePrice(Stocks.NEKO),
-                dogy:GetSharePrice(Stocks.DOGY),
-                fxgl:GetSharePrice(Stocks.FXGL),
-                event: data
-            };
-            break;
-
-        case WSSStockMessage.LINK_BALANCE:
-            return SendUserStocks(data.user.id);
-    
-        default:
-            break;
-    }
-
-    aliveConnections.forEach(connection => {
-        connection.send(JSON.stringify(payload));
-    });
+    return;
 }
 
 export function LinkWSToUserId(user: User, link_code: string) {

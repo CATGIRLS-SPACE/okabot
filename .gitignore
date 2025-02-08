@@ -9,3 +9,4 @@ index.js
 *.oka
 ERROR.LOG
 package-lock.json
+!modules/http/page/assets/*.js

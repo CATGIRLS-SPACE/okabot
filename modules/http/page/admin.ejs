@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>okabot Management</title>
+</head>
+<body>
+    <div class="before_linked">
+        <div class="code">
+            <h1 id="link_code">Please wait...</h1>
+            <h3 id="sub_link_code">Connecting to okabot...</h3>
+        </div>
+    </div>
+    <!-- nothing below here will appear unless link is successful -->
+     <div class="after_linked">
+
+     </div>
+</body>
+
+<script src="/asset/link.js"></script>
+<script>
+    // since this isnt typescript im just going to 
+    // prefix variables with their type abbreviation
+    Start((sCode) => {
+        // on code
+        document.getElementById('link_code').innerText = sCode;
+        document.getElementById('sub_link_code').innerText = 'Please use "/stock link" to authenticate';
+    }, (bPriviliged) => {
+        // on link
+        if (!bPriviliged) {
+            document.getElementById('link_code').innerText = 'ERROR';
+            document.getElementById('sub_link_code').innerText = 'Your user is not permitted to access this page.';
+            return;
+        }
+    });
+</script>
+
+<style>
+    @font-face {
+        font-family: CR;
+        src: url(/asset/font.ttf);
+    }
+    @font-face {
+        font-family: CB;
+        src: url(/asset/font-bold.ttf);
+    }
+
+    html {
+        font-family: CR;
+        background-color: black;
+        color: white;
+    }
+
+    /* before linking... */
+
+    .before_linked {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 75vh;
+        align-items: center;
+    }
+
+    .before_linked .code {
+        text-align: center;
+    }
+
+    .before_linked .code h1 {
+        font-family: CB;
+        font-size: 3rem;
+    }
+    .before_linked .code h3 {
+        font-size: 2rem;
+    }
+
+    /* after */
+
+    .after_linked {
+        display: none;
+    }
+</style>
+</html>
