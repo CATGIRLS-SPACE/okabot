@@ -53,11 +53,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (result == 750) {
         // 750 = no streak (technically 1 day)
         if (interaction.locale == Locale.Japanese) return interaction.editReply({
-            content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')}OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`
+            content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`
         })
 
         return interaction.editReply({
-            content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')}OKA**750** and a ${GetEmoji('cff_green')} Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+            content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** and a ${GetEmoji('cff_green')} Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
         });
     }
 
@@ -69,11 +69,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (percentage > 200) percentage = 200;
 
     if (interaction.locale == Locale.Japanese) return interaction.editReply({
-        content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')}OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`
+        content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`
     })
     
     interaction.editReply({
-        content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')}OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+        content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
     });
 }
 
