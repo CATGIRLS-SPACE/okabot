@@ -137,26 +137,15 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
-    if (interaction.channel!.isDMBased()) {
-        if ((interaction.channel! as DMChannel).id == interaction.user.dmChannel!.id) return interaction.reply({
-            content:'Sorry, but okabot commands aren\'t available in my DMs. Please head to CATGIRL CENTRAL or a group DM to use okabot.'
-        });
-
-        if (ALLOWED_DM_COMMANDS.indexOf(interaction.commandName) == -1) return interaction.reply({
-            content:`Sorry, but some okabot commands, including \`/${interaction.commandName}\`, aren't available in DMs.\nPlease head to CATGIRL CENTRAL or a group DM to use okabot.`
-        });
-    }
+    if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({
+        content:`:x: Sorry, **${interaction.user.displayName}**, but despite being able to add me as a user-installed app, I don't quite work properly yet.`,
+        flags: [MessageFlags.Ephemeral]
+    });
 
     // disabling of okabot temporarily if a big issue is found
     if (!LISTENING) return interaction.reply({
         content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been instructed to hold off on commands for now!`,
-        ephemeral: true
-    });
-
-    // please stop using commands in #okabot
-    if (interaction.channel!.id == "1315805846910795846") return interaction.reply({
-        content:'Sorry, but this channel isn\'t for using commands.\nInstead, please use <#1019091099639361576> for commands.',
-        flags: [MessageFlags.SuppressNotifications]
+        flags: [MessageFlags.Ephemeral]
     });
 
     const has_agreed = await CheckRuleAgreement(interaction);
@@ -174,7 +163,7 @@ client.on(Events.InteractionCreate, async interaction => {
             allEvents.forEach(evt => { recent_events = recent_events + `(${evt.event_id}) - ${JSON.stringify(evt.data)} - ${evt.readable_message}\n` })
             await interaction.reply({
                 content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nRecent Events:` + '```' + recent_events + '```',
-                ephemeral: true
+                flags: [MessageFlags.Ephemeral]
             });
             break;
         case 'okash':

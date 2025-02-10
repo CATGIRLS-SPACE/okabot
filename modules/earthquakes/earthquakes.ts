@@ -62,7 +62,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
-            {name:"Maximum Intensity", value: `**${max_intensity}**`, inline: true},
+            {name:"Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
             {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
             {name:'Depth', value: `**${depth} km**`, inline: true},
             {name:'Location', value: locations_english[hypocenter_name]},
@@ -71,10 +71,10 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
     return embed;
 }
 
-function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, warning: boolean, report_count: number = 1) {
+function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, event: {message: any, report_count: number, is_warning: boolean}) {
     const embed = new EmbedBuilder()
-        .setColor(warning?0xd61111:0xff8519)
-        .setTitle((warning?'Earthquake Early Warning':'Earthquake Early Warning (Forecast)') + ` (Report ${report_count})`)
+        .setColor(event.is_warning?0xd61111:0xff8519)
+        .setTitle((event.is_warning?'Earthquake Early Warning':'Earthquake Early Warning (Forecast)') + (event.report_count==999?' (Final Report)':` (Report ${event.report_count})`))
         .setTimestamp(origin_time)
         .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
@@ -181,13 +181,13 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
             data.earthquake.hypocenter.depth.value,
             data.earthquake.hypocenter.name,
-            false
+            {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
         );
 
         if (EXISTING_EARTHQUAKES.has(data.eventId)) {
             const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
             event.report_count += 1;
-            EXISTING_EARTHQUAKES.set(data.eventId, event);
+            EXISTING_EARTHQUAKES.set(data.eventId, {message:event.message, report_count:data.isLastInfo?999:parseInt(data.serialNo), is_warning:data.isWarning});
 
             embed = BuildEEWEmbed(
                 new Date(data.earthquake.originTime),
@@ -195,8 +195,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
-                false,
-                event.report_count
+                event
             );
 
             return await event.message.edit({
@@ -216,7 +215,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     });
 
     SOCKET.on(WebSocketEvent.EEW_WARNING, async (data: EEWInformationSchemaBody) => {
-        console.log(data);
+        console.log(data.serialNo);
 
         let embed = BuildEEWEmbed(
             new Date(data.earthquake.originTime),
@@ -224,12 +223,14 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             data.intensity.forecastMaxInt.to,
             data.earthquake.hypocenter.depth.value,
             data.earthquake.hypocenter.name,
-            true
+            {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
         );
 
         if (EXISTING_EARTHQUAKES.has(data.eventId)) {
             const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
-            event.report_count += 1;
+            if (!event.is_warning) event.message.reply({content:`${GetEmoji(EMOJI.EPICENTER)} EEW Forecast was upgraded to EEW Warning!`})
+            event.report_count = data.isLastInfo?999:parseInt(data.serialNo);
+            event.is_warning = true;
             EXISTING_EARTHQUAKES.set(data.eventId, event);
 
             embed = BuildEEWEmbed(
@@ -238,8 +239,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 data.intensity.forecastMaxInt.to,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
-                true,
-                event.report_count
+                event
             );
 
             return event.message.edit({

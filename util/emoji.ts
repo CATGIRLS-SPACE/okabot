@@ -53,6 +53,7 @@ export enum EMOJI {
     SHINDO_6_UPPER = 'eq6u',
     SHINDO_7 = 'eq7',
     SHINDO_UNKNOWN = 'equ',
+    EPICENTER = 'eqe',
     // roulette
     ROULETTE_COLORS = 'rrb',
 }
@@ -114,6 +115,7 @@ const EMOJI_KEYS: {
     'eq6u':{prod:'1335463269678452747','dev':'1335475398665965648'},
     'eq7':{prod:'1335463297079840871','dev':'1335475421600419902'},
     'equ':{prod:'1335463317325746187','dev':'1335475441930207263'},
+    'eqe':{prod:'1338645103752908870',dev:'1338645045720514591'},
     // roulette
     'rrb':{prod:'1335792608278085644',dev:'1335792470402928650'},
 }
