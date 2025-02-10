@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
+import { ChatInputCommandInteraction, Client, DMChannel, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
 import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
@@ -38,7 +38,7 @@ import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
-import { DeployCommands } from './modules/deployment/commands';
+import { ALLOWED_DM_COMMANDS, DeployCommands } from './modules/deployment/commands';
 import { StartDMDataWS } from './modules/earthquakes/dmdata';
 import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
 import { GetMostRecentEvents } from './util/monitortool';
@@ -137,9 +137,15 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
-    if (interaction.channel!.isDMBased()) return interaction.reply({
-        content:'Sorry, but okabot commands aren\'t available in DMs. Please head to CATGIRL CENTRAL to use okabot.'
-    });
+    if (interaction.channel!.isDMBased()) {
+        if ((interaction.channel! as DMChannel).id == interaction.user.dmChannel!.id) return interaction.reply({
+            content:'Sorry, but okabot commands aren\'t available in my DMs. Please head to CATGIRL CENTRAL or a group DM to use okabot.'
+        });
+
+        if (ALLOWED_DM_COMMANDS.indexOf(interaction.commandName) == -1) return interaction.reply({
+            content:`Sorry, but some okabot commands, including \`/${interaction.commandName}\`, aren't available in DMs.\nPlease head to CATGIRL CENTRAL or a group DM to use okabot.`
+        });
+    }
 
     // disabling of okabot temporarily if a big issue is found
     if (!LISTENING) return interaction.reply({

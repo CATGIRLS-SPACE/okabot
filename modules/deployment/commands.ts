@@ -62,6 +62,14 @@ const COMMANDS_TO_REGISTER = [
     RobSlashCommand
 ].map(command => command.toJSON());
 
+export const ALLOWED_DM_COMMANDS = [
+    'help',
+    'customize',
+    'daily',
+    'okash',
+    'pockets',
+    'toggle',
+];
 
 export function DeployCommands(token: string, client_id: string) {
     const L = new Logger('deployment');
