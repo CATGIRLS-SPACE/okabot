@@ -1,9 +1,9 @@
-import { TextChannel } from "discord.js";
+import { Snowflake, TextChannel } from "discord.js";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME, client } from "../..";
 import { join } from "path";
 
-const reminders = new Map<string, number>();
+const reminders = new Map<Snowflake, {time: number, channel: Snowflake}>();
 
 /**
  * Schedule a reminder for the daily being available
@@ -14,7 +14,7 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
     if (reminders.has(user_id)) return false; // don't set duplicate reminders
     
     const d = new Date();
-    reminders.set(user_id, time);
+    reminders.set(user_id, {time, channel: channel.id});
     setTimeout(() => {
         channel.send({
             content:`:clock3: <@${user_id}>, your daily is now available!`
@@ -31,21 +31,34 @@ export function LoadReminders() {
     if (!existsSync(join(BASE_DIRNAME, 'db', 'reminder.oka'))) return;
     
     const data: {
-        reminders: Array<{user_id: string, time: number}>
+        reminders: Array<{user_id: Snowflake, time: number, channel: Snowflake}>
     } = JSON.parse(readFileSync(join(BASE_DIRNAME, 'db', 'reminder.oka'), 'utf-8'));
 
     data.reminders.forEach(reminder => {
-        reminders.set(reminder.user_id, reminder.time);
+        reminders.set(reminder.user_id, {
+            time: reminder.time,
+            channel: reminder.channel
+        });
+
+        const d = new Date();
+
+        setTimeout(() => {
+            (client.channels.cache.get(reminder.channel) as TextChannel)!.send({
+                content:`:clock3: <@${reminder.user_id}>, your daily is now available!`
+            });
+            reminders.delete(reminder.user_id);
+        }, reminder.time - d.getTime());
     });
 }
 
 function SaveReminders() {
-    const r: Array<{user_id: string, time: number}> = [];
+    const r: Array<{user_id: Snowflake, time: number, channel: Snowflake}> = [];
 
     reminders.forEach((val, key) => {
         r.push({
             user_id: key,
-            time: val
+            time: val.time,
+            channel: val.channel
         });
     });
 
