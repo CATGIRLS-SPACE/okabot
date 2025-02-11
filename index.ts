@@ -45,7 +45,7 @@ import { GetMostRecentEvents } from './util/monitortool';
 import { all } from 'axios';
 import { HandleCommandRob } from './modules/okash/games/rob';
 import { LoadReminders } from './modules/tasks/dailyRemind';
-import { Achievements, GrantAchievement } from './modules/passive/achievement';
+import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -232,6 +232,9 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'rob':
             await HandleCommandRob(interaction);
+            break;
+        case 'achievements':
+            await HandleCommandAchievements(interaction)
             break;
     }
 });

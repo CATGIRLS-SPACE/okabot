@@ -144,14 +144,18 @@ function CreateProgressBar(profile: USER_PROFILE): string {
     return bar;
 }
 
-export function HandleCommandAchievements(interaction: ChatInputCommandInteraction) {
-    interaction.deferReply();
+export async function HandleCommandAchievements(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
 
     const profile = GetUserProfile(interaction.user.id);
     const bar = CreateProgressBar(profile);
 
+    if (profile.achievements.length == 0) return interaction.editReply({
+        content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`
+    });
+
     interaction.editReply({
-        content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name || 'None yet!'}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description || 'Keep using okabot to unlock achievements!'}`
+        content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description}`
     });
 }
 
