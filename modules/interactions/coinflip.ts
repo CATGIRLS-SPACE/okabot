@@ -1,14 +1,15 @@
 import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
+import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME, CoinFloats } from "../..";
+import { BASE_DIRNAME, client, CoinFloats } from "../..";
 import { join } from "path";
 import { getRandomValues } from "crypto";
 import { AddXP } from "../levels/onMessage";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { format } from "util";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -189,6 +190,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (weighted_coin_equipped) {
         prefs.flags.splice(prefs.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED), 1);
         UpdateUserProfile(interaction.user.id, prefs);
+        GrantAchievement(interaction.user, Achievements.WEIGHTED_COINFLIP, interaction.channel as TextChannel);
     }
 
     setTimeout(() => {
@@ -209,12 +211,14 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             stats.coinflip.high.value = rolled;
             stats.coinflip.high.user_id = interaction.user.id;
             AddToWallet(interaction.user.id, Math.abs(Math.floor(rolled * REWARD)));
+            GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
         }
         if (stats.coinflip.low.value > rolled) {
             new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.abs(Math.floor(REWARD - (rolled*REWARD)))}**!`;
             stats.coinflip.low.value = rolled;
             stats.coinflip.low.user_id = interaction.user.id;
             AddToWallet(interaction.user.id, Math.abs(Math.floor(REWARD - (rolled*REWARD))));
+            GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
         }
         
         // daily rolls
@@ -222,11 +226,13 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             new_float += `\n**NEW DAILY HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled today!`;
             stats.coinflip.daily.high.value = rolled;
             stats.coinflip.daily.high.user_id = interaction.user.id;
+            GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
         }
         if (stats.coinflip.daily.low.value > rolled) {
             new_float += `\n**NEW DAILY LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled today!`;
             stats.coinflip.daily.low.value = rolled;
             stats.coinflip.daily.low.user_id = interaction.user.id;
+            GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
         }
 
         // save coinflip for averaging
@@ -236,7 +242,10 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         interaction.editReply({
             content: `${emoji_finish} ${next_message}${new_float}`
         });
-        
+
+        if (rolled <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
+        if (rolled >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+
         writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
@@ -245,8 +254,12 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
-        if (win)
+        if (wallet == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+
+        if (win) {
             AddToWallet(interaction.user.id, bet*2);
+            if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+        }
     }, 3000);
 }
 

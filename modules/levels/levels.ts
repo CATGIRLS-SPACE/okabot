@@ -83,18 +83,6 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
-const roundRectClip = function(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.arcTo(x + width, y, x + width, y + height, radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.arcTo(x + width, y + height, x, y + height, radius);
-    ctx.lineTo(x + radius, y + height);
-    ctx.arcTo(x, y + height, x, y, radius);
-    ctx.lineTo(x, y + radius);
-    ctx.arcTo(x, y, x + radius, y, radius);
-  };
-
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
 

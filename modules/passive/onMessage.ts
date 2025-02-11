@@ -10,6 +10,7 @@ import { UpdateMarkets } from "../okash/stock";
 import { join } from "path";
 import { readdirSync } from "fs";
 import { DoEarthquakeTest, SOCKET } from "../earthquakes/earthquakes";
+import { Achievements, GrantAchievement } from "./achievement";
 
 const L = new Logger('onMessage.ts');
 
@@ -315,6 +316,7 @@ export async function DoRandomOkashRolls(message: Message) {
             const found_amount = Math.floor(Math.random() * 1000);
 
             AddToWallet(message.author.id, found_amount);
+            GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
 
             find_money_msg.edit(`:scream_cat: **${message.author.username}**! You found OKA${found_amount}!`);
         }, 3000);
@@ -333,6 +335,7 @@ export async function DoRandomOkashRolls(message: Message) {
             const found_amount = Math.floor(Math.random() * (max - min) + min);
 
             AddToWallet(message.author.id, found_amount);
+            GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
 
             find_money_msg.edit(`:scream_cat: **${message.author.username}**, holy beans!! You found ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`);
         }, 3000);
@@ -353,6 +356,7 @@ export async function DoRandomLootboxRolls(message: Message) {
         return setTimeout(() => {
             // Add lootbox to inventory for later opening            
             AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_COMMON);
+            GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
 
             find_lootbox_message.edit(`:scream_cat: **${message.author.username}**! You tripped over a lootbox!`);
         }, 3000);
@@ -369,6 +373,7 @@ export async function DoRandomLootboxRolls(message: Message) {
         return setTimeout(() => {
             // Add lootbox to inventory for later opening            
             AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_RARE);
+            GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
 
             find_lootbox_message.edit(`:scream_cat: **${message.author.username}**, woah!! You fell over a rare lootbox!`);
         }, 3000);

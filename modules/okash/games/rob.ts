@@ -1,6 +1,7 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji } from "../../../util/emoji";
+import { Achievements, GrantAchievement } from "../../passive/achievement";
 
 
 const MESSAGES = [
@@ -73,12 +74,15 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
             RemoveFromBank(interaction.user.id, fine);
         }
 
-        return interaction.reply({
+        interaction.reply({
             content: `:scream_cat: **${interaction.user.displayName}** tries to rob <@${robbed_user.id}>, but fails and is fined ${GetEmoji(EMOJI.OKASH)} OKA**${fine}**!\n-# If your pockets wasn't enough to pay your fine, the remainder was automatically removed from your bank.`
-        }); 
+        });
+        return GrantAchievement(interaction.user, Achievements.ROB_FINED, interaction.channel as TextChannel); 
     }
 
     const robbed_amount = Math.floor(Math.random() * (robbed_user_balance * 0.85)) + 15; // min of 15 okash, max of 85% balance
+
+    if (robbed_amount >= 25_000) GrantAchievement(interaction.user, Achievements.ROB_HIGH, interaction.channel as TextChannel); 
 
     RemoveFromWallet(robbed_user.id, robbed_amount);
     AddToWallet(interaction.user.id, robbed_amount);

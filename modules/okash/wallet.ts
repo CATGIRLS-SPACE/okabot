@@ -5,6 +5,7 @@ import { Logger } from "okayulogger";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 import { client } from "../..";
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { GrantAchievement } from "../passive/achievement";
 
 export interface Wallet {
     version: number,

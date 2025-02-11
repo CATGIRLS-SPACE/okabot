@@ -2,6 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteracti
 import { ClaimDaily, GetDailyStreak } from "../okash/daily";
 import { GetEmoji } from "../../util/emoji";
 import { ScheduleDailyReminder } from "../tasks/dailyRemind";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const remindButton = new ButtonBuilder()
     .setCustomId('remindme')
@@ -52,6 +53,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     if (result == 750) {
         // 750 = no streak (technically 1 day)
+        GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
+
         if (interaction.locale == Locale.Japanese) return interaction.editReply({
             content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`
         })
@@ -64,6 +67,14 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     // plus streak bonus
     const bonus = result - 750;
     const streak_count = GetDailyStreak(interaction.user.id);
+
+    if (streak_count == 7) GrantAchievement(interaction.user, Achievements.DAILY_7, interaction.channel as TextChannel);
+    if (streak_count == 30) GrantAchievement(interaction.user, Achievements.DAILY_30, interaction.channel as TextChannel);
+    if (streak_count == 61) GrantAchievement(interaction.user, Achievements.DAILY_61, interaction.channel as TextChannel);
+    if (streak_count == 100) GrantAchievement(interaction.user, Achievements.DAILY_100, interaction.channel as TextChannel);
+    if (streak_count == 365) GrantAchievement(interaction.user, Achievements.DAILY_365, interaction.channel as TextChannel);
+
+
     
     let percentage = 100+(100*0.05*(streak_count-1));
     if (percentage > 200) percentage = 200;

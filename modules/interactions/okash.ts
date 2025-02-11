@@ -1,12 +1,16 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
 import { GetBank, GetWallet } from "../okash/wallet";
 import { GetEmoji } from "../../util/emoji";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 
 export async function HandleCommandOkash(interaction: ChatInputCommandInteraction) {
     // await interaction.deferReply();
 
     const bank = GetBank(interaction.user.id);
+
+    if (bank == 500_000) GrantAchievement(interaction.user, Achievements.BANK_MAX, interaction.channel as TextChannel);
+
     const wallet = GetWallet(interaction.user.id);
 
     await interaction.reply({

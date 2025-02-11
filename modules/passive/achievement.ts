@@ -9,41 +9,41 @@ interface Achievement {
 }
 
 export enum Achievements {
-    LEVEL_10 = 'level10',
-    LEVEL_20 = 'level20',
-    LEVEL_30 = 'level30',
-    LEVEL_40 = 'level40',
-    LEVEL_50 = 'level50',
-    LEVEL_60 = 'level60',
-    LEVEL_70 = 'level70',
-    LEVEL_80 = 'level80',
-    LEVEL_90 = 'level90',
-    LEVEL_100 = 'level100',
-    LEVEL_BEYOND = 'level_beyond',
-    LOW_COINFLIP = 'lowcf',
-    HIGH_COINFLIP = 'highcf',
-    WEIGHTED_COINFLIP = 'usewc',
-    BLACKJACK = 'get21',
-    NEW_CF_ALLTIME = 'newcf_alltime',
-    NEW_CF_DAILY = 'newcf_daily',
-    ROULETTE_ONE = 'land36',
-    ROULETTE_MULTI = 'landmulti',
-    BANK_MAX = 'maxbank',
-    NO_MONEY = 'gamble_gobroke',
-    MAX_WIN = 'maxbetwin',
-    DAILY = 'getdaily',
-    DAILY_7 = 'dailyweek',
-    DAILY_30 = 'dailymonth',
-    DAILY_61 = 'daily2month',
-    DAILY_100 = 'daily100',
-    DAILY_365 = 'dailyyear',
-    DAILY_SR = 'restorestreak',
-    ROB_HIGH = 'robmin25000',
-    ROB_FINED = 'robfined',
-    THANK_OKABOT = 'thankokabot',
-    PAY_USER = 'begenerous',
-    OKASH_DROP = 'okashdrop',
-    LOOTBOX_DROP = 'lootboxdrop',
+    LEVEL_10 = 'level10', //
+    LEVEL_20 = 'level20', //
+    LEVEL_30 = 'level30', //
+    LEVEL_40 = 'level40', //
+    LEVEL_50 = 'level50', //
+    LEVEL_60 = 'level60', //
+    LEVEL_70 = 'level70', //
+    LEVEL_80 = 'level80', //
+    LEVEL_90 = 'level90', //
+    LEVEL_100 = 'level100', //
+    LEVEL_BEYOND = 'level_beyond', //
+    LOW_COINFLIP = 'lowcf', //
+    HIGH_COINFLIP = 'highcf', //
+    WEIGHTED_COINFLIP = 'usewc', //
+    BLACKJACK = 'get21', //
+    NEW_CF_ALLTIME = 'newcf_alltime', //
+    NEW_CF_DAILY = 'newcf_daily', //
+    ROULETTE_ONE = 'land36', //
+    ROULETTE_MULTI = 'landmulti', //
+    BANK_MAX = 'maxbank', // in okash command
+    NO_MONEY = 'gamble_gobroke', // in: coinflip, blackjack, roulette
+    MAX_WIN = 'maxbetwin', // in: coinflip, blackjack, roulette
+    DAILY = 'getdaily', //
+    DAILY_7 = 'dailyweek', //
+    DAILY_30 = 'dailymonth', //
+    DAILY_61 = 'daily2month', //
+    DAILY_100 = 'daily100', //
+    DAILY_365 = 'dailyyear', //
+    DAILY_SR = 'restorestreak', //
+    ROB_HIGH = 'robmin25000', //
+    ROB_FINED = 'robfined', //
+    THANK_OKABOT = 'thankokabot', //
+    PAY_USER = 'begenerous', //
+    OKASH_DROP = 'okashdrop', //
+    LOOTBOX_DROP = 'lootboxdrop', //
 }
 
 const ACHIEVEMENTS: {
@@ -95,7 +95,10 @@ const ACHIEVEMENTS: {
 export function GrantAchievement(user: User, achievement: Achievements, channel: TextChannel) {
     const profile = GetUserProfile(user.id);
 
-    if (profile.achievements.indexOf(achievement) != -1) return;
+    if (profile.achievements.indexOf(achievement) != -1) {
+        console.log(`user ${user.username} already has achievement ${achievement}`);
+        return;
+    }
 
     profile.achievements.push(achievement);
 

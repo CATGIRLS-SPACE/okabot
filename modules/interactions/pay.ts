@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder,
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, ManageDebt, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('payment');
 
@@ -55,7 +56,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
 
     if (pay_amount == 0) {
         return interaction.editReply({
-            content: `:interrobang: <@!${sender_id}>! That's just plain mean!`,
+            content: `:interrobang: **${interaction.user.displayName}**! That's just plain mean!`,
         });
     }
     
@@ -64,6 +65,8 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
             content: ':crying_cat_face: You don\'t have that much money!',
         });
     }
+
+    GrantAchievement(interaction.user, Achievements.PAY_USER, interaction.channel as TextChannel);
     
     const receiver_user = interaction.options.getUser('user')!;
     L.info(`PAYMENT SUCCESS FOR OKA${pay_amount} | ${interaction.user.username}(${interaction.user.id}) --> ${receiver_user.username}(${receiver_user.id})`);

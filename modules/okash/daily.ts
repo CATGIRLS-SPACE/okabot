@@ -4,6 +4,7 @@ import { AddOneToInventory, AddToWallet } from "./wallet"
 import { ChatInputCommandInteraction, TextChannel } from "discord.js"
 import { ITEM_TYPE, ITEMS } from "./items"
 import { AddXP } from "../levels/onMessage"
+import { Achievements, GrantAchievement } from "../passive/achievement"
 
 export interface DailyData {
     version: number,
@@ -168,6 +169,8 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
         await interaction.editReply({
             content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
         });
+
+        GrantAchievement(interaction.user, Achievements.DAILY_SR, interaction.channel as TextChannel);
     }
         
     writeFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), JSON.stringify(data), 'utf8');

@@ -1,9 +1,10 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel, User } from "discord.js";
 import { Logger } from "okayulogger";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
+import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { GetEmoji } from "../../../util/emoji";
+import { Achievements, GrantAchievement } from "../../passive/achievement";
 
 
 const L = new Logger('blackjack');
@@ -298,6 +299,8 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
             components: []
         });
 
+        if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
         const d = new Date();
         LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
@@ -345,11 +348,18 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     });
 
     if (win) {
-        if (player_blackjack) AddToWallet(confirmation.user.id, game.bet * 3);
+        if (player_blackjack) {
+            AddToWallet(confirmation.user.id, game.bet * 3);
+            GrantAchievement(interaction.user, Achievements.BLACKJACK, interaction.channel as TextChannel);
+        }
         else AddToWallet(confirmation.user.id, game.bet * 2);
+
+        if (game.bet == 5000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
         else AddToWallet(confirmation.user.id, game.bet * 1);
+    } else {
+        if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
     }
 
     
