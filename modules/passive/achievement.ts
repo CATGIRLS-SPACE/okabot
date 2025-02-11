@@ -1,5 +1,5 @@
-import { Snowflake, TextChannel, User } from "discord.js"
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs"
+import { ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
+import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
 import { Channel } from "diagnostics_channel";
 
 
@@ -110,3 +110,52 @@ export function GrantAchievement(user: User, achievement: Achievements, channel:
 
     UpdateUserProfile(user.id, profile);
 }
+
+const CHAR_UNFILLED = '░';
+const CHAR_FILLED   = '█';
+const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
+function CreateProgressBar(profile: USER_PROFILE): string {
+    let bar = '**[**';
+    const needed_xp = Object.keys(ACHIEVEMENTS).length;
+    const target_chars = 20;
+    const progress_ratio = profile.achievements.length / needed_xp;
+    const total_filled_chars = progress_ratio * target_chars;
+    const filled_full = Math.floor(total_filled_chars); // Full blocks
+    const partial_fill = Math.round((total_filled_chars - filled_full) * 8); // Partial fill (0-8)
+    const unfilled_chars = target_chars - filled_full - 1;
+
+    // Add full blocks
+    for (let i = 0; i < filled_full; i++) {
+        bar += CHAR_FILLED;
+    }
+
+    // Add a partial block if applicable
+    if (partial_fill > 0) {
+        bar += PARTIAL_BLOCKS[partial_fill];
+    }
+
+    // Add unfilled blocks
+    for (let i = 0; i < unfilled_chars; i++) {
+        bar += CHAR_UNFILLED;
+    }
+
+    bar += '**]**';
+
+    return bar;
+}
+
+export function HandleCommandAchievements(interaction: ChatInputCommandInteraction) {
+    interaction.deferReply();
+
+    const profile = GetUserProfile(interaction.user.id);
+    const bar = CreateProgressBar(profile);
+
+    interaction.editReply({
+        content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name || 'None yet!'}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description || 'Keep using okabot to unlock achievements!'}`
+    });
+}
+
+
+export const AchievementsSlashCommand = new SlashCommandBuilder()
+    .setName('achievements')
+    .setDescription('See your achievement progress');

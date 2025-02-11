@@ -21,6 +21,7 @@ import { Logger } from "okayulogger";
 import { RenderSlashCommand } from "../extra/datarenderer";
 import { RouletteSlashCommand } from "../okash/games/roulette";
 import { RobSlashCommand } from "../okash/games/rob";
+import { AchievementsSlashCommand } from "../passive/achievement";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -59,7 +60,8 @@ const COMMANDS_TO_REGISTER = [
     HelpSlashCommand,
     RenderSlashCommand,
     RouletteSlashCommand,
-    RobSlashCommand
+    RobSlashCommand,
+    AchievementsSlashCommand
 ].map(command => command.toJSON());
 
 export const ALLOWED_DM_COMMANDS = [
