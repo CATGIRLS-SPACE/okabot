@@ -61,18 +61,19 @@ const COMMANDS_TO_REGISTER = [
     RenderSlashCommand,
     RouletteSlashCommand,
     RobSlashCommand,
-    AchievementsSlashCommand
+    AchievementsSlashCommand,
 ].map(command => command.toJSON());
 
-export function DeployCommands(token: string, client_id: string) {
+export async function DeployCommands(token: string, client_id: string) {
     const L = new Logger('deployment');
     L.info('Deploying commands...');
 
     const rest = new REST({version: '10'})
         .setToken(token);
 
-    rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
-        .then(() => {
+     rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
+        .then((a) => {
+            console.log(a);
             L.info('Commands deployed successfully.');
         })
         .catch((err) => {

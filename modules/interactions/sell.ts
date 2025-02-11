@@ -41,7 +41,7 @@ const STRINGS: {
 }
 
 export async function HandleCommandSell(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply({flags:[MessageFlags.SuppressNotifications]});
+    await interaction.deferReply();
 
     let locale = interaction.locale;
     if (locale != Locale.EnglishUS && locale != Locale.Japanese) locale = Locale.EnglishUS;

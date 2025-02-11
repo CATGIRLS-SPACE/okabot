@@ -330,15 +330,15 @@ export const StockSlashCommand = new SlashCommandBuilder()
     //         .setMinValue(0.00000000000000000000001)
     //     )
     // )
-    .addSubcommand(sc => sc
-        .setName('show')
-        .setDescription('Show stock prices and how many shares you own')
-        .addBooleanOption(option => option
-            .setName('classic')
-            .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
-            .setRequired(false)
-        )
-    )
+    // .addSubcommand(sc => sc
+    //     .setName('show')
+    //     .setDescription('Show stock prices and how many shares you own')
+    //     .addBooleanOption(option => option
+    //         .setName('classic')
+    //         .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
+    //         .setRequired(false)
+    //     )
+    // )
     .addSubcommand(sc => sc
         .setName('link')
         .setDescription('Link a browser session to your account')
