@@ -45,6 +45,7 @@ import { GetMostRecentEvents } from './util/monitortool';
 import { all } from 'axios';
 import { HandleCommandRob } from './modules/okash/games/rob';
 import { LoadReminders } from './modules/tasks/dailyRemind';
+import { Achievements, GrantAchievement } from './modules/passive/achievement';
 
 export const BASE_DIRNAME = __dirname;
 
@@ -276,9 +277,12 @@ client.on(Events.MessageCreate, async message => {
         });
     }
 
-    if (message.content.toLocaleLowerCase() == 'thank you okabot') message.reply({
-        content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
-    });
+    if (message.content.toLocaleLowerCase() == 'thank you okabot') {
+        message.reply({
+            content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
+        });
+        GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel); 
+    }
 
     if (message.content.toLocaleLowerCase().includes('fuck you') && (
         message.content.toLocaleLowerCase().includes('okabot') ||

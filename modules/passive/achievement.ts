@@ -1,3 +1,6 @@
+import { Snowflake, TextChannel, User } from "discord.js"
+import { GetUserProfile, UpdateUserProfile } from "../user/prefs"
+import { Channel } from "diagnostics_channel";
 
 
 interface Achievement {
@@ -81,4 +84,26 @@ const ACHIEVEMENTS: {
     'begenerous': {name:'Generosity',description:'Pay a user some okash'},
     'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash'},
     'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox'},
+}
+
+/**
+ * Check if the user has the achievement already, and if not, award it to them.
+ * @param user User to give it to
+ * @param achievement The achievement to give
+ * @param channel The channel to send the announcement to
+ */
+export function GrantAchievement(user: User, achievement: Achievements, channel: TextChannel) {
+    const profile = GetUserProfile(user.id);
+
+    if (profile.achievements.indexOf(achievement) != -1) return;
+
+    profile.achievements.push(achievement);
+
+    const a = ACHIEVEMENTS[achievement];
+
+    channel.send({
+        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement **${a.name}**!\n-# ${a.description}`
+    });
+
+    UpdateUserProfile(user.id, profile);
 }
