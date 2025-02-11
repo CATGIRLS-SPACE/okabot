@@ -64,15 +64,6 @@ const COMMANDS_TO_REGISTER = [
     AchievementsSlashCommand
 ].map(command => command.toJSON());
 
-export const ALLOWED_DM_COMMANDS = [
-    'help',
-    'customize',
-    'daily',
-    'okash',
-    'pockets',
-    'toggle',
-];
-
 export function DeployCommands(token: string, client_id: string) {
     const L = new Logger('deployment');
     L.info('Deploying commands...');

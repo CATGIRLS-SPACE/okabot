@@ -38,7 +38,7 @@ import { HandleCommandStock } from './modules/interactions/stock';
 import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
-import { ALLOWED_DM_COMMANDS, DeployCommands } from './modules/deployment/commands';
+import { DeployCommands } from './modules/deployment/commands';
 import { StartDMDataWS } from './modules/earthquakes/dmdata';
 import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
 import { GetMostRecentEvents } from './util/monitortool';
