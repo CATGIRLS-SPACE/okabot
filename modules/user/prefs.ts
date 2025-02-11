@@ -4,6 +4,7 @@ import { join } from "path"
 import { BASE_DIRNAME } from "../.."
 import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js"
 import { Logger } from "okayulogger"
+import { Achievements } from "../passive/achievement"
 
 const L = new Logger('profiles');
 
@@ -54,7 +55,8 @@ export interface USER_PROFILE {
     pass?: {
         is_active: boolean, 
         valid_until: number,
-    }
+    },
+    achievements: Array<Achievements>
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -88,7 +90,8 @@ const DEFAULT_DATA: USER_PROFILE = {
     pass: {
         valid_until: 0,
         is_active: false
-    }
+    },
+    achievements: []
 }
 
 let PROFILES_DIR: string;
@@ -116,6 +119,8 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     }
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
+    if (!data.achievements) data.achievements = [];
+
     return data;
 }
 
