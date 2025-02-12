@@ -1,35 +1,47 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, ManageDebt, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('payment');
+const PAYMENT_HISTORY = new Map<Snowflake, {paid: string, time: number}>();
 
 export async function HandleCommandPay(interaction: ChatInputCommandInteraction, client: Client) {
     const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.TRANSFER);
     if (has_restriction) return;
 
+    const d = new Date();
+
     await interaction.deferReply();
 
     const sender_id = interaction.user.id;
     const receiver_id = interaction.options.getUser('user')!.id;
+    
+    if (PAYMENT_HISTORY.has(sender_id) && PAYMENT_HISTORY.get(sender_id)!.paid == receiver_id && PAYMENT_HISTORY.get(sender_id)!.time + 3_600_000) {
+        // being intentionally vague here because 
+        // I don't want p2p payments being used to
+        // cheat the gambling achievement
+        return interaction.editReply({
+            content:`:crying_cat_face: **${interaction.user.displayName}**, you can't pay this person right now!`
+        });
+    }
 
     if (receiver_id == client.user!.id) {
         return interaction.editReply({
-            content: `:bangbang: <@!${sender_id}>... I'm flattered, but I don't accept payments...`,
+            content: `:bangbang: **${interaction.user.displayName}**... I'm flattered, but I don't accept payments...`,
         });
     }
 
     if (sender_id == receiver_id) {
         return interaction.editReply({
-            content: `:crying_cat_face: <@!${sender_id}>, do you need a friend..?`,
+            content: `:crying_cat_face: **${interaction.user.displayName}**, do you need a friend..?`,
         });
     }
 
     if (interaction.options.getUser('user')!.bot) {
         return interaction.editReply({
-            content: `:rotating_light: <@!${sender_id}>, what do you think you're doing?!`,
+            content: `:rotating_light: **${interaction.user.displayName}**, what do you think you're doing?!`,
         });
     }
 
@@ -76,6 +88,8 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     RemoveFromWallet(sender_id, pay_amount);
     AddToWallet(receiver_id, pay_amount);
 
+    PAYMENT_HISTORY.set(sender_id, {paid: receiver_id, time:d.getTime()});
+
     const interaction_embed = new EmbedBuilder()
         .setColor(0x9d60cc)
         .setTitle(`okash Transfer of OKA${pay_amount}`)
@@ -117,7 +131,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     if (sender_prefs.okash_notifications) interaction.user.send({
         embeds:[sender_embed]
     }).catch(() => {
-        (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${sender_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});
+        (interaction.channel as TextChannel).send({content:`:crying_cat_face: **${interaction.user.displayName}**, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});
     });
 }
 
@@ -135,4 +149,5 @@ export const PaySlashCommand =
             option.setName('amount').setNameLocalization('ja', '高')
             .setDescription('The amount to pay them').setDescriptionLocalization('ja', 'okashの分量を払う')
             .setRequired(true)
+            .setMaxValue(50_000)
         );
