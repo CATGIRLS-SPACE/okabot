@@ -11,6 +11,8 @@ import { join } from "path";
 import { readdirSync } from "fs";
 import { DoEarthquakeTest, SOCKET } from "../earthquakes/earthquakes";
 import { Achievements, GrantAchievement } from "./achievement";
+import { COIN_EMOJIS_DONE } from "../interactions/coinflip";
+import { ReleaseUserGame } from "../okash/games/roulette";
 
 const L = new Logger('onMessage.ts');
 
@@ -294,6 +296,40 @@ export async function CheckAdminShorthands(message: Message) {
 
                 DoEarthquakeTest(JSON.parse(data));
                 
+                message.react('✅');
+            }
+
+            if (message.content.startsWith('oka peek ')) {
+                const params = message.content.split(' ');
+                if (params.length < 3) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+                
+                const profile = GetUserProfile(params[2]);
+
+                const coin = COIN_EMOJIS_DONE[profile.customization.coin_color].split('_')[1];
+
+                (message.channel as TextChannel).send({
+                    content: `rules: ${profile.has_agreed_to_rules?'yes':'no'}\ncoin: ${coin}\nulids: ${profile.customization.unlocked.join(',')}\nokash: ${profile.okash_notifications?'yes':'no'}\nrestriction: ${profile.okash_restriction?.is_restricted?'yes':'no'}\nachievement: ${profile.achievements.join(',')}`
+                });
+
+                message.react('✅');
+            }
+
+            if (message.content.startsWith('oka release ')) {
+                const params = message.content.split(' ');
+                if (params.length < 3) return message.react('❌');
+
+                if (params[2] == 'me') params[2] = message.author.id;
+                if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+                
+                if (Number.isNaN(parseInt(params[2]))) throw new Error('params[2] is NaN');
+                
+                ReleaseUserGame(params[2]);
+
                 message.react('✅');
             }
         }

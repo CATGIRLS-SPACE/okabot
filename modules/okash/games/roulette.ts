@@ -1,7 +1,7 @@
 // users bet on a number, color (red/black), or section (odd/even, 1-18, 19-36). 
 // a virtual wheel spins, and if the ball lands on their chosen option, they win based on the payout odds (e.g., betting on a single number pays 35:1).
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, MessageFlags, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, MessageFlags, SlashCommandBuilder, Snowflake, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
 import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
@@ -147,7 +147,7 @@ async function StartRoulette(game: RouletteGame) {
             });
             if (game.bet == 50000) GrantAchievement(game.interaction.user, Achievements.MAX_WIN, game.interaction.channel as TextChannel);
             if (game.game_type == RouletteGameType.NUMBER) GrantAchievement(game.interaction.user, Achievements.ROULETTE_ONE, game.interaction.channel as TextChannel);
-            if (game.game_type == RouletteGameType.NUMBER_MULTIPLE && (<Array<number>> game.selection).length < 8 && (<Array<number>> game.selection).length > 1) GrantAchievement(game.interaction.user, Achievements.ROULETTE_MULTI, game.interaction.channel as TextChannel);
+            if (game.game_type == RouletteGameType.NUMBER_MULTIPLE && (game.selection as Array<number>).length < 8 && (game.selection as Array<number>).length > 1) GrantAchievement(game.interaction.user, Achievements.ROULETTE_MULTI, game.interaction.channel as TextChannel);
         } else {
             if (GetWallet(game.interaction.user.id) == 0 && GetBank(game.interaction.user.id) == 0) GrantAchievement(game.interaction.user, Achievements.NO_MONEY, game.interaction.channel as TextChannel);
             await game.interaction!.editReply({
@@ -564,6 +564,10 @@ export async function ListenForRouletteReply(message: Message) {
             }, 5000);
         }
     }
+}
+
+export function ReleaseUserGame(user_id: Snowflake) {
+    GAMES_ACTIVE.delete(user_id);
 }
 
 // -- command for deployment --

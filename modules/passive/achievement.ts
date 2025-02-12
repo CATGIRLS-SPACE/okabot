@@ -68,7 +68,7 @@ const ACHIEVEMENTS: {
     'newcf_alltime': {name:'Making History',description:'Get a new highest/lowest coinflip float of all time', class:'gamble'},
     'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble'},
     'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble'},
-    'landmutli': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble'},
+    'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble'},
     'maxbank': {name:'Too Rich',description:'Fill your bank with the max amount of okash', class:'okash'},
     'gamble_gobroke': {name:'Gamble Irresponsibly',description:'Go broke via a gambling game', class:'okash'},
     'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble'},

@@ -31,7 +31,7 @@ const COIN_EMOJIS_FLIP: {
     16:'cfw_dgreen',
     17:'cfw_rainbow'
 }
-const COIN_EMOJIS_DONE: {
+export const COIN_EMOJIS_DONE: {
     [key: number]: string
 } = {
     0:'cff',
