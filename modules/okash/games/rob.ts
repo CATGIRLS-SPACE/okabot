@@ -2,6 +2,9 @@ import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextCha
 import { AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji } from "../../../util/emoji";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
+import { join } from "node:path";
+import { BASE_DIRNAME } from "../../..";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
 
 const MESSAGES = [
@@ -12,7 +15,14 @@ const MESSAGES = [
     'Well, <@#USER2> can say goodbye to their #OKASH after being robbed by **#USER1**!'
 ];
 
+const BANK_MESSAGES = [
+    '**#USER** sneaks into the bank and steals #OKASH from the collected fines!',
+    '**#USER** takes a fat #OKASH from the collected fines at the bank!',
+    'Police are in hot pursuit after **#USER** takes #OKASH from the collected fines at the bank!'
+];
+
 const COOLDOWNS = new Map<string, number>();
+let BANK_LAST_ROBBED = 0;
 
 export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     const d = new Date();
@@ -20,6 +30,41 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         content: `:hourglass: **${interaction.user.displayName}**, you need to wait a bit before trying to rob! Come back in <t:${COOLDOWNS.get(interaction.user.id)}:R>`,
         flags: [MessageFlags.Ephemeral]
     });
+
+    if (interaction.options.getSubcommand(true) == 'bank') {
+        const ROB_DB_LOCATION = join(BASE_DIRNAME, 'db', 'rob.oka');
+        if (!existsSync(ROB_DB_LOCATION)) writeFileSync(ROB_DB_LOCATION, '{"fined":0}');
+
+        if (BANK_LAST_ROBBED + 3_600_000 > d.getTime()) return interaction.reply({
+            content: `:crying_cat_face: The bank is heavily guarded right now, come back later!`,
+            flags: [MessageFlags.Ephemeral]
+        });
+
+        BANK_LAST_ROBBED = d.getTime();
+
+        const bank_fine_balance = JSON.parse(readFileSync(ROB_DB_LOCATION, 'utf-8')).fined;
+
+        if (bank_fine_balance == 0) return interaction.reply({
+            content:`:crying_cat_face: There's no collected fines right now! Come back later!`,
+            flags: [MessageFlags.Ephemeral] 
+        });
+
+        COOLDOWNS.set(interaction.user.id, Math.floor(d.getTime() / 1000) + 3600);
+
+        const robbed_amount = Math.floor(Math.random() * bank_fine_balance) + 1; // min of 1 okash, max of all collected fines
+
+        AddToWallet(interaction.user.id, robbed_amount);
+
+        writeFileSync(ROB_DB_LOCATION, `{"fined":${bank_fine_balance - robbed_amount}}`);
+
+        interaction.reply({
+            content: BANK_MESSAGES[Math.floor(Math.random() * BANK_MESSAGES.length)]
+                .replace('#USER', interaction.user.displayName)
+                .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
+        });
+        
+        return;
+    } 
 
     const robbed_user = interaction.options.getUser('user', true);
 
@@ -74,6 +119,12 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
             RemoveFromBank(interaction.user.id, fine);
         }
 
+        const ROB_DB_LOCATION = join(BASE_DIRNAME, 'db', 'rob.oka');
+        if (!existsSync(ROB_DB_LOCATION)) writeFileSync(ROB_DB_LOCATION, `{"fined":0}`);
+        const bank_fine_balance = JSON.parse(readFileSync(ROB_DB_LOCATION, 'utf-8')).fined;
+        writeFileSync(ROB_DB_LOCATION, `{"fined":${bank_fine_balance + fine}}`);
+
+
         interaction.reply({
             content: `:scream_cat: **${interaction.user.displayName}** tries to rob <@${robbed_user.id}>, but fails and is fined ${GetEmoji(EMOJI.OKASH)} OKA**${fine}**!\n-# If your pockets wasn't enough to pay your fine, the remainder was automatically removed from your bank.`
         });
@@ -102,8 +153,15 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 export const RobSlashCommand = new SlashCommandBuilder()
     .setName('rob')
     .setDescription('Try and rob someone for some okash')
-    .addUserOption(o => o
+    .addSubcommand(sc => sc
         .setName('user')
-        .setDescription('who you want to rob')
-        .setRequired(true)
-    );
+        .setDescription('Rob a user of the okash in their wallet')
+        .addUserOption(o => o
+            .setName('user')
+            .setDescription('who you want to rob')
+        )
+    )
+    .addSubcommand(sc => sc
+        .setName('bank')
+        .setDescription('Rob the bank of the fines from failed robberies')
+    )
