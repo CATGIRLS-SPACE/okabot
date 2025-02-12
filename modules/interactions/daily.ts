@@ -73,11 +73,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const bonus = result - 750;
     const streak_count = GetDailyStreak(interaction.user.id);
 
-    if (streak_count == 7) GrantAchievement(interaction.user, Achievements.DAILY_7, interaction.channel as TextChannel);
-    if (streak_count == 30) GrantAchievement(interaction.user, Achievements.DAILY_30, interaction.channel as TextChannel);
-    if (streak_count == 61) GrantAchievement(interaction.user, Achievements.DAILY_61, interaction.channel as TextChannel);
-    if (streak_count == 100) GrantAchievement(interaction.user, Achievements.DAILY_100, interaction.channel as TextChannel);
-    if (streak_count == 365) GrantAchievement(interaction.user, Achievements.DAILY_365, interaction.channel as TextChannel);
+    if (streak_count >= 7) GrantAchievement(interaction.user, Achievements.DAILY_7, interaction.channel as TextChannel);
+    if (streak_count >= 30) GrantAchievement(interaction.user, Achievements.DAILY_30, interaction.channel as TextChannel);
+    if (streak_count >= 61) GrantAchievement(interaction.user, Achievements.DAILY_61, interaction.channel as TextChannel);
+    if (streak_count >= 100) GrantAchievement(interaction.user, Achievements.DAILY_100, interaction.channel as TextChannel);
+    if (streak_count >= 365) GrantAchievement(interaction.user, Achievements.DAILY_365, interaction.channel as TextChannel);
 
 
     
