@@ -1,12 +1,14 @@
 import { ApplicationIntegrationType, ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
 import { Channel } from "diagnostics_channel";
+import { EMOJI, GetEmoji } from "../../util/emoji";
 
 
 interface Achievement {
     name: string,
     description: string,
-    class: 'okabot' | 'gamble' | 'fun' | 'okash' | 'noshow'
+    class: 'okabot' | 'gamble' | 'fun' | 'okash' | 'noshow',
+    diff: 'e' | 't' | 'h' | 'ex' | 'na' // easy, tricky, hard, extra hard, not applicable (eg. levels)
 }
 
 export enum Achievements {
@@ -54,45 +56,45 @@ export enum Achievements {
 const ACHIEVEMENTS: {
     [key: string]: Achievement
 } = {
-    'level10': {name:'Level 10',description:'Get to level 10', class:'noshow'},
-    'level20': {name:'Level 20',description:'Get to level 20', class:'noshow'},
-    'level30': {name:'Level 30',description:'Get to level 30', class:'noshow'},
-    'level40': {name:'Level 40',description:'Get to level 40', class:'noshow'},
-    'level50': {name:'Level 50',description:'Get to level 50', class:'noshow'},
-    'level60': {name:'Level 60',description:'Get to level 60', class:'noshow'},
-    'level70': {name:'Level 70',description:'Get to level 70', class:'noshow'},
-    'level80': {name:'Level 80',description:'Get to level 80', class:'noshow'},
-    'level90': {name:'Level 90',description:'Get to level 90', class:'noshow'},
-    'level100': {name:'Level 100',description:'Get to level 100', class:'noshow'},
-    'level_beyond': {name:'BEYOND',description:'Get past level 100 to BEYOND', class:'noshow'},
-    'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble'},
-    'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble'},
-    'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble'},
-    'get21': {name:'Blackjack!',description:'Win a game of blackjack by getting 21', class:'gamble'},
-    'newcf_alltime': {name:'Making History',description:'Get a new highest/lowest coinflip float of all time', class:'gamble'},
-    'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble'},
-    'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble'},
-    'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble'},
-    'maxbank': {name:'Too Rich',description:'Fill your bank with the max amount of okash', class:'okash'},
-    'gamble_gobroke': {name:'Gamble Irresponsibly',description:'Go broke via a gambling game', class:'okash'},
-    'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble'},
-    'getdaily': {name:'The Beginning',description:'Get your daily reward for the first time', class:'okabot'},
-    'dailyweek': {name:'New Habit',description:'Get your daily reward for a week straight', class:'okabot'},
-    'dailymonth': {name:'Committed',description:'Get your daily reward for a month straight', class:'okabot'},
-    'daily2month': {name:'Unforgetful',description:'Get your daily reward for two months straight', class:'okabot'},
-    'daily100': {name:'One Hundred',description:'Get your daily reward for 100 days straight', class:'okabot'},
-    'dailyyear': {name:'I Can\'t Stop!',description:'Get your daily reward for one year. Congrats!', class:'okabot'},
-    'restorestreak': {name:'Oops, I Forgot',description:'Restore your daily streak with a streak restore', class:'okabot'},
-    'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun'},
-    'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun'},
-    'thankokabot': {name:'Nice List',description:'Thank okabot', class:'fun'},
-    'begenerous': {name:'Generosity',description:'Pay a user some okash', class:'okash'},
-    'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash', class:'fun'},
-    'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox', class:'fun'},
-    'notadmin': {name:'Get Outta Here!',description:'Try and use a management shorthand without permission',class:'fun'},
-    'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun'},
-    'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun'},
-    'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot'},
+    'level10': {name:'Level 10',description:'Get to level 10', class:'noshow', diff:'na'},
+    'level20': {name:'Level 20',description:'Get to level 20', class:'noshow', diff:'na'},
+    'level30': {name:'Level 30',description:'Get to level 30', class:'noshow', diff:'na'},
+    'level40': {name:'Level 40',description:'Get to level 40', class:'noshow', diff:'na'},
+    'level50': {name:'Level 50',description:'Get to level 50', class:'noshow', diff:'na'},
+    'level60': {name:'Level 60',description:'Get to level 60', class:'noshow', diff:'na'},
+    'level70': {name:'Level 70',description:'Get to level 70', class:'noshow', diff:'na'},
+    'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
+    'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
+    'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
+    'level_beyond': {name:'BEYOND',description:'Get past level 100 to BEYOND', class:'noshow', diff:'na'},
+    'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
+    'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
+    'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},
+    'get21': {name:'Blackjack!',description:'Win a game of blackjack by getting 21', class:'gamble', diff:'t'},
+    'newcf_alltime': {name:'Making History',description:'Get a new highest/lowest coinflip float of all time', class:'gamble', diff:'ex'},
+    'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble', diff:'h'},
+    'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble', diff:'ex'},
+    'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble', diff:'ex'},
+    'maxbank': {name:'Too Rich',description:'Fill your bank with the max amount of okash', class:'okash', diff:'h'},
+    'gamble_gobroke': {name:'Gamble Irresponsibly',description:'Go broke via a gambling game', class:'okash', diff:'t'},
+    'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble', diff:'t'},
+    'getdaily': {name:'The Beginning',description:'Get your daily reward for the first time', class:'okabot', diff:'e'},
+    'dailyweek': {name:'New Habit',description:'Get your daily reward for a week straight', class:'okabot', diff:'e'},
+    'dailymonth': {name:'Committed',description:'Get your daily reward for a month straight', class:'okabot', diff:'t'},
+    'daily2month': {name:'Unforgetful',description:'Get your daily reward for two months straight', class:'okabot', diff:'t'},
+    'daily100': {name:'One Hundred',description:'Get your daily reward for 100 days straight', class:'okabot', diff:'h'},
+    'dailyyear': {name:'I Can\'t Stop!',description:'Get your daily reward for one year. Congrats!', class:'okabot', diff:'h'},
+    'restorestreak': {name:'Oops, I Forgot',description:'Restore your daily streak with a streak restore', class:'okabot', diff:'e'},
+    'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun', diff:'t'},
+    'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun', diff:'e'},
+    'thankokabot': {name:'Nice List',description:'Thank okabot', class:'fun', diff:'e'},
+    'begenerous': {name:'Generosity',description:'Pay a user some okash', class:'okash', diff:'e'},
+    'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash', class:'fun', diff:'t'},
+    'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox', class:'fun', diff:'t'},
+    'notadmin': {name:'Get Outta Here!',description:'Try and use a management shorthand without permission',class:'fun', diff:'e'},
+    'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
+    'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun', diff:'e'},
+    'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot', diff:'h'},
 }
 
 /**
@@ -112,9 +114,16 @@ export function GrantAchievement(user: User, achievement: Achievements, channel:
     profile.achievements.push(achievement);
 
     const a = ACHIEVEMENTS[achievement];
+    const diff = {
+        'e': GetEmoji(EMOJI.DIFF_EASY),
+        't': GetEmoji(EMOJI.DIFF_TRICKY),
+        'h': GetEmoji(EMOJI.DIFF_HARD),
+        'ex': GetEmoji(EMOJI.DIFF_EXHARD),
+        'na':'(no diff)'
+    };
 
     channel.send({
-        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement **${a.name}**!\n-# ${a.description}`
+        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# ${a.description}`
     });
 
     UpdateUserProfile(user.id, profile);
@@ -174,6 +183,13 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     let list = `## Achievements\n`;
     let selected_achievements = [];
     const keys = Object.keys(ACHIEVEMENTS);
+    const difficulty = {
+        'e': GetEmoji(EMOJI.DIFF_EASY),
+        't': GetEmoji(EMOJI.DIFF_TRICKY),
+        'h': GetEmoji(EMOJI.DIFF_HARD),
+        'ex': GetEmoji(EMOJI.DIFF_EXHARD),
+        'na':'(no diff)'
+    }
     // filter out only the ones from that page
     for (const i in keys) {
         if (ACHIEVEMENTS[keys[i]].class == sub) selected_achievements.push({a:ACHIEVEMENTS[keys[i]],key:keys[i]});
@@ -181,7 +197,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
 
     for (const i in selected_achievements) {
         const locked = profile.achievements.indexOf(<Achievements> selected_achievements[i].key) == -1;
-        let line = locked?'🔒 ':'🔓 ';
+        let line = difficulty[selected_achievements[i].a.diff] + (locked?'🔒 ':'🔓 ');
         line += locked?`${selected_achievements[i].a.name} - ???`:`**${selected_achievements[i].a.name}** - ${selected_achievements[i].a.description}`
         
         list += `${line}\n`;

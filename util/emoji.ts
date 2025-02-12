@@ -28,7 +28,7 @@ export enum EMOJI {
     // --
     STREAK_RESTORE_GEM = 'g00',
     MYSTERY_GEM = 'g01',
-    SHOP_VOUCHER= 'sv',
+    SHOP_VOUCHER= 'sv2',
     // cards
     ACE = 'ca',
     TWO = 'c2',
@@ -56,6 +56,11 @@ export enum EMOJI {
     EPICENTER = 'eqe',
     // roulette
     ROULETTE_COLORS = 'rrb',
+    // achievement difficulty
+    DIFF_EASY = 'ade',
+    DIFF_TRICKY = 'adt',
+    DIFF_HARD = 'adh',
+    DIFF_EXHARD = 'adex'
 }
 
 const EMOJI_KEYS: {
@@ -91,6 +96,7 @@ const EMOJI_KEYS: {
     'g00':{prod:'1315084985589563492',dev:'1317965065298640936'},
     'g01':{prod:'1315098781477503128',dev:'1317965089109704804'},
     'sv': {prod: '1326718125215055934', dev: '1326716871797637160'},
+    'sv2': {prod: '1339364238409597002', dev: '1339364081961795629'},
     // cards
     'ca':{prod:'1317726303541006367',dev:'1317728258652901447'},
     'c2':{prod:'1317726214240206848',dev:'1317728181352009788'},
@@ -118,6 +124,11 @@ const EMOJI_KEYS: {
     'eqe':{prod:'1338645103752908870',dev:'1338645045720514591'},
     // roulette
     'rrb':{prod:'1335792608278085644',dev:'1335792470402928650'},
+    // achievement difficulty
+    'ade':{prod:'1339366866736648202',dev:'1339366378863329390'},
+    'adt':{prod:'1339366874760085726',dev:'1339366400132649031'},
+    'adh':{prod:'1339366883492626473',dev:'1339366408055816232'},
+    'adex':{prod:'1339366891881365624',dev:'1339366418386522152'},
 }
 
 export function GetEmoji(name: string): string {
