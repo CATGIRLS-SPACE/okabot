@@ -18,9 +18,8 @@ const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
     try {
-        if (CAN_USE_SHORTHANDS.includes(message.author.id)) {
-            if (message.content.startsWith('oka ') && 
-                (message.content.includes('them') || 
+        if (CAN_USE_SHORTHANDS.includes(message.author.id) && message.content.startsWith('oka')) {
+            if ((message.content.includes('them') || 
                 message.content.includes("796201956255334452")) && 
                 (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id == "796201956255334452"
             ) {
