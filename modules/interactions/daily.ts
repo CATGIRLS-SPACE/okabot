@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel } from "discord.js";
 import { ClaimDaily, GetDailyStreak } from "../okash/daily";
 import { GetEmoji } from "../../util/emoji";
-import { ScheduleDailyReminder } from "../tasks/dailyRemind";
+import { quickdraw, ScheduleDailyReminder } from "../tasks/dailyRemind";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const remindButton = new ButtonBuilder()
@@ -16,6 +16,7 @@ const earlyBar = new ActionRowBuilder<ButtonBuilder>()
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
+    const d = new Date();
 
     const result: number = ClaimDaily(interaction.user.id, false, interaction.channel as TextChannel);
 
@@ -41,6 +42,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             const ready = -(result * 1000);
             const success = ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
         
+            if (!success) GrantAchievement(i.user, Achievements.ANGER_OKABOT, i.channel as TextChannel);
+
             i.update({
                 content: success?`:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`
                 :`:pouting_cat: **${interaction.user.displayName}**, I already told you I'd remind you!!`,
@@ -54,6 +57,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (result == 750) {
         // 750 = no streak (technically 1 day)
         GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
+
+        if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
         if (interaction.locale == Locale.Japanese) return interaction.editReply({
             content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`
@@ -78,6 +83,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     
     let percentage = 100+(100*0.05*(streak_count-1));
     if (percentage > 200) percentage = 200;
+
+    if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
     if (interaction.locale == Locale.Japanese) return interaction.editReply({
         content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`

@@ -3,7 +3,7 @@ import { AddOneToInventory, AddToWallet, GetWallet, RemoveFromWallet } from "../
 import { GEMS, ITEMS, ITEM_TYPE } from "../okash/items";
 import { Logger } from "okayulogger";
 import { GetUserProfile, RestrictUser, UpdateUserProfile } from "../user/prefs";
-import { BASE_DIRNAME, client, DEV, LISTENING, SetListening } from "../..";
+import { BASE_DIRNAME, CAN_USE_SHORTHANDS, client, DEV, LISTENING, SetListening } from "../..";
 import { SelfUpdate } from "../../util/updater";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { UpdateMarkets } from "../okash/stock";
@@ -18,7 +18,7 @@ const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
     try {
-        if (message.author.id == "796201956255334452" || message.author.id == "502879264081707008") {
+        if (CAN_USE_SHORTHANDS.includes(message.author.id)) {
             if (message.content.startsWith('oka ') && 
                 (message.content.includes('them') || 
                 message.content.includes("796201956255334452")) && 
@@ -332,6 +332,11 @@ export async function CheckAdminShorthands(message: Message) {
 
                 message.react('✅');
             }
+        } else {
+            message.reply({
+                content:'https://tenor.com/view/chuunibyou-getoutofhere-getouttahere-gtfo-angry-gif-7611305'
+            });
+            GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
         }
     } catch (err) {
         message.reply({content:'error while parsing your command. check the params and try again.\n`' + err + '`'})

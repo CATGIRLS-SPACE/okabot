@@ -45,6 +45,10 @@ export enum Achievements {
     PAY_USER = 'begenerous', //
     OKASH_DROP = 'okashdrop', //
     LOOTBOX_DROP = 'lootboxdrop', //
+    SHORTHAND_NO = 'notadmin', //
+    VOICE_XP = 'voicemin300xp', //
+    ANGER_OKABOT = 'remindmetwice', //
+    FAST_CLAIM_REMINDER = 'quickclaim' //
 }
 
 const ACHIEVEMENTS: {
@@ -85,6 +89,10 @@ const ACHIEVEMENTS: {
     'begenerous': {name:'Generosity',description:'Pay a user some okash', class:'okash'},
     'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash', class:'fun'},
     'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox', class:'fun'},
+    'notadmin': {name:'Get Outta Here!',description:'Try and use a management shorthand without permission',class:'fun'},
+    'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun'},
+    'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun'},
+    'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot'},
 }
 
 /**

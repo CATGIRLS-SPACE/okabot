@@ -10,6 +10,7 @@ import { CheckAdminShorthands, DoRandomOkashRolls, DoRandomLootboxRolls } from '
 import * as config from './config.json';
 export const DMDATA_API_KEY = config.dmdata_api_key;
 export const DEV = config.extra.includes('use dev token'); // load this asap
+export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
 import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
 import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';

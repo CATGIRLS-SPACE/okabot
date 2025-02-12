@@ -4,6 +4,7 @@ import { BASE_DIRNAME, DEV } from "../..";
 import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('voice xp');
 
@@ -40,10 +41,12 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         
         const channel = client.channels.cache.get(CHANNEL_CHATSIES) as TextChannel;
         AddXP(newState.member!.id, channel, xp_gained);
-        
+
         channel.send({
             content:`<@${newState.member!.id}>, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
         });
+
+        if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, channel as TextChannel);
 
         VoiceData.delete(newState.member!.id);
     }

@@ -4,6 +4,7 @@ import { BASE_DIRNAME, client } from "../..";
 import { join } from "path";
 
 const reminders = new Map<Snowflake, {time: number, channel: Snowflake}>();
+export const quickdraw = new Map<Snowflake, number>();
 
 /**
  * Schedule a reminder for the daily being available
@@ -19,6 +20,8 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
         channel.send({
             content:`:clock3: <@${user_id}>, your daily is now available!`
         });
+        const dd = new Date();
+        quickdraw.set(user_id, dd.getTime());
         reminders.delete(user_id);
     }, time - d.getTime());
 
@@ -46,6 +49,8 @@ export function LoadReminders() {
             (client.channels.cache.get(reminder.channel) as TextChannel)!.send({
                 content:`:clock3: <@${reminder.user_id}>, your daily is now available!`
             });
+            const dd = new Date();
+            quickdraw.set(reminder.user_id, dd.getTime());
             reminders.delete(reminder.user_id);
         }, reminder.time - d.getTime());
     });
