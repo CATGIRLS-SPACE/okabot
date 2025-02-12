@@ -17,5 +17,5 @@ jobs:
               run: |
                 npm install --save-dev
                 npm install -g typescript
-                echo '{"token":"","devtoken":"","clientId":"","devclientId":"","status":{"type":0,"activity":"Development Mode~!"},"extra":["disable jma fetching","use dev token"],"dmdata_api_key":""}' | tee config.json
+                echo '{"token":"","devtoken":"","clientId":"","devclientId":"","status":{"type":0,"activity":"Development Mode~!"},"extra":["disable jma fetching","use dev token"],"dmdata_api_key":"","permitted_to_use_shorthands":[]}' | tee config.json
                 tsc
