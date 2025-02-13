@@ -1,4 +1,4 @@
-import { ApplicationIntegrationType, ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
+import { ApplicationIntegrationType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
 import { Channel } from "diagnostics_channel";
 import { EMOJI, GetEmoji } from "../../util/emoji";
@@ -119,11 +119,11 @@ export function GrantAchievement(user: User, achievement: Achievements, channel:
         't': GetEmoji(EMOJI.DIFF_TRICKY),
         'h': GetEmoji(EMOJI.DIFF_HARD),
         'ex': GetEmoji(EMOJI.DIFF_EXHARD),
-        'na':'(no diff)'
+        'na':''
     };
 
     channel.send({
-        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# ${a.description}`
+        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# Use "/achievement Progress Bar" to see what this achievement is!`
     });
 
     UpdateUserProfile(user.id, profile);
@@ -163,7 +163,7 @@ function CreateProgressBar(profile: USER_PROFILE): string {
 }
 
 export async function HandleCommandAchievements(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
+    // await interaction.deferReply();
 
     const profile = GetUserProfile(interaction.user.id);
     const sub = interaction.options.getString('page', true);
@@ -171,12 +171,14 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     if (sub == 'bar') {
         const bar = CreateProgressBar(profile);
         
-        if (profile.achievements.length == 0) return interaction.editReply({
-            content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`
+        if (profile.achievements.length == 0) return interaction.reply({
+            content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
+            flags: [MessageFlags.Ephemeral]
         });
         
-        return interaction.editReply({
-            content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description}`
+        return interaction.reply({
+            content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description}`,
+            flags: [MessageFlags.Ephemeral]
         });
     }
 
@@ -188,7 +190,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         't': GetEmoji(EMOJI.DIFF_TRICKY),
         'h': GetEmoji(EMOJI.DIFF_HARD),
         'ex': GetEmoji(EMOJI.DIFF_EXHARD),
-        'na':'(no diff)'
+        'na':''
     }
     // filter out only the ones from that page
     for (const i in keys) {
@@ -203,8 +205,9 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         list += `${line}\n`;
     }
 
-    interaction.editReply({
-        content: list
+    interaction.reply({
+        content: list,
+        flags: [MessageFlags.Ephemeral]
     });
 }
 
