@@ -222,7 +222,7 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
     RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50));
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for <:okash:1315058783889657928> OKA**${10000+(profile.level.level * 50)}**!`});
     
-    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level));
+    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level, profile.level.prestige || 0));
 }
 
 

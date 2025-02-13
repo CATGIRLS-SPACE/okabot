@@ -47,13 +47,14 @@ const CHAR_UNFILLED = '░';
 const CHAR_FILLED   = '█';
 const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
 
-export function CalculateTargetXP(level: number): number {
-    return Math.floor(100+(35*(level-1))); // start at 100
+export function CalculateTargetXP(level: number, prestige: number): number {
+    const base = prestige * 3600;
+    return base + Math.floor(100+(35*(level-1))); // start at 100
 }
 
 function CreateLevelBar(profile: USER_PROFILE): string {
     let bar = '**[**';
-    const needed_xp = CalculateTargetXP(profile.level.level);
+    const needed_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
     const target_chars = 20;
     const progress_ratio = profile.level.current_xp / needed_xp;
     const total_filled_chars = progress_ratio * target_chars;
@@ -138,6 +139,23 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.restore();
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
+    // beyond label if they have it
+    if (profile.level.prestige && profile.level.prestige > 0) {
+        ctx.fillStyle = '#6ef5b6';
+        ctx.beginPath();
+        ctx.roundRect(560-86, 10, 80, 25, 12);
+        ctx.fill();
+        ctx.closePath();
+        ctx.strokeStyle = '#1b3b2c';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(560-88, 8, 84, 29, 12);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#1b3b2c';
+        ctx.font = 'bold italic 16px Arial'
+        ctx.fillText('BEYOND', 560-81, 28);
+    }
     
 
     // User Name
@@ -148,7 +166,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     // Level
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#b4c1d9';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1] || 'BEYOND'} (${profile.level.level})`, 20, 90);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1 - ((profile.level.prestige || 0) * 100)]} (${profile.level.level})`, 20, 90);
 
     // XP Bar Background
     const barX = 20;
@@ -161,7 +179,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fill();
 
     // XP Bar Progress
-    const progressRatio = profile.level.current_xp / CalculateTargetXP(profile.level.level);
+    const progressRatio = profile.level.current_xp / CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
     ctx.fillStyle = bar_color.fg;
     ctx.beginPath();
     ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
@@ -173,7 +191,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.textAlign = 'left';
     ctx.fillText(`${Math.floor(profile.level.current_xp)} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
-    ctx.fillText(`${CalculateTargetXP(profile.level.level)} XP`, barWidth + 10, barY + 19);
+    ctx.fillText(`${CalculateTargetXP(profile.level.level, profile.level.prestige || 0)} XP`, barWidth + 10, barY + 19);
 
     // sticker demo
     // const sticker = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'okash.png')));
@@ -200,7 +218,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         UpdateUserProfile(user_to_get.id, profile);
     }
 
-    const target_xp = CalculateTargetXP(profile.level.level);
+    const target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
 
     if (user_to_get.id != interaction.user.id) return interaction.reply({
             content:`**${user_to_get.displayName}** is currently at level **${profile.level.level}**.\n${CreateLevelBar(profile)} **${profile.level.current_xp}XP** / **${target_xp}XP**`,
@@ -215,8 +233,8 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     });
 }
 
-export function CalculateOkashReward(level: number): number {
-    return Math.floor((100 * level + 500) / 5);
+export function CalculateOkashReward(level: number, prestige: number): number {
+    return Math.floor((100 * level + 500) / 5) + (prestige * 2500);
 }
 
 export function Dangerous_WipeAllLevels() {

@@ -50,7 +50,8 @@ export enum Achievements {
     SHORTHAND_NO = 'notadmin', //
     VOICE_XP = 'voicemin300xp', //
     ANGER_OKABOT = 'remindmetwice', //
-    FAST_CLAIM_REMINDER = 'quickclaim' //
+    FAST_CLAIM_REMINDER = 'quickclaim', //
+    PRESTIGE = 'prestige'
 }
 
 const ACHIEVEMENTS: {
@@ -95,6 +96,7 @@ const ACHIEVEMENTS: {
     'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
     'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun', diff:'e'},
     'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot', diff:'h'},
+    'prestige': {name:'Beyond Comprehension',description:'You went above and beyond. Prestige at level 101',class:'okabot', diff:'ex'},
 }
 
 /**

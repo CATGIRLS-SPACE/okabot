@@ -27,19 +27,19 @@ export async function AddXP(user_id: string, channel: TextChannel, amount?: numb
     const profile = GetUserProfile(user_id);
     
     profile.level.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
-    let target_xp = CalculateTargetXP(profile.level.level);
+    let target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
 
     if (profile.level.current_xp >= target_xp) {
         profile.level.current_xp = profile.level.current_xp - target_xp; // carry over extra XP
         profile.level.level++;
 
-        target_xp = CalculateTargetXP(profile.level.level);
+        target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
 
-        const okash_reward = CalculateOkashReward(profile.level.level);
+        const okash_reward = CalculateOkashReward(profile.level.level, profile.level.prestige || 0);
         AddToWallet(user_id, okash_reward);
         
         channel.send({
-            content: `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[profile.level.level - 1]}** (${profile.level.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
+            content: `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[(profile.level.level - 1) - ((profile.level.prestige || 0) * 100)]}** (${profile.level.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
             flags: [MessageFlags.SuppressNotifications]
         });
 

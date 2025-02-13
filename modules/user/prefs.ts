@@ -49,7 +49,8 @@ export interface USER_PROFILE {
     okash_notifications: boolean,
     level: {
         level: number,
-        current_xp: number
+        current_xp: number,
+        prestige?: number
     },
     owes: {[key: string]: number},
     pass?: {
@@ -84,7 +85,8 @@ const DEFAULT_DATA: USER_PROFILE = {
     okash_notifications: true,
     level: {
         level: 1,
-        current_xp: 0
+        current_xp: 0,
+        prestige: 0
     },
     owes: {},
     pass: {
