@@ -4,7 +4,7 @@ import { DailySlashCommand } from "../interactions/daily";
 import { PaySlashCommand } from "../interactions/pay";
 import { MoveMoneySlashCommand } from "../interactions/transfer";
 import { LeaderboardSlashCommand } from "../interactions/leaderboard";
-import { CoinflipSlashCommand } from "../interactions/coinflip";
+import { CoinflipSlashCommand } from "../okash/games/coinflip";
 import { RecentEarthquakeSlashCommand } from "../earthquakes/earthquakes";
 import { UseSlashCommand } from "../interactions/use";
 import { BuySlashCommand } from "../interactions/buy";

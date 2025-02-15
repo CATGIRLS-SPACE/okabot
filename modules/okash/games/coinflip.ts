@@ -1,15 +1,15 @@
 import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../user/prefs";
+import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
+import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../../user/prefs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME, client, CoinFloats } from "../..";
+import { BASE_DIRNAME, client, CoinFloats } from "../../../index";
 import { join } from "path";
 import { getRandomValues } from "crypto";
-import { AddXP } from "../levels/onMessage";
-import { EMOJI, GetEmoji } from "../../util/emoji";
+import { AddXP } from "../../levels/onMessage";
+import { EMOJI, GetEmoji } from "../../../util/emoji";
 import { format } from "util";
-import { EventType, RecordMonitorEvent } from "../../util/monitortool";
-import { Achievements, GrantAchievement } from "../passive/achievement";
+import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
+import { Achievements, GrantAchievement } from "../../passive/achievement";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();

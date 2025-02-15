@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Client, DMChannel, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
-import { HandleCommandCoinflip } from './modules/interactions/coinflip.js';
+import { HandleCommandCoinflip } from './modules/okash/games/coinflip';
 import { HandleCommandDaily } from './modules/interactions/daily.js';
 import { HandleCommandPay } from './modules/interactions/pay.js';
 import { HandleCommandOkash } from './modules/interactions/okash.js';
@@ -47,6 +47,7 @@ import { all } from 'axios';
 import { HandleCommandRob } from './modules/okash/games/rob';
 import { LoadReminders } from './modules/tasks/dailyRemind';
 import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
+import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 
 export const BASE_DIRNAME = __dirname;
 
@@ -80,6 +81,7 @@ export const client = new Client({
 });
 
 client.once(Events.ClientReady, (c: Client) => {
+    RegisterAllShorthands();
     SetupPrefs(__dirname);
     // SetupStocks(__dirname);
     LoadVoiceData();
@@ -258,7 +260,8 @@ client.on(Events.MessageCreate, async message => {
     DoLeveling(message);
     CheckForAgreementMessage(message);
     WordleCheck(message);
-    CheckAdminShorthands(message);
+    // CheckAdminShorthands(message); // v1
+    CheckForShorthand(message); // v2
     DoRandomOkashRolls(message);
     DoRandomLootboxRolls(message);
     ListenForRouletteReply(message);

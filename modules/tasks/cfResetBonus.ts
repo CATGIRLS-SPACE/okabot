@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync } from 'fs';
 const DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT = false;
 
 const COINFLIP_MINMAX_BONUS = 1000;
-const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 15 * * *':'0 * * * * *';
+const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 9 * * *':'0 * * * * *';
 const BROADCAST_CHANNEL = !DEV?'1019089378343137373':'941843973641736253'; // #chatsies / #okabot-private-test
 const L = new Logger('coinflip reset bonus');
 
@@ -19,7 +19,7 @@ let c: Client;
 
 export function ScheduleJob(client: Client) {
     c = client;
-    const job = scheduleJob(COINFLIP_MINMAX_FREQUENCY, async () => {
+    scheduleJob(COINFLIP_MINMAX_FREQUENCY, async () => {
         L.info('Bonus time has arrived, running tasks...');
 
         // read stats.oka file for cf minmax
@@ -27,7 +27,7 @@ export function ScheduleJob(client: Client) {
 
         if (!stats.coinflip.daily) return L.info('No daily information, skipping today...');
         if (stats.coinflip.daily.high.user_id == 'okabot' || stats.coinflip.daily.low.user_id == 'okabot') return;
-        
+
         const channel = c.channels.cache.get(BROADCAST_CHANNEL) as TextChannel;
         L.info(`channel: #${channel.name}`);
 

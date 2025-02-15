@@ -11,7 +11,7 @@ import { join } from "path";
 import { readdirSync } from "fs";
 import { DoEarthquakeTest, SOCKET } from "../earthquakes/earthquakes";
 import { Achievements, GrantAchievement } from "./achievement";
-import { COIN_EMOJIS_DONE } from "../interactions/coinflip";
+import { COIN_EMOJIS_DONE } from "../okash/games/coinflip";
 import { ReleaseUserGame } from "../okash/games/roulette";
 
 const L = new Logger('onMessage.ts');
