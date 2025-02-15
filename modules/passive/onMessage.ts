@@ -17,6 +17,8 @@ import { ReleaseUserGame } from "../okash/games/roulette";
 const L = new Logger('onMessage.ts');
 
 export async function CheckAdminShorthands(message: Message) {
+    if (!message.content.startsWith('oka ')) return;
+
     try {
         if (CAN_USE_SHORTHANDS.includes(message.author.id)) {
             if ((message.content.includes('them') || 
@@ -333,7 +335,6 @@ export async function CheckAdminShorthands(message: Message) {
                 message.react('✅');
             }
         } else {
-            if (!message.content.startsWith('oka ')) return;
             message.reply({
                 content:'https://tenor.com/view/chuunibyou-getoutofhere-getouttahere-gtfo-angry-gif-7611305'
             });
