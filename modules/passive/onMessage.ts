@@ -1,6 +1,6 @@
 import {Message, TextChannel} from "discord.js";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
-import {ITEM_TYPE, ITEMS} from "../okash/items";
+import {ITEMS} from "../okash/items";
 import {Logger} from "okayulogger";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {Achievements, GrantAchievement} from "./achievement";
@@ -33,7 +33,7 @@ export async function DoRandomDrops(message: Message) {
             await Sleep(3000);
             await cl_reply.reply(':anger: Ow..!? Why was there a :package: **Common Lootbox** there!?');
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
-            AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_COMMON);
+            AddOneToInventory(message.author.id, ITEMS.LOOTBOX_COMMON);
             break;
 
         default:
@@ -57,7 +57,7 @@ export async function DoRandomDrops(message: Message) {
             await Sleep(3000);
             await cl_reply.reply(':anger: Ow..!? Why was there a :package: **Rare Lootbox** there!?');
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
-            AddOneToInventory(message.author.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_COMMON);
+            AddOneToInventory(message.author.id, ITEMS.LOOTBOX_COMMON);
             break;
 
         default:

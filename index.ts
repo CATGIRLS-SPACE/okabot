@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Client, DMChannel, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
+import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
 
 import { WordleCheck } from './modules/extra/wordle';
 import { HandleCommandCoinflip } from './modules/okash/games/coinflip';
@@ -26,7 +26,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
 import { Dangerous_WipeAllLevels, HandleCommandLevel } from './modules/levels/levels';
-import { AddXP, DoLeveling } from './modules/levels/onMessage';
+import { DoLeveling } from './modules/levels/onMessage';
 import { SetupBlackjackMessage } from './modules/okash/games/blackjack';
 import { StartHTTPServer } from './modules/http/server';
 import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
@@ -34,16 +34,12 @@ import { HandleCommandSell } from './modules/interactions/sell';
 import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
 import { ScheduleJob } from './modules/tasks/cfResetBonus';
 import { GenerateCoinflipDataDisplay, RenderStockDisplay } from './modules/extra/datarenderer';
-import { SetupStocks } from './modules/okash/stock';
 import { HandleCommandStock } from './modules/interactions/stock';
-import { ScheduleStocksTask } from './modules/tasks/updateStocks';
 import { HandleCommandHelp } from './modules/interactions/help';
 import { HandleCommandTransfer } from './modules/interactions/transfer';
 import { DeployCommands } from './modules/deployment/commands';
-import { StartDMDataWS } from './modules/earthquakes/dmdata';
 import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
 import { GetMostRecentEvents } from './util/monitortool';
-import { all } from 'axios';
 import { HandleCommandRob } from './modules/okash/games/rob';
 import { LoadReminders } from './modules/tasks/dailyRemind';
 import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
@@ -162,11 +158,8 @@ client.on(Events.InteractionCreate, async interaction => {
             break;
         case 'debug':
             const d = new Date();
-            const allEvents = GetMostRecentEvents();
-            let recent_events = '';
-            allEvents.forEach(evt => { recent_events = recent_events + `(${evt.event_id}) - ${JSON.stringify(evt.data)} - ${evt.readable_message}\n` })
             await interaction.reply({
-                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nRecent Events:` + '```' + recent_events + '```',
+                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`,
                 flags: [MessageFlags.Ephemeral]
             });
             break;
@@ -390,7 +383,7 @@ process.on('uncaughtException', (error) => {
 });
 
 // Catch unhandled promise rejections
-process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+process.on('unhandledRejection', (reason: any) => {
     L.error('okabot has encountered an uncaught rejection!');
     console.error('Unhandled Rejection:', reason);
     try {

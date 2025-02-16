@@ -78,6 +78,7 @@ const ONE_DAY = 86400000;
  * Claim a daily reward and calculate the streak amount.
  * @param user_id The Discord user ID who is claiming
  * @param reclaim Set the double_claim flag to true?
+ * @param channel The channel to pass to the AddXP call
  * @returns The amount claimed on success, negative time until next daily on failure.
  */
 export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: TextChannel): number {
@@ -101,7 +102,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
             AddToWallet(user_id, 750);
             writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 
-            AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
+            AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
             AddXP(user_id, channel, 50);
 
@@ -122,7 +123,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
 
         AddToWallet(user_id, amount);
         writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-        AddOneToInventory(user_id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);
+        AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
         AddXP(user_id, channel, 55);
 

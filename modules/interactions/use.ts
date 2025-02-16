@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
-import { RestoreLastDailyStreak, SkipDailyOnce } from "../okash/daily";
-import { GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
+import { RestoreLastDailyStreak } from "../okash/daily";
+import { ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { commonLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
@@ -8,8 +8,8 @@ import { GetEmoji, EMOJI } from "../../util/emoji";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
-        case 'streak restore': case 'g00':
-            item_g00(interaction);
+        case 'streak restore': case 'sr':
+            item_streak_restore(interaction);
             break;
 
         case 'weighted coin': case 'wc':
@@ -33,20 +33,20 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
     }
 }
 
-// GEMS.STREAK_RESTORE
-async function item_g00(interaction: ChatInputCommandInteraction) {
+// was GEMS.STREAK_RESTORE, now is ITEMS.STREAK_RESTORE
+async function item_streak_restore(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
     const inventory = GetInventory(interaction.user.id);
 
-    if (inventory.gems.indexOf(GEMS.STREAK_RESTORE) == -1)
+    if (inventory.other.indexOf(ITEMS.STREAK_RESTORE) == -1)
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any <:g00:1315084985589563492> **Streak Restore** gems!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore**!`
         });
 
     const success = await RestoreLastDailyStreak(interaction);
 
-    if (success) RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.GEM, GEMS.STREAK_RESTORE);
+    if (success) RemoveOneFromInventory(interaction.user.id, ITEMS.STREAK_RESTORE);
 }
 
 
@@ -72,7 +72,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
     preferences.flags.push(FLAG.WEIGHTED_COIN_EQUIPPED);
     UpdateUserProfile(interaction.user.id, preferences);
 
-    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.WEIGHTED_COIN_ONE_USE);    
+    RemoveOneFromInventory(interaction.user.id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
     interaction.editReply({
         content: `<:cat_sunglasses:1315853022324326482> **${interaction.user.displayName}** can feel their luck increasing already as they equip their <:cff_green:1315843280776462356> **Weighted Coin**.`
@@ -91,7 +91,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_COMMON);
+    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
     
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opened their :package: **Common Lootbox** and found...`
@@ -104,13 +104,14 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     switch (reward.type) {
         case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, ITEM_TYPE.ITEM, reward.value)
+            AddOneToInventory(interaction.user.id, reward.value)
             rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`
             break;
     
         case LOOTBOX_REWARD_TYPE.OKASH:
             AddToWallet(interaction.user.id, reward.value)
-            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`
+            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
+            break;
 
         default:
             break;
@@ -133,7 +134,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_RARE);
+    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
     
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opened their :package: **Rare Lootbox** and found...`
@@ -146,7 +147,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
 
     switch (reward.type) {
         case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, ITEM_TYPE.ITEM, reward.value);
+            AddOneToInventory(interaction.user.id, reward.value);
 
             // Dynamic message based on the item received
             if (reward.value === ITEMS.WEIGHTED_COIN_ONE_USE) {
@@ -158,7 +159,8 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     
         case LOOTBOX_REWARD_TYPE.OKASH:
             AddToWallet(interaction.user.id, reward.value)
-            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`
+            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
+            break;
 
         default:
             break;

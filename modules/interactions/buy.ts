@@ -39,14 +39,14 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
 
     if (!PRICES[wanted_item]) return interaction.editReply({
-        content:(wanted_item == 'weighted coin')?`:crying_cat_face: Silly **${interaction.user.displayName}**, you should know I don't sell gambling buffs here!`:`<:cat_raised:1315878043578925056> Looks like I don't sell that here, sorry!`
+        content:(wanted_item == 'weighted coin')?`:crying_cat_face: Silly **${interaction.user.displayName}**, you should know I don't sell gambling buffs here!`:`${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Looks like I don't sell that here, sorry!`
     });
 
     const price = PRICES[wanted_item!.toLowerCase()];
     const wallet = GetWallet(interaction.user.id);
     
     if (wallet < price) return interaction.editReply({
-        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you'll need <:okash:1315058783889657928> OKA**${price-wallet}** more to buy that!`
+        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you'll need ${GetEmoji(EMOJI.OKASH)} OKA**${price-wallet}** more to buy that!`
     });
 
     switch (wanted_item) {
@@ -56,8 +56,8 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         // gems
 
-        case 'streak restore': case 'g00':
-            AddOneToInventory(interaction.user.id, ITEM_TYPE.GEM, GEMS.STREAK_RESTORE);
+        case 'streak restore': case 'sr':
+            AddOneToInventory(interaction.user.id, ITEMS.STREAK_RESTORE);
             break;
         
         // coin customizations
@@ -136,7 +136,7 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
-        RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.SHOP_VOUCHER);
+        RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
     }
 
     profile.customization.unlocked.push(unlock);
@@ -181,7 +181,7 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
-        RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.SHOP_VOUCHER);
+        RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
     }
 
 

@@ -59,38 +59,19 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             })
         }
     } else {
-        const inventory = GetInventory(interaction.user.id);
+        const inventory = GetInventory(interaction.user.id).other;
         let counts: any = {};
 
-        for (const gem of inventory.gems) {
-            counts[gem] = counts[gem] ? counts[gem] + 1 : 1;
+        for (let item in inventory) {
+            counts[inventory[item]]++;
         }
 
-        const gems_done: Array<GEMS> = [];
-        const items_done: Array<ITEMS> = [];
-
-        for (const gem of inventory.gems) {
-            if (gems_done.indexOf(gem) == -1) {
-                fields.push(
-                    {name: `${counts[gem]}x ${GEM_NAMES[gem].name}`, value:GEM_NAMES[gem].desc}
-                );
-                gems_done.push(gem);
-            }
-        }
-
-        counts = {};
-        for (const item of inventory.other) {
-            counts[item] = counts[item] ? counts[item] + 1 : 1;
-        }
-
-        for (const item of inventory.other) {
-            if (items_done.indexOf(item) == -1) {
-                fields.push(
-                    {name: `${counts[item]}x ${ITEM_NAMES[item].name}`, value:ITEM_NAMES[item].desc}
-                );
-                items_done.push(item);
-            }
-        }
+        Object.keys(counts).forEach(item => {
+            fields.push({
+                name: `**${counts[item]}x ${ITEM_NAMES[parseInt(item)].name}**`,
+                value: ITEM_NAMES[parseInt(item)].desc
+            })
+        });
     }
 
     if (fields.length == 0) {

@@ -12,7 +12,6 @@ export interface Wallet {
     wallet: number,
     bank: number,
     inventory: {
-        gems: Array<GEMS>,
         other: Array<ITEMS>
     }
 }
@@ -28,7 +27,6 @@ function CheckVersion(user_id: string) {
             wallet: 0,
             bank: 0,
             inventory: {
-                gems: [],
                 other: []
             }
         };
@@ -51,13 +49,12 @@ function CheckVersion(user_id: string) {
                 wallet: wallet.wallet,
                 bank: wallet.bank,
                 inventory: {
-                    gems: [],
                     other: []
                 }
             };
             wallet.version = 2;
             writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
-        } else throw new Error();
+        } else throw new Error(`unsupported version ${version} ?????`);
         return;
     } catch {
         const new_data: Wallet = {
@@ -65,7 +62,6 @@ function CheckVersion(user_id: string) {
             wallet: parseInt(data),
             bank: 0,
             inventory: {
-                gems: [],
                 other: []
             }
         };
@@ -181,46 +177,25 @@ export function GetInventory(user_id: string) {
     return data.inventory;
 }
 
-export function RemoveOneFromInventory(user_id: string, type: ITEM_TYPE, item: GEMS | ITEMS) {
+export function RemoveOneFromInventory(user_id: string, item: ITEMS) {
     CheckVersion(user_id);
 
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
-    switch (type) {
-        case ITEM_TYPE.GEM:
-            if (data.inventory.gems.indexOf(item as GEMS) == -1) return;
-            data.inventory.gems.splice(data.inventory.gems.indexOf(item as GEMS), 1)
-            break;
-    
-        case ITEM_TYPE.ITEM:
-            if (data.inventory.other.indexOf(item as ITEMS) == -1) return;
-            data.inventory.other.splice(data.inventory.other.indexOf(item as ITEMS), 1)
-            break;
-    }
+    if (data.inventory.other.indexOf(item as ITEMS) == -1) return;
+    data.inventory.other.splice(data.inventory.other.indexOf(item as ITEMS), 1)
 
     writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-
-    RecordMonitorEvent(EventType.POCKETS_MODIFIED, {user_id, type, item}, `${type}-type item ${item} was removed from ${user_id}'s pockets`);
 }
 
-export function AddOneToInventory(user_id: string, type: ITEM_TYPE, item: GEMS | ITEMS) {
+export function AddOneToInventory(user_id: string, item: ITEMS) {
     CheckVersion(user_id);
 
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
-    switch (type) {
-        case ITEM_TYPE.GEM:
-            data.inventory.gems.push(item as GEMS);
-            break;
-    
-        case ITEM_TYPE.ITEM:
-            data.inventory.other.push(item as ITEMS);
-            break;
-    }
+    data.inventory.other.push(item);
 
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');    
-
-    RecordMonitorEvent(EventType.POCKETS_MODIFIED, {user_id, type, item}, `${type}-type item ${item} was added to ${user_id}'s pockets`);
+    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
 }
 
 export function Dangerous_WipeAllWallets() {
