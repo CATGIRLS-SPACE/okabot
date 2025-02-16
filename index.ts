@@ -5,7 +5,7 @@ import { HandleCommandCoinflip } from './modules/okash/games/coinflip';
 import { HandleCommandDaily } from './modules/interactions/daily.js';
 import { HandleCommandPay } from './modules/interactions/pay.js';
 import { HandleCommandOkash } from './modules/interactions/okash.js';
-import { CheckAdminShorthands, DoRandomOkashRolls, DoRandomLootboxRolls } from './modules/passive/onMessage.js';
+import {DoRandomDrops} from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
 export const DMDATA_API_KEY = config.dmdata_api_key;
@@ -260,10 +260,8 @@ client.on(Events.MessageCreate, async message => {
     DoLeveling(message);
     CheckForAgreementMessage(message);
     WordleCheck(message);
-    // CheckAdminShorthands(message); // v1
     CheckForShorthand(message); // v2
-    DoRandomOkashRolls(message);
-    DoRandomLootboxRolls(message);
+    DoRandomDrops(message);
     ListenForRouletteReply(message);
 
     if (message.channel.id == "1321639990383476797") {

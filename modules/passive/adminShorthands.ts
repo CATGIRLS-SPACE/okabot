@@ -6,6 +6,7 @@ import {AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserProfile, RestrictUser, UpdateUserProfile} from "../user/prefs";
 import {SelfUpdate} from "../../util/updater";
+import {ReleaseUserGame} from "../okash/games/roulette";
 
 
 interface ShorthandList {
@@ -22,7 +23,7 @@ const L = new Logger('admin shorthands');
  */
 function RegisterShorthand(key: string, on_trigger: CallableFunction) {
     Shorthands[key] = on_trigger;
-    L.info(`registered shorthand '${key}'`);
+    // L.info(`registered shorthand '${key}'`);
 }
 
 // --
@@ -114,6 +115,13 @@ export function RegisterAllShorthands() {
 
     RegisterShorthand('oka rollback ', async (message: Message, params: string[]) => {
         SelfUpdate(message, params[2]);
+    });
+
+    RegisterShorthand('oka release ', async (message: Message, params: string[]) => {
+        // for fixing the weird issue where roulette just doesn't release the user from the active games.
+        if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
+
+        ReleaseUserGame(params[2]);
     });
 }
 
