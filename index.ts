@@ -244,6 +244,15 @@ const TYO_RESPONSE: Array<string> = [
     'i do my best!'
 ]
 
+const TYOB_RESPONSE: Array<string> = [
+    'my name is okabot!',
+    'it is not okaboob!',
+    'why do you bully me :crying_cat_face:',
+    'it is okabot :pouting_cat:',
+    'please call me okabot :crying_cat_face:',
+    'https://tenor.com/view/sanae-dekomori-crying-anime-gif-6076570'
+]
+
 // Handling message-based things:
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
@@ -280,6 +289,12 @@ client.on(Events.MessageCreate, async message => {
             content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
         });
         GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel); 
+    }
+
+    if (message.content.toLocaleLowerCase() == 'thank you okaboob') {
+        message.reply({
+            content:TYOB_RESPONSE[Math.floor(Math.random() * TYOB_RESPONSE.length)]
+        });; 
     }
 
     if (message.content.toLocaleLowerCase().includes('fuck you') && (
