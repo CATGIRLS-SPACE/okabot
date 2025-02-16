@@ -85,13 +85,13 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     const inventory = GetInventory(interaction.user.id);
     // const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
-    if (inventory.other.indexOf(ITEMS.RANDOM_DROP_COMMON) == -1) {
+    if (inventory.other.indexOf(ITEMS.LOOTBOX_COMMON) == -1) {
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any :package: **Common Lootboxes**!`
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_COMMON);
+    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_COMMON);
     
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opened their :package: **Common Lootbox** and found...`
@@ -127,13 +127,13 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     const inventory = GetInventory(interaction.user.id);
     // const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
-    if (inventory.other.indexOf(ITEMS.RANDOM_DROP_RARE) == -1) {
+    if (inventory.other.indexOf(ITEMS.LOOTBOX_RARE) == -1) {
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any :package: **Rare Lootboxes**!`
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.RANDOM_DROP_RARE);
+    RemoveOneFromInventory(interaction.user.id, ITEM_TYPE.ITEM, ITEMS.LOOTBOX_RARE);
     
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opened their :package: **Rare Lootbox** and found...`

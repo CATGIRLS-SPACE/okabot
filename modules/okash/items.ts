@@ -1,21 +1,20 @@
 // once these have been used you **CANNOT** change the order of them
 // if you add an item, it MUST be at the end, otherwise you will BREAK a user file!
 
+/**
+ * @Deprecated code should move GEMS.STREAK_RESTORE to use ITEMS_STREAK_RESTORE instead
+ */
 export enum GEMS {
     STREAK_RESTORE,     // g00
-    DROP_BOOST,         // gb0
-    HIGH_DROP_BOOST,    // gb1
-    MYSTERY_GEM,        // g01
-    DAILY_DOUBLE_CLAIM  // g02
 }
 
 export enum ITEMS {
-    RANDOM_DROP_COMMON,
-    RANDOM_DROP_RARE,
-    RANDOM_DROP_RAREST,
+    LOOTBOX_COMMON,
+    LOOTBOX_RARE,
+    LOOTBOX_EX,
     WEIGHTED_COIN_ONE_USE,
-    WEIGHTED_COIN_THREE_USE,
-    GEM_SHARD,
+    STREAK_RESTORE,
+    UNUSED_ITEM_ID_5,
     SHOP_VOUCHER,
     LOT_SCRATCH,
 }
@@ -33,10 +32,10 @@ export enum CUSTOMIZATION_UNLOCKS {
     CV_LEVEL_BAR_BLUE,
     CV_LEVEL_BAR_PINK,
     CV_LEVEL_BAR_OKABOT,
-    STR_COINFLIP,
-    STR_OKASH,
-    SYS_BANK_ACCESS,
-    SYS_LOAN_ACCESS,
+    UNUSED_CUST_ID_12,
+    UNUSED_CUST_ID_13,
+    UNUSED_CUST_ID_14,
+    UNUSED_CUST_ID_15,
     COIN_DGREEN, // normal green = reserved for weighted coin
     COIN_RAINBOW,
     CV_LEVEL_BANNER_USER,
