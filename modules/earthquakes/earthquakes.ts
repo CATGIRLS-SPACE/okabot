@@ -18,6 +18,7 @@ const locations_english: {[key: string]: string} = {};
 
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
     const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
 
     const OriginTime = new Date(earthquake.originTime);

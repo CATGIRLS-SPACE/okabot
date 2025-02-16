@@ -228,7 +228,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     await generateLevelBanner(interaction, profile);
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'level-banner.png'));
     interaction.editReply({
-        content:`-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
+        content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
         files: [image]
     });
 }

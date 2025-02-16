@@ -132,13 +132,40 @@ if (WIPE) {
 if (!NO_LAUNCH) client.login((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token);
 if (DEPLOY) DeployCommands((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token, (config.extra && config.extra.includes('use dev token'))?config.devclientId:config.clientId);
 
+const HANDLERS: {[key:string]: CallableFunction} = {
+    'info': async (interaction: ChatInputCommandInteraction) => {await interaction.deferReply(); await GetInfoEmbed(interaction);},
+    'debug': async (interaction: ChatInputCommandInteraction) => {const d = new Date(); await interaction.reply({content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`, flags:[MessageFlags.Ephemeral]})},
+    'okash': HandleCommandOkash,
+    'daily': HandleCommandDaily,
+    'coinflip': HandleCommandCoinflip,
+    'blackjack': SetupBlackjackMessage,
+    'pay': (interaction: ChatInputCommandInteraction) => HandleCommandPay(interaction, client),
+    'recent-eq': GetMostRecent,
+    'leaderboard': HandleCommandLeaderboard,
+    'use': HandleCommandUse,
+    'shop': HandleCommandShop,
+    'buy': HandleCommandBuy,
+    'sell': HandleCommandSell,
+    'pockets': HandleCommandPockets,
+    'customize': HandleCommandCustomize,
+    'toggle': HandleCommandToggle,
+    'level': HandleCommandLevel,
+    'render': GenerateCoinflipDataDisplay,
+    'stock': HandleCommandStock,
+    'help': HandleCommandHelp,
+    'move': HandleCommandTransfer,
+    'roulette': HandleCommandRoulette,
+    'rob': HandleCommandRob,
+    'achievements': HandleCommandAchievements,
+}
+
 // Handling slash commands:
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
     if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({
-        content:`:x: Sorry, **${interaction.user.displayName}**, but despite being able to add me as a user-installed app, I don't quite work properly yet.`,
+        content:`:x: Sorry, **${interaction.user.displayName}**, but I'm not allowed to execute commands in DMs!`,
         flags: [MessageFlags.Ephemeral]
     });
 
@@ -151,88 +178,9 @@ client.on(Events.InteractionCreate, async interaction => {
     const has_agreed = await CheckRuleAgreement(interaction);
     if (!has_agreed) return; // will automatically be replied to if no agreement
 
-    switch (interaction.commandName) {
-        case 'info':
-            await interaction.deferReply();
-            await GetInfoEmbed(interaction);
-            break;
-        case 'debug':
-            const d = new Date();
-            await interaction.reply({
-                content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`,
-                flags: [MessageFlags.Ephemeral]
-            });
-            break;
-        case 'okash':
-            await HandleCommandOkash(interaction);
-            break;
-        case 'daily':
-            await HandleCommandDaily(interaction);
-            break;
-        case 'coinflip':
-            await HandleCommandCoinflip(interaction);
-            break;
-        case 'blackjack':
-            await SetupBlackjackMessage(interaction);
-            break;
-        case 'pay':
-            await HandleCommandPay(interaction, client);
-            break;
-        case 'recent-eq':
-            await interaction.deferReply();
-            GetMostRecent(interaction);
-            break;
-        case 'leaderboard':
-            await HandleCommandLeaderboard(interaction);
-            break;
-        case 'use':
-            await HandleCommandUse(interaction);
-            break;
-        case 'shop':
-            await HandleCommandShop(interaction);
-            break;
-        case 'buy':
-            await HandleCommandBuy(interaction);
-            break;
-        case 'sell':
-            await HandleCommandSell(interaction);
-            break;
-        case 'pockets':
-            await HandleCommandPockets(interaction);
-            break;
-        case 'customize':
-            await HandleCommandCustomize(interaction);
-            break;
-        case 'toggle':
-            await HandleCommandToggle(interaction);
-            break;
-        case 'level':
-            await HandleCommandLevel(interaction);
-            break;
-        case 'render':
-            const sc = interaction.options.getSubcommand();
-            if (sc == 'coinflip') await GenerateCoinflipDataDisplay(interaction);
-            if (sc == 'stocks') await RenderStockDisplay(interaction);
-            break;
-        case 'stock':
-            await HandleCommandStock(interaction);
-            break;
-        case 'help':
-            await HandleCommandHelp(interaction);
-            break;
-        case 'move':
-            await HandleCommandTransfer(interaction);
-            break;
-        case 'roulette':
-            await HandleCommandRoulette(interaction);
-            break;
-        case 'rob':
-            await HandleCommandRob(interaction);
-            break;
-        case 'achievements':
-            await HandleCommandAchievements(interaction)
-            break;
-    }
+    if (!HANDLERS[interaction.commandName]) return interaction.reply('Something went wrong. This command has no handler specified in index.ts');
+
+    HANDLERS[interaction.commandName](interaction);
 });
 
 const TYO_RESPONSE: Array<string> = [
