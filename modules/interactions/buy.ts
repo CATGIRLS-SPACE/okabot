@@ -33,16 +33,27 @@ const PRICES: {
     'reset level bar':1
 }
 
+const SHORTHANDS: {[key: string]: string} = {
+    'sr': 'streak restore',
+    'dgc': 'dark green coin',
+    'dbc': 'dark blue coin',
+    'rc': 'red coin',
+    'lbc': 'light blue coin',
+    'prc': 'purple coin',
+    'pc': 'pink coin',
+    'rbc': 'rainbow coin',
+}
+
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
 
-    if (!PRICES[wanted_item]) return interaction.editReply({
+    if (!PRICES[wanted_item] && !PRICES[SHORTHANDS[wanted_item]]) return interaction.editReply({
         content:(wanted_item == 'weighted coin')?`:crying_cat_face: Silly **${interaction.user.displayName}**, you should know I don't sell gambling buffs here!`:`${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Looks like I don't sell that here, sorry!`
     });
 
-    const price = PRICES[wanted_item!.toLowerCase()];
+    const price = PRICES[wanted_item!.toLowerCase()] || PRICES[SHORTHANDS[wanted_item]];
     const wallet = GetWallet(interaction.user.id);
     
     if (wallet < price) return interaction.editReply({
@@ -75,13 +86,13 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
         case 'light blue coin': case 'lbc':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_BLUE, price);
 
-        case 'purple coin':
+        case 'purple coin': case 'prc':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_PURPLE, price);
             
-        case 'pink coin':
+        case 'pink coin': case 'pc':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_PINK, price);
 
-        case 'rainbow coin':
+        case 'rainbow coin': case 'rbc':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_RAINBOW, price);
 
         // profile customizations
