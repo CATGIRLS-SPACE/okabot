@@ -9,6 +9,7 @@ export const quickdraw = new Map<Snowflake, number>();
 /**
  * Schedule a reminder for the daily being available
  * @param time When to remind, in ms
+ * @param user_id Who it is for
  * @param channel Where to send the message
  */
 export function ScheduleDailyReminder(time: number, user_id: string, channel: TextChannel): boolean {
@@ -30,20 +31,20 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
     return true;
 }
 
-export function LoadReminders() {
+export async function LoadReminders() {
     if (!existsSync(join(BASE_DIRNAME, 'db', 'reminder.oka'))) return;
     
     const data: {
         reminders: Array<{user_id: Snowflake, time: number, channel: Snowflake}>
     } = JSON.parse(readFileSync(join(BASE_DIRNAME, 'db', 'reminder.oka'), 'utf-8'));
 
-    data.reminders.forEach(reminder => {
-        reminders.set(reminder.user_id, {
+    for (const reminder of data.reminders) {
+        const d = new Date();
+
+        if (reminder.time > d.getTime()) reminders.set(reminder.user_id, {
             time: reminder.time,
             channel: reminder.channel
         });
-
-        const d = new Date();
 
         setTimeout(() => {
             (client.channels.cache.get(reminder.channel) as TextChannel)!.send({
@@ -53,11 +54,15 @@ export function LoadReminders() {
             quickdraw.set(reminder.user_id, dd.getTime());
             reminders.delete(reminder.user_id);
         }, reminder.time - d.getTime());
-    });
+    }
+
+    SaveReminders();
 }
 
 function SaveReminders() {
     const r: Array<{user_id: Snowflake, time: number, channel: Snowflake}> = [];
+
+    console.log('saving reminders...')
 
     reminders.forEach((val, key) => {
         r.push({
