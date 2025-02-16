@@ -11,6 +11,7 @@ import * as config from './config.json';
 export const DMDATA_API_KEY = config.dmdata_api_key;
 export const DEV = config.extra.includes('use dev token'); // load this asap
 export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
+export const BOT_MASTER = config.bot_master;
 import { version, dependencies as pj_dep } from './package.json';
 import { Logger } from 'okayulogger';
 import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';
@@ -198,7 +199,7 @@ const TYOB_RESPONSE: Array<string> = [
     'why do you bully me :crying_cat_face:',
     'it is okabot :pouting_cat:',
     'please call me okabot :crying_cat_face:',
-    'https://tenor.com/view/sanae-dekomori-crying-anime-gif-6076570'
+    'https://bot.lilycatgirl.dev/gif/dekocry.gif'
 ]
 
 // Handling message-based things:
@@ -250,7 +251,7 @@ client.on(Events.MessageCreate, async message => {
         message.content.toLocaleLowerCase().includes('okaboob') ||
         (message.reference && (await message.fetchReference()).author.id == client.user!.id)
     )) message.reply({
-        content:'https://tenor.com/view/sanae-dekomori-crying-anime-gif-6076570'
+        content:'https://bot.lilycatgirl.dev/gif/dekocry.gif'
     });
 
     if (message.content.toLocaleLowerCase().includes('massive')) message.reply({

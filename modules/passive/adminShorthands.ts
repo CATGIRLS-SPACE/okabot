@@ -1,6 +1,6 @@
 import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
-import {CAN_USE_SHORTHANDS, LISTENING, SetListening} from "../../index";
+import {BOT_MASTER, CAN_USE_SHORTHANDS, LISTENING, SetListening} from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
@@ -127,9 +127,9 @@ export function RegisterAllShorthands() {
 
 export async function CheckForShorthand(message: Message) {
     if (!message.content.startsWith('oka ')) return;
-    if (!CAN_USE_SHORTHANDS.includes(message.author.id)) {
+    if (!CAN_USE_SHORTHANDS.includes(message.author.id) && message.author.id != BOT_MASTER) {
         await message.reply({
-            content:'https://tenor.com/view/chuunibyou-getoutofhere-getouttahere-gtfo-angry-gif-7611305'
+            content:'https://bot.lilycatgirl.dev/gif/nibuthrow.gif'
         });
         GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
         return;
@@ -137,6 +137,17 @@ export async function CheckForShorthand(message: Message) {
 
     const regex = /"([^"]+)"|(\S+)/g;
     const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
+
+    // if you can use shorthands but aren't the bot master, you aren't permitted to use them on yourself or the bot master
+    if (CAN_USE_SHORTHANDS.includes(message.author.id) && message.author.id != BOT_MASTER) {
+        if (params[2] == 'me' || params[2] == BOT_MASTER) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
+        if (params[2] == 'them' &&
+            message.reference &&
+            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == BOT_MASTER ||
+            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == message.author.id
+        ) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
+    }
+
     if (params[2] == 'me') params[2] = message.author.id;
     if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
 
