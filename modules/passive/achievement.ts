@@ -31,7 +31,7 @@ export enum Achievements {
     NEW_CF_DAILY = 'newcf_daily', //
     ROULETTE_ONE = 'land36', //
     ROULETTE_MULTI = 'landmulti', //
-    BANK_MAX = 'maxbank', // in okash command
+    CAPITALISM = 'capitalism', // in okash command
     NO_MONEY = 'gamble_gobroke', // in: coinflip, blackjack, roulette
     MAX_WIN = 'maxbetwin', // in: coinflip, blackjack, roulette
     DAILY = 'getdaily', //
@@ -51,7 +51,6 @@ export enum Achievements {
     VOICE_XP = 'voicemin300xp', //
     ANGER_OKABOT = 'remindmetwice', //
     FAST_CLAIM_REMINDER = 'quickclaim', //
-    PRESTIGE = 'prestige'
 }
 
 const ACHIEVEMENTS: {
@@ -76,7 +75,7 @@ const ACHIEVEMENTS: {
     'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble', diff:'h'},
     'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble', diff:'ex'},
     'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble', diff:'ex'},
-    'maxbank': {name:'Too Rich',description:'Fill your bank with the max amount of okash', class:'okash', diff:'h'},
+    'capitalism': {name:'Capitalism at its Finest',description:'Have 1,000,000,000 (one billion) okash in your bank', class:'okash', diff:'ex'},
     'gamble_gobroke': {name:'Gamble Irresponsibly',description:'Go broke via a gambling game', class:'okash', diff:'t'},
     'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble', diff:'t'},
     'getdaily': {name:'The Beginning',description:'Get your daily reward for the first time', class:'okabot', diff:'e'},
@@ -96,7 +95,6 @@ const ACHIEVEMENTS: {
     'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
     'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun', diff:'e'},
     'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot', diff:'h'},
-    'prestige': {name:'Beyond Comprehension',description:'You went above and beyond. Prestige at level 101',class:'okabot', diff:'ex'},
 }
 
 /**

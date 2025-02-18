@@ -17,15 +17,6 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
 
     const sender_id = interaction.user.id;
     const receiver_id = interaction.options.getUser('user')!.id;
-    
-    if (PAYMENT_HISTORY.has(sender_id) && PAYMENT_HISTORY.get(sender_id)!.paid == receiver_id && PAYMENT_HISTORY.get(sender_id)!.time + 3_600_000) {
-        // being intentionally vague here because 
-        // I don't want p2p payments being used to
-        // cheat the gambling achievement
-        return interaction.editReply({
-            content:`:crying_cat_face: **${interaction.user.displayName}**, you can't pay this person right now!`
-        });
-    }
 
     if (receiver_id == client.user!.id) {
         return interaction.editReply({
