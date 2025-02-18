@@ -1,10 +1,10 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../wallet";
-import { EMOJI, GetEmoji } from "../../../util/emoji";
-import { Achievements, GrantAchievement } from "../../passive/achievement";
-import { join } from "node:path";
-import { BASE_DIRNAME } from "../../..";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet} from "../wallet";
+import {EMOJI, GetEmoji} from "../../../util/emoji";
+import {Achievements, GrantAchievement} from "../../passive/achievement";
+import {join} from "node:path";
+import {BASE_DIRNAME} from "../../..";
+import {existsSync, readFileSync, writeFileSync} from "node:fs";
 
 
 const MESSAGES = [
@@ -23,6 +23,12 @@ const BANK_MESSAGES = [
 
 const COOLDOWNS = new Map<string, number>();
 let BANK_LAST_ROBBED = 0;
+
+export function GetCurrentFines(): number {
+    const ROB_DB_LOCATION = join(BASE_DIRNAME, 'db', 'rob.oka');
+    if (!existsSync(ROB_DB_LOCATION)) writeFileSync(ROB_DB_LOCATION, '{"fined":0}');
+    return JSON.parse(readFileSync(ROB_DB_LOCATION, 'utf-8')).fined;
+}
 
 export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     const d = new Date();
