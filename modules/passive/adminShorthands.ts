@@ -1,6 +1,6 @@
 import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
-import {BOT_MASTER, CAN_USE_SHORTHANDS, LISTENING, SetListening} from "../../index";
+import {BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetListening} from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
@@ -38,8 +38,10 @@ export function RegisterAllShorthands() {
         if (Number.isNaN(amount) || amount < 1) throw new Error("params[3] must be a positive integer. usage: oka dep [Snowflake | 'them' | 'me'] [positive integer]");
         AddToWallet(params[2], amount);
 
+        const user = client.users.cache.get(params[2]);
+
         await message.reply({
-            content: `**${params[2]}**'s wallet is now ${GetEmoji(EMOJI.OKASH)} OKA**${GetWallet(params[2])}**.`
+            content: `**${user?.username || params[2]}**'s wallet is now ${GetEmoji(EMOJI.OKASH)} OKA**${GetWallet(params[2])}**.`
         });
     });
 
@@ -68,19 +70,25 @@ export function RegisterAllShorthands() {
         if (Number.isNaN(amount) || amount < 1) throw new Error("params[3] must be a positive integer. usage: `oka wd [Snowflake | 'them' | 'me'] [positive integer]`");
         RemoveFromWallet(params[2], amount);
 
+        const user = client.users.cache.get(params[2]);
+
         await message.reply({
-            content: `**${params[2]}**'s wallet is now ${GetEmoji(EMOJI.OKASH)} OKA**${GetWallet(params[2])}**.`
+            content: `**${user?.username || params[2]}**'s wallet is now ${GetEmoji(EMOJI.OKASH)} OKA**${GetWallet(params[2])}**.`
         });
     });
 
     // bans
 
-    RegisterShorthand('oka restrict ', async (message: Message, params: string[]) => {
-         if (params.length < 6) throw new Error("not enough parameters. usage: oka restrict [Snowflake | them] [expiry date] [abilities] [reason]");
+    RegisterShorthand('oka rs ', async (message: Message, params: string[]) => {
+         if (params.length < 6) throw new Error("not enough parameters. usage: oka rs [Snowflake | them] [expiry date] [abilities] [reason]");
          if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
+
+         const user = client.users.cache.get(params[2]);
 
          // i could simplify this with "...params[]" probably but im lazy
          RestrictUser(message.client, params[2], params[3], params[4], params[5]);
+
+         message.reply(`Enabled the restriction flag for **${user?.username || params[2]}**`);
     });
 
     RegisterShorthand('oka lift ', async (message: Message, params: string[]) => {
@@ -91,6 +99,10 @@ export function RegisterAllShorthands() {
         profile.okash_restriction.is_restricted = false;
 
         UpdateUserProfile(params[2], profile);
+
+        const user = client.users.cache.get(params[2]);
+
+        message.reply(`Disabled the restriction flag for **${user?.username || params[2]}**`);
 
         const embed = new EmbedBuilder()
             .setColor(0x00FF00)
