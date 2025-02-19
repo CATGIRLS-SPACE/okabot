@@ -1,14 +1,14 @@
-import { EmbedBuilder, ChatInputCommandInteraction, Client, TextChannel, SlashCommandBuilder, Message } from 'discord.js';
-import { join } from 'path';
-import { BASE_DIRNAME, client, DEV, DMDATA_API_KEY } from '../..';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { createCanvas } from 'canvas';
-import { GetLatestEarthquake } from './dmdata';
-import { Logger } from 'okayulogger';
-import { DMDataWebSocket } from 'lily-dmdata/socket';
-import { Classification, WebSocketEvent, EarthquakeInformationSchemaBody, EarthquakeComponent, EEWInformationSchemaBody } from 'lily-dmdata';
-import { EMOJI, GetEmoji } from '../../util/emoji';
-import { gzipSync } from 'zlib';
+import {ChatInputCommandInteraction, Client, EmbedBuilder, Message, SlashCommandBuilder, TextChannel} from 'discord.js';
+import {join} from 'path';
+import {BASE_DIRNAME, client, DEV, DMDATA_API_KEY} from '../..';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
+import {createCanvas} from 'canvas';
+import {GetLatestEarthquake} from './dmdata';
+import {Logger} from 'okayulogger';
+import {DMDataWebSocket} from 'lily-dmdata/socket';
+import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, WebSocketEvent} from 'lily-dmdata';
+import {EMOJI, GetEmoji} from '../../util/emoji';
+import {gzipSync} from 'zlib';
 
 const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
 const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/';
@@ -56,37 +56,33 @@ const SHINDO_EMOJI: { [key: string]: EMOJI } = {
 }
 
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
-    const embed = new EmbedBuilder()
+    return new EmbedBuilder()
         .setColor(0x9d60cc)
-        .setTitle(automatic?`A Shindo ${max_intensity} earthquake occurred.`:'Most recent earthquake in Japan')
+        .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : 'Most recent earthquake in Japan')
         .setTimestamp(origin_time)
-        .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
+        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
-            {name:"Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
-            {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
-            {name:'Depth', value: `**${depth} km**`, inline: true},
-            {name:'Location', value: locations_english[hypocenter_name]},
+            {name: "Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
+            {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
+            {name: 'Depth', value: `**${depth} km**`, inline: true},
+            {name: 'Location', value: locations_english[hypocenter_name]},
         );
-        
-    return embed;
 }
 
 function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, event: {message: any, report_count: number, is_warning: boolean}) {
-    const embed = new EmbedBuilder()
-        .setColor(event.is_warning?0xd61111:0xff8519)
-        .setTitle((event.is_warning?'Earthquake Early Warning':'Earthquake Early Warning (Forecast)') + (event.report_count==999?' (Final Report)':` (Report ${event.report_count})`))
+    return new EmbedBuilder()
+        .setColor(event.is_warning ? 0xd61111 : 0xff8519)
+        .setTitle((event.is_warning ? 'Earthquake Early Warning' : 'Earthquake Early Warning (Forecast)') + (event.report_count == 999 ? ' (Final Report)' : ` (Report ${event.report_count})`))
         .setTimestamp(origin_time)
-        .setAuthor({name:'Project DM-D.S.S',url:`https://www.jma.go.jp/bosai/map.html`})
+        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
-            {name:"Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
-            {name:'Magnitude', value: `**M${magnitude}**`, inline: true},
-            {name:'Depth', value: `**${depth} km**`, inline: true},
-            {name:'Location', value: locations_english[hypocenter_name]},
+            {name: "Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
+            {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
+            {name: 'Depth', value: `**${depth} km**`, inline: true},
+            {name: 'Location', value: locations_english[hypocenter_name]},
         );
-        
-    return embed;
 }
 
 
@@ -106,6 +102,8 @@ function open_socket(SOCKET: DMDataWebSocket) {
 }
 
 const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
+let is_reconnecting = false;
+let reconnect_tries = 0;
 
 export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
     L.info('Loading all locations...');
@@ -114,9 +112,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     const lines = data.split('\n');
     lines.forEach(line => {
         const key = line.split(',')[1];
-        const value = line.split(',')[2];
-
-        locations_english[key] = value;
+        locations_english[key] = line.split(',')[2];
     });
 
     L.info('Loaded all locations!');
@@ -155,21 +151,26 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     SOCKET.on(WebSocketEvent.OPENED, () => {
         L.debug('dmdata connection opened ok!');
-        // (channel as TextChannel)!.send({
-        //     content:'lily-dmdata has successfully connected.',
-        //     flags:'SuppressNotifications'
-        // });
+        if (is_reconnecting) (channel as TextChannel)!.send({
+            content:`okaaay, i reconnected successfully after ${reconnect_tries>1?reconnect_tries+' tries':reconnect_tries+' try'}.`,
+            flags:'SuppressNotifications'
+        });
+        is_reconnecting = false;
     });
 
     SOCKET.on(WebSocketEvent.CLOSED, () => {
         L.debug('dmdata connection closed!');
         (channel as TextChannel)!.send({
-            content:'lily-dmdata was disconnected from the websocket, I will try and reconnect...',
+            content:'i was disconnected from dmdata, i will try to reconnect in 3 seconds...',
             flags:'SuppressNotifications'
         });
 
+        is_reconnecting = true;
+        reconnect_tries = 0;
+
         setTimeout(() => {
             open_socket(SOCKET);
+            reconnect_tries++;
         }, 3000);
     });
 

@@ -30,7 +30,7 @@ export function commonLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: numbe
 
 export function rareLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: number } {
     const roll = Math.floor(Math.random() * 1000);  // Roll between 0 and 999
-    console.log(`Reward Roll: ${roll}`);
+    // console.log(`Reward Roll: ${roll}`);
     
     if (roll >= 150) { // if the roll is greater than 150, give Okash (85% chance to get okash)
         let max = 2500;

@@ -16,6 +16,8 @@ const ITEM_NAMES: {
     1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
     2: {name:':package: Epic Lootbox',desc:'A fancy box that gives really good items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
+    4: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
+    5: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
 }
 
@@ -63,7 +65,8 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         let counts: any = {};
 
         for (let item in inventory) {
-            counts[inventory[item]]++;
+            if (counts[inventory[item]]) counts[inventory[item]]++;
+            else counts[inventory[item]] = 1;
         }
 
         Object.keys(counts).forEach(item => {

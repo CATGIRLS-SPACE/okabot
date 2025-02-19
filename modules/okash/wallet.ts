@@ -56,17 +56,8 @@ function CheckVersion(user_id: string) {
             writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
         } else throw new Error(`unsupported version ${version} ?????`);
         return;
-    } catch {
-        const new_data: Wallet = {
-            version: 2,
-            wallet: parseInt(data),
-            bank: 0,
-            inventory: {
-                other: []
-            }
-        };
-
-        writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
+    } catch (e) {
+        console.error(e);
     }
 }
 
