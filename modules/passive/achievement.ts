@@ -206,7 +206,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     }
 
     interaction.reply({
-        content: list,
+        content: list + `-# ${GetEmoji(EMOJI.DIFF_EASY)} Easy | ${GetEmoji(EMOJI.DIFF_TRICKY)} Tricky | ${GetEmoji(EMOJI.DIFF_HARD)} Hard | ${GetEmoji(EMOJI.DIFF_EXHARD)} Extra Hard`,
         flags: [MessageFlags.Ephemeral]
     });
 }
