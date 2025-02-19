@@ -45,6 +45,7 @@ import { HandleCommandRob } from './modules/okash/games/rob';
 import { LoadReminders } from './modules/tasks/dailyRemind';
 import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
+import {HandleCommandSlots} from "./modules/okash/games/slots";
 
 export const BASE_DIRNAME = __dirname;
 
@@ -158,6 +159,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'roulette': HandleCommandRoulette,
     'rob': HandleCommandRob,
     'achievements': HandleCommandAchievements,
+    'slots': HandleCommandSlots,
 }
 
 // Handling slash commands:

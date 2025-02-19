@@ -58,7 +58,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
 
     if (inventory.other.indexOf(ITEMS.WEIGHTED_COIN_ONE_USE) == -1) {
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any <:cff_green:1315843280776462356> **Weighted Coins**!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any <:cff_green:1315843280776462356> **Weighted Coin**s!`
         });
     }
 

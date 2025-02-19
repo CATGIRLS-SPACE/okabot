@@ -22,6 +22,7 @@ import { RenderSlashCommand } from "../extra/datarenderer";
 import { RouletteSlashCommand } from "../okash/games/roulette";
 import { RobSlashCommand } from "../okash/games/rob";
 import { AchievementsSlashCommand } from "../passive/achievement";
+import {SlotsSlashCommand} from "../okash/games/slots";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -56,12 +57,12 @@ const COMMANDS_TO_REGISTER = [
     CustomizeSlashCommand,
     LevelSlashCommand,
     BlackjackSlashCommand,
-    StockSlashCommand,
     HelpSlashCommand,
     RenderSlashCommand,
     RouletteSlashCommand,
     RobSlashCommand,
     AchievementsSlashCommand,
+    SlotsSlashCommand
 ].map(command => command.toJSON());
 
 export async function DeployCommands(token: string, client_id: string) {
