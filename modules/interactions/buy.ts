@@ -54,7 +54,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
     });
 
     const price = PRICES[wanted_item!.toLowerCase()] || PRICES[SHORTHANDS[wanted_item]];
-    const wallet = GetWallet(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id, true);
     
     if (wallet < price) return interaction.editReply({
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you'll need ${GetEmoji(EMOJI.OKASH)} OKA**${price-wallet}** more to buy that!`
@@ -121,7 +121,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
     }
 
     // this will only execute if it's a '/use'able item
-    RemoveFromWallet(interaction.user.id, price);
+    RemoveFromWallet(interaction.user.id, price, true);
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one \`${wanted_item}\` for <:okash:1315058783889657928> OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
@@ -134,13 +134,13 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
     });
     
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
-    const wallet = GetWallet(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id, true);
     const use_voucher = interaction.options.getString('voucher') == 'true';
 
     // console.log(use_voucher);
 
     if (!use_voucher)
-        RemoveFromWallet(interaction.user.id, price);
+        RemoveFromWallet(interaction.user.id, price, true);
     else {
         const inventory = GetInventory(interaction.user.id);
         if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
@@ -179,13 +179,13 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
     });
 
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
-    const wallet = GetWallet(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id, true);
     const use_voucher = interaction.options.getString('voucher') == 'true';
 
     // console.log(use_voucher);
 
     if (!use_voucher)
-        RemoveFromWallet(interaction.user.id, price);
+        RemoveFromWallet(interaction.user.id, price, true);
     else {
         const inventory = GetInventory(interaction.user.id);
         if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
@@ -230,7 +230,7 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
 
     const profile = GetUserProfile(interaction.user.id);
     
-    RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50));
+    RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50), true);
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for <:okash:1315058783889657928> OKA**${10000+(profile.level.level * 50)}**!`});
     
     AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level, profile.level.prestige || 0));

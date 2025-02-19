@@ -76,11 +76,16 @@ export function AddToWallet(user_id: string, amount: number) {
     RecordMonitorEvent(EventType.BALANCE_CHANGE, {user_id, amount}, `${amount} okash was added to ${user_id}'s wallet`);
 }
 
-export function RemoveFromWallet(user_id: string, amount: number) {
+export function RemoveFromWallet(user_id: string, amount: number, fallback_to_bank: boolean = false) {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
 
-    data.wallet = Math.floor(data.wallet - amount);
+    if (data.wallet < amount && fallback_to_bank) {
+        data.bank -= amount - data.wallet;
+        data.wallet -= data.wallet;
+    }
+    else data.wallet = Math.floor(data.wallet - amount);
+
 
     if (amount > 50000)
         L.warn(`LARGE WALLET REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
@@ -118,11 +123,12 @@ export function RemoveFromBank(user_id: string, amount: number) {
     RecordMonitorEvent(EventType.BANK_CHANGE, {user_id, amount}, `${amount} okash was removed from ${user_id}'s bank`);
 }
 
-export function GetWallet(user_id: string): number {
+export function GetWallet(user_id: string, include_bank: boolean = false): number {
     CheckVersion(user_id);
     const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
     data.wallet = Math.floor(data.wallet);
-    return data.wallet;
+
+    return include_bank?data.wallet+data.bank:data.wallet;
 }
 
 export function GetBank(user_id: string): number {
