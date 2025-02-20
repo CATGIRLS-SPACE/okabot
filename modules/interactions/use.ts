@@ -58,7 +58,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
 
     if (inventory.other.indexOf(ITEMS.WEIGHTED_COIN_ONE_USE) == -1) {
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any <:cff_green:1315843280776462356> **Weighted Coin**s!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**s!`
         });
     }
 
@@ -75,7 +75,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
     interaction.editReply({
-        content: `<:cat_sunglasses:1315853022324326482> **${interaction.user.displayName}** can feel their luck increasing already as they equip their <:cff_green:1315843280776462356> **Weighted Coin**.`
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}** can feel their luck increasing already as they equip their ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**.`
     });
 }
 

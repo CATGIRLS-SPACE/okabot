@@ -60,7 +60,9 @@ export enum EMOJI {
     DIFF_EASY = 'ade',
     DIFF_TRICKY = 'adt',
     DIFF_HARD = 'adh',
-    DIFF_EXHARD = 'adex'
+    DIFF_EXHARD = 'adex',
+    // slots
+    SLOTS_ROLLING = 'smr',
 }
 
 const EMOJI_KEYS: {
@@ -129,6 +131,8 @@ const EMOJI_KEYS: {
     'adt':{prod:'1339366874760085726',dev:'1339366400132649031'},
     'adh':{prod:'1339366883492626473',dev:'1339366408055816232'},
     'adex':{prod:'1339366891881365624',dev:'1339366418386522152'},
+    // slots
+    'smr':{prod:'1342264041623781386',dev:'1342264086377005086', animated: true}
 }
 
 export function GetEmoji(name: string): string {

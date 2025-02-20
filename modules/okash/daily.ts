@@ -5,6 +5,7 @@ import { ChatInputCommandInteraction, TextChannel } from "discord.js"
 import { ITEM_TYPE, ITEMS } from "./items"
 import { AddXP } from "../levels/onMessage"
 import { Achievements, GrantAchievement } from "../passive/achievement"
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 export interface DailyData {
     version: number,
@@ -151,7 +152,7 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
 
     if (data.streak.count >= data.streak.last_count) {
         await interaction.editReply({
-            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a <:g00:1315084985589563492> **Streak Restore** right now!`
+            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore** right now!`
         });
         return false;
     }
@@ -168,7 +169,7 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
         data.streak.restored = true;
         
         await interaction.editReply({
-            content:`<:g00:1315084985589563492> **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
+            content:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
         });
 
         GrantAchievement(interaction.user, Achievements.DAILY_SR, interaction.channel as TextChannel);

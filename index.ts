@@ -46,6 +46,7 @@ import { LoadReminders } from './modules/tasks/dailyRemind';
 import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
+import {EMOJI, GetEmoji} from "./util/emoji";
 
 export const BASE_DIRNAME = __dirname;
 
@@ -190,7 +191,7 @@ const TYO_RESPONSE: Array<string> = [
     'of course!',
     'no problem!',
     '<3',
-    '<:nekoheart:1316232330733682689>',
+    `${GetEmoji(EMOJI.NEKOHEART)}`,
     'thank you too!',
     'i do my best!'
 ]
@@ -311,7 +312,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     stats.coinflip.all_rolls.forEach(roll => all_flips += roll);
 
     const info_embed = new EmbedBuilder()
-    .setTitle(`<:nekoheart:1316232330733682689> okabot v${version} <:nekoheart:1316232330733682689>`)
+    .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${version} ${GetEmoji(EMOJI.NEKOHEART)}`)
     .setColor(0x9d60cc)
     .setAuthor({
         name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL() 

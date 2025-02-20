@@ -1,5 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 
 export async function HandleCommandToggle(interaction: ChatInputCommandInteraction) {
@@ -9,7 +10,7 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
     switch (interaction.options.getString('setting')) {
         case 'okash_notifications':
             interaction.reply({
-                content: active?'<:cat_money:1315862405607067648> okaaay! i\'ll send you notifications every time you receive/transfer okash on your account.':'<:cat_sunglasses:1315853022324326482> too many notifications? i get that, i\'ll chill out with the notifications',
+                content: active?`${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! i'll send you notifications every time you receive/transfer okash on your account.`:'${GetEmoji(EMOJI.CAT_SUNGLASSES)} too many notifications? i get that, i\'ll chill out with the notifications',
                 ephemeral: true 
             
             });

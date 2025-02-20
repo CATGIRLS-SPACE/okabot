@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
@@ -67,7 +68,7 @@ async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({
-        content:`<:cat_sunglasses:1315853022324326482> **${interaction.user.displayName}**, I've switched your coin out for a \`${customization}\`. Have fun flipping!`
+        content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your coin out for a \`${customization}\`. Have fun flipping!`
     });
 }
 

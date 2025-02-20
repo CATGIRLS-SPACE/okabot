@@ -45,7 +45,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 
-    const bet = interaction.options.getNumber('bet', true);
+    const bet = Math.floor(interaction.options.getNumber('bet', true));
 
     if (GetWallet(interaction.user.id, false) < bet) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough in your wallet!`
@@ -56,22 +56,23 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const roll_first  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
     const roll_second = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
     const roll_third  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
+    const rolling_emoji = GetEmoji(EMOJI.SLOTS_ROLLING)
     const rolls = [roll_first, roll_second, roll_third];
 
     const reply = await interaction.reply({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n E1SPIN E2SPIN E3SPIN`
+        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`
     });
 
     await Sleep(3000);
 
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} E2SPIN E3SPIN`
+        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
     });
 
     await Sleep(1000);
 
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} E3SPIN`
+        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
     });
 
     await Sleep(1000);
@@ -89,11 +90,11 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
     const result = multiplier>0?
-        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
-        `:crying_cat_face: You lost! **(+5XP)**`;
+        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and won ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
+        `:crying_cat_face: and lost their money! **(+5XP)**`;
 
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
+        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 }
 
