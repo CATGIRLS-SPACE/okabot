@@ -1,9 +1,42 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
+import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
+import { AddXP } from "../../levels/onMessage";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
 }
+
+enum ROLLS {
+    OKASH = 'OKASH',
+    GRAPE = 'GRAPE',
+    APPLE = 'APPLE',
+    GEM   = 'GEM',
+}
+const ROLL_EMOJIS: {[key: string]: string} = {
+    'OKASH': GetEmoji(EMOJI.OKASH),
+    'GRAPE': ':grapes:', // <-- why do you have to be special? just "grape" wasn't enough for you?
+    'APPLE': ':apple:',
+    'GEM':   ':gem:'
+}
+
+// this is the array in which the slot thingy will spin
+const ROLL_TABLE = [
+    ROLLS.APPLE,
+    ROLLS.APPLE,
+    ROLLS.APPLE,
+    ROLLS.APPLE,
+    ROLLS.APPLE,
+    ROLLS.GRAPE,
+    ROLLS.GRAPE,
+    ROLLS.GRAPE,
+    ROLLS.GRAPE,
+    ROLLS.GRAPE,
+    ROLLS.OKASH,
+    ROLLS.OKASH,
+    ROLLS.OKASH,
+    ROLLS.GEM
+];
 
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
@@ -12,6 +45,19 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 
+    const bet = interaction.options.getNumber('bet', true);
+
+    if (GetWallet(interaction.user.id, false) < bet) return interaction.reply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough in your wallet!`
+    });
+
+    RemoveFromWallet(interaction.user.id, bet, false);
+
+    const roll_first  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
+    const roll_second = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
+    const roll_third  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
+    const rolls = [roll_first, roll_second, roll_third];
+
     const reply = await interaction.reply({
         content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n E1SPIN E2SPIN E3SPIN`
     });
@@ -19,22 +65,69 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     await Sleep(3000);
 
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n E1STOP E2SPIN E3SPIN`
+        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} E2SPIN E3SPIN`
     });
 
     await Sleep(1000);
 
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n E1STOP E2STOP E3SPIN`
+        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} E3SPIN`
     });
 
     await Sleep(1000);
 
+    const multiplier = GetMultiplier(rolls);
+    const earned_okash = Math.floor(bet * multiplier);
+    const earned_xp = {
+        0: 5,
+        2.5: 15,
+        5: 30,
+        10: 50
+    }[multiplier];
+
+    AddToWallet(interaction.user.id, earned_okash);
+    AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
+
+    const result = multiplier>0?
+        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
+        `:crying_cat_face: You lost! **(+5XP)**`;
+
     reply.edit({
-        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n E1STOP E2STOP E3STOP`
+        content: `${GetEmoji(EMOJI.OKASH)} **__SLOTS__** ${GetEmoji(EMOJI.OKASH)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 }
 
+// this is some horrendous way to get the multiplier
+function GetMultiplier(rolls: Array<string>): number {
+    // all gems = best
+    if (
+        rolls[0] == ROLLS.GEM &&
+        rolls[1] == ROLLS.GEM &&
+        rolls[2] == ROLLS.GEM
+    ) return 10;
+
+    // all okash = better
+    if (
+        rolls[0] == ROLLS.OKASH &&
+        rolls[1] == ROLLS.OKASH &&
+        rolls[2] == ROLLS.OKASH
+    ) return 5;
+
+    // all grapes or apples = standard 2.5x
+    if (
+        rolls[0] == ROLLS.GRAPE &&
+        rolls[1] == ROLLS.GRAPE &&
+        rolls[2] == ROLLS.GRAPE
+    ) return 2.5;
+    if (
+        rolls[0] == ROLLS.APPLE &&
+        rolls[1] == ROLLS.APPLE &&
+        rolls[2] == ROLLS.APPLE
+    ) return 2.5;
+
+    // nothing good
+    return 0;
+}
 
 export const SlotsSlashCommand = new SlashCommandBuilder()
     .setName("slots")
