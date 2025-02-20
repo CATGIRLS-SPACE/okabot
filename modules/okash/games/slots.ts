@@ -45,6 +45,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 
+    ACTIVE_GAMES.set(interaction.user.id, true);
+
     const bet = Math.floor(interaction.options.getNumber('bet', true));
 
     if (GetWallet(interaction.user.id, false) < bet) return interaction.reply({
@@ -96,6 +98,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
+
+    ACTIVE_GAMES.delete(interaction.user.id);
 }
 
 // this is some horrendous way to get the multiplier
