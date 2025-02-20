@@ -9,9 +9,19 @@ const remindButton = new ButtonBuilder()
     .setStyle(ButtonStyle.Primary)
     .setLabel('Remind Me');
 
+const remindButtonNext = new ButtonBuilder()
+    .setCustomId('remindmen')
+    .setStyle(ButtonStyle.Primary)
+    .setLabel('Remind Me Again');
+
 const earlyBar = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
         remindButton
+    );
+
+const onClaimBar = new ActionRowBuilder<ButtonBuilder>()
+    .addComponents(
+        remindButtonNext
     );
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
@@ -60,13 +70,30 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-        if (interaction.locale == Locale.Japanese) return interaction.editReply({
-            content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`
-        })
+        let response;
 
-        return interaction.editReply({
-            content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** and a ${GetEmoji('cff_green')} Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+        if (interaction.locale == Locale.Japanese) response = await interaction.editReply({
+            content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`,
+            components: [onClaimBar]
+        }); else response =  await interaction.editReply({
+            content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** and a ${GetEmoji('cff_green')} Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`,
+            components: [onClaimBar]
         });
+
+        const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+        const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+        collector.on('collect', async i => {
+            const d = new Date();
+            const ready = d.getTime() + (24*60*60*1000);
+            ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
+        
+            i.update({
+                content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+                components:[]
+            });
+        });
+
+        return;
     }
 
     // plus streak bonus
@@ -86,12 +113,27 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-    if (interaction.locale == Locale.Japanese) return interaction.editReply({
-        content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`
-    })
+    let response;
+
+    if (interaction.locale == Locale.Japanese) response = await interaction.editReply({
+        content: `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`,
+        components: [onClaimBar]
+    }); else response = await interaction.editReply({
+        content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`,
+        components: [onClaimBar]
+    });
+
+    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
+    collector.on('collect', async i => {
+        const d = new Date();
+        const ready = d.getTime() + (24*60*60*1000);
+        ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
     
-    interaction.editReply({
-        content: `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`
+        i.update({
+            content: `:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+            components:[]
+        });
     });
 }
 
