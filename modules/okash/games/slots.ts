@@ -2,6 +2,7 @@ import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
+import { Achievements, GrantAchievement } from "../../passive/achievement";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -90,6 +91,9 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
 
     AddToWallet(interaction.user.id, earned_okash);
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
+
+    if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+    if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
         `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and won ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:

@@ -166,6 +166,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
 // Handling slash commands:
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
+    if (!interaction.channel?.isTextBased()) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
     if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({

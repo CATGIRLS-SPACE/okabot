@@ -51,6 +51,9 @@ export enum Achievements {
     VOICE_XP = 'voicemin300xp', //
     ANGER_OKABOT = 'remindmetwice', //
     FAST_CLAIM_REMINDER = 'quickclaim', //
+    SLOTS_GEMS = 'slots10x', //
+    ROB_BANK_HIGH = 'bankrob50000',
+    ROB_BANK_PUNY = 'bankrob5percent',
 }
 
 const ACHIEVEMENTS: {
@@ -95,6 +98,9 @@ const ACHIEVEMENTS: {
     'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
     'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun', diff:'e'},
     'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot', diff:'h'},
+    'slots10x': {name:'Shiny!',description:'Win 10x your bet by getting all :gem: gems.',class:'gamble', diff:'h'},
+    'bankrob50000': {name:'I Hate Debt Collectors',description:'Rob at least 50000 okash from the bank',class:'fun', diff:'h'},
+    'bankrob5percent': {name:'7-Eleven Big Gulp',description:'Rob the bank and get only 5% or less of the collected fines',class:'fun', diff:'h'},
 }
 
 /**
