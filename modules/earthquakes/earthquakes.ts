@@ -131,7 +131,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         // make embed
         console.log(data);
         const embed = await BuildEarthquakeEmbed(
-            new Date(data.earthquake.originTime), 
+            new Date(data.earthquake.originTime || 0), 
             data.earthquake.magnitude.value,
             data.intensity.maxInt || ShindoValue.ZERO,
             data.earthquake.hypocenter.depth.value, //this is actually depth 
@@ -261,47 +261,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     });
 
     open_socket(SOCKET);
-}
-
-/**
- * Check if there is a new earthquake, and if so, send an update to the channel
- * @param {Client} client 
- */
-async function RunEarthquakeFetch(client_2: Client) {
-    console.log('fetching latest earthquake...');
-    try {
-        const feed = await fetch(URL);
-        const list = await feed.json();
-        let latest = list[0];
-        
-        // is it a new quake?
-        if (latest.json == last_known_quake) return; // nope
-        
-        // if so:
-        console.log('new quake!');
-        last_known_quake = latest.json;
-
-        // prep info
-        const info = await fetch(`${INDV_URL}${latest.json}`);
-        const earthquake = await info.json();
-
-        // const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
-
-        const OriginTime = new Date(earthquake.Body.Earthquake.OriginTime);
-        const Magnitude = earthquake.Body.Earthquake.Magnitude;
-        const MaxInt = earthquake.Body.Intensity.Observation.MaxInt;
-        const HypocenterName = earthquake.Body.Earthquake.Hypocenter.Area.enName;
-        const HypocenterCoords = earthquake.Body.Earthquake.Hypocenter.Area.Coordinate;
-
-        // make embed
-        const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterCoords, HypocenterName, true);
-
-        // send embed
-        const channel = client_2.channels.cache.get(MONITORING_CHANNEL);
-        (channel as TextChannel)!.send({embeds:[embed]});
-    } catch (err) {
-        console.error(`RunEarthquakeFetch error: ${err}`);
-    }
 }
 
 // lat_min 	    lat_max 	lon_min 	    lon_max
