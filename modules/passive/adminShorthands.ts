@@ -1,12 +1,15 @@
 import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
-import {BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetListening} from "../../index";
+import {BASE_DIRNAME, BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetListening} from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserProfile, RestrictUser, UpdateUserProfile} from "../user/prefs";
 import {SelfUpdate} from "../../util/updater";
 import {ReleaseUserGame} from "../okash/games/roulette";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { error } from "node:console";
 
 
 interface ShorthandList {
@@ -75,6 +78,49 @@ export function RegisterAllShorthands() {
         await message.reply({
             content: `**${user?.username || params[2]}**'s wallet is now ${GetEmoji(EMOJI.OKASH)} OKA**${GetWallet(params[2])}**.`
         });
+    });
+
+    // user profile management
+    RegisterShorthand('oka mod ', async (message: Message, params: string[]) => {
+        if (params[3] == 'daily') {
+            const daily_data = JSON.parse(readFileSync(join(BASE_DIRNAME, 'money', 'daily', params[2]+'.oka'), 'utf-8'));
+            
+            if (!daily_data) throw new Error(`could not find daily data for ${params[2]}`);
+            
+            const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
+                'last_get.time': 'number',
+                'streak.count': 'number',
+                'streak.last_count': 'number',
+                'streak.restored': 'boolean',
+                'streak.double_claimed': 'boolean'
+            };
+
+            if (!types[params[4]]) throw new Error(`property ${params[4]} does not exist!`);
+
+            switch (types[params[4]]) {
+                case 'number':
+                    let value = parseInt(params[5]);
+                    if (Number.isNaN(value)) throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
+                    daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
+                    break;
+
+                case 'boolean':
+                    if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
+                    const v: {[key:string]:boolean} = {'true':true,'false':false};
+                    daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = v[params[5]];
+                    break;
+            
+                default:
+                    break;
+            }
+
+            writeFileSync(join(BASE_DIRNAME, 'money', 'daily', params[2]+'.oka'), JSON.stringify(daily_data), 'utf-8');
+
+            return message.reply(`Modified daily info of ${params[2]} successfully.`);
+        }
+
+        // not daily or anything else (only daily is implemented as of rn)
+        throw new Error('invalid user db entry to modify. usage: "oka mod [Snowflake | them | me] [daily | profile] [property] [value]"');
     });
 
     // bans
