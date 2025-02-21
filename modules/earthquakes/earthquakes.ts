@@ -6,7 +6,7 @@ import {createCanvas} from 'canvas';
 import {GetLatestEarthquake} from './dmdata';
 import {Logger} from 'okayulogger';
 import {DMDataWebSocket} from 'lily-dmdata/socket';
-import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, WebSocketEvent} from 'lily-dmdata';
+import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, ShindoValue, WebSocketEvent} from 'lily-dmdata';
 import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
 
@@ -133,7 +133,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         const embed = await BuildEarthquakeEmbed(
             new Date(data.earthquake.originTime), 
             data.earthquake.magnitude.value,
-            data.intensity.maxInt,
+            data.intensity.maxInt || ShindoValue.ZERO,
             data.earthquake.hypocenter.depth.value, //this is actually depth 
             data.earthquake.hypocenter.name, 
             true
