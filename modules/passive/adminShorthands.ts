@@ -120,7 +120,7 @@ export function RegisterAllShorthands() {
         }
 
         // this is gonna be big...
-        if (params[3].startsWith('profile-')) {
+        if (params[3].startsWith('profile')) {
             const user_data = JSON.parse(readFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), 'utf-8'));
             if (!user_data) throw new Error(`could not find profile data for ${params[2]}`);
             
@@ -136,10 +136,86 @@ export function RegisterAllShorthands() {
                     'okash_restriction.reason': 'string',
                     'okash_restriction.abilities': 'string'
                 }
+
+                if (!types[params[4]]) throw new Error(`property ${params[4]} does not exist!`);
+
+                switch (types[params[4]]) {
+                    case 'number':
+                        let value = parseInt(params[5]);
+                        if (Number.isNaN(value)) throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
+                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
+                        else user_data[params[4]] = value;
+                        break;
+    
+                    case 'boolean':
+                        if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
+                        const v: {[key:string]:boolean} = {'true':true,'false':false};
+                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = v[params[5]];
+                        else user_data[params[4]] = v[params[5]];
+                        break;
+
+                    case 'string':
+                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = params[5];
+                        else user_data[params[4]] = params[5];
+                        break;
+                
+                    default:
+                        break;
+                }
+
+                writeFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), JSON.stringify(user_data), 'utf-8');
+
+                return message.reply(`Modified profile.property info of ${params[2]} successfully.`);
             };
+
+            if (params[3] == 'profile.array') {
+                // ex params 4-6 = flags add 0
+                const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
+                    'customization.unlocked': 'number',
+                    'achievements': 'string',
+                    'flags': 'number'
+                }
+
+                if (!types[params[4]]) throw new Error(`property ${params[4]} does not exist!`);
+
+                switch(types[params[4]]) {
+                    case 'number':
+                        let value = parseInt(params[6]);
+                        if (Number.isNaN(value)) throw new Error(`invalid value '${params[6]}' for type '${types[params[4]]}'`);
+                        if (params[5] == 'add') {
+                            if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]].push(value);
+                            else user_data[params[4]].push(value);
+                        } else if (params[5] == 'rem') {
+                            if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]]
+                                .splice(user_data[params[4].split('.')[0]][params[4].split('.')[1]].indexOf(value, 1));
+                            else user_data[params[4]]
+                                .splice(user_data[params[4]].indexOf(value, 1));
+                        }
+                        break;
+
+                    case 'string':
+                        if (params[5] == 'add') {
+                            if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]].push(params[6]);
+                            else user_data[params[4]].push(params[6]);
+                        } else if (params[5] == 'rem') {
+                            if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]]
+                                .splice(user_data[params[4].split('.')[0]][params[4].split('.')[1]].indexOf(params[6], 1));
+                            else user_data[params[4]]
+                                .splice(user_data[params[4]].indexOf(params[6], 1));
+                        }
+                        break;
+                
+                    default:
+                        break;
+                }
+            }
+
+            writeFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), JSON.stringify(user_data), 'utf-8');
+
+            return message.reply(`Modified profile.array info of ${params[2]} successfully.`);
         }
 
-        // not daily or anything else (only daily is implemented as of rn)
+        // not daily or anything else
         throw new Error('invalid user db entry to modify. usage: "oka mod [Snowflake | them | me] [daily | profile] [property] [value]"');
     });
 
