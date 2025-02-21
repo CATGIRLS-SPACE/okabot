@@ -94,10 +94,6 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
             data.streak.last_count = data.streak.count;
             data.streak.count = 1;
             data.last_get.time = d.getTime();
-            if (data.streak.restored) {
-                data.streak.last_count = 0;
-                data.streak.restored = false;
-            }
             data.streak.double_claimed = false;
 
             AddToWallet(user_id, 750);
@@ -113,6 +109,10 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
 
         // has streak, use multipliers!
         data.streak.count += 1;
+        if (data.streak.count >= data.streak.last_count && data.streak.restored) {
+            data.streak.last_count = 0;
+            data.streak.restored = false;
+        }
         data.last_get.time = d.getTime();
         data.streak.double_claimed = reclaim;
 
