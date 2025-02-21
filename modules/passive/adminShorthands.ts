@@ -119,6 +119,26 @@ export function RegisterAllShorthands() {
             return message.reply(`Modified daily info of ${params[2]} successfully.`);
         }
 
+        // this is gonna be big...
+        if (params[3].startsWith('profile-')) {
+            const user_data = JSON.parse(readFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), 'utf-8'));
+            if (!user_data) throw new Error(`could not find profile data for ${params[2]}`);
+            
+            if (params[3] == 'profile.property') {
+                const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
+                    'has_agreed_to_rules': 'boolean',
+                    'customization.coin_color': 'number',
+                    'okash_notifications': 'boolean',
+                    'level.level': 'number',
+                    'level.xp': 'number',
+                    'okash_restriction.is_restricted': 'boolean',
+                    'okash_restriction.until': 'number',
+                    'okash_restriction.reason': 'string',
+                    'okash_restriction.abilities': 'string'
+                }
+            };
+        }
+
         // not daily or anything else (only daily is implemented as of rn)
         throw new Error('invalid user db entry to modify. usage: "oka mod [Snowflake | them | me] [daily | profile] [property] [value]"');
     });
