@@ -46,12 +46,10 @@ export function rareLootboxReward(): { type: LOOTBOX_REWARD_TYPE, value: number 
             type: LOOTBOX_REWARD_TYPE.ITEM, 
             value: ITEMS.WEIGHTED_COIN_ONE_USE 
         };
-    }
-    
-    else {
+    } else {
         return {
-            type:LOOTBOX_REWARD_TYPE.ITEM,
-            value: ITEMS.SHOP_VOUCHER
+            type: LOOTBOX_REWARD_TYPE.ITEM,
+            value: (Math.random()>0.5)?ITEMS.SHOP_VOUCHER:ITEMS.STREAK_RESTORE
         };
     } 
 }
