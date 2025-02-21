@@ -31,7 +31,7 @@ export async function DoRandomDrops(message: Message) {
             L.info('trigger common lootbox');
             const cl_reply = await message.reply(':anger: Ow..!?');
             await Sleep(3000);
-            await cl_reply.reply(':anger: Ow..!? Why was there a :package: **Common Lootbox** there!?');
+            await cl_reply.edit(':anger: Ow..!? Why was there a :package: **Common Lootbox** there!?');
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
             AddOneToInventory(message.author.id, ITEMS.LOOTBOX_COMMON);
             break;
@@ -55,7 +55,7 @@ export async function DoRandomDrops(message: Message) {
             L.info('trigger rare lootbox');
             const cl_reply = await message.reply(':anger: Ow..!?');
             await Sleep(3000);
-            await cl_reply.reply(':anger: Ow..!? Why was there a :package: **Rare Lootbox** there!?');
+            await cl_reply.edit(':anger: Ow..!? Why was there a :package: **Rare Lootbox** there!?');
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
             AddOneToInventory(message.author.id, ITEMS.LOOTBOX_COMMON);
             break;
