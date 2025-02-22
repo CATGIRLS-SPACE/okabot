@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
@@ -63,7 +63,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const rolls = [roll_first, roll_second, roll_third];
 
     const reply = await interaction.reply({
-        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`
+        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     await Sleep(3000);
@@ -96,8 +97,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
-        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and won ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
-        `:crying_cat_face: and lost their money! **(+5XP)**`;
+        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
+        `:crying_cat_face: and loses their money! **(+5XP)**`;
 
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
