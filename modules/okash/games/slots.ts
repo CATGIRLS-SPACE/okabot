@@ -42,7 +42,7 @@ const ROLL_TABLE = [
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
-    if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == false) return interaction.reply({
+    if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 

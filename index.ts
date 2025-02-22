@@ -47,6 +47,7 @@ import { Achievements, GrantAchievement, HandleCommandAchievements } from './mod
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {EMOJI, GetEmoji} from "./util/emoji";
+import {HandleCommandPair} from "./modules/http/pairing";
 
 export const BASE_DIRNAME = __dirname;
 
@@ -161,6 +162,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'rob': HandleCommandRob,
     'achievements': HandleCommandAchievements,
     'slots': HandleCommandSlots,
+    'pair': HandleCommandPair
 }
 
 // Handling slash commands:
