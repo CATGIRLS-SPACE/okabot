@@ -81,9 +81,13 @@ interface BlackjackGame {
     expires: number,
     deck: Array<HandCard>
 }
-const GamesActive = new Map<string, BlackjackGame>(); // user_id and game
-const BetRecovery = new Map<string, number>(); // user_id and bet
-const LastGameFinished = new Map<string, number>(); // user_id and time(d.getTime()/1000)
+
+// user_id and game
+const GamesActive = new Map<string, BlackjackGame>();
+// user_id and bet
+const BetRecovery = new Map<string, number>();
+// user_id and time(d.getTime()/1000)
+const LastGameFinished = new Map<string, number>();
 
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
@@ -216,14 +220,36 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     GamesActive.set(interaction.user.id, game);
 
-    const response = await interaction.reply({
-        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`,
-        components: [
-            TallyCards(game.user) == 21 ? row_willbust 
-            : (can_double_down ? row_can_double : row ) as any
-        ],
-        flags: [MessageFlags.SuppressNotifications]
-    });
+    const first_message_content = `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`;
+    let response;
+
+    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) {
+        response = await interaction.reply({
+            content:`:hourglass_flowing_sand: One sec, waiting for your cooldown to end...`,
+            flags:[MessageFlags.SuppressNotifications]
+        });
+
+        await new Promise((resolve) => {
+            setTimeout(resolve, Math.ceil((LastGameFinished.get(interaction.user.id)! + 5) - (d.getTime() / 1000))*1000);
+        });
+
+        response = await interaction.editReply({
+            content: first_message_content,
+            components: [
+                TallyCards(game.user) == 21 ? row_willbust
+                    : (can_double_down ? row_can_double : row ) as any
+            ]
+        });
+    } else {
+        response = await interaction.reply({
+            content: first_message_content,
+            components: [
+                TallyCards(game.user) == 21 ? row_willbust
+                : (can_double_down ? row_can_double : row ) as any
+            ],
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
 
