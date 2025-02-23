@@ -10,6 +10,7 @@ import {ReleaseUserGame} from "../okash/games/roulette";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { error } from "node:console";
+import {ManualRelease} from "../okash/games/slots";
 
 
 interface ShorthandList {
@@ -263,6 +264,10 @@ export function RegisterAllShorthands() {
         });
     });
 
+    RegisterShorthand('oka kill', async (message: Message, params: string[]) => {
+        process.exit();
+    });
+
     RegisterShorthand('oka update', async (message: Message, params: string[]) => {
         SelfUpdate(message);
     });
@@ -276,6 +281,7 @@ export function RegisterAllShorthands() {
         if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
 
         ReleaseUserGame(params[2]);
+        ManualRelease(params[2]);
     });
 }
 

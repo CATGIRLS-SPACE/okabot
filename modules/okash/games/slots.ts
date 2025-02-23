@@ -107,6 +107,11 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     ACTIVE_GAMES.delete(interaction.user.id);
 }
 
+export function ManualRelease(user_id: Snowflake) {
+    ACTIVE_GAMES.set(user_id, false);
+    ACTIVE_GAMES.delete(user_id);
+}
+
 // this is some horrendous way to get the multiplier
 function GetMultiplier(rolls: Array<string>): number {
     // all gems = best
