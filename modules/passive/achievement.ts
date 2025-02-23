@@ -78,7 +78,7 @@ const ACHIEVEMENTS: {
     'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble', diff:'h'},
     'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble', diff:'ex'},
     'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble', diff:'ex'},
-    'capitalism': {name:'Capitalism at its Finest',description:'Have 1,000,000,000 (one billion) okash in your bank', class:'okash', diff:'ex'},
+    'capitalism': {name:'Capitalism at its Finest',description:'Have 50,000,000 okash in your bank', class:'okash', diff:'ex'},
     'gamble_gobroke': {name:'Gamble Irresponsibly',description:'Go broke via a gambling game', class:'okash', diff:'t'},
     'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble', diff:'t'},
     'getdaily': {name:'The Beginning',description:'Get your daily reward for the first time', class:'okabot', diff:'e'},
