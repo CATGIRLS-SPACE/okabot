@@ -86,6 +86,7 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
+    if (profile.level.level > 100) profile.level.prestige = 1;
 
     const LEVEL_NAMES = interaction.locale==Locale.Japanese?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
 
