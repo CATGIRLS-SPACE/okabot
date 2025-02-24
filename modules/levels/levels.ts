@@ -23,15 +23,24 @@ const LEVEL_DICTIONARY = [
     {name:{en:'Silver Bell Holder',ja:'銀色のベル持ち'},levels:10},
     {name:{en:'Gold Bell Trainee',ja:'金色のベル訓練生'},levels:10},
     {name:{en:'Gold Bell Holder',ja:'金色のベル持ち'},levels:10},
-    {name:{en:'Waitress',ja:'ウェイトレス'},levels:10},
+    {name:{en:'Waitress First',ja:'ウェイトレス A'},levels:10},
+    {name:{en:'Waitress Second',ja:'ウェイトレス B'},levels:10},
     {name:{en:'Delivery Maine Coon',ja:'配達員のメインクーン'},levels:10},
     {name:{en:'Tea-Brewing American Curl',ja:'お茶のアメリカンカール'},levels:10},
     {name:{en:'Custard Munchkin',ja:'カスタードのマンチカン'},levels:10},
     {name:{en:'Strawberry-Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
+    {name:{en:'Blogger',ja:''},levels:25},
+    {name:{en:'Chinchilla Persian',ja:''},levels:25},
+    {name:{en:'Bakery Mentor',ja:''},levels:25},
+    {name:{en:'I don\'t know what to call this level, but no one has this level yet, so I don\'t care yet',ja:''},levels:25},
 ];
 
 // create appropriate level names on boot
-const ROMAN_NUMERALS = ['I','II','III','IV','V','VI','VII','VIII','IX','X']; // im lazy
+const ROMAN_NUMERALS = [
+    'I','II','III','IV','V','VI','VII','VIII','IX','X',
+    'XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX',
+    'XXI','XXII','XXIII','XXIV','XXV','XXVI','XXVII','XXVIII','XXIX','XXX',
+]; // im lazy
 export const LEVEL_NAMES_EN: Array<string> = [];
 export const LEVEL_NAMES_JA: Array<string> = [];
 
@@ -86,6 +95,7 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
+    // if (profile.level.level > 100) profile.level.prestige = 1;
 
     const LEVEL_NAMES = interaction.locale==Locale.Japanese?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
 
