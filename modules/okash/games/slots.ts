@@ -93,6 +93,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     AddToWallet(interaction.user.id, earned_okash);
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
+    if (multiplier == 0 && GetWallet(interaction.user.id, true) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+
     if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
