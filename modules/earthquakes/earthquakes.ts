@@ -133,8 +133,8 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         const embed = await BuildEarthquakeEmbed(
             new Date(data.earthquake.originTime || 0), 
             data.earthquake.magnitude.value,
-            data.intensity.maxInt || ShindoValue.ZERO,
-            data.earthquake.hypocenter.depth.value, //this is actually depth 
+            (data.intensity || {maxInt:ShindoValue.ZERO}).maxInt,
+            data.earthquake.hypocenter.depth.value, //this is actually depth <-- no shit sherlock??
             data.earthquake.hypocenter.name, 
             true
         );
