@@ -191,6 +191,8 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             event.report_count += 1;
             EXISTING_EARTHQUAKES.set(data.eventId, {message:event.message, report_count:data.isLastInfo?999:parseInt(data.serialNo), is_warning:data.isWarning});
 
+            event.report_count = data.isLastInfo?999:parseInt(data.serialNo);
+
             embed = BuildEEWEmbed(
                 new Date(data.earthquake.originTime),
                 data.earthquake.magnitude.value,
@@ -233,6 +235,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             if (!event.is_warning) event.message.reply({content:`${GetEmoji(EMOJI.EPICENTER)} EEW Forecast was upgraded to EEW Warning!`})
             event.report_count = data.isLastInfo?999:parseInt(data.serialNo);
             event.is_warning = true;
+
             EXISTING_EARTHQUAKES.set(data.eventId, event);
 
             embed = BuildEEWEmbed(
