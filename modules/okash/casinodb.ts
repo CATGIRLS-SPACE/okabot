@@ -1,8 +1,10 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake} from "discord.js";
+import {ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, Snowflake} from "discord.js";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {BASE_DIRNAME} from "../../index";
 import {join} from "path";
+import { Logger } from "okayulogger";
 
+const L = new Logger('casino');
 
 interface WinLossInfo {
     wins: number, // number of game wins
@@ -59,6 +61,7 @@ function SaveCasinoDB() {
 
 
 export function AddCasinoWin(user_id: Snowflake, won_amount: number, game: 'coinflip' | 'blackjack' | 'roulette' | 'slots') {
+    L.info(`add ${game} win for ${user_id}`);
     // global all
     LoadedCasinoDB.wins++;
     LoadedCasinoDB.okash_won += won_amount;
@@ -81,12 +84,14 @@ export function AddCasinoWin(user_id: Snowflake, won_amount: number, game: 'coin
 }
 
 export function AddCasinoLoss(user_id: Snowflake, lost_amount: number, game: 'coinflip' | 'blackjack' | 'roulette' | 'slots') {
+    L.info(`add ${game} loss for ${user_id}`);
+
     // global all
-    LoadedCasinoDB.wins--;
-    LoadedCasinoDB.okash_won -= lost_amount;
+    LoadedCasinoDB.losses++;
+    LoadedCasinoDB.okash_lost += lost_amount;
     // global per-game
-    LoadedCasinoDB.games[game].wins--;
-    LoadedCasinoDB.games[game].okash_won -= lost_amount;
+    LoadedCasinoDB.games[game].losses++;
+    LoadedCasinoDB.games[game].okash_lost += lost_amount;
 
     // user per-game
     if (!LoadedCasinoDB.users[user_id]) LoadedCasinoDB.users[user_id] = {
@@ -96,8 +101,8 @@ export function AddCasinoLoss(user_id: Snowflake, lost_amount: number, game: 'co
         slots: DEFAULT_WINLOSS_INFO
     };
 
-    LoadedCasinoDB.users[user_id][game].wins--;
-    LoadedCasinoDB.users[user_id][game].okash_won -= lost_amount;
+    LoadedCasinoDB.users[user_id][game].losses++;
+    LoadedCasinoDB.users[user_id][game].okash_lost += lost_amount;
 
     SaveCasinoDB();
 }
@@ -110,19 +115,36 @@ export function GetCasinoDB(): CasinoDB {
 export async function HandleCommandCasino(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    const global_line = `Total Wins/Losses: ${LoadedCasinoDB.wins}/${LoadedCasinoDB.losses}\nTotal okash Won/Lost: ${LoadedCasinoDB.okash_won}/${LoadedCasinoDB.okash_lost}`;
-    const per_game = [
-        `## Coinflip\nTotal Wins/Losses: ${LoadedCasinoDB.games.coinflip.wins}/${LoadedCasinoDB.games.coinflip.losses}\nTotal okash Won/Lost: ${LoadedCasinoDB.games.coinflip.okash_won}/${LoadedCasinoDB.games.coinflip.okash_lost}`,
-        `## Blackjack\nTotal Wins/Losses: ${LoadedCasinoDB.games.blackjack.wins}/${LoadedCasinoDB.games.blackjack.losses}\nTotal okash Won/Lost: ${LoadedCasinoDB.games.blackjack.okash_won}/${LoadedCasinoDB.games.blackjack.okash_lost}`,
-        `## Roulette\nTotal Wins/Losses: ${LoadedCasinoDB.games.roulette.wins}/${LoadedCasinoDB.games.roulette.losses}\nTotal okash Won/Lost: ${LoadedCasinoDB.games.roulette.okash_won}/${LoadedCasinoDB.games.roulette.okash_lost}`,
-        `## Slots\nTotal Wins/Losses: ${LoadedCasinoDB.games.slots.wins}/${LoadedCasinoDB.games.slots.losses}\nTotal okash Won/Lost: ${LoadedCasinoDB.games.slots.okash_won}/${LoadedCasinoDB.games.slots.okash_lost}`,
-    ];
+    const embed = new EmbedBuilder();
+
+    switch (interaction.options.getSubcommand()) {
+        case 'alltime':
+            embed
+                .setTitle('All-time Casino Stats')
+                .addFields(
+                    {name:'Global Wins', value:`${LoadedCasinoDB.wins} wins totaling ${LoadedCasinoDB.okash_won}`},
+                    {name:'Global Losses', value:`${LoadedCasinoDB.losses} losses totaling ${LoadedCasinoDB.okash_lost}`, inline: true},
+                    {name:'Coinflip Wins', value:`${LoadedCasinoDB.games.coinflip.wins} wins totaling ${LoadedCasinoDB.games.coinflip.okash_won}`},
+                    {name:'Coinflip Losses', value:`${LoadedCasinoDB.games.coinflip.losses} losses totaling ${LoadedCasinoDB.games.coinflip.okash_lost}`, inline: true},
+                    {name:'Blackjack Wins', value:`${LoadedCasinoDB.games.blackjack.wins} wins totaling ${LoadedCasinoDB.games.blackjack.okash_won}`},
+                    {name:'Blackjack Losses', value:`${LoadedCasinoDB.games.blackjack.losses} losses totaling ${LoadedCasinoDB.games.blackjack.okash_lost}`, inline: true},
+                    {name:'Roulette Wins', value:`${LoadedCasinoDB.games.roulette.wins} wins totaling ${LoadedCasinoDB.games.roulette.okash_won}`},
+                    {name:'Roulette Losses', value:`${LoadedCasinoDB.games.roulette.losses} losses totaling ${LoadedCasinoDB.games.roulette.okash_lost}`, inline: true},
+                    {name:'Slots Wins', value:`${LoadedCasinoDB.games.slots.wins} wins totaling ${LoadedCasinoDB.games.slots.okash_won}`},
+                    {name:'Slots Losses', value:`${LoadedCasinoDB.games.slots.losses} losses totaling ${LoadedCasinoDB.games.slots.okash_lost}`, inline: true},
+                )
+            break;
+    }
 
     await interaction.editReply({
-        content:`# Casino (beta)\n${global_line}\n${per_game.join('\n')}`
+        embeds:[embed]
     });
 }
 
 export const CasinoSlashCommand = new SlashCommandBuilder()
     .setName('casino')
     .setDescription('Get information on the casino')
+    .addSubcommand(sc => sc
+        .setName('alltime')
+        .setDescription('All-time information on the casino')
+    )
