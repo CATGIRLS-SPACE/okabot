@@ -62,7 +62,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     switch (wanted_item) {
         // xp level
-        case 'xp level': case 'level': case 'xp level up':
+        case 'xp level': case 'level': case 'xp level up': case 'xpl': case 'lvl':
             return AddXPLevel(interaction);
 
         // gems
