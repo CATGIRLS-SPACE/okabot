@@ -10,6 +10,7 @@ import { EMOJI, GetEmoji } from "../../../util/emoji";
 import { format } from "util";
 import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -179,6 +180,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             interaction.editReply({
                 content: `${emoji_finish} ${next_message}`
             });
+
+            AddCasinoWin(interaction.user.id, bet*5, 'coinflip');
         }, 3000);
 
         RecordMonitorEvent(EventType.COINFLIP_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended a coinflip`);
@@ -204,7 +207,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         }
 
         let new_float = '';
-        const REWARD = 250;
+        const REWARD = 1000;
 
         if (stats.coinflip.high.value < rolled) { 
             new_float += `\n**NEW HIGHEST ROLL:** \`${rolled}\` is the highest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.floor(rolled * REWARD)}**!`;
@@ -258,8 +261,9 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
         if (win) {
             AddToWallet(interaction.user.id, bet*2);
+            AddCasinoWin(interaction.user.id, bet*2, 'coinflip');
             if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
-        }
+        } AddCasinoLoss(interaction.user.id, bet, 'coinflip');
     }, 3000);
 }
 

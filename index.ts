@@ -48,6 +48,7 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {HandleCommandPair} from "./modules/http/pairing";
+import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
 
 export const BASE_DIRNAME = __dirname;
 
@@ -87,6 +88,7 @@ client.once(Events.ClientReady, (c: Client) => {
     LoadVoiceData();
     LoadReminders();
     ScheduleJob(c); // schedule the coinflip reset bonus
+    LoadCasinoDB();
     // ScheduleStocksTask(c);
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
@@ -162,7 +164,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'rob': HandleCommandRob,
     'achievements': HandleCommandAchievements,
     'slots': HandleCommandSlots,
-    'pair': HandleCommandPair
+    'pair': HandleCommandPair,
+    'casino': HandleCommandCasino
 }
 
 // Handling slash commands:

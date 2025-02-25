@@ -5,6 +5,7 @@ import { AddXP } from "../../levels/onMessage";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { GetEmoji } from "../../../util/emoji";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
 
 const L = new Logger('blackjack');
@@ -327,6 +328,8 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
         if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 
+        AddCasinoLoss(interaction.user.id, game.bet, 'blackjack');
+
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
         const d = new Date();
         LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
@@ -376,16 +379,22 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     if (win) {
         if (player_blackjack) {
             AddToWallet(confirmation.user.id, game.bet * 3);
+            AddCasinoWin(confirmation.user.id, game.bet * 3, 'blackjack');
             GrantAchievement(interaction.user, Achievements.BLACKJACK, interaction.channel as TextChannel);
         }
-        else AddToWallet(confirmation.user.id, game.bet * 2);
+        else {
+            AddToWallet(confirmation.user.id, game.bet * 2);
+            AddCasinoWin(confirmation.user.id, game.bet * 2, 'blackjack');
+        }
+
 
         if (game.bet == 5000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
-        else AddToWallet(confirmation.user.id, game.bet * 1);
+        else AddToWallet(confirmation.user.id, game.bet);
     } else {
         if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+        AddCasinoLoss(interaction.user.id, game.bet, 'blackjack');
     }
 
     

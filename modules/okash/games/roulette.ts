@@ -9,6 +9,7 @@ import { client } from "../../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -142,6 +143,7 @@ async function StartRoulette(game: RouletteGame) {
     setTimeout(async () => {        
         if (win.win) {
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
+            AddCasinoWin(game.interaction.user.id, game.bet * win.multiplier, 'roulette');
             await game.interaction!.editReply({
                 content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
@@ -150,6 +152,7 @@ async function StartRoulette(game: RouletteGame) {
             if (game.game_type == RouletteGameType.NUMBER_MULTIPLE && (game.selection as Array<number>).length < 8 && (game.selection as Array<number>).length > 1) GrantAchievement(game.interaction.user, Achievements.ROULETTE_MULTI, game.interaction.channel as TextChannel);
         } else {
             if (GetWallet(game.interaction.user.id) == 0 && GetBank(game.interaction.user.id) == 0) GrantAchievement(game.interaction.user, Achievements.NO_MONEY, game.interaction.channel as TextChannel);
+            AddCasinoLoss(game.interaction.user.id, game.bet, 'roulette');
             await game.interaction!.editReply({
                 content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
             });

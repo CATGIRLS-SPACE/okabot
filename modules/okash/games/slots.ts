@@ -3,6 +3,7 @@ import {EMOJI, GetEmoji} from "../../../util/emoji";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -94,6 +95,9 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
     if (multiplier == 0 && GetWallet(interaction.user.id, true) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+
+    if (multiplier == 0) AddCasinoLoss(interaction.user.id, bet, 'slots');
+    else AddCasinoWin(interaction.user.id, bet * multiplier, 'slots');
 
     if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
