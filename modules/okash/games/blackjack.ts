@@ -160,14 +160,6 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     });
 
     const d = new Date();
-    // if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 >= Math.floor(d.getTime()/1000)) {
-    //     const can_next_play = LastGameFinished.get(interaction.user.id)! + 5 - Math.floor(d.getTime() / 1000);
-    //     await interaction.reply({
-    //         content: can_next_play!=0?`:bangbang: Woah there, **${interaction.user.displayName}**, slow down!! You can play again in ${can_next_play} sec.`:`:bangbang: Woah there, **${interaction.user.displayName}**, finish reading this message and try again!`,
-    //         flags: [MessageFlags.SuppressNotifications]
-    //     });
-    //     return;
-    // }
 
     const result = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (result) return;
@@ -223,7 +215,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     GamesActive.set(interaction.user.id, game);
 
-    const first_message_content = `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? '***Blackjack!***' : ''}`;
+    const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     let response;
 
     if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) {
@@ -324,7 +316,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
     if (player_busted) {
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
+            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
             components: []
         });
 
@@ -341,7 +333,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         // if we doubled down, you cannot hit again
 
         await confirmation.update({
-            content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}`,
+            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}** \n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}`,
             components: [player_blackjack || double_down ? row_willbust : row]
         });
     }
@@ -374,9 +366,9 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     const wouldve_been_drawn = `Had you hit, you would've drawn ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!])}`;
 
     await confirmation.update({
-        content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
-        \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\
-        \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
+        content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}**\n-# Blackjack pays 3x, win pays 2x\
+        \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}\
+        \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}\
         \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**\
         \n${!game.okabot_has_hit?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
         components: []
