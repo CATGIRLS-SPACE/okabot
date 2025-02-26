@@ -253,6 +253,12 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     });
 }
 
+
+export async function RenderCasinoDB() {
+
+}
+
+
 function sortPrices(a: number, b: number): -1 | 1 | 0 {
     if (a < b) return 1;
     if (a > b) return -1;

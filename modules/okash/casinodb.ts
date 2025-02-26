@@ -122,15 +122,15 @@ export async function HandleCommandCasino(interaction: ChatInputCommandInteracti
             embed
                 .setTitle('All-time Casino Stats')
                 .addFields(
-                    {name:'Global Wins', value:`${LoadedCasinoDB.wins} wins totaling ${LoadedCasinoDB.okash_won}`},
+                    {name:'Global Wins', value:`${LoadedCasinoDB.wins} wins totaling ${LoadedCasinoDB.okash_won}`, inline: true},
                     {name:'Global Losses', value:`${LoadedCasinoDB.losses} losses totaling ${LoadedCasinoDB.okash_lost}`, inline: true},
-                    {name:'Coinflip Wins', value:`${LoadedCasinoDB.games.coinflip.wins} wins totaling ${LoadedCasinoDB.games.coinflip.okash_won}`},
+                    {name:'Coinflip Wins', value:`${LoadedCasinoDB.games.coinflip.wins} wins totaling ${LoadedCasinoDB.games.coinflip.okash_won}`, inline: true},
                     {name:'Coinflip Losses', value:`${LoadedCasinoDB.games.coinflip.losses} losses totaling ${LoadedCasinoDB.games.coinflip.okash_lost}`, inline: true},
-                    {name:'Blackjack Wins', value:`${LoadedCasinoDB.games.blackjack.wins} wins totaling ${LoadedCasinoDB.games.blackjack.okash_won}`},
+                    {name:'Blackjack Wins', value:`${LoadedCasinoDB.games.blackjack.wins} wins totaling ${LoadedCasinoDB.games.blackjack.okash_won}`, inline: true},
                     {name:'Blackjack Losses', value:`${LoadedCasinoDB.games.blackjack.losses} losses totaling ${LoadedCasinoDB.games.blackjack.okash_lost}`, inline: true},
-                    {name:'Roulette Wins', value:`${LoadedCasinoDB.games.roulette.wins} wins totaling ${LoadedCasinoDB.games.roulette.okash_won}`},
+                    {name:'Roulette Wins', value:`${LoadedCasinoDB.games.roulette.wins} wins totaling ${LoadedCasinoDB.games.roulette.okash_won}`, inline: true},
                     {name:'Roulette Losses', value:`${LoadedCasinoDB.games.roulette.losses} losses totaling ${LoadedCasinoDB.games.roulette.okash_lost}`, inline: true},
-                    {name:'Slots Wins', value:`${LoadedCasinoDB.games.slots.wins} wins totaling ${LoadedCasinoDB.games.slots.okash_won}`},
+                    {name:'Slots Wins', value:`${LoadedCasinoDB.games.slots.wins} wins totaling ${LoadedCasinoDB.games.slots.okash_won}`, inline: true},
                     {name:'Slots Losses', value:`${LoadedCasinoDB.games.slots.losses} losses totaling ${LoadedCasinoDB.games.slots.okash_lost}`, inline: true},
                 )
             break;
