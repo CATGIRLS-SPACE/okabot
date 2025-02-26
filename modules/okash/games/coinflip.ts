@@ -263,7 +263,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             AddToWallet(interaction.user.id, bet*2);
             AddCasinoWin(interaction.user.id, bet*2, 'coinflip');
             if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
-        } AddCasinoLoss(interaction.user.id, bet, 'coinflip');
+        } else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
     }, 3000);
 }
 

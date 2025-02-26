@@ -1,9 +1,10 @@
-import { createCanvas } from "canvas";
+import {CanvasRenderingContext2D, createCanvas} from "canvas";
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME, CoinFloats } from "../..";
 import { GetLastNumValues, Stocks } from "../okash/stock";
+import {GetCasinoDB} from "../okash/casinodb";
 
 
 export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandInteraction) {
@@ -254,11 +255,118 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
 }
 
 
-export async function RenderCasinoDB() {
+function GenerateMultiBar(
+    ctx: CanvasRenderingContext2D,
+    bar_start_x: number,
+    bar_start_y: number,
+    bar_width: number,
+    bar_height: number,
+    sections: {
+        count: 2 | 4,
+        total: number,
+        values: Array<number>,
+        colors: Array<string>
+    }
+) {
+    // create mask
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(bar_start_x, bar_start_y, bar_width, bar_height, 6);
+    ctx.closePath();
+    ctx.clip();
+
+    // make bar
+    switch (sections.count) {
+        case 2:
+            const double_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
+            ctx.fillStyle = sections.colors[0];
+            ctx.fillRect(bar_start_x, bar_start_y, double_first_width, bar_height);
+            ctx.fillStyle = sections.colors[1];
+            ctx.fillRect(bar_start_x + double_first_width, bar_start_y, bar_width - double_first_width, bar_height);
+            break;
+
+        case 4:
+            const quad_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
+            const quad_second_width = Math.round((sections.values[1]/sections.total) * bar_width);
+            const quad_third_width = Math.round((sections.values[2]/sections.total) * bar_width);
+            const quad_final_width = Math.round((sections.values[3]/sections.total) * bar_width);
+            ctx.fillStyle = sections.colors[0];
+            ctx.fillRect(bar_start_x, bar_start_y, quad_first_width, bar_height);
+            ctx.fillStyle = sections.colors[1];
+            ctx.fillRect(bar_start_x + quad_first_width, bar_start_y, quad_second_width, bar_height);
+            ctx.fillStyle = sections.colors[2];
+            ctx.fillRect(bar_start_x + quad_first_width + quad_second_width, bar_start_y, quad_third_width, bar_height);
+            ctx.fillStyle = sections.colors[3];
+            ctx.fillRect(bar_start_x + quad_first_width + quad_second_width + quad_third_width, bar_start_y, quad_final_width, bar_height);
+            break;
+    }
+
+    // render bar
+    ctx.restore();
+    ctx.fillStyle = '#ffffff00';
+    ctx.fill();
+}
+
+export async function RenderCasinoDB(interaction: ChatInputCommandInteraction) {
+    const casino = GetCasinoDB();
+
     const width = 550, height = 350;
     const canvas = createCanvas(width,height);
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff';
+
+    // background
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, width, height);
+
+    // first bar, winloss all
+    let bar_start_x = 25;
+    let bar_start_y = 50;
+    let bar_width = 500;
+    let bar_height = 25;
+
+    GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
+        count: 2,
+        values: [casino.wins, casino.losses],
+        total: casino.wins + casino.losses,
+        colors: [
+            '#77ff7f',
+            '#ff7171',
+        ]
+    });
+    ctx.font = '16px azuki_font';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff7171';
+    ctx.fillText(`${casino.wins} LOSS`, bar_start_x + bar_width, bar_start_y + bar_height + 20);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#77ff7f';
+    ctx.fillText(`WINS ${casino.wins}`, bar_start_x, bar_start_y + bar_height + 20);
+
+    // second bar, win all
+
+    // GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
+    //     count: 4,
+    //     values: [7, 3, 2, 6],
+    //     total: 18,
+    //     colors: [
+    //         '#35ffc7',
+    //         '#2657ff',
+    //         '#ff4afb',
+    //         '#2bea00'
+    //     ]
+    // });
+
+    // third bar, loss all
+
+    // save image
+    const buffer = canvas.toBuffer('image/png');
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+    writeFileSync(join(BASE_DIRNAME, 'temp', 'render-casino.png'), buffer);
+
+    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'render-casino.png'));
+    interaction.editReply({
+        content:``,
+        files: [image]
+    });
 }
 
 
