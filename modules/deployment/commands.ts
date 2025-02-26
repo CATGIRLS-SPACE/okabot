@@ -64,7 +64,7 @@ const COMMANDS_TO_REGISTER = [
     RobSlashCommand,
     AchievementsSlashCommand,
     SlotsSlashCommand,
-    CasinoSlashCommand,
+    // CasinoSlashCommand, // <-- not ready yet!
 ].map(command => command.toJSON());
 
 export async function DeployCommands(token: string, client_id: string) {

@@ -80,7 +80,8 @@ interface BlackjackGame {
     bet: number,
     gameActive: boolean,
     expires: number,
-    deck: Array<HandCard>
+    deck: Array<HandCard>,
+    okabot_has_hit: boolean
 }
 
 // user_id and game
@@ -200,7 +201,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         bet,
         gameActive: true,
         expires: d.getTime() + 120_000,
-        deck: this_deck
+        deck: this_deck,
+        okabot_has_hit: false
     }
 
     // set up deck
@@ -355,6 +357,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     while (TallyCards(game.dealer) < 17) {
         // add random card
         game.dealer.push(game.deck.shift()!);
+        game.okabot_has_hit = true;
     }
 
     const dealer_bust: boolean = TallyCards(game.dealer) > 21;
@@ -368,11 +371,14 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     let earned_xp = tie ? 5 : (win ? 15 : 10);
     if (player_blackjack) earned_xp += 5;
 
+    const wouldve_been_drawn = `Had you hit, you would've drawn ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!])}`;
+
     await confirmation.update({
         content: `okabot Blackjack | Bet ${GetEmoji('okash')} OKA**${game.bet}** | Blackjack pays 3x, win pays 2x\
         \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' ***Blackjack!***' : ''}\
         \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' ***Blackjack!***' : ''}\
-        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**`,
+        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**\
+        \n${!game.okabot_has_hit?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
         components: []
     });
 
