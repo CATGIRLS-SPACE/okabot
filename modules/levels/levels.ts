@@ -176,7 +176,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     // Level
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#b4c1d9';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1 - ((profile.level.prestige || 0) * 100)]} (${profile.level.level})`, 20, 90);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1 - ((profile.level.prestige || 0) * 100)]}`, 20, 90);
 
     // XP Bar Background
     const barX = 20;

@@ -255,7 +255,10 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
 
 
 export async function RenderCasinoDB() {
-
+    const width = 550, height = 350;
+    const canvas = createCanvas(width,height);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
 }
 
 
