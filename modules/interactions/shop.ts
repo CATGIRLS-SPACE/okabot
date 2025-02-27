@@ -38,18 +38,21 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
         case 'gems':
             const profile = GetUserProfile(interaction.user.id);
             // has user-specific items so we must generate it here
-            const AVAILABLE_GEMS = new EmbedBuilder()
+            const AVAILABLE_ITEMS = new EmbedBuilder()
                 .setTitle('Available items to buy with your okash')
                 .setAuthor({name:'okabot Shop'})
                 .setColor(0x9d60cc)
                 .setFields(
                     {name:`${GetEmoji('g00')} Streak Restore`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**15,000**`},
-                    {name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`}
+                    {name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`},
+                    {name:`Casino Pass - 10 Minutes`, value:`${GetEmoji('okash')} OKA**25,000**`},
+                    {name:`Casino Pass - 30 Minutes`, value:`${GetEmoji('okash')} OKA**60,000**`},
+                    {name:`Casino Pass - 60 Minutes`, value:`${GetEmoji('okash')} OKA**100,000**`},
                 );
 
             
             interaction.reply({embeds:[
-                AVAILABLE_GEMS
+                AVAILABLE_ITEMS
             ]});
             break;
     

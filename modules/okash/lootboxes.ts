@@ -1,6 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
-import { GEMS, ITEM_TYPE, ITEMS, CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import { GetWallet, GetInventory,} from "../okash/wallet";
+import { ITEM_TYPE, ITEMS, CUSTOMIZATION_UNLOCKS } from "./items";
 import { GetUserProfile} from "../user/prefs";
 
 export enum LOOTBOX_REWARD_TYPE {

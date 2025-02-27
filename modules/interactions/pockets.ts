@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, EmbedBuilder, Emoji, SlashCommandBuilder } from "discord.js";
 import { GetInventory } from "../okash/wallet";
-import { GEMS, ITEMS } from "../okash/items";
+import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 
@@ -9,11 +9,17 @@ const ITEM_NAMES: {
 } = {
     0: {name:':package: Common Lootbox',desc:'A box containing all sorts of goodies!'},
     1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
-    2: {name:':package: Epic Lootbox',desc:'A fancy box that gives really good items!'},
+    2: {name:':package: Extreme Rare Lootbox',desc:'A fancy box that gives really good items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
     4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'},
     5: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
+    7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
+    8: {name:`Drop Rate Increase (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
+    9: {name:`Drop Rate Increase (30 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
+    10: {name:`Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
+    11: {name:`Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
+    12: {name:`Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
 }
 
 const UNLOCK_NAMES: {

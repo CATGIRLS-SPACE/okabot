@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory } from "../okash/wallet";
-import { CUSTOMIZATION_UNLOCKS, GEMS, ITEM_TYPE, ITEMS } from "../okash/items";
+import { CUSTOMIZATION_UNLOCKS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CalculateTargetXP } from "../levels/levels";
 import { AddXP } from "../levels/onMessage";
@@ -30,7 +30,12 @@ const PRICES: {
     'xp level':1,
     'xp level up':1,
     'custom level bar':15_000,
-    'reset level bar':1
+    'reset level bar':1,
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 10 minute': 15_000,
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 30 minute': 50_000,
+    'casino pass 10 minute':25_000,
+    'casino pass 30 minute':60_000,
+    'casino pass 60 minute':100_000,
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -42,6 +47,11 @@ const SHORTHANDS: {[key: string]: string} = {
     'prc': 'purple coin',
     'pc': 'pink coin',
     'rbc': 'rainbow coin',
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri10': 'drop rate increase 10 minute',
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri30': 'drop rate increase 30 minute',
+    'cp10': 'casino pass 10 minute',
+    'cp30': 'casino pass 30 minute',
+    'cp60': 'casino pass 60 minute',
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {

@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
-import { GEMS, ITEM_TYPE, ITEMS } from "./items";
+import { ITEM_TYPE, ITEMS } from "./items";
 import { Logger } from "okayulogger";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 import { client } from "../..";

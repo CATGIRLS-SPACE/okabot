@@ -1,13 +1,6 @@
 // once these have been used you **CANNOT** change the order of them
 // if you add an item, it MUST be at the end, otherwise you will BREAK a user file!
 
-/**
- * @Deprecated code should move GEMS.STREAK_RESTORE to use ITEMS_STREAK_RESTORE instead
- */
-export enum GEMS {
-    STREAK_RESTORE,     // g00
-}
-
 export enum ITEMS {
     LOOTBOX_COMMON,
     LOOTBOX_RARE,
@@ -17,6 +10,11 @@ export enum ITEMS {
     UNUSED_ITEM_ID_5,
     SHOP_VOUCHER,
     LOT_SCRATCH,
+    LOOTBOX_INCREASE_15_MIN,
+    LOOTBOX_INCREASE_30_MIN,
+    CASINO_PASS_10_MIN,
+    CASINO_PASS_30_MIN,
+    CASINO_PASS_1_HOUR
 }
 
 export enum CUSTOMIZATION_UNLOCKS {
