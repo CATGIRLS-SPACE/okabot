@@ -336,7 +336,7 @@ export async function RenderCasinoDB(interaction: ChatInputCommandInteraction) {
     ctx.font = '16px azuki_font';
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ff7171';
-    ctx.fillText(`${casino.wins} LOSS`, bar_start_x + bar_width, bar_start_y + bar_height + 20);
+    ctx.fillText(`${casino.losses} LOSS`, bar_start_x + bar_width, bar_start_y + bar_height + 20);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#77ff7f';
     ctx.fillText(`WINS ${casino.wins}`, bar_start_x, bar_start_y + bar_height + 20);

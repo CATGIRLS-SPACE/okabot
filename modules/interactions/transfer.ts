@@ -4,21 +4,26 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 
 
 export async function HandleCommandTransfer(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-    
     const amount = interaction.options.getNumber('amount', true);
     const source = interaction.options.getString('source', true);
 
-    if (amount.toString().includes('.')) return interaction.editReply({
-        content: `:x: Cannot move a non-whole amount of okash`
+    if (amount.toString().includes('.')) return interaction.reply({
+        content: `:x: Cannot move a non-whole amount of okash`,
+        flags:[MessageFlags.Ephemeral]
     });
 
+    if (amount == 0 && source != 'math') return interaction.reply({
+        content: `:x: ${GetEmoji(EMOJI.OKASH)} OKA**0** is only a valid amount when using the "Two-Way Calculation" option.`,
+        flags:[MessageFlags.Ephemeral]
+    });
+
+    await interaction.deferReply();
+
     const bank = GetBank(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id);
     
     switch (source) {
         case 'wallet':
-            const wallet = GetWallet(interaction.user.id);
-            
             if (wallet < amount) return interaction.editReply({
                 content: `:x: Sorry **${interaction.user.displayName}**, but you don't have enough okash in your wallet to move!`,
             });
@@ -34,6 +39,28 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
             RemoveFromBank(interaction.user.id, amount);
             AddToWallet(interaction.user.id, amount);
             break;
+
+        case 'math':
+            if (wallet < amount && bank < amount) return interaction.editReply({
+                content: `:x: Sorry **${interaction.user.displayName}**, but you don't have enough okash in your wallet/bank to move!`
+            });
+
+            // if wallet is larger than amount, move to bank
+            // eg. (w)15000 -> (a)5000 = -10000
+            if (wallet > amount) {
+                RemoveFromWallet(interaction.user.id, Math.abs(amount-wallet));
+                AddToBank(interaction.user.id, Math.abs(amount-wallet));
+            }
+            // if wallet is smaller than amount, move from bank
+            // eg. (w)5000 -> (a)15000 = +10000
+            if (wallet < amount) {
+                AddToWallet(interaction.user.id, Math.abs(amount-wallet));
+                RemoveFromBank(interaction.user.id, Math.abs(amount-wallet));
+            }
+
+            return interaction.editReply({
+                content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, moved the amount to make your wallet ${GetEmoji(EMOJI.OKASH)} OKA**${amount}**!`
+            });
     }
 
     interaction.editReply({
@@ -49,14 +76,15 @@ export const MoveMoneySlashCommand =
             .setName('amount').setNameLocalization('ja', '高')
             .setDescription('How much to move').setDescriptionLocalization('ja', 'okashの分量を動く')
             .setRequired(true)
-            .setMinValue(1)
+            .setMinValue(0)
         )
         .addStringOption(option => option
             .setName('source').setDescriptionLocalization('ja', '行き先')
-            .setDescription('Which way to move').setDescriptionLocalization('ja', 'どこからどこへのokash動く')
+            .setDescription('How to move').setDescriptionLocalization('ja', 'どこからどこへのokash動く')
             .setRequired(true)
             .addChoices(
                 {name:'Wallet -> Bank', value:'wallet', name_localizations:{ja:'ポケット ➞ 銀行'}},
                 {name:'Bank -> Wallet', value:'bank', name_localizations:{ja:'銀行 ➞ ポケット'}},
+                {name:'Two-way Calculate', value:'math', name_localizations:{ja:'割り出す'}},
             )
         )
