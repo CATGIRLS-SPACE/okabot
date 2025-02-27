@@ -17,9 +17,9 @@ const ITEM_NAMES: {
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
     8: {name:`Drop Rate Increase (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
     9: {name:`Drop Rate Increase (30 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
-    10: {name:`Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
-    11: {name:`Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
-    12: {name:`Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active!'},
+    10: {name:`Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp10".'},
+    11: {name:`Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp30".'},
+    12: {name:`Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp60".'},
 }
 
 const UNLOCK_NAMES: {
@@ -45,6 +45,19 @@ const UNLOCK_NAMES: {
     17: {name:`${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} Rainbow Coin`,desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
     18: {name:'User Banner Level Background',desc:'Enables your level banner to use your Discord banner as its background'},
     19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
+}
+
+export function GetProperItemName(shop_id: string): string {
+    const keys: {[key: string]: number} = {
+        'streak restore': 3,
+        'drop rate increase 15 minute': 8,
+        'drop rate increase 30 minute': 9,
+        'casino pass 10 minute': 10,
+        'casino pass 30 minute': 11,
+        'casino pass 60 minute': 12,
+    }
+
+    return ITEM_NAMES[keys[shop_id]].name;
 }
 
 export async function HandleCommandPockets(interaction: ChatInputCommandInteraction) {

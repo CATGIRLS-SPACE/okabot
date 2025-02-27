@@ -5,6 +5,7 @@ import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CalculateTargetXP } from "../levels/levels";
 import { AddXP } from "../levels/onMessage";
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { GetProperItemName } from "./pockets";
 
 
 const LastBoughtLevel = new Map<string, number>();
@@ -31,7 +32,7 @@ const PRICES: {
     'xp level up':1,
     'custom level bar':15_000,
     'reset level bar':1,
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 10 minute': 15_000,
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 15 minute': 15_000,
     'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 30 minute': 50_000,
     'casino pass 10 minute':25_000,
     'casino pass 30 minute':60_000,
@@ -47,7 +48,7 @@ const SHORTHANDS: {[key: string]: string} = {
     'prc': 'purple coin',
     'pc': 'pink coin',
     'rbc': 'rainbow coin',
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri10': 'drop rate increase 10 minute',
+    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri15': 'drop rate increase 15 minute',
     'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri30': 'drop rate increase 30 minute',
     'cp10': 'casino pass 10 minute',
     'cp30': 'casino pass 30 minute',
@@ -132,7 +133,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     // this will only execute if it's a '/use'able item
     RemoveFromWallet(interaction.user.id, price, true);
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one \`${wanted_item}\` for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one **${GetProperItemName(SHORTHANDS[wanted_item] || wanted_item)}** for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
 

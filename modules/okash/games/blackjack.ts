@@ -1,8 +1,8 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel, User } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js";
 import { Logger } from "okayulogger";
 import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
-import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
+import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY } from "../../user/prefs";
 import { GetEmoji } from "../../../util/emoji";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
@@ -90,6 +90,8 @@ const GamesActive = new Map<string, BlackjackGame>();
 const BetRecovery = new Map<string, number>();
 // user_id and time(d.getTime()/1000)
 const LastGameFinished = new Map<string, number>();
+// user_id & expiration (epoch sec)
+export const PassesActive = new Map<Snowflake, number>();
 
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
@@ -164,6 +166,13 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const result = await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE);
     if (result) return;
 
+    // check if thhuser is usin
+    let skip_cooldown = false;
+    if (PassesActive.has(interaction.user.id)) {
+        if (d.getTime()/1000<PassesActive.get(interaction.user.id)!) skip_cooldown = true;
+        else PassesActive.delete(interaction.user.id);
+    }
+
     const bet = interaction.options.getNumber('bet')!;
 
     if (bet.toString().includes('.')) return interaction.reply({
@@ -206,7 +215,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         game.deck.shift()!,
         game.deck.shift()!
     );
-
+    
     // player also gets two cards
     game.user.push(
         game.deck.shift()!,
@@ -218,7 +227,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     let response;
 
-    if (LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) {
+    if ((LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) && !skip_cooldown) {
         response = await interaction.reply({
             content:`:hourglass_flowing_sand: One sec, waiting for your cooldown to end...`,
             flags:[MessageFlags.SuppressNotifications]

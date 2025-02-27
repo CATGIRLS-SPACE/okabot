@@ -10,6 +10,8 @@ const L = new Logger('profiles');
 
 export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
+    CASINO_PASS,
+    DROP_BOOST
 }
 
 // probably never going to be used besides in here

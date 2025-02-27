@@ -1,10 +1,11 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake } from "discord.js";
 import { RestoreLastDailyStreak } from "../okash/daily";
 import { ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { commonLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
+import { PassesActive } from "../okash/games/blackjack";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -22,6 +23,18 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
         
         case 'rare lootbox': case 'rlb':
             item_rare_lootbox(interaction);
+            break;
+
+        case 'cp10':
+            item_casino_pass(interaction, '10');
+            break;
+
+        case 'cp30':
+            item_casino_pass(interaction, '30');
+            break;
+
+        case 'cp60':
+            item_casino_pass(interaction, '60');
             break;
 
         default:
@@ -94,7 +107,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
     
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their :package: **Common Lootbox** and found...`
+        content: `**${interaction.user.displayName}** opens their :package: **Common Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -119,7 +132,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their **Common Lootbox** and found ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens their **Common Lootbox** and finds ${rewardMessage}`
     })
 }
 async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
@@ -137,7 +150,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
     
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their :package: **Rare Lootbox** and found...`
+        content: `**${interaction.user.displayName}** opens their :package: **Rare Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -166,8 +179,31 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
             break;
     }
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opened their **Rare Lootbox** and found ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens their **Rare Lootbox** and finds ${rewardMessage}`
     })
+}
+
+
+async function item_casino_pass(interaction: ChatInputCommandInteraction, time: '10' | '30' | '60') {
+    await interaction.deferReply();
+
+    const d = new Date();
+
+    if (PassesActive.has(interaction.user.id) && PassesActive.get(interaction.user.id)! > d.getTime()/1000) return interaction.editReply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you've already got a **Casino Pass** active until <t:${PassesActive.get(interaction.user.id)}>`
+    });
+
+    const expiry_time = Math.round(d.getTime()/1000) + {
+        '10': 10*60,
+        '30': 30*60,
+        '60': 60*60
+    }[time];
+
+    PassesActive.set(interaction.user.id, expiry_time);
+
+    interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
+    });
 }
 
 
