@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { error } from "node:console";
 import {ManualRelease} from "../okash/games/slots";
+import {PassesActive} from "../okash/games/blackjack";
 
 
 interface ShorthandList {
@@ -85,9 +86,9 @@ export function RegisterAllShorthands() {
     RegisterShorthand('oka mod ', async (message: Message, params: string[]) => {
         if (params[3] == 'daily') {
             const daily_data = JSON.parse(readFileSync(join(BASE_DIRNAME, 'money', 'daily', params[2]+'.oka'), 'utf-8'));
-            
+
             if (!daily_data) throw new Error(`could not find daily data for ${params[2]}`);
-            
+
             const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
                 'last_get.time': 'number',
                 'streak.count': 'number',
@@ -110,7 +111,7 @@ export function RegisterAllShorthands() {
                     const v: {[key:string]:boolean} = {'true':true,'false':false};
                     daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = v[params[5]];
                     break;
-            
+
                 default:
                     break;
             }
@@ -124,7 +125,7 @@ export function RegisterAllShorthands() {
         if (params[3].startsWith('profile')) {
             const user_data = JSON.parse(readFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), 'utf-8'));
             if (!user_data) throw new Error(`could not find profile data for ${params[2]}`);
-            
+
             if (params[3] == 'profile.property') {
                 const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
                     'has_agreed_to_rules': 'boolean',
@@ -147,7 +148,7 @@ export function RegisterAllShorthands() {
                         if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
                         else user_data[params[4]] = value;
                         break;
-    
+
                     case 'boolean':
                         if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
                         const v: {[key:string]:boolean} = {'true':true,'false':false};
@@ -159,7 +160,7 @@ export function RegisterAllShorthands() {
                         if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = params[5];
                         else user_data[params[4]] = params[5];
                         break;
-                
+
                     default:
                         break;
                 }
@@ -205,7 +206,7 @@ export function RegisterAllShorthands() {
                                 .splice(user_data[params[4]].indexOf(params[6], 1));
                         }
                         break;
-                
+
                     default:
                         break;
                 }
@@ -269,7 +270,27 @@ export function RegisterAllShorthands() {
     });
 
     RegisterShorthand('oka update', async (message: Message, params: string[]) => {
-        SelfUpdate(message);
+        // check if anyone has an active casino pass
+        const time = new Date().getTime()/1000;
+        const passes: {[key: string]: number} = {};
+        for (let entry of PassesActive.entries()) {
+            if (entry[1] > time) passes[entry[0]] = entry[1];
+        }
+
+        if (Object.keys(passes).length != 0) {
+            await message.react('⚠️');
+
+            let msg = ':warning: There are casino passes active! If you restart, the passes will be deleted!\n';
+            Object.keys(passes).forEach(key => {
+                msg += `**${key}** - Expires <t:${passes[key]}:R>\n`
+            });
+            msg += '\nYou can forcibly update with `oka update force`.'
+
+            await message.reply(msg);
+            throw new Error('WARN'); // prevents the ':x:' reaction
+        }
+
+        if (message.content.includes('force') || Object.keys(passes).length == 0) SelfUpdate(message);
     });
 
     RegisterShorthand('oka rollback ', async (message: Message, params: string[]) => {
@@ -318,7 +339,9 @@ export async function CheckForShorthand(message: Message) {
                 await message.react('✅');
             }
         } catch (e) {
-            await message.react('❌');
+            if ((e as string).includes('WARN')) return;
+            else await message.react('❌');
+
             return await message.reply(`There was an error processing your shorthand. See here:\n\`${e}\`\n-# admin shorthands v2`);
         }
     }

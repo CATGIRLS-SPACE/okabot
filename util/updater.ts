@@ -1,12 +1,18 @@
 import { exec } from "child_process";
 import { Message } from "discord.js";
 import { Logger } from "okayulogger";
+import {DEV} from "../index";
 
 const PL = new Logger('child process');
 
 export async function SelfUpdate(message: Message, commit?: string) {
     const L = new Logger('self updater');
     L.info('beginning update...');
+
+    if (DEV) return await message.reply({
+        content: ':bangbang: You called `SelfUpdate()`, but it will not run due to devmode being enabled.'
+    });
+
     const changes = (commit?'`git reset --hard ' + commit + '`':'Pulling latest changes from GitHub...')
     const changes_done = (commit?'`git reset --hard ' + commit + '`':'Pulled latest changes from GitHub!')
 

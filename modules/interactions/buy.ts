@@ -81,7 +81,19 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
         case 'streak restore': case 'sr':
             AddOneToInventory(interaction.user.id, ITEMS.STREAK_RESTORE);
             break;
-        
+
+        case 'casino pass 10 minute': case 'cp10':
+            AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_10_MIN);
+            break;
+
+        case 'casino pass 30 minute': case 'cp30':
+            AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_30_MIN);
+            break;
+
+        case 'casino pass 60 minute': case 'cp60':
+            AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_1_HOUR);
+            break;
+
         // coin customizations
         // must return on these because we need to check if the user already has the unlock
         // if they do, don't subtract the price and tell them that they already have it

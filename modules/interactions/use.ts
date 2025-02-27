@@ -6,6 +6,7 @@ import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/p
 import { commonLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import { PassesActive } from "../okash/games/blackjack";
+import {GetProperItemName} from "./pockets";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -20,7 +21,7 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
         case 'common lootbox': case 'clb': case 'lb':
             item_common_lootbox(interaction);
             break;
-        
+
         case 'rare lootbox': case 'rlb':
             item_rare_lootbox(interaction);
             break;
@@ -105,7 +106,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     }
 
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
-    
+
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens their :package: **Common Lootbox** and finds...`
     });
@@ -120,7 +121,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
             AddOneToInventory(interaction.user.id, reward.value)
             rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`
             break;
-    
+
         case LOOTBOX_REWARD_TYPE.OKASH:
             AddToWallet(interaction.user.id, reward.value)
             rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
@@ -148,7 +149,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     }
 
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
-    
+
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens their :package: **Rare Lootbox** and finds...`
     });
@@ -169,7 +170,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
                 rewardMessage = `a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`;
             }
             break;
-    
+
         case LOOTBOX_REWARD_TYPE.OKASH:
             AddToWallet(interaction.user.id, reward.value)
             rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
@@ -186,6 +187,17 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
 
 async function item_casino_pass(interaction: ChatInputCommandInteraction, time: '10' | '30' | '60') {
     await interaction.deferReply();
+
+    const pockets = GetInventory(interaction.user.id);
+
+    const item = {'10': ITEMS.CASINO_PASS_10_MIN, '30': ITEMS.CASINO_PASS_30_MIN, '60': ITEMS.CASINO_PASS_1_HOUR}[time];
+
+    if (pockets.other.indexOf(item) == -1)
+        return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :credit_card: **${time}-minute Casino Pass**!`
+        });
+
+    RemoveOneFromInventory(interaction.user.id, item);
 
     const d = new Date();
 

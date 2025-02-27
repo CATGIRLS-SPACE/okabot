@@ -44,6 +44,7 @@ export enum Achievements {
     ROB_HIGH = 'robmin25000', //
     ROB_FINED = 'robfined', //
     THANK_OKABOT = 'thankokabot', //
+    OKABOT_CRY = 'okabotcry', //
     PAY_USER = 'begenerous', //
     OKASH_DROP = 'okashdrop', //
     LOOTBOX_DROP = 'lootboxdrop', //
@@ -52,8 +53,11 @@ export enum Achievements {
     ANGER_OKABOT = 'remindmetwice', //
     FAST_CLAIM_REMINDER = 'quickclaim', //
     SLOTS_GEMS = 'slots10x', //
-    ROB_BANK_HIGH = 'bankrob50000',
-    ROB_BANK_PUNY = 'bankrob5percent',
+    ROB_BANK_HIGH = 'bankrob50000', //
+    ROB_BANK_PUNY = 'bankrob5percent', //
+    CASINO_PASS = 'casinopass',
+    DROP_BOOST = 'dropboost',
+    SELLDROPITEM = 'selldrop',
 }
 
 const ACHIEVEMENTS: {
@@ -91,6 +95,7 @@ const ACHIEVEMENTS: {
     'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun', diff:'t'},
     'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun', diff:'e'},
     'thankokabot': {name:'Nice List',description:'Thank okabot', class:'fun', diff:'e'},
+    'okabotcry': {name:'An Anime Whose First Episode Date was October 21, 2007',description:'Make okabot cry', class:'fun', diff:'e'},
     'begenerous': {name:'Generosity',description:'Pay a user some okash', class:'okash', diff:'e'},
     'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash', class:'fun', diff:'t'},
     'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox', class:'fun', diff:'t'},
@@ -98,9 +103,12 @@ const ACHIEVEMENTS: {
     'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
     'remindmetwice': {name:'I Get It!',description:'Annoy okabot by asking him to remind you of your daily reward twice',class:'fun', diff:'e'},
     'quickclaim': {name:'Quick Draw',description:'Claim your daily reward within one minute of okabot reminding you.',class:'okabot', diff:'h'},
-    'slots10x': {name:'Shiny!',description:'Win 10x your bet by getting all :gem: gems.',class:'gamble', diff:'h'},
+    'slots10x': {name:'Shiny!',description:'Win 10x your bet by getting all :gem: gems.',class:'gamble', diff:'ex'},
     'bankrob50000': {name:'I Hate Debt Collectors',description:'Rob at least 50000 okash from the bank',class:'fun', diff:'h'},
     'bankrob5percent': {name:'7-Eleven Big Gulp',description:'Rob the bank and get only 5% or less of the collected fines',class:'fun', diff:'h'},
+    'casinopass': {name:'No Time To Waste',description:'Use a Casino Pass to bypass the blackjack cooldown',class:'fun', diff:'e'},
+    'dropboost': {name:'Drop Please',description:'Use a Drop Chance Booster to increase your chances at gaining a lootbox',class:'fun', diff:'e'},
+    'selldrop': {name:'Ungrateful',description:'Get an item from a lootbox and immediately sell it',class:'fun', diff:'h'},
 }
 
 /**

@@ -43,11 +43,11 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
                 .setAuthor({name:'okabot Shop'})
                 .setColor(0x9d60cc)
                 .setFields(
-                    {name:`${GetEmoji('g00')} Streak Restore`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**15,000**`},
-                    {name:`XP Level Up`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`},
-                    {name:`Casino Pass - 10 Minutes`, value:`${GetEmoji('okash')} OKA**25,000**`},
-                    {name:`Casino Pass - 30 Minutes`, value:`${GetEmoji('okash')} OKA**60,000**`},
-                    {name:`Casino Pass - 60 Minutes`, value:`${GetEmoji('okash')} OKA**100,000**`},
+                    {name:`${GetEmoji('g00')} Streak Restore (\`sr\`)`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**15,000**`},
+                    {name:`XP Level Up (\`xpl\`)`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.level.level * 50)}**`},
+                    {name:`:credit_card: Casino Pass - 10 Minutes (\`cp10\`)`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**25,000**`},
+                    {name:`:credit_card: Casino Pass - 30 Minutes (\`cp30\`)`, value:`${GetEmoji('okash')} OKA**60,000**`},
+                    {name:`:credit_card: Casino Pass - 60 Minutes (\`xpl\`)`, value:`${GetEmoji('okash')} OKA**100,000**`},
                 );
 
             
