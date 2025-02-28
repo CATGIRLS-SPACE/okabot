@@ -3,7 +3,7 @@ import { RestoreLastDailyStreak } from "../okash/daily";
 import { ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { commonLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
+import { commonLootboxReward, exLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import { PassesActive } from "../okash/games/blackjack";
 import {GetProperItemName} from "./pockets";
@@ -182,6 +182,20 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens their **Rare Lootbox** and finds ${rewardMessage}`
     })
+}
+
+
+async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
+    await interaction.editReply({
+        content: `**${interaction.user.displayName}** opens their **EX Lootbox** and finds...`
+    });
+
+    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_EX);
+    const result = exLootboxReward(interaction.user.id);
+
+    await new Promise((r) => setTimeout(r, 3000));
+
+    switch (result.type)
 }
 
 

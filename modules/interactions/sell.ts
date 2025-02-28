@@ -27,6 +27,7 @@ const SELL_PRICES: {
     'rainbow coin':{price:700_000,type:'cust'},
     'weighted coin':{price:1_000,type:'item',itemID:ITEMS.WEIGHTED_COIN_ONE_USE},
     'shop voucher':{price:10_000,type:'item',itemID:ITEMS.SHOP_VOUCHER},
+    'streak restore':{price:10_500,type:'item',itemID:ITEMS.STREAK_RESTORE},
 }
 
 const STRINGS: {

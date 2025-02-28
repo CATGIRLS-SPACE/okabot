@@ -60,3 +60,32 @@ export function rareLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TY
         };
     } 
 }
+
+export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE, value: number} {
+    const roll = Math.floor(Math.random() * 1000);
+    const time = Math.round(new Date().getTime() / 1000);
+
+    // between 5000-25000 okash
+    if (roll < 500) {
+        const okash = Math.floor(Math.random() * 20000) + 5000;
+        return {type: LOOTBOX_REWARD_TYPE.OKASH, value: okash};
+    }
+
+    if (roll > 500 && roll < 900) {
+        LootboxRecentlyDropped.set(user_id, {item: ITEMS.SHOP_VOUCHER, time})
+        return {type: LOOTBOX_REWARD_TYPE.ITEM, value: ITEMS.SHOP_VOUCHER}
+    }
+
+    if (roll > 900) {
+        const item = [
+            ITEMS.CASINO_PASS_10_MIN,
+            ITEMS.CASINO_PASS_30_MIN,
+            ITEMS.CASINO_PASS_1_HOUR,
+            ITEMS.LOOTBOX_INCREASE_15_MIN,
+            ITEMS.LOOTBOX_INCREASE_30_MIN,
+        ][Math.round(Math.random() * 4)]; // get a random item
+
+        LootboxRecentlyDropped.set(user_id, {item, time});
+        return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};
+    }
+}
