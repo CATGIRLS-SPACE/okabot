@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { COIN_COLOR, GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import { AddToWallet } from "../okash/wallet";
+import {AddToWallet, GetInventory} from "../okash/wallet";
 import { GetEmoji } from "../../util/emoji";
 import { format } from "util";
 
@@ -24,7 +24,8 @@ const SELL_PRICES: {
     'light blue coin':7_000,
     'purple coin':35_000,
     'pink coin':70_000,
-    'rainbow coin':700_000
+    'rainbow coin':700_000,
+    'weighted coin':1_000
 }
 
 const STRINGS: {
@@ -48,6 +49,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
 
     // check if the user has this item in their inventory
     const profile = GetUserProfile(interaction.user.id);
+    const pockets = GetInventory(interaction.user.id).other;
     const item = interaction.options.getString('item', true).toLowerCase();
     if (!profile.customization.unlocked.includes(NAMES[item])) return interaction.editReply({
         content: format(STRINGS['bad_item'][locale], interaction.user.displayName)

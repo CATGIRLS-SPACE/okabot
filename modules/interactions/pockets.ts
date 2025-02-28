@@ -7,9 +7,9 @@ import { GetEmoji, EMOJI } from "../../util/emoji";
 const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:':package: Common Lootbox',desc:'A box containing all sorts of goodies!'},
-    1: {name:':package: Rare Lootbox',desc:'A box that has a good chance of giving better items!'},
-    2: {name:':package: Extreme Rare Lootbox',desc:'A fancy box that gives really good items!'},
+    0: {name:':package: Common Lootbox',desc:'A box containing a random prize!'},
+    1: {name:':package: Rare Lootbox',desc:'A box containing some better items!'},
+    2: {name:':package: EX Lootbox',desc:'An extremely rare box that contains the finest of items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
     4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'},
     5: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
