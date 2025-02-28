@@ -32,8 +32,8 @@ const PRICES: {
     'xp level up':1,
     'custom level bar':15_000,
     'reset level bar':1,
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 15 minute': 15_000,
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_drop rate increase 30 minute': 50_000,
+    'drop boost 15 minute': 15_000,
+    'drop boost 30 minute': 50_000,
     'casino pass 10 minute':25_000,
     'casino pass 30 minute':60_000,
     'casino pass 60 minute':100_000,
@@ -48,8 +48,8 @@ const SHORTHANDS: {[key: string]: string} = {
     'prc': 'purple coin',
     'pc': 'pink coin',
     'rbc': 'rainbow coin',
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri15': 'drop rate increase 15 minute',
-    'NOT_READY_PLEASE_DONT_BREAK_MY_BOT_dri30': 'drop rate increase 30 minute',
+    'db15': 'drop boost 15 minute',
+    'db30': 'drop boost 30 minute',
     'cp10': 'casino pass 10 minute',
     'cp30': 'casino pass 30 minute',
     'cp60': 'casino pass 60 minute',
@@ -92,6 +92,14 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'casino pass 60 minute': case 'cp60':
             AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_1_HOUR);
+            break;
+
+        case 'drop boost 15 minute': case 'db15':
+            AddOneToInventory(interaction.user.id, ITEMS.LOOTBOX_INCREASE_15_MIN);
+            break;
+
+        case 'drop boost 30 minute': case 'db30':
+            AddOneToInventory(interaction.user.id, ITEMS.LOOTBOX_INCREASE_30_MIN);
             break;
 
         // coin customizations

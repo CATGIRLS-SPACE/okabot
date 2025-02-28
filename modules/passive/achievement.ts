@@ -55,9 +55,9 @@ export enum Achievements {
     SLOTS_GEMS = 'slots10x', //
     ROB_BANK_HIGH = 'bankrob50000', //
     ROB_BANK_PUNY = 'bankrob5percent', //
-    CASINO_PASS = 'casinopass',
+    CASINO_PASS = 'casinopass', //
     DROP_BOOST = 'dropboost',
-    SELLDROPITEM = 'selldrop',
+    SELLDROPITEM = 'selldrop', //
 }
 
 const ACHIEVEMENTS: {

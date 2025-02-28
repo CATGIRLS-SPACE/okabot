@@ -1,9 +1,11 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
 import { COIN_COLOR, GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CUSTOMIZATION_UNLOCKS, ITEMS } from "../okash/items";
 import {AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
 import { GetEmoji } from "../../util/emoji";
 import { format } from "util";
+import { LootboxRecentlyDropped } from "../okash/lootboxes";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -54,12 +56,23 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     const pockets = GetInventory(interaction.user.id).other;
     const item = interaction.options.getString('item', true).toLowerCase();
 
+    if (!SELL_PRICES[item]) return interaction.editReply({
+        content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
+    });
+
     switch (SELL_PRICES[item].type) {
         case 'item':
             if (!pockets.includes(SELL_PRICES[item].itemID!)) return interaction.editReply({
                 content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
             });
             RemoveOneFromInventory(interaction.user.id, SELL_PRICES[item].itemID!);
+
+            // achievement for selling it right after dropped
+            const time = Math.round(new Date().getTime() / 1000);
+            if (LootboxRecentlyDropped.has(interaction.user.id) && 
+                LootboxRecentlyDropped.get(interaction.user.id)!.item == SELL_PRICES[item].itemID! &&
+                LootboxRecentlyDropped.get(interaction.user.id)!.time + 180 >= time // has 3 minutes to sell or no achievment!
+            ) GrantAchievement(interaction.user, Achievements.SELLDROPITEM, interaction.channel as TextChannel);
             break;
     
         case 'cust':

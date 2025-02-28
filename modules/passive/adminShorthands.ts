@@ -2,7 +2,7 @@ import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
 import {BASE_DIRNAME, BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetListening} from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
-import {AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
+import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserProfile, RestrictUser, UpdateUserProfile} from "../user/prefs";
 import {SelfUpdate} from "../../util/updater";
@@ -12,6 +12,7 @@ import { join } from "node:path";
 import { error } from "node:console";
 import {ManualRelease} from "../okash/games/slots";
 import {PassesActive} from "../okash/games/blackjack";
+import { ITEM_NAMES } from "../interactions/pockets";
 
 
 interface ShorthandList {
@@ -219,6 +220,20 @@ export function RegisterAllShorthands() {
 
         // not daily or anything else
         throw new Error('invalid user db entry to modify. usage: "oka mod [Snowflake | them | me] [daily | profile] [property] [value]"');
+    });
+
+    // items
+    RegisterShorthand('oka insert', async (message: Message, params: string[]) => {
+        if (params.length < 4) throw new Error("not enough parameters. usage: oka insert [Snowflake | them | me] [itemID]");
+        if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
+
+        if (Number.isNaN(parseInt(params[3]))) throw new Error('invalid item ID');
+
+        AddOneToInventory(params[2], parseInt(params[3]));
+
+        const user = client.users.cache.get(params[2]);
+
+        message.reply(`:inbox_tray: Inserted one **${ITEM_NAMES[parseInt(params[3])].name}** into **${user?.displayName}**'s pockets`);
     });
 
     // bans

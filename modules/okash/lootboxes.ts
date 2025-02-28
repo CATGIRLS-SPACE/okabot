@@ -71,12 +71,12 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
         return {type: LOOTBOX_REWARD_TYPE.OKASH, value: okash};
     }
 
-    if (roll > 500 && roll < 900) {
+    if (roll >= 500 && roll < 900) {
         LootboxRecentlyDropped.set(user_id, {item: ITEMS.SHOP_VOUCHER, time})
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: ITEMS.SHOP_VOUCHER}
     }
 
-    if (roll > 900) {
+    if (roll >= 900 && roll != 999) {
         const item = [
             ITEMS.CASINO_PASS_10_MIN,
             ITEMS.CASINO_PASS_30_MIN,
@@ -88,4 +88,11 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
         LootboxRecentlyDropped.set(user_id, {item, time});
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};
     }
+
+    if (roll == 999) {
+        return {type: LOOTBOX_REWARD_TYPE.CUSTOMIZATION, value: CUSTOMIZATION_UNLOCKS.COIN_RAINBOW};
+    }
+
+    // this should never trigger but its here to stop tsc from whining
+    return {type:LOOTBOX_REWARD_TYPE.OKASH,value:0}
 }

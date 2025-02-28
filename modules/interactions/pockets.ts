@@ -4,10 +4,10 @@ import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 
-const ITEM_NAMES: {
+export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:':package: Common Lootbox',desc:'A box containing a random prize!'},
+    0: {name:':package: Common Lootbox',desc:'A box containing a random item!'},
     1: {name:':package: Rare Lootbox',desc:'A box containing some better items!'},
     2: {name:':package: EX Lootbox',desc:'An extremely rare box that contains the finest of items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
@@ -17,9 +17,9 @@ const ITEM_NAMES: {
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
     8: {name:`Drop Rate Increase (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
     9: {name:`Drop Rate Increase (30 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
-    10: {name:`Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp10".'},
-    11: {name:`Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp30".'},
-    12: {name:`Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp60".'},
+    10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp10".'},
+    11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp30".'},
+    12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp60".'},
 }
 
 const UNLOCK_NAMES: {

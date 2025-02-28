@@ -1,12 +1,14 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
 import { RestoreLastDailyStreak } from "../okash/daily";
-import { ITEM_TYPE, ITEMS } from "../okash/items";
+import { CUSTOMIZATION_UNLOCKS, ITEM_TYPE, ITEMS } from "../okash/items";
 import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
 import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { commonLootboxReward, exLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import { PassesActive } from "../okash/games/blackjack";
-import {GetProperItemName} from "./pockets";
+import { ITEM_NAMES} from "./pockets";
+import { Achievements, GrantAchievement } from "../passive/achievement";
+import { BoostsActive } from "../passive/onMessage";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -26,6 +28,10 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_rare_lootbox(interaction);
             break;
 
+        case 'ex lootbox': case 'exlb': case 'extra rare lootbox':
+            item_ex_lootbox(interaction);
+            break;
+
         case 'cp10':
             item_casino_pass(interaction, '10');
             break;
@@ -36,6 +42,14 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
 
         case 'cp60':
             item_casino_pass(interaction, '60');
+            break;
+
+        case 'db15':
+            item_drop_boost(interaction, '15');
+            break;
+
+        case 'db30':
+            item_drop_boost(interaction, '30');
             break;
 
         default:
@@ -186,8 +200,14 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
 
 
 async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
-    await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens their **EX Lootbox** and finds...`
+    if (GetInventory(interaction.user.id).other.indexOf(ITEMS.LOOTBOX_EX) == -1) return interaction.reply({
+        content: `**${interaction.user.displayName}**, you don't have an :sparkles: **EX Lootbox** :sparkles: to open!` 
+    });
+
+    //
+
+    await interaction.reply({
+        content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds...`
     });
 
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_EX);
@@ -195,7 +215,32 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
 
     await new Promise((r) => setTimeout(r, 3000));
 
-    switch (result.type)
+    switch (result.type) {
+        case LOOTBOX_REWARD_TYPE.OKASH:
+            AddToWallet(interaction.user.id, result.value);
+            return await interaction.editReply({
+                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds ${GetEmoji(EMOJI.OKASH)} OKA**${result.value}**!`
+            });
+
+        case LOOTBOX_REWARD_TYPE.ITEM:
+            AddOneToInventory(interaction.user.id, result.value);
+            return await interaction.editReply({
+                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a **${ITEM_NAMES[result.value].name}**!`
+            });
+
+        case LOOTBOX_REWARD_TYPE.CUSTOMIZATION:
+            // you can only get a rainbow coin lol
+            if (GetUserProfile(interaction.user.id).customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.COIN_RAINBOW) == -1) { 
+                AddToWallet(interaction.user.id, 500_000);
+                return await interaction.editReply({
+                    content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000**`
+                });
+            }
+            // doesn't have
+            return await interaction.editReply({
+                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!`
+            });
+    }
 }
 
 
@@ -212,6 +257,7 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
         });
 
     RemoveOneFromInventory(interaction.user.id, item);
+    GrantAchievement(interaction.user, Achievements.CASINO_PASS, interaction.channel as TextChannel);
 
     const d = new Date();
 
@@ -228,7 +274,37 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
     PassesActive.set(interaction.user.id, expiry_time);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their :credit_card: **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
+    });
+}
+
+
+async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '15' | '30') {
+    await interaction.deferReply();
+
+    const pockets = GetInventory(interaction.user.id);
+
+    const item = {'15': ITEMS.LOOTBOX_INCREASE_15_MIN, '30': ITEMS.LOOTBOX_INCREASE_30_MIN}[time];
+
+    if (pockets.other.indexOf(item) == -1)
+        return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :credit_card: **${time}-minute Casino Pass**!`
+        });
+
+    RemoveOneFromInventory(interaction.user.id, item);
+    GrantAchievement(interaction.user, Achievements.DROP_BOOST, interaction.channel as TextChannel);
+
+    const now = Math.round(new Date().getTime() / 1000);
+
+    const expiry = {
+        '15': now + 900,
+        '30': now + 1800
+    }[time];
+
+    BoostsActive.set(interaction.user.id, expiry);
+
+    interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
     });
 }
 
