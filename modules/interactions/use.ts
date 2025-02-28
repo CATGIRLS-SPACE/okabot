@@ -113,7 +113,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const reward = commonLootboxReward();
+    const reward = commonLootboxReward(interaction.user.id);
     let rewardMessage = '';
 
     switch (reward.type) {
@@ -156,7 +156,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const reward = rareLootboxReward();
+    const reward = rareLootboxReward(interaction.user.id);
     let rewardMessage = '';
 
     switch (reward.type) {
