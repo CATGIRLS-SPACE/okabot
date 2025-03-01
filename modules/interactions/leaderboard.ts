@@ -29,7 +29,7 @@ export async function HandleCommandLeaderboard(interaction: ChatInputCommandInte
 }
 
 
-async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
+async function OkashLeaderboard(interaction: ChatInputCommandInteraction, only_server: boolean = false) {
     // get all users+balances
     const balances = GetAllWallets();
 
@@ -54,7 +54,7 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
         
         try {
             const user = await interaction.client.users.fetch(balance.user_id);
-            const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
+            const isMember = only_server?await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false):true;
             
             if (isMember) {
                 fields.push({
@@ -74,7 +74,9 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction) {
 }
 
 
-async function LevelsLeaderboard(interaction: ChatInputCommandInteraction) {
+async function LevelsLeaderboard(interaction: ChatInputCommandInteraction, only_server: boolean = false) {
+    const time_start = new Date().getTime();
+
     // get all levels
     const levels = await GetAllLevels();
     levels.sort((a, b) => {
@@ -90,7 +92,7 @@ async function LevelsLeaderboard(interaction: ChatInputCommandInteraction) {
 
     // create the embed
     const embed = new EmbedBuilder()
-        .setTitle(`XP Levels Leaderboard for **${interaction.guild?.name}**`)
+        .setTitle(only_server?`XP Level Leaderboard for __${interaction.guild?.name}__`:'Global XP Level Leaderboard')
         .setAuthor({name:interaction.guild!.name, iconURL:interaction.guild!.iconURL()!})
         .setColor(0x9d60cc);
 
@@ -101,9 +103,11 @@ async function LevelsLeaderboard(interaction: ChatInputCommandInteraction) {
     for (const entry of levels) {
         if (i == 5) break;
 
+        L.debug(`fetch user ${entry.user_id}`);
+
         try {
             const user = await interaction.client.users.fetch(entry.user_id);
-            const isMember = await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false);
+            const isMember = only_server?await interaction.guild?.members.fetch(user.id).then(() => true).catch(() => false):true;
             
             if (isMember) {
                 fields.push({name: `${PLACE_EMOJI[i]} **${i+1}.** ${user.displayName || '(user not in server)'}`, value: `<@${entry.user_id}> is level **${entry.level.level}** with **${entry.level.current_xp}XP**!`, inline: false});   
@@ -116,7 +120,9 @@ async function LevelsLeaderboard(interaction: ChatInputCommandInteraction) {
 
     embed.setFields(fields);
 
-    interaction.editReply({embeds:[embed]});
+    const time_end = new Date().getTime();
+
+    interaction.editReply({content:`-# finished in ${time_end-time_start}ms`,embeds:[embed]});
 }
 
 

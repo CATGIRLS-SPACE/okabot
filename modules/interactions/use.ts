@@ -103,7 +103,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}** can feel their luck increasing already as they equip their ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**.`
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}** can already feel ${preferences.customization.pronoun.possessive} luck increasing while equipping ${preferences.customization.pronoun.possessive} ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**.`
     });
 }
 

@@ -242,14 +242,14 @@ client.on(Events.MessageCreate, async message => {
         });
     }
 
-    if (message.content.toLocaleLowerCase() == 'thank you okabot') {
+    if (message.content.toLocaleLowerCase().startsWith('thank you okabot')) {
         message.reply({
             content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
         });
         GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel); 
     }
 
-    if (message.content.toLocaleLowerCase() == 'thank you okaboob') {
+    if (message.content.toLocaleLowerCase().startsWith('thank you okaboob')) {
         message.reply({
             content:TYOB_RESPONSE[Math.floor(Math.random() * TYOB_RESPONSE.length)]
         });; 
@@ -263,7 +263,7 @@ client.on(Events.MessageCreate, async message => {
         content:'https://bot.lilycatgirl.dev/gif/dekocry.gif'
     });
 
-    if (message.content.toLocaleLowerCase().includes('massive')) message.reply({
+    if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
         content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
     });
 });

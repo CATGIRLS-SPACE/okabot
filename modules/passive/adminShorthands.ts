@@ -4,7 +4,7 @@ import {BASE_DIRNAME, BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetList
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetUserProfile, RestrictUser, UpdateUserProfile} from "../user/prefs";
+import {GetUserProfile, RestrictUser, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
 import {SelfUpdate} from "../../util/updater";
 import {ReleaseUserGame} from "../okash/games/roulette";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -31,6 +31,26 @@ const L = new Logger('admin shorthands');
 function RegisterShorthand(key: string, on_trigger: CallableFunction) {
     Shorthands[key] = on_trigger;
     // L.info(`registered shorthand '${key}'`);
+}
+
+function setNestedProperty(obj: any, path: string, value: any): void {
+    const keys = path.split(".");
+    let current = obj;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+        if (!(keys[i] in current)) {
+            throw new Error(`Invalid path: ${keys[i]} does not exist`);
+        }
+        current = current[keys[i]];
+    }
+
+    const lastKey = keys[keys.length - 1];
+
+    if (!(lastKey in current)) {
+        throw new Error(`Invalid path: ${lastKey} does not exist`);
+    }
+
+    current[lastKey] = value;
 }
 
 // --
@@ -129,48 +149,12 @@ export function RegisterAllShorthands() {
             if (!user_data) throw new Error(`could not find profile data for ${params[2]}`);
 
             if (params[3] == 'profile.property') {
-                const types: {[key: string]: 'number' | 'string' | 'boolean'} = {
-                    'has_agreed_to_rules': 'boolean',
-                    'customization.coin_color': 'number',
-                    'okash_notifications': 'boolean',
-                    'level.level': 'number',
-                    'level.xp': 'number',
-                    'okash_restriction.is_restricted': 'boolean',
-                    'okash_restriction.until': 'number',
-                    'okash_restriction.reason': 'string',
-                    'okash_restriction.abilities': 'string'
-                }
+                setNestedProperty(user_data, params[4], params[5]);
 
-                if (!types[params[4]]) throw new Error(`property ${params[4]} does not exist!`);
+                UpdateUserProfile(params[2], user_data);
 
-                switch (types[params[4]]) {
-                    case 'number':
-                        let value = parseInt(params[5]);
-                        if (Number.isNaN(value)) throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
-                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
-                        else user_data[params[4]] = value;
-                        break;
-
-                    case 'boolean':
-                        if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
-                        const v: {[key:string]:boolean} = {'true':true,'false':false};
-                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = v[params[5]];
-                        else user_data[params[4]] = v[params[5]];
-                        break;
-
-                    case 'string':
-                        if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]] = params[5];
-                        else user_data[params[4]] = params[5];
-                        break;
-
-                    default:
-                        break;
-                }
-
-                writeFileSync(join(BASE_DIRNAME, 'profiles', params[2]+'.oka'), JSON.stringify(user_data), 'utf-8');
-
-                return message.reply(`Modified profile.property info of ${params[2]} successfully.`);
-            };
+                return message.reply(`Modified profile.property info of ${params[2]} to be "${params[4]}=${params[5]}" successfully.`);
+            }
 
             if (params[3] == 'profile.array') {
                 // ex params 4-6 = flags add 0
@@ -358,8 +342,8 @@ export async function CheckForShorthand(message: Message) {
                 await message.react('✅');
             }
         } catch (e) {
-            if ((e as string).includes('WARN')) return;
-            else await message.react('❌');
+            // if ((e as string).includes('WARN')) return;
+            await message.react('❌');
 
             return await message.reply(`There was an error processing your shorthand. See here:\n\`${e}\`\n-# admin shorthands v2`);
         }

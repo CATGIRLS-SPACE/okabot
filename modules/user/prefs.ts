@@ -1,10 +1,10 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
-import { CUSTOMIZATION_UNLOCKS } from "../okash/items"
-import { join } from "path"
-import { BASE_DIRNAME } from "../.."
-import { ChatInputCommandInteraction, Client, EmbedBuilder } from "discord.js"
-import { Logger } from "okayulogger"
-import { Achievements } from "../passive/achievement"
+import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "fs"
+import {CUSTOMIZATION_UNLOCKS} from "../okash/items"
+import {join} from "path"
+import {BASE_DIRNAME} from "../.."
+import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
+import {Logger} from "okayulogger"
+import {Achievements} from "../passive/achievement"
 
 const L = new Logger('profiles');
 
@@ -12,16 +12,6 @@ export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
     CASINO_PASS,
     DROP_BOOST
-}
-
-// probably never going to be used besides in here
-export enum COIN_COLOR {
-    DEFAULT,
-    RED,
-    GREEN,
-    BLUE,
-    PINK,
-    PURPLE,
 }
 
 export interface USER_PROFILE {
@@ -34,18 +24,16 @@ export interface USER_PROFILE {
     },
     flags: Array<FLAG>, // keeping this as an array so i dont have to painfully upgrade later on
     customization: {
-        coin_color: COIN_COLOR | CUSTOMIZATION_UNLOCKS,
-        messages: {
-            okash: string,
-            coinflip_first: string,
-            coinflip_win: string,
-            coinflip_loss: string
-        },
+        coin_color: CUSTOMIZATION_UNLOCKS,
         unlocked: Array<CUSTOMIZATION_UNLOCKS>,
         level_banner: {
             hex_bg: string,
             hex_fg: string,
             hex_num: string
+        },
+        pronoun: {
+            subjective: string,
+            possessive: string,
         }
     },
     okash_notifications: boolean,
@@ -66,13 +54,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     has_agreed_to_rules: false,
     flags: [],
     customization: {
-        coin_color: COIN_COLOR.DEFAULT,
-        messages: {
-            coinflip_first: `{user} flips a coin for {amount}...`,
-            coinflip_win: `{user} flips a coin for {amount}... and wins the bet, doubling their money! :smile_cat:`,
-            coinflip_loss: `{user} flips a coin for {amount}... and loses the bet and their OKA{amount}. :crying_cat_face:`,
-            okash: `{user}, you've got {wallet} in your wallet and {bank} in your bank.`
-        },
+        coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
         unlocked: [
             CUSTOMIZATION_UNLOCKS.COIN_DEF,
             CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF,
@@ -82,6 +64,10 @@ const DEFAULT_DATA: USER_PROFILE = {
             hex_bg: '#666',
             hex_fg: '#222',
             hex_num: '#fff'
+        },
+        pronoun: {
+            subjective: 'they',
+            possessive: 'their'
         }
     },
     okash_notifications: true,
@@ -99,7 +85,8 @@ const DEFAULT_DATA: USER_PROFILE = {
 }
 
 let PROFILES_DIR: string;
-    
+
+const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
 export function SetupPrefs(base_dirname: string) {
     PROFILES_DIR = join(base_dirname, 'profiles');
@@ -113,6 +100,8 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     // only should trigger if you use the --wipe flag
     if (!PROFILES_DIR) PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
 
+    if (ProfileCache.has(user_id)) return ProfileCache.get(user_id)!;
+
     const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
 
     // check if it exists
@@ -124,6 +113,9 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
     if (!data.achievements) data.achievements = [];
+    if (!data.customization.pronoun) data.customization.pronoun = {subjective:'they',possessive:'their'};
+
+    ProfileCache.set(user_id, data);
 
     return data;
 }
@@ -132,6 +124,8 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 export function UpdateUserProfile(user_id: string, new_data: USER_PROFILE) {
     const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
     writeFileSync(profile_path, JSON.stringify(new_data), 'utf-8');
+
+    ProfileCache.set(user_id, new_data);
 }
 
 
@@ -188,11 +182,7 @@ export function CheckUserIdOkashRestriction(user_id: string, ability: string): b
         // they are restricted in some way
         const abilities = profile.okash_restriction.abilities.includes(',')?profile.okash_restriction.abilities.split(','):profile.okash_restriction.abilities;
 
-        if (abilities.indexOf(ability) != -1) {
-            return true;
-        }
-
-        return false;
+        return abilities.indexOf(ability) != -1;
     }
 
     return false;

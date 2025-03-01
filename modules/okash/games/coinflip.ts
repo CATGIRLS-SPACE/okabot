@@ -150,17 +150,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         STRINGS[side || 'heads'][locale],
         STRINGS[picked_side][locale])
 
-    // toggle for customization of messages (this could potentially be a bad idea but i hope not cuz its cool)
-    // if (USE_CUSTOMIZATION) {
-    //     const prefs = GetUserProfile(interaction.user.id);
-    //     first_message = prefs.customization.messages.coinflip_first
-    //         .replaceAll('{user}', `**${interaction.user.displayName}**`)
-    //         .replaceAll('{amount}', `OKA**${bet}**`);
-
-    //     next_message = (win?prefs.customization.messages.coinflip_win:prefs.customization.messages.coinflip_loss)
-    //         .replaceAll('{user}', `**${interaction.user.displayName}**`)
-    //         .replaceAll('{amount}', `OKA**${bet}**`);
-    // }
 
     await interaction.reply({
         content: `${emoji_waiting} ${first_message}`,

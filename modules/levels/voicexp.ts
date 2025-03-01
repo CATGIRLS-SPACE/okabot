@@ -1,4 +1,4 @@
-import { Client, TextChannel, VoiceState } from "discord.js";
+import {Client, MessageFlags, TextChannel, VoiceState} from "discord.js";
 import { Logger } from "okayulogger";
 import { BASE_DIRNAME, DEV } from "../..";
 import { AddXP } from "./onMessage";
@@ -20,6 +20,12 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         // user has joined a channel
         L.info(`${newState.member!.displayName} joined voice.`);
 
+        if (newState.channel)
+            newState.channel.send({
+                content:`***${newState.member?.displayName}**, I've started tracking your minutes in voice for XP!*`,
+                flags: [MessageFlags.SuppressNotifications]
+            });
+
         VoiceData.set(newState.member!.id, event_time);
     }
 
@@ -28,6 +34,12 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         L.info(`${newState.member!.displayName} left voice.`);
         
         if (!VoiceData.get(oldState.member!.id)) return;
+
+        if (oldState.channel)
+            oldState.channel.send({
+                content:`*Bye bye, **${newState.member?.displayName}**!*`,
+                flags: [MessageFlags.SuppressNotifications]
+            });
 
         L.info(`total time in voice: ${event_time - VoiceData.get(newState.member!.id)!} sec`);
         

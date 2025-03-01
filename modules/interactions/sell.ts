@@ -1,11 +1,11 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { COIN_COLOR, GetUserProfile, UpdateUserProfile } from "../user/prefs";
-import { CUSTOMIZATION_UNLOCKS, ITEMS } from "../okash/items";
+import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
+import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
-import { GetEmoji } from "../../util/emoji";
-import { format } from "util";
-import { LootboxRecentlyDropped } from "../okash/lootboxes";
-import { Achievements, GrantAchievement } from "../passive/achievement";
+import {GetEmoji} from "../../util/emoji";
+import {format} from "util";
+import {LootboxRecentlyDropped} from "../okash/lootboxes";
+import {Achievements, GrantAchievement} from "../passive/achievement";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -81,7 +81,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
             });
             // splice from inventory
             profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(NAMES[item]), 1);
-            profile.customization.coin_color = COIN_COLOR.DEFAULT;
+            profile.customization.coin_color = CUSTOMIZATION_UNLOCKS.COIN_DEF;
             UpdateUserProfile(interaction.user.id, profile);
             break;
 
