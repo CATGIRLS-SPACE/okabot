@@ -283,18 +283,21 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
     await interaction.deferReply();
 
     const pockets = GetInventory(interaction.user.id);
+    const now = Math.round(new Date().getTime() / 1000);
+
+    if (BoostsActive.has(interaction.user.id) && BoostsActive.get(interaction.user.id)! > now) return interaction.editReply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you've already got a **Drop Boost** active until <t:${BoostsActive.get(interaction.user.id)}>`
+    })
 
     const item = {'15': ITEMS.LOOTBOX_INCREASE_15_MIN, '30': ITEMS.LOOTBOX_INCREASE_30_MIN}[time];
 
     if (pockets.other.indexOf(item) == -1)
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :credit_card: **${time}-minute Casino Pass**!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **${time}-minute Drop Boost**!`
         });
 
     RemoveOneFromInventory(interaction.user.id, item);
     GrantAchievement(interaction.user, Achievements.DROP_BOOST, interaction.channel as TextChannel);
-
-    const now = Math.round(new Date().getTime() / 1000);
 
     const expiry = {
         '15': now + 900,
@@ -304,7 +307,7 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
     BoostsActive.set(interaction.user.id, expiry);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** feels their luck increase as they activate their **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
     });
 }
 

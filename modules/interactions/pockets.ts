@@ -15,8 +15,8 @@ export const ITEM_NAMES: {
     5: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
-    8: {name:`Drop Rate Increase (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
-    9: {name:`Drop Rate Increase (30 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
+    8: {name:`Drop Boost (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
+    9: {name:`Drop Boost (30 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
     10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp10".'},
     11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp30".'},
     12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp60".'},
@@ -50,8 +50,8 @@ const UNLOCK_NAMES: {
 export function GetProperItemName(shop_id: string): string {
     const keys: {[key: string]: number} = {
         'streak restore': 3,
-        'drop rate increase 15 minute': 8,
-        'drop rate increase 30 minute': 9,
+        'drop boost 15 minute': 8,
+        'drop boost 30 minute': 9,
         'casino pass 10 minute': 10,
         'casino pass 30 minute': 11,
         'casino pass 60 minute': 12,

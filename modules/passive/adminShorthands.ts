@@ -13,6 +13,7 @@ import { error } from "node:console";
 import {ManualRelease} from "../okash/games/slots";
 import {PassesActive} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
+import {BoostsActive} from "./onMessage";
 
 
 interface ShorthandList {
@@ -291,21 +292,24 @@ export function RegisterAllShorthands() {
         for (let entry of PassesActive.entries()) {
             if (entry[1] > time) passes[entry[0]] = entry[1];
         }
+        for (let entry of BoostsActive.entries()) {
+            if (!passes[entry[0]] && entry[1] > time) passes[entry[0]] = entry[1];
+        }
 
         if (Object.keys(passes).length != 0) {
             await message.react('⚠️');
 
-            let msg = ':warning: There are casino passes active! If you restart, the passes will be deleted!\n';
+            let msg = ':warning: There are casino passes/drop boosts active! If you restart, the passes will be deleted!\n';
             Object.keys(passes).forEach(key => {
                 msg += `**${key}** - Expires <t:${passes[key]}:R>\n`
             });
             msg += '\nYou can forcibly update with `oka update force`.'
 
             await message.reply(msg);
-            throw new Error('WARN'); // prevents the ':x:' reaction
+            if (!message.content.includes('force')) throw new Error('WARN'); // prevents the ':x:' reaction
         }
 
-        if (message.content.includes('force') || Object.keys(passes).length == 0) SelfUpdate(message);
+        SelfUpdate(message);
     });
 
     RegisterShorthand('oka rollback ', async (message: Message, params: string[]) => {
