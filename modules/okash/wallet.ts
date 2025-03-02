@@ -28,7 +28,7 @@ const L = new Logger('wallet');
  */
 export function ModifyOkashAmount(user_id: Snowflake, location: 'wallet' | 'bank', amount: number, fallback_to_bank: boolean = false) {
     const profile = GetUserProfile(user_id);
-    const add = amount < 0;
+    const add = amount > 0;
     amount = Math.abs(amount);
 
     if (amount > 50000) L.warn(`LARGE OKASH CHANGE FOR ACCOUNT ${user_id}! -${amount}`);
