@@ -256,20 +256,35 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }, 3000);
 }
 
+// probably finish this sometime else
+// current function is messy af, needs a makeover
+export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
+    interaction.deferReply();
+
+    const bet = interaction.options.getNumber('bet', true);
+    const profile = GetUserProfile(interaction.user.id);
+    const wallet = GetWallet(interaction.user.id);
+
+    if (wallet < bet) return interaction.editReply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!`,
+    });
+}
+
+
 export const CoinflipSlashCommand = 
     new SlashCommandBuilder()
-        .setName('coinflip').setNameLocalization('ja', 'コイントス')
-        .setDescription('Flip a coin with a chance to double your okash').setDescriptionLocalization('ja', 'コインを裏返すと、賭け金が2倍になります')
+        .setName('coinflip')
+        .setDescription('Flip a coin with a chance to double your okash')
         .addNumberOption(option => 
             option
-                .setName('amount').setNameLocalization('ja', '高')
-                .setDescription('The amount of okash you want to bet').setDescriptionLocalization('ja', 'okashの分量がベットします')
+                .setName('amount')
+                .setDescription('The amount of okash you want to bet')
                 .setRequired(true).setMinValue(1).setMaxValue(10_000)
         )
         .addStringOption(option => 
             option
-                .setName('side').setNameLocalization('ja','裏か表か')
-                .setDescription('Optionally, pick heads or tails').setDescriptionLocalization('ja', '裏か表かを選ぶ')
+                .setName('side')
+                .setDescription('Optionally, pick heads or tails')
                 .addChoices(
                 {name:'heads', value:'heads', name_localizations:{ja:'表'}},
                 {name:'tails', value:'tails', name_localizations:{ja:'裏'}}

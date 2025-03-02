@@ -47,10 +47,6 @@ export interface USER_PROFILE {
         prestige?: number
     },
     owes: {[key: string]: number},
-    pass?: {
-        is_active: boolean, 
-        valid_until: number,
-    },
     achievements: Array<Achievements>
 }
 
@@ -82,10 +78,6 @@ const DEFAULT_DATA: USER_PROFILE = {
         prestige: 0
     },
     owes: {},
-    pass: {
-        valid_until: 0,
-        is_active: false
-    },
     achievements: []
 }
 
