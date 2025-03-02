@@ -4,6 +4,7 @@ import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
+import {GetUserProfile} from "../../user/prefs";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -56,6 +57,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     });
 
     RemoveFromWallet(interaction.user.id, bet, false);
+    const profile = GetUserProfile(interaction.user.id);
 
     const roll_first  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
     const roll_second = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
@@ -104,7 +106,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
 
     const result = multiplier>0?
         `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
-        `:crying_cat_face: and loses their money! **(+5XP)**`;
+        `:crying_cat_face: and loses ${profile.customization.pronoun.possessive} money! **(+5XP)**`;
 
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result

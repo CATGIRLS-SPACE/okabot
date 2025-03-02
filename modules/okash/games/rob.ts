@@ -5,6 +5,7 @@ import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {join} from "node:path";
 import {BASE_DIRNAME} from "../../..";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
+import {GetUserProfile} from "../../user/prefs";
 
 
 const MESSAGES = [
@@ -12,7 +13,7 @@ const MESSAGES = [
     '**#USER1** steals #OKASH from <@#USER2>! Yikes!',
     'Holy beans, **#USER1** takes a fat #OKASH from <@#USER2>!',
     '<@#USER2> is robbed of #OKASH by **#USER1**! I wouldn\'t let that slide!',
-    'Well, <@#USER2> can say goodbye to their #OKASH after being robbed by **#USER1**!'
+    'Well, <@#USER2> can say goodbye to #PRO #OKASH after being robbed by **#USER1**!'
 ];
 
 const BANK_MESSAGES = [
@@ -75,6 +76,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     } 
 
     const robbed_user = interaction.options.getUser('user', true);
+    const robbed_user_profile = GetUserProfile(robbed_user.id);
 
     if (robbed_user.id == interaction.user.id) return interaction.reply({
         content: `:x: **${interaction.user.displayName}**, you can't rob yourself!`,
@@ -82,7 +84,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     });
 
     if (robbed_user.bot) return interaction.reply({
-        content: `:x: **${interaction.user.displayName}**, you can't rob this person!`,
+        content: `:x: **${interaction.user.displayName}**, you can't rob ${robbed_user_profile.customization.pronoun.objective}!`,
         flags: [MessageFlags.Ephemeral]
     });
 
@@ -90,7 +92,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     if (robbed_user_balance < 250) {
         return interaction.reply({
-            content: `:crying_cat_face: **${robbed_user.displayName}** has too little okash in their pockets to rob!`,
+            content: `:crying_cat_face: **${robbed_user.displayName}** has too little okash in ${robbed_user_profile.customization.pronoun.possessive} pockets to rob!`,
             flags: [MessageFlags.Ephemeral]
         });
     }
@@ -101,7 +103,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     if (total < 250) {
         return interaction.reply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you have too little okash to your name to rob! You need at least ${GetEmoji(EMOJI.OKASH)} OKA**250**!`,
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you have too little okash to your name to rob! You need at least ${GetEmoji(EMOJI.OKASH)} OKA**250**!\n-# This threshold is in place so that you can be fined in the event your robbery fails.`,
             flags: [MessageFlags.Ephemeral]
         });
     }
@@ -134,7 +136,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
 
         interaction.reply({
-            content: `:scream_cat: **${interaction.user.displayName}** tries to rob <@${robbed_user.id}>, but fails and is fined ${GetEmoji(EMOJI.OKASH)} OKA**${fine}**!\n-# If your pockets wasn't enough to pay your fine, the remainder was automatically removed from your bank.`
+            content: `:scream_cat: **${interaction.user.displayName}** tries to rob <@${robbed_user.id}>, but fails and is fined ${GetEmoji(EMOJI.OKASH)} OKA**${fine}**!\n-# If your pockets weren't enough to pay your fine, the remainder was automatically removed from your bank.`
         });
         return GrantAchievement(interaction.user, Achievements.ROB_FINED, interaction.channel as TextChannel); 
     }
@@ -149,7 +151,8 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
         .replace('#USER1', interaction.user.displayName)
         .replace('#USER2', robbed_user.id)
-        .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`);
+        .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
+        .replace('#PRO', robbed_user_profile.customization.pronoun.possessive);
     
     interaction.reply({
         content: `:bangbang: ${msg}`

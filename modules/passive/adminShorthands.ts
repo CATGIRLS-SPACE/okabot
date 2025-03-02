@@ -209,14 +209,19 @@ export function RegisterAllShorthands() {
 
     // items
     RegisterShorthand('oka insert', async (message: Message, params: string[]) => {
-        if (params.length < 4) throw new Error("not enough parameters. usage: oka insert [Snowflake | them | me] [itemID]");
+        if (params.length < 4) throw new Error("not enough parameters. usage: oka insert [Snowflake | them | me] [itemID] [count?]");
         if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
-
         if (Number.isNaN(parseInt(params[3]))) throw new Error('invalid item ID');
-
-        AddOneToInventory(params[2], parseInt(params[3]));
+        if (params.length > 4 && Number.isNaN(parseInt(params[4]))) throw new Error("invalid number at params[4]");
 
         const user = client.users.cache.get(params[2]);
+
+        if (params[4]) {
+            for (let i = 0; i < parseInt(params[4]); i++) {
+                AddOneToInventory(params[2], parseInt(params[3]));
+            }
+            return message.reply(`:inbox_tray: Inserted ${params[4]} **${ITEM_NAMES[parseInt(params[3])].name}**(s) into **${user?.displayName}**'s pockets`);
+        } else AddOneToInventory(params[2], parseInt(params[3]));
 
         message.reply(`:inbox_tray: Inserted one **${ITEM_NAMES[parseInt(params[3])].name}** into **${user?.displayName}**'s pockets`);
     });

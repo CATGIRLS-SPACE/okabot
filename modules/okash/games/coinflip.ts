@@ -159,7 +159,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (rolled >= 0.5 && rolled < 0.50001) {
         setTimeout(() => {
             // win regardless, it landed on the side!!!
-            next_message = `${first_message} and it... lands on the side:interrobang: They now get 5x their bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
+            next_message = `${first_message} and it... lands on the side:interrobang: ${prefs.customization.pronoun.subjective} now get 5x ${prefs.customization.pronoun.possessive} bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
             
             AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
 

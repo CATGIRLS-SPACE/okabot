@@ -32,7 +32,11 @@ export interface USER_PROFILE {
             hex_num: string
         },
         pronoun: {
+            // she/he/they
             subjective: string,
+            // her/him/them
+            objective: string,
+            // her/his/their
             possessive: string,
         }
     },
@@ -67,7 +71,8 @@ const DEFAULT_DATA: USER_PROFILE = {
         },
         pronoun: {
             subjective: 'they',
-            possessive: 'their'
+            possessive: 'their',
+            objective: 'them'
         }
     },
     okash_notifications: true,
@@ -113,7 +118,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
     if (!data.achievements) data.achievements = [];
-    if (!data.customization.pronoun) data.customization.pronoun = {subjective:'they',possessive:'their'};
+    if (!data.customization.pronoun) data.customization.pronoun = {subjective:'they',possessive:'their',objective:'them'};
 
     ProfileCache.set(user_id, data);
 

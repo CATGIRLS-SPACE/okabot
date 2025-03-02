@@ -111,7 +111,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
     const inventory = GetInventory(interaction.user.id);
-    // const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
+    const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
     if (inventory.other.indexOf(ITEMS.LOOTBOX_COMMON) == -1) {
         return interaction.editReply({
@@ -122,7 +122,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens their :package: **Common Lootbox** and finds...`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :package: **Common Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -147,14 +147,14 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens their **Common Lootbox** and finds ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} **Common Lootbox** and finds ${rewardMessage}`
     })
 }
 async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
     const inventory = GetInventory(interaction.user.id);
-    // const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
+    const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
     if (inventory.other.indexOf(ITEMS.LOOTBOX_RARE) == -1) {
         return interaction.editReply({
@@ -165,7 +165,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens their :package: **Rare Lootbox** and finds...`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :package: **Rare Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -194,12 +194,14 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
             break;
     }
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens their **Rare Lootbox** and finds ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} **Rare Lootbox** and finds ${rewardMessage}`
     })
 }
 
 
 async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
+    const preferences = GetUserProfile(interaction.user.id);
+
     if (GetInventory(interaction.user.id).other.indexOf(ITEMS.LOOTBOX_EX) == -1) return interaction.reply({
         content: `**${interaction.user.displayName}**, you don't have an :sparkles: **EX Lootbox** :sparkles: to open!` 
     });
@@ -207,7 +209,7 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
     //
 
     await interaction.reply({
-        content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds...`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :sparkles: **EX Lootbox** :sparkles: and finds...`
     });
 
     RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_EX);
@@ -219,13 +221,13 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
         case LOOTBOX_REWARD_TYPE.OKASH:
             AddToWallet(interaction.user.id, result.value);
             return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds ${GetEmoji(EMOJI.OKASH)} OKA**${result.value}**!`
+                content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :sparkles: **EX Lootbox** :sparkles: and finds ${GetEmoji(EMOJI.OKASH)} OKA**${result.value}**!`
             });
 
         case LOOTBOX_REWARD_TYPE.ITEM:
             AddOneToInventory(interaction.user.id, result.value);
             return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a **${ITEM_NAMES[result.value].name}**!`
+                content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a **${ITEM_NAMES[result.value].name}**!`
             });
 
         case LOOTBOX_REWARD_TYPE.CUSTOMIZATION:
@@ -233,12 +235,12 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
             if (GetUserProfile(interaction.user.id).customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.COIN_RAINBOW) == -1) { 
                 AddToWallet(interaction.user.id, 500_000);
                 return await interaction.editReply({
-                    content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000**`
+                    content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000**`
                 });
             }
             // doesn't have
             return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens their :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!`
+                content: `**${interaction.user.displayName}** opens ${preferences.customization.pronoun.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!`
             });
     }
 }
@@ -248,6 +250,7 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
     await interaction.deferReply();
 
     const pockets = GetInventory(interaction.user.id);
+    const preferences = GetUserProfile(interaction.user.id);
 
     const item = {'10': ITEMS.CASINO_PASS_10_MIN, '30': ITEMS.CASINO_PASS_30_MIN, '60': ITEMS.CASINO_PASS_1_HOUR}[time];
 
@@ -274,7 +277,7 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
     PassesActive.set(interaction.user.id, expiry_time);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating their :credit_card: **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating ${preferences.customization.pronoun.possessive} :credit_card: **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
     });
 }
 
@@ -284,6 +287,7 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
 
     const pockets = GetInventory(interaction.user.id);
     const now = Math.round(new Date().getTime() / 1000);
+    const preferences = GetUserProfile(interaction.user.id);
 
     if (BoostsActive.has(interaction.user.id) && BoostsActive.get(interaction.user.id)! > now) return interaction.editReply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you've already got a **Drop Boost** active until <t:${BoostsActive.get(interaction.user.id)}>`
@@ -307,7 +311,7 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
     BoostsActive.set(interaction.user.id, expiry);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** feels their luck increase as they activate their **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** feels ${preferences.customization.pronoun.possessive} luck while activating ${preferences.customization.pronoun.possessive} **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
     });
 }
 
