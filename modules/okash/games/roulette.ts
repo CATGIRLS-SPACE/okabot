@@ -145,7 +145,7 @@ async function StartRoulette(game: RouletteGame) {
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
             AddCasinoWin(game.interaction.user.id, game.bet * win.multiplier, 'roulette');
             await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
+                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
             if (game.bet == 50000) GrantAchievement(game.interaction.user, Achievements.MAX_WIN, game.interaction.channel as TextChannel);
             if (game.game_type == RouletteGameType.NUMBER) GrantAchievement(game.interaction.user, Achievements.ROULETTE_ONE, game.interaction.channel as TextChannel);
@@ -154,7 +154,7 @@ async function StartRoulette(game: RouletteGame) {
             if (GetWallet(game.interaction.user.id) == 0 && GetBank(game.interaction.user.id) == 0) GrantAchievement(game.interaction.user, Achievements.NO_MONEY, game.interaction.channel as TextChannel);
             AddCasinoLoss(game.interaction.user.id, game.bet, 'roulette');
             await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: BLACK':':red_square: RED'} ${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
+                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
             });
         }
 

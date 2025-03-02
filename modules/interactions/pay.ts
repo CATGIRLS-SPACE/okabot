@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, ManageDebt, OKASH_ABILITY } from "../user/prefs";
+import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 
@@ -74,8 +74,6 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     const receiver_user = interaction.options.getUser('user')!;
     L.info(`PAYMENT SUCCESS FOR OKA${pay_amount} | ${interaction.user.username}(${interaction.user.id}) --> ${receiver_user.username}(${receiver_user.id})`);
 
-    ManageDebt(sender_id, receiver_id, pay_amount);
-
     RemoveFromWallet(sender_id, pay_amount);
     AddToWallet(receiver_id, pay_amount);
 
@@ -113,13 +111,13 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         )
         .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount-pay_amount}.`);
 
-    if (receiver_prefs.okash_notifications) receiver_user.send({
+    if (receiver_prefs.customization.global.okash_notifications) receiver_user.send({
         embeds:[receiver_embed]
     }).catch(() => {
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${receiver_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[receiver_embed]});
     });
     
-    if (sender_prefs.okash_notifications) interaction.user.send({
+    if (sender_prefs.customization.global.okash_notifications) interaction.user.send({
         embeds:[sender_embed]
     }).catch(() => {
         (interaction.channel as TextChannel).send({content:`:crying_cat_face: **${interaction.user.displayName}**, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});

@@ -75,7 +75,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             })
         }
     } else {
-        const inventory = GetInventory(interaction.user.id).other;
+        const inventory = GetInventory(interaction.user.id);
         let counts: any = {};
 
         for (let item in inventory) {

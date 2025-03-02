@@ -106,7 +106,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
 
     const result = multiplier>0?
         `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
-        `:crying_cat_face: and loses ${profile.customization.pronoun.possessive} money! **(+5XP)**`;
+        `:crying_cat_face: and loses ${profile.customization.global.pronouns.possessive} money! **(+5XP)**`;
 
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result

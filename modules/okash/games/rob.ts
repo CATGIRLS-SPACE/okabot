@@ -84,7 +84,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     });
 
     if (robbed_user.bot) return interaction.reply({
-        content: `:x: **${interaction.user.displayName}**, you can't rob ${robbed_user_profile.customization.pronoun.objective}!`,
+        content: `:x: **${interaction.user.displayName}**, you can't rob ${robbed_user_profile.customization.global.pronouns.objective}!`,
         flags: [MessageFlags.Ephemeral]
     });
 
@@ -92,7 +92,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     if (robbed_user_balance < 250) {
         return interaction.reply({
-            content: `:crying_cat_face: **${robbed_user.displayName}** has too little okash in ${robbed_user_profile.customization.pronoun.possessive} pockets to rob!`,
+            content: `:crying_cat_face: **${robbed_user.displayName}** has too little okash in ${robbed_user_profile.customization.global.pronouns.possessive} pockets to rob!`,
             flags: [MessageFlags.Ephemeral]
         });
     }
@@ -152,7 +152,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         .replace('#USER1', interaction.user.displayName)
         .replace('#USER2', robbed_user.id)
         .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
-        .replace('#PRO', robbed_user_profile.customization.pronoun.possessive);
+        .replace('#PRO', robbed_user_profile.customization.global.pronouns.possessive);
     
     interaction.reply({
         content: `:bangbang: ${msg}`

@@ -26,45 +26,45 @@ export async function DoLeveling(message: Message) {
 export async function AddXP(user_id: string, channel: TextChannel, amount?: number) {
     const profile = GetUserProfile(user_id);
     
-    profile.level.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
-    let target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
+    profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
+    let target_xp = CalculateTargetXP(profile.leveling.level, 0);
 
-    if (profile.level.current_xp >= target_xp) {
-        profile.level.current_xp = profile.level.current_xp - target_xp; // carry over extra XP
-        profile.level.level++;
+    if (profile.leveling.current_xp >= target_xp) {
+        profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP
+        profile.leveling.level++;
 
-        target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
+        target_xp = CalculateTargetXP(profile.leveling.level, 0);
 
-        const okash_reward = CalculateOkashReward(profile.level.level, profile.level.prestige || 0);
+        const okash_reward = CalculateOkashReward(profile.leveling.level, 0);
         AddToWallet(user_id, okash_reward);
         
         channel.send({
-            content: `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[(profile.level.level - 1) - ((profile.level.prestige || 0) * 100)]}** (${profile.level.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
+            content: `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[profile.leveling.level - 1]}** (${profile.leveling.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}**!\nYour next level will be in **${target_xp}XP**.`,
             flags: [MessageFlags.SuppressNotifications]
         });
 
-        RecordMonitorEvent(EventType.GAIN_LEVEL, {user_id, level:profile.level.level}, `${user_id} is now level ${profile.level.level}`)
+        RecordMonitorEvent(EventType.GAIN_LEVEL, {user_id, level:profile.leveling.level}, `${user_id} is now level ${profile.leveling.level}`)
     
         UpdateUserProfile(user_id, profile);
 
         const user = client.users.cache.get(user_id);
 
         // achievements
-        if (profile.level.level >= 10) GrantAchievement(user!, Achievements.LEVEL_10, channel);
-        if (profile.level.level >= 20) GrantAchievement(user!, Achievements.LEVEL_20, channel);
-        if (profile.level.level >= 30) GrantAchievement(user!, Achievements.LEVEL_30, channel);
-        if (profile.level.level >= 40) GrantAchievement(user!, Achievements.LEVEL_40, channel);
-        if (profile.level.level >= 50) GrantAchievement(user!, Achievements.LEVEL_50, channel);
-        if (profile.level.level >= 60) GrantAchievement(user!, Achievements.LEVEL_60, channel);
-        if (profile.level.level >= 70) GrantAchievement(user!, Achievements.LEVEL_70, channel);
-        if (profile.level.level >= 80) GrantAchievement(user!, Achievements.LEVEL_80, channel);
-        if (profile.level.level >= 90) GrantAchievement(user!, Achievements.LEVEL_90, channel);
-        if (profile.level.level >= 100) GrantAchievement(user!, Achievements.LEVEL_100, channel);
-        if (profile.level.level >= 101) GrantAchievement(user!, Achievements.LEVEL_BEYOND, channel);
+        if (profile.leveling.level >= 10) GrantAchievement(user!, Achievements.LEVEL_10, channel);
+        if (profile.leveling.level >= 20) GrantAchievement(user!, Achievements.LEVEL_20, channel);
+        if (profile.leveling.level >= 30) GrantAchievement(user!, Achievements.LEVEL_30, channel);
+        if (profile.leveling.level >= 40) GrantAchievement(user!, Achievements.LEVEL_40, channel);
+        if (profile.leveling.level >= 50) GrantAchievement(user!, Achievements.LEVEL_50, channel);
+        if (profile.leveling.level >= 60) GrantAchievement(user!, Achievements.LEVEL_60, channel);
+        if (profile.leveling.level >= 70) GrantAchievement(user!, Achievements.LEVEL_70, channel);
+        if (profile.leveling.level >= 80) GrantAchievement(user!, Achievements.LEVEL_80, channel);
+        if (profile.leveling.level >= 90) GrantAchievement(user!, Achievements.LEVEL_90, channel);
+        if (profile.leveling.level >= 100) GrantAchievement(user!, Achievements.LEVEL_100, channel);
+        if (profile.leveling.level >= 101) GrantAchievement(user!, Achievements.LEVEL_BEYOND, channel);
         return;
     }
 
     UpdateUserProfile(user_id, profile);
 
-    RecordMonitorEvent(EventType.GAIN_XP, {user_id, xp:profile.level.current_xp}, `${user_id} now has ${profile.level.current_xp} XP`);
+    RecordMonitorEvent(EventType.GAIN_XP, {user_id, xp:profile.leveling.current_xp}, `${user_id} now has ${profile.leveling.current_xp} XP`);
 }

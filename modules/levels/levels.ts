@@ -63,9 +63,9 @@ export function CalculateTargetXP(level: number, prestige: number): number {
 
 function CreateLevelBar(profile: USER_PROFILE): string {
     let bar = '**[**';
-    const needed_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
+    const needed_xp = CalculateTargetXP(profile.leveling.level, 0);
     const target_chars = 20;
-    const progress_ratio = profile.level.current_xp / needed_xp;
+    const progress_ratio = profile.leveling.current_xp / needed_xp;
     const total_filled_chars = progress_ratio * target_chars;
     const filled_full = Math.floor(total_filled_chars); // Full blocks
     const partial_fill = Math.round((total_filled_chars - filled_full) * 8); // Partial fill (0-8)
@@ -95,7 +95,7 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
     await interaction.deferReply();
-    // if (profile.level.level > 100) profile.level.prestige = 1;
+    // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
     const LEVEL_NAMES = interaction.locale==Locale.Japanese?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
 
@@ -150,7 +150,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
     // beyond label if they have it
-    if (profile.level.prestige && profile.level.prestige > 0) {
+    if (profile.leveling.level > 100) {
         ctx.fillStyle = '#6ef5b6';
         ctx.beginPath();
         ctx.roundRect(560-86, 10, 80, 25, 12);
@@ -176,7 +176,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     // Level
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     ctx.fillStyle = '#b4c1d9';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.level.level - 1 - ((profile.level.prestige || 0) * 100)]}`, 20, 90);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 20, 90);
 
     // XP Bar Background
     const barX = 20;
@@ -189,7 +189,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fill();
 
     // XP Bar Progress
-    const progressRatio = profile.level.current_xp / CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
+    const progressRatio = profile.leveling.current_xp / CalculateTargetXP(profile.leveling.level, 0);
     ctx.fillStyle = bar_color.fg;
     ctx.beginPath();
     ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
@@ -199,9 +199,9 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.font = 'bold 16px Arial';
     ctx.fillStyle = num_color;
     ctx.textAlign = 'left';
-    ctx.fillText(`${Math.floor(profile.level.current_xp)} XP`, barX + 10, barY + 19);
+    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
-    ctx.fillText(`${CalculateTargetXP(profile.level.level, profile.level.prestige || 0)} XP`, barWidth + 10, barY + 19);
+    ctx.fillText(`${CalculateTargetXP(profile.leveling.level, 0)} XP`, barWidth + 10, barY + 19);
 
     // sticker demo
     // const sticker = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'okash.png')));
@@ -220,18 +220,18 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 
     const profile = GetUserProfile(user_to_get.id);
 
-    if (!profile.level) {
-        profile.level = {
+    if (!profile.leveling) {
+        profile.leveling = {
             level: 1,
             current_xp: 0
         }
         UpdateUserProfile(user_to_get.id, profile);
     }
 
-    const target_xp = CalculateTargetXP(profile.level.level, profile.level.prestige || 0);
+    const target_xp = CalculateTargetXP(profile.leveling.level, 0);
 
     if (user_to_get.id != interaction.user.id) return interaction.reply({
-            content:`**${user_to_get.displayName}** is currently at level **${profile.level.level}**.\n${CreateLevelBar(profile)} **${profile.level.current_xp}XP** / **${target_xp}XP**`,
+            content:`**${user_to_get.displayName}** is currently at level **${profile.leveling.level}**.\n${CreateLevelBar(profile)} **${profile.leveling.current_xp}XP** / **${target_xp}XP**`,
             flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -254,7 +254,7 @@ export function Dangerous_WipeAllLevels() {
         const user_id = file.split('.oka')[0];
         console.log(`${user_id} ...`);
         const profile = GetUserProfile(user_id);
-        profile.level = {
+        profile.leveling = {
             current_xp: 0,
             level: 1
         };

@@ -25,7 +25,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     if (KNOWN_AGREED_USER_IDS.indexOf(interaction.user.id) != -1) return true; 
 
     const profile = GetUserProfile(interaction.user.id);
-    if (profile.has_agreed_to_rules) {
+    if (profile.accepted_rules) {
         KNOWN_AGREED_USER_IDS.push(interaction.user.id);
         return true;
     }
@@ -51,7 +51,7 @@ export async function CheckForAgreementMessage(message: Message) {
         message.content == '私はokabotのルールを分かると賛成します'
     ) {
         const profile = GetUserProfile(message.author.id);
-        profile.has_agreed_to_rules = true;
+        profile.accepted_rules = true;
         UpdateUserProfile(message.author.id, profile);
 
         AWAITING_RULE_AGREEMENT.splice(AWAITING_RULE_AGREEMENT.indexOf(message.author.id), 1);

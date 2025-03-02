@@ -244,8 +244,8 @@ export function RegisterAllShorthands() {
         if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
 
         const profile = GetUserProfile(params[2]);
-        if (!profile.okash_restriction) throw new Error(`no restriction exists in profile data for user ${params[2]}`);
-        profile.okash_restriction.is_restricted = false;
+        if (!profile.restriction) throw new Error(`no restriction exists in profile data for user ${params[2]}`);
+        profile.restriction.active = false;
 
         UpdateUserProfile(params[2], profile);
 

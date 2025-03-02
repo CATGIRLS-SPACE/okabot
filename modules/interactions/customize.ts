@@ -64,7 +64,7 @@ async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't own that coin!`
     });
 
-    profile.customization.coin_color = VALID_COIN_TYPES[customization];
+    profile.customization.games.coin_color = VALID_COIN_TYPES[customization];
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({

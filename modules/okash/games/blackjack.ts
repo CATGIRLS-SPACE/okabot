@@ -378,7 +378,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
         content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}**\n-# Blackjack pays 3x, win pays 2x\
         \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}\
         \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}\
-        \n\nYou ${tie ? 'tied!' : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**\
+        \n\nYou ${tie ? `tied!${player_blackjack?'\n-# You got a blackjack, but we tied. I know this is infuriating, so I refunded you 1.5x your bet.':''}` : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**\
         \n${!game.okabot_has_hit?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
         components: []
     });

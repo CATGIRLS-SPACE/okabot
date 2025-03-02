@@ -1,79 +1,12 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs"
-import { join } from "node:path"
-import { AddOneToInventory, AddToWallet } from "./wallet"
+import {AddOneToInventory, ModifyOkashAmount} from "./wallet"
 import { ChatInputCommandInteraction, TextChannel } from "discord.js"
-import { ITEM_TYPE, ITEMS } from "./items"
+import { ITEMS } from "./items"
 import { AddXP } from "../levels/onMessage"
 import { Achievements, GrantAchievement } from "../passive/achievement"
 import {EMOJI, GetEmoji} from "../../util/emoji";
-
-export interface DailyData {
-    version: number,
-    last_get: {
-        time: number
-    },
-    streak: {
-        count: number,
-        last_count: number,
-        restored: boolean,
-        double_claimed: boolean
-    }
-}
-
-const DAILY_PATH = join(__dirname, '..', '..', 'money', 'daily');
-
-function CheckVersion(user_id: string) {
-    if (!existsSync(join(DAILY_PATH, `${user_id}.oka`))) {
-        const new_data: DailyData = {
-            version: 2,
-            last_get: {
-                time: 0
-            },
-            streak: {
-                count: 0,
-                last_count: 0,
-                restored: false,
-                double_claimed: false
-            }
-        }
-
-        writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
-        return;
-    }
-    const data: string = readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8');
-
-    try {
-        // try and parse, if it fails then it needs upgrading
-        const daily_version = JSON.parse(data).version;
-        if (daily_version != 2) {
-            if (daily_version != 1) throw new Error();   
-
-            // just means we need to add the new 
-        }
-        return;
-    } catch {
-        // old data, must be upgraded
-        const previous_time = parseInt(data);
-
-        const new_data: DailyData = {
-            version: 2,
-            last_get: {
-                time: previous_time
-            },
-            streak: {
-                count: 0,
-                last_count: 0,
-                restored: false,
-                double_claimed: false
-            }
-        }
-
-        writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
-    }
-}
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 
 const ONE_DAY = 86400000;
-
 
 /**
  * Claim a daily reward and calculate the streak amount.
@@ -83,21 +16,20 @@ const ONE_DAY = 86400000;
  * @returns The amount claimed on success, negative time until next daily on failure.
  */
 export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: TextChannel): number {
-    CheckVersion(user_id);
 
-    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
+    const profile = GetUserProfile(user_id);
     const d = new Date();
 
-    if (data.last_get.time + ONE_DAY <= d.getTime() || reclaim) {
-        if (data.streak.count == 0 || data.last_get.time + ONE_DAY*2 < d.getTime()) {
+    if (profile.daily.last_claimed + ONE_DAY <= d.getTime() || reclaim) {
+        if (profile.daily.streak == 0 || profile.daily.last_claimed + ONE_DAY*2 < d.getTime()) {
             console.log('daily is new streak');
-            data.streak.last_count = data.streak.count;
-            data.streak.count = 1;
-            data.last_get.time = d.getTime();
-            data.streak.double_claimed = false;
+            profile.daily.restore_to = profile.daily.streak;
+            profile.daily.streak = 1;
+            profile.daily.last_claimed = d.getTime();
+            // profile.daily.streak.double_claimed = false;
 
-            AddToWallet(user_id, 750);
-            writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+            UpdateUserProfile(user_id, profile);
+            ModifyOkashAmount(user_id, 'wallet', 750);
 
             AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
@@ -108,95 +40,70 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
         console.log('daily is existing streak');
 
         // has streak, use multipliers!
-        data.streak.count += 1;
-        if (data.streak.count >= data.streak.last_count && data.streak.restored) {
-            data.streak.last_count = 0;
-            data.streak.restored = false;
+        profile.daily.streak += 1;
+        if (profile.daily.streak >= profile.daily.restore_to && profile.daily.restored) {
+            profile.daily.restore_to = 0;
+            profile.daily.restored = false;
         }
-        data.last_get.time = d.getTime();
-        data.streak.double_claimed = reclaim;
+        profile.daily.last_claimed = d.getTime();
+        // profile.daily.streak.double_claimed = reclaim;
 
         // 5% bonus each day capped at 100%
-        let streak_multiplier = (data.streak.count - 1)* 0.05;
+        let streak_multiplier = (profile.daily.streak - 1)* 0.05;
         if (streak_multiplier > 1) streak_multiplier = 1;
 
         const amount = Math.round(750 + (750 * streak_multiplier));
 
-        AddToWallet(user_id, amount);
-        writeFileSync(join(DAILY_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+        UpdateUserProfile(user_id, profile);
         AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
         AddXP(user_id, channel, 55);
 
         return amount;
-    } else return -Math.floor((data.last_get.time + ONE_DAY)/1000);
+    } else return -Math.floor((profile.daily.last_claimed + ONE_DAY)/1000);
 }
 
-
+/**
+ * @Deprecated Use `GetUserProfile(user_id).daily.streak` instead.
+ */
 export function GetDailyStreak(user_id: string): number {
-    CheckVersion(user_id);
-
-    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${user_id}.oka`), 'utf8'));
-    return data.streak.count;
+    return GetUserProfile(user_id).daily.streak;
 }
 
 /**
  * restore a daily streak with a streak restore gem
- * @param user_id 
  * @param interaction 
  * @returns true if it was restored, false if it wasn't. use this to deduce whether you should "use" a g00 from their inventory
  */
 export async function RestoreLastDailyStreak(interaction: ChatInputCommandInteraction): Promise<boolean> {
-    CheckVersion(interaction.user.id);
-    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), 'utf8'));
+    const profile = GetUserProfile(interaction.user.id);
 
-    if (data.streak.count >= data.streak.last_count) {
+    if (profile.daily.streak >= profile.daily.restore_to) {
         await interaction.editReply({
             content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore** right now!`
         });
         return false;
     }
 
-    if (data.streak.restored) {
-        data.streak.restored = false;
-        data.streak.last_count = 0;
+    if (profile.daily.restored) {
+        profile.daily.restored = false;
+        profile.daily.restore_to = 0;
 
         await interaction.editReply({
             content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only restore a streak once!`
         });
     } else {
-        data.streak.count = data.streak.last_count;
-        data.streak.restored = true;
+        profile.daily.streak = profile.daily.restore_to;
+        profile.daily.restored = true;
         
         await interaction.editReply({
-            content:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **${interaction.user.displayName}**, you've restored your streak to **${data.streak.last_count} days**!`
+            content:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **${interaction.user.displayName}**, you've restored your streak to **${profile.daily.restore_to} days**!`
         });
 
         GrantAchievement(interaction.user, Achievements.DAILY_SR, interaction.channel as TextChannel);
     }
-        
-    writeFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), JSON.stringify(data), 'utf8');
 
-    return data.streak.restored;
-}
+    UpdateUserProfile(interaction.user.id, profile);
 
-/**
- * Claim the daily twice, increasing the streak by one.
- * @param interaction 
- * @returns true if successful, false otherwise
- */
-export async function SkipDailyOnce(interaction: ChatInputCommandInteraction): Promise<boolean> {
-    CheckVersion(interaction.user.id);
-    const data: DailyData = JSON.parse(readFileSync(join(DAILY_PATH, `${interaction.user.id}.oka`), 'utf8'));
-
-    if (data.streak.double_claimed) { 
-        interaction.reply({
-            content: `:x: Sorry **${interaction.user.displayName}**, but you can only use a Daily Reclaim gem once per day.`
-        });
-        return false;
-    }
-
-    ClaimDaily(interaction.user.id, true, interaction.channel as TextChannel);
-
-    return true;
+    return profile.daily.restored;
 }

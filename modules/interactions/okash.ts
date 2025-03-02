@@ -10,7 +10,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
 
     const bank = GetBank(interaction.user.id);
 
-    if (bank >= 50_000_000) GrantAchievement(interaction.user, Achievements.CAPITALISM, interaction.channel as TextChannel);
+    if (bank >= 1_000_000) GrantAchievement(interaction.user, Achievements.CAPITALISM, interaction.channel as TextChannel);
 
     const wallet = GetWallet(interaction.user.id);
 

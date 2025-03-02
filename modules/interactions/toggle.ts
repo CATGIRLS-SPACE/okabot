@@ -16,15 +16,15 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
                 flags:[MessageFlags.Ephemeral]
             
             });
-            prefs.okash_notifications = active;
+            prefs.customization.global.okash_notifications = active;
             UpdateUserProfile(interaction.user.id, prefs);
             break;
 
         case 'preferred-pronouns':
             const preferred = interaction.options.getString('pronouns', true);
-            prefs.customization.pronoun.subjective = preferred.split('/')[0];
-            prefs.customization.pronoun.objective = preferred.split('/')[1];
-            prefs.customization.pronoun.possessive = preferred.split('/')[2];
+            prefs.customization.global.pronouns.subjective = preferred.split('/')[0];
+            prefs.customization.global.pronouns.objective = preferred.split('/')[1];
+            prefs.customization.global.pronouns.possessive = preferred.split('/')[2];
             UpdateUserProfile(interaction.user.id, prefs);
             interaction.reply({
                 content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! your pronouns are now set to "${preferred}!"`,

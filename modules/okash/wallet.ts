@@ -1,11 +1,10 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { join } from "node:path";
-import { ITEM_TYPE, ITEMS } from "./items";
+import { ITEMS } from "./items";
 import { Logger } from "okayulogger";
-import { EventType, RecordMonitorEvent } from "../../util/monitortool";
-import { client } from "../..";
-import { EMOJI, GetEmoji } from "../../util/emoji";
-import { GrantAchievement } from "../passive/achievement";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
+import {Snowflake} from "discord.js";
+import {BASE_DIRNAME} from "../../index";
 
 export interface Wallet {
     version: number,
@@ -19,167 +18,120 @@ export interface Wallet {
 const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
 const L = new Logger('wallet');
 
-function CheckVersion(user_id: string) {
-    if (!existsSync(join(WALLET_PATH, `${user_id}.oka`))) {
-        console.log('no wallet, init one...');
-        const new_data: Wallet = {
-            version: 2,
-            wallet: 0,
-            bank: 0,
-            inventory: {
-                other: []
-            }
-        };
 
-        writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
-        return;
+/**
+ * Modifies a user's okash amount in either their bank or wallet
+ * @param user_id The Snowflake of the user to modify
+ * @param location The bank or wallet
+ * @param amount How much to add/subtract (use negative to subtract)
+ * @param fallback_to_bank When removing from the wallet, should it fall back and subtract from the bank?
+ */
+export function ModifyOkashAmount(user_id: Snowflake, location: 'wallet' | 'bank', amount: number, fallback_to_bank: boolean = false) {
+    const profile = GetUserProfile(user_id);
+    const add = amount < 0;
+    amount = Math.abs(amount);
+
+    if (amount > 50000) L.warn(`LARGE OKASH CHANGE FOR ACCOUNT ${user_id}! -${amount}`);
+
+    if (add) {
+        // adding:
+        if (location == 'wallet') profile.okash.wallet += amount;
+        if (location == 'bank') profile.okash.bank += amount;
+    } else {
+        // removing:
+        if (location == 'wallet') {
+            // do we need to fall back?
+            if (profile.okash.wallet < amount && fallback_to_bank) {
+                profile.okash.bank -= amount - profile.okash.wallet;
+                profile.okash.wallet = 0;
+            } else profile.okash.wallet -= amount;
+        }
+
+        if (location == 'bank') profile.okash.bank -= amount;
     }
-    const data = readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8');
 
-    try {
-        let version = JSON.parse(data).version;
-        // if it's already v1 then just need ot upgrade
-
-        if (version == 2) return;
-
-        if (version == 1) {
-            const wallet: Wallet = JSON.parse(data);
-            const new_data: Wallet = {
-                version: 2,
-                wallet: wallet.wallet,
-                bank: wallet.bank,
-                inventory: {
-                    other: []
-                }
-            };
-            wallet.version = 2;
-            writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(new_data), 'utf8');
-        } else throw new Error(`unsupported version ${version} ?????`);
-        return;
-    } catch (e) {
-        console.error(e);
-    }
+    UpdateUserProfile(user_id, profile);
 }
 
-
+/**
+ * @Deprecated Use `ModifyOkashAmount()` instead.
+ */
 export function AddToWallet(user_id: string, amount: number) {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    data.wallet = Math.floor(data.wallet + amount);
-
-    if (amount > 50000)
-        L.warn(`LARGE WALLET ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
-    
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-
-    RecordMonitorEvent(EventType.BALANCE_CHANGE, {user_id, amount}, `${amount} okash was added to ${user_id}'s wallet`);
+    ModifyOkashAmount(user_id, 'wallet', amount);
 }
 
+/**
+ * @Deprecated Use `ModifyOkashAmount()` instead.
+ */
 export function RemoveFromWallet(user_id: string, amount: number, fallback_to_bank: boolean = false) {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    if (data.wallet < amount && fallback_to_bank) {
-        data.bank -= amount - data.wallet;
-        data.wallet -= data.wallet;
-    }
-    else data.wallet = Math.floor(data.wallet - amount);
-
-
-    if (amount > 50000)
-        L.warn(`LARGE WALLET REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
-    
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-
-    RecordMonitorEvent(EventType.BALANCE_CHANGE, {user_id, amount}, `${amount} okash was removed from ${user_id}'s wallet`);
+    ModifyOkashAmount(user_id, 'wallet', -amount, fallback_to_bank);
 }
 
+/**
+ * @Deprecated Use `ModifyOkashAmount()` instead.
+ */
 export function AddToBank(user_id: string, amount: number) {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    data.bank = Math.floor(data.bank + amount);
-
-    if (amount > 50000)
-        L.warn(`LARGE BANK ADDITION FOR ACCOUNT ${user_id}! +${amount}`);
-    
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-
-    RecordMonitorEvent(EventType.BANK_CHANGE, {user_id, amount}, `${amount} okash was added to ${user_id}'s bank`);
+    ModifyOkashAmount(user_id, 'bank', amount)
 }
 
+/**
+ * @Deprecated Use `ModifyOkashAmount()` instead.
+ */
 export function RemoveFromBank(user_id: string, amount: number) {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    data.bank = Math.floor(data.bank - amount);
-
-    if (amount > 50000)
-        L.warn(`LARGE BANK REMOVAL FOR ACCOUNT ${user_id}! -${amount}`);
-    
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
-
-    RecordMonitorEvent(EventType.BANK_CHANGE, {user_id, amount}, `${amount} okash was removed from ${user_id}'s bank`);
+    ModifyOkashAmount(user_id, 'bank', -amount)
 }
 
+/**
+ * @Deprecated Use `GetUserProfile(user_id).okash.wallet` instead
+ */
 export function GetWallet(user_id: string, include_bank: boolean = false): number {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-    data.wallet = Math.floor(data.wallet);
+    const profile = GetUserProfile(user_id);
 
-    return include_bank?data.wallet+data.bank:data.wallet;
+    return include_bank?profile.okash.wallet+profile.okash.bank:profile.okash.wallet;
 }
 
+/**
+ * @Deprecated Use `GetUserProfile(user_id).okash.bank` instead
+ */
 export function GetBank(user_id: string): number {
-    CheckVersion(user_id);
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-    data.bank = Math.floor(data.bank);
-
-    return data.bank;
+    return GetUserProfile(user_id).okash.bank;
 }
 
 export function GetAllWallets(): Array<{user_id: string, amount: number}> {
     let wallets: Array<{user_id: string, amount: number}> = [];
 
-    readdirSync(WALLET_PATH).forEach(file => {
+    readdirSync(join(BASE_DIRNAME, 'profiles')).forEach(file => {
         const user_id: string = file.split('.oka')[0];
-        const amount = GetWallet(user_id) + GetBank(user_id);
+        const profile = GetUserProfile(user_id);
+        const amount = profile.okash.wallet + profile.okash.bank;
         wallets.push({user_id, amount});
     });
 
     return wallets;
 }
 
+/**
+ * @Deprecated Use `GetUserProfile(user_id).inventory` instead
+ */
 export function GetInventory(user_id: string) {
-    CheckVersion(user_id);
-
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    return data.inventory;
+    return GetUserProfile(user_id).inventory;
 }
 
 export function RemoveOneFromInventory(user_id: string, item: ITEMS) {
-    CheckVersion(user_id);
-
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    if (data.inventory.other.indexOf(item as ITEMS) == -1) return;
-    data.inventory.other.splice(data.inventory.other.indexOf(item as ITEMS), 1)
-
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+    const profile = GetUserProfile(user_id);
+    profile.inventory.splice(profile.inventory.indexOf(item), 1);
+    UpdateUserProfile(user_id, profile);
 }
 
 export function AddOneToInventory(user_id: string, item: ITEMS) {
-    CheckVersion(user_id);
-
-    const data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, `${user_id}.oka`), 'utf8'));
-
-    data.inventory.other.push(item);
-
-    writeFileSync(join(WALLET_PATH, `${user_id}.oka`), JSON.stringify(data), 'utf8');
+    const profile = GetUserProfile(user_id);
+    profile.inventory.push(item);
+    UpdateUserProfile(user_id, profile);
 }
 
+/**
+ * @Deprecated This will no longer work. It is only here to prevent typescript errors while I work on migrating the rest of the code to v3 profiles.
+ */
 export function Dangerous_WipeAllWallets() {
     readdirSync(WALLET_PATH).forEach(file => {
         const wallet_data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, file), 'utf-8'));

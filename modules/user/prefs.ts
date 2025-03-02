@@ -1,10 +1,11 @@
 import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "fs"
-import {CUSTOMIZATION_UNLOCKS} from "../okash/items"
+import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
 import {BASE_DIRNAME} from "../.."
 import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
+import {Wallet} from "../okash/wallet";
 
 const L = new Logger('profiles');
 
@@ -14,7 +15,7 @@ export enum FLAG {
     DROP_BOOST
 }
 
-export interface USER_PROFILE {
+export interface LEGACY_USER_PROFILE {
     has_agreed_to_rules: boolean,
     okash_restriction?: {
         is_restricted: boolean,
@@ -22,7 +23,7 @@ export interface USER_PROFILE {
         until: number,
         abilities: string
     },
-    flags: Array<FLAG>, // keeping this as an array so i dont have to painfully upgrade later on
+    flags: Array<FLAG>, // keeping this as an array so i dont have to painfully upgrade later on <-- recent lily here what the fuck am i on about?
     customization: {
         coin_color: CUSTOMIZATION_UNLOCKS,
         unlocked: Array<CUSTOMIZATION_UNLOCKS>,
@@ -46,38 +47,100 @@ export interface USER_PROFILE {
         current_xp: number,
         prestige?: number
     },
-    owes: {[key: string]: number},
+    achievements: Array<Achievements>
+}
+
+export interface USER_PROFILE {
+    version: number,
+    accepted_rules: boolean,
+    flags: Array<FLAG>,
+    customization: {
+        unlocked: Array<CUSTOMIZATION_UNLOCKS>,
+        global: {
+            okash_notifications: boolean,
+            pronouns: {
+                subjective: string,
+                possessive: string,
+                objective: string,
+            }
+        },
+        games: {
+            coin_color: CUSTOMIZATION_UNLOCKS,
+        },
+        level_banner: {
+            hex_bg:  string,
+            hex_fg:  string,
+            hex_num: string,
+        }
+    },
+    leveling: {
+        level: number,
+        current_xp: number,
+    },
+    okash: {
+        wallet: number,
+        bank:   number,
+    },
+    daily: {
+        last_claimed: number,
+        streak: number,
+        restore_to: number,
+        restored: boolean,
+    },
+    restriction: {
+        active:     boolean,
+        until:      number,
+        reason:     string,
+        abilities:  string
+    }
+    inventory: Array<ITEMS>,
     achievements: Array<Achievements>
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
-    has_agreed_to_rules: false,
+    version: 3,
+    accepted_rules: false,
     flags: [],
     customization: {
-        coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
-        unlocked: [
-            CUSTOMIZATION_UNLOCKS.COIN_DEF,
-            CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF,
-            CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT,
-        ],
-        level_banner: {
-            hex_bg: '#666',
-            hex_fg: '#222',
-            hex_num: '#fff'
+        unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT],
+        global: {
+            okash_notifications: true,
+            pronouns: {
+                subjective: 'they',
+                possessive: 'their',
+                objective: 'them',
+            }
         },
-        pronoun: {
-            subjective: 'they',
-            possessive: 'their',
-            objective: 'them'
+        games: {
+            coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
+        },
+        level_banner: {
+            hex_bg:  '#f00',
+            hex_fg:  '#0f0',
+            hex_num: '#00f',
         }
     },
-    okash_notifications: true,
-    level: {
+    leveling: {
         level: 1,
         current_xp: 0,
-        prestige: 0
     },
-    owes: {},
+    okash: {
+        wallet: 0,
+        bank:   0,
+    },
+    daily: {
+        last_claimed: 0,
+        streak: 0,
+        restore_to: 0,
+        restored: false,
+    },
+    restriction: {
+        active: false,
+        reason: "",
+        until: 0,
+        abilities: ""
+    },
+    inventory: [],
     achievements: []
 }
 
@@ -109,8 +172,6 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     }
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
-    if (!data.achievements) data.achievements = [];
-    if (!data.customization.pronoun) data.customization.pronoun = {subjective:'they',possessive:'their',objective:'them'};
 
     ProfileCache.set(user_id, data);
 
@@ -135,25 +196,25 @@ export enum OKASH_ABILITY {
 export async function CheckOkashRestriction(interaction: ChatInputCommandInteraction, ability: OKASH_ABILITY): Promise<boolean> {
     const profile = GetUserProfile(interaction.user.id);
 
-    if (profile.okash_restriction?.is_restricted) {
+    if (profile.restriction.active) {
         const d = new Date();
-        const unrestrict_time = new Date(profile.okash_restriction.until);
+        const unrestrict_time = new Date(profile.restriction.until);
 
         L.info(`user has a restriction that expires on ${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()}.`);
         L.info(`it is currently: ${d.toDateString() + ' at ' + d.toLocaleTimeString()}`);
 
-        if (d.getTime() > profile.okash_restriction.until) {
-            profile.okash_restriction = undefined;
+        if (d.getTime() > profile.restriction.until) {
+            profile.restriction.active = false;
             UpdateUserProfile(interaction.user.id, profile)
             return false;
         }
 
         // they are restricted in some way
-        const abilities = profile.okash_restriction.abilities.includes(',')?profile.okash_restriction.abilities.split(','):profile.okash_restriction.abilities;
+        const abilities = profile.restriction.abilities.includes(',')?profile.restriction.abilities.split(','):profile.restriction.abilities;
 
         if (abilities.indexOf(ability) != -1) {
             interaction.reply({
-                content: `:x: Your account is restricted from using certain okash features.\nThis restriction affects: \`${profile.okash_restriction.abilities}\`\nThis restriction will be lifted on **${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()} CT** (<t:${Math.floor(unrestrict_time.getTime()/1000)}:R>)\n-# Please contact a bot administrator if you believe you have been wrongly punished.`
+                content: `:x: Your account is restricted from using certain okash features.\nThis restriction affects: \`${profile.restriction.abilities}\`\nThis restriction will be lifted on **${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()} CT** (<t:${Math.floor(unrestrict_time.getTime()/1000)}:R>)\n-# Please contact a bot administrator if you believe you have been wrongly punished.`
             });
         }
 
@@ -167,17 +228,17 @@ export async function CheckOkashRestriction(interaction: ChatInputCommandInterac
 export function CheckUserIdOkashRestriction(user_id: string, ability: string): boolean {
     const profile = GetUserProfile(user_id);
 
-    if (profile.okash_restriction?.is_restricted) {
+    if (profile.restriction.active) {
         const d = new Date();
-        const unrestrict_time = new Date(profile.okash_restriction.until);
+        const unrestrict_time = new Date(profile.restriction.until);
 
         L.info(`user has a restriction that expires on ${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()}.`);
         L.info(`it is currently: ${d.toDateString() + ' at ' + d.toLocaleTimeString()}`);
 
-        if (d.getTime() > profile.okash_restriction.until) return false;
+        if (d.getTime() > profile.restriction.until) return false;
 
         // they are restricted in some way
-        const abilities = profile.okash_restriction.abilities.includes(',')?profile.okash_restriction.abilities.split(','):profile.okash_restriction.abilities;
+        const abilities = profile.restriction.abilities.includes(',')?profile.restriction.abilities.split(','):profile.restriction.abilities;
 
         return abilities.indexOf(ability) != -1;
     }
@@ -194,7 +255,7 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
     profiles.forEach(profile => {
         let user_id = profile.split('.')[0];
         const p = GetUserProfile(user_id);
-        all.push({user_id, level: p.level || {level: 0, current_xp: 0}});
+        all.push({user_id, level: p.leveling || {level: 0, current_xp: 0}});
     });
 
     return all;
@@ -206,8 +267,8 @@ export function RestrictUser(client: Client, user_id: string, until: string, abi
 
     // update their account
     const profile = GetUserProfile(user_id);
-    profile.okash_restriction = {
-        is_restricted: true,
+    profile.restriction = {
+        active: true,
         until: d.getTime(),
         reason,
         abilities
@@ -230,30 +291,72 @@ export function RestrictUser(client: Client, user_id: string, until: string, abi
     }
 }
 
+// this will only be called if the --upgrade flag is used
+export function UpgradeLegacyProfiles(dirname: string) {
+    const ALL_PROFILES = readdirSync(join(dirname, 'profiles'));
 
-export function ManageDebt(sender_id: string, receiver_id: string, amount: number) {
-    const sender_profile = GetUserProfile(sender_id);
-    const receiver_profile = GetUserProfile(receiver_id);
+    for (const profile of ALL_PROFILES) {
+        const t_start = Date.now();
+        const old_data: LEGACY_USER_PROFILE = JSON.parse(readFileSync(join(dirname, 'profiles', profile), 'utf-8'));
+        const daily_data: {
+            version: number,
+            last_get: {
+                time: number
+            },
+            streak: {
+                count: number,
+                last_count: number,
+                restored: boolean,
+                double_claimed: boolean
+            }
+        } = JSON.parse(readFileSync(join(dirname, 'money', 'daily', profile), 'utf-8'));
+        const wallet_data: Wallet = JSON.parse(readFileSync(join(dirname, 'money', 'wallet', profile), 'utf-8'));
 
-    if (!sender_profile.owes) sender_profile.owes = {};
-    if (!receiver_profile.owes) receiver_profile.owes = {};
+        const new_data: USER_PROFILE = {
+            version: 3,
+            accepted_rules: false,
+            flags: old_data.flags,
+            restriction: {
+                active: false,
+                until: 0,
+                reason: '',
+                abilities: ''
+            },
+            daily: {
+                last_claimed: daily_data.last_get.time,
+                restore_to: daily_data.streak.last_count,
+                restored: daily_data.streak.restored,
+                streak: daily_data.streak.count
+            },
+            okash: {
+                wallet: wallet_data.wallet,
+                bank: wallet_data.bank
+            },
+            customization: {
+                games: {
+                    coin_color: old_data.customization.coin_color
+                },
+                global: {
+                    pronouns: {
+                        subjective: (old_data.customization.pronoun || {subjective:'they'}).subjective,
+                        possessive: (old_data.customization.pronoun || {possessive:'their'}).possessive,
+                        objective: (old_data.customization.pronoun || {objective:'them'}).objective,
+                    },
+                    okash_notifications: old_data.okash_notifications
+                },
+                level_banner: old_data.customization.level_banner,
+                unlocked: old_data.customization.unlocked
+            },
+            leveling: {
+                level: old_data.level.level,
+                current_xp: old_data.level.current_xp
+            },
+            achievements: old_data.achievements || [],
+            inventory: wallet_data.inventory.other
+        }
 
-    // check if the sender is in debt to the receiver:
-    if (!sender_profile.owes[receiver_id] || sender_profile.owes[receiver_id] == 0) {
-        // the sender is not in any debt to the receiver
-        let receiver_debt = receiver_profile.owes[sender_id] || 0;
-        receiver_debt += amount;
+        writeFileSync(join(dirname, 'profiles', profile), JSON.stringify(new_data), 'utf-8');
 
-        UpdateUserProfile(receiver_id, receiver_profile);
-    } else {
-        // the sender is in some sort of debt to the receiver
-        const sender_debt = sender_profile.owes[receiver_id]; // positive, like 250
-        const after_paid = sender_debt - amount; // if they paid 300, this would be -50
-        const transferred_debt = Math.abs(after_paid); // this will become 50, which is how much we need to transfer to the receiver's debt
-        
-        receiver_profile.owes[sender_id] = receiver_profile.owes[sender_id]+transferred_debt || transferred_debt;
-
-        UpdateUserProfile(receiver_id, receiver_profile);
-        UpdateUserProfile(sender_id, sender_profile);
+        console.log(`upgraded ${profile} in ${Date.now() - t_start}ms`);
     }
 }

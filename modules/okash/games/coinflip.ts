@@ -14,9 +14,6 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
-const LastXPGain = new Map<string, number>(); // user_id, time
-
-const USE_CUSTOMIZATION = false;
 const WIN_CHANCE = 0.5;
 const WEIGHTED_WIN_CHANCE = 0.3;
 
@@ -121,8 +118,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     // check if user has weighted coin
     const prefs = GetUserProfile(interaction.user.id);
     const weighted_coin_equipped = (prefs.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED) != -1);
-    const emoji_waiting = weighted_coin_equipped?GetEmoji('cfw_green'):GetEmoji(COIN_EMOJIS_FLIP[prefs.customization.coin_color]);
-    const emoji_finish = weighted_coin_equipped?GetEmoji('cff_green'):GetEmoji(COIN_EMOJIS_DONE[prefs.customization.coin_color]);
+    const emoji_waiting = weighted_coin_equipped?GetEmoji('cfw_green'):GetEmoji(COIN_EMOJIS_FLIP[prefs.customization.games.coin_color]);
+    const emoji_finish = weighted_coin_equipped?GetEmoji('cff_green'):GetEmoji(COIN_EMOJIS_DONE[prefs.customization.games.coin_color]);
     
     // set probabilities and decide outcome
     const rolled = Math.random();
@@ -159,7 +156,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     if (rolled >= 0.5 && rolled < 0.50001) {
         setTimeout(() => {
             // win regardless, it landed on the side!!!
-            next_message = `${first_message} and it... lands on the side:interrobang: ${prefs.customization.pronoun.subjective} now get 5x ${prefs.customization.pronoun.possessive} bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
+            next_message = `${first_message} and it... lands on the side:interrobang: ${prefs.customization.global.pronouns.subjective} now get 5x ${prefs.customization.global.pronouns.possessive} bet, earning ${GetEmoji('okash')} OKA**${bet*5}**! **(+50XP)**\n-# Roll was ${rolled} | If a weighted coin was equipped, it has not been used.`;
             
             AddXP(interaction.user.id, interaction.channel as TextChannel, 50);
 
