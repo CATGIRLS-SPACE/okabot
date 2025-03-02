@@ -1,16 +1,30 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
-import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY, RestrictUser, UpdateUserProfile } from "../../user/prefs";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME, client, CoinFloats } from "../../../index";
-import { join } from "path";
-import { getRandomValues } from "crypto";
-import { AddXP } from "../../levels/onMessage";
-import { EMOJI, GetEmoji } from "../../../util/emoji";
-import { format } from "util";
-import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
-import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {
+    ChatInputCommandInteraction,
+    Locale,
+    MessageFlags,
+    SlashCommandBuilder,
+    Snowflake,
+    TextChannel, User
+} from "discord.js";
+import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
+import {
+    CheckOkashRestriction,
+    FLAG,
+    GetUserProfile,
+    OKASH_ABILITY,
+    RestrictUser,
+    UpdateUserProfile
+} from "../../user/prefs";
+import {readFileSync, writeFileSync} from "fs";
+import {BASE_DIRNAME, CoinFloats} from "../../../index";
+import {join} from "path";
+import {AddXP} from "../../levels/onMessage";
+import {EMOJI, GetEmoji} from "../../../util/emoji";
+import {format} from "util";
+import {EventType, RecordMonitorEvent} from "../../../util/monitortool";
+import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
+import {CUSTOMIZTAION_ID_NAMES} from "../items";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -256,15 +270,108 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 // probably finish this sometime else
 // current function is messy af, needs a makeover
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
-    interaction.deferReply();
+    // interaction.deferReply();
 
-    const bet = interaction.options.getNumber('bet', true);
-    const profile = GetUserProfile(interaction.user.id);
-    const wallet = GetWallet(interaction.user.id);
+    if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
+        content: `:x: You can only flip one coin at a time, **${interaction.user.displayName}**!`,
+        flags: [MessageFlags.SuppressNotifications]
+    });
 
-    if (wallet < bet) return interaction.editReply({
+    // get options and user profile
+    const bet = interaction.options.getNumber('amount', true);
+    const side = interaction.options.getString('side') || 'heads';
+    let profile = GetUserProfile(interaction.user.id);
+    const weighted = profile.flags.includes(FLAG.WEIGHTED_COIN_EQUIPPED);
+
+    // checking conditions
+    if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
+
+    if (profile.okash.wallet < bet) return interaction.editReply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!`,
     });
+
+    // remove okash (and wc if applicable) from their profile
+    profile.okash.wallet -= bet;
+    if (weighted) profile.flags.splice(profile.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED), 1);
+    // save it so they can't go and cheat
+    UpdateUserProfile(interaction.user.id, profile);
+
+    ActiveFlips.push(interaction.user.id);
+
+    // initial reply
+    const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);
+    const coin_flipped = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY):GetEmoji(COIN_EMOJIS_DONE[profile.customization.games.coin_color]);
+    await interaction.reply({
+        flags: [MessageFlags.SuppressNotifications],
+        content:`${coin_flipping} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**...`
+    });
+
+    // immediately determine whether its a win or not
+    const roll = Math.random();
+    const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
+
+    // wait 3 seconds
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+
+    // update message accordingly
+    const final = win?`doubling ${profile.customization.global.pronouns.possessive} bet! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+15XP)**`:`losing ${profile.customization.global.pronouns.possessive} bet! :crying_cat_face: **(+5XP)**`
+
+    // check if we need to show a new float message
+    const nfm = CheckFloatRecords(roll, interaction);
+
+    interaction.editReply({
+        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${roll>=0.5?'heads':'tails'}**, ${final}\n-# ${roll}${nfm}`
+    });
+
+    // reload their profile so we don't cause any desync issues and give reward
+    profile = GetUserProfile(interaction.user.id);
+    if (win) profile.okash.wallet += bet * 2;
+    UpdateUserProfile(interaction.user.id, profile);
+    AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
+
+    if (profile.okash.wallet + profile.okash.bank == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
+
+    if (roll <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
+    if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+
+    ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
+}
+
+function CheckFloatRecords(float: number, interaction: ChatInputCommandInteraction) {
+    const stats_file = join(BASE_DIRNAME, 'stats.oka');
+
+    let message = '';
+    const stats: CoinFloats = JSON.parse(readFileSync(stats_file, 'utf-8'));
+
+    stats.coinflip.all_rolls.push(float);
+
+    // daily
+    if (float > stats.coinflip.daily!.high.value) {
+        stats.coinflip.daily!.high = {value:float,user_id:interaction.user.id};
+        message += `\n**New Weekly Highest:** \`${float}\` is the highest float someone has rolled this week!`
+        GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
+    }
+    if (float < stats.coinflip.daily!.low.value) {
+        stats.coinflip.daily!.low = {value:float,user_id:interaction.user.id};
+        message += `\n**New Weekly Lowest:** \`${float}\` is the lowest float someone has rolled this week!`
+        GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
+    }
+
+    // all-time
+    if (float > stats.coinflip.high.value) {
+        stats.coinflip.high = {value:float,user_id:interaction.user.id};
+        message += `\n**New All-Time Highest:** \`${float}\` is the highest float someone has rolled on okabot!`
+        GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+    }
+    if (float < stats.coinflip.low.value) {
+        stats.coinflip.low = {value:float,user_id:interaction.user.id};
+        message += `\n**New All-Time Lowest:** \`${float}\` is the lowest float someone has rolled on okabot!`
+        GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+    }
+
+    writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');
+
+    return message;
 }
 
 

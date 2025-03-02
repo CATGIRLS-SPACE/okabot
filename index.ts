@@ -10,7 +10,7 @@ import {
 } from 'discord.js';
 
 import {WordleCheck} from './modules/extra/wordle';
-import {HandleCommandCoinflip} from './modules/okash/games/coinflip';
+import {HandleCommandCoinflip, HandleCommandCoinflipV2} from './modules/okash/games/coinflip';
 import {HandleCommandDaily} from './modules/interactions/daily.js';
 import {HandleCommandPay} from './modules/interactions/pay.js';
 import {HandleCommandOkash} from './modules/interactions/okash.js';
@@ -155,7 +155,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {const d = new Date(); await interaction.reply({content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`, flags:[MessageFlags.Ephemeral]})},
     'okash': HandleCommandOkash,
     'daily': HandleCommandDaily,
-    'coinflip': HandleCommandCoinflip,
+    'coinflip': HandleCommandCoinflipV2,
     'blackjack': SetupBlackjackMessage,
     'pay': (interaction: ChatInputCommandInteraction) => HandleCommandPay(interaction, client),
     'recent-eq': GetMostRecent,
@@ -264,7 +264,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.toLocaleLowerCase().startsWith('thank you okaboob')) {
         message.reply({
             content:TYOB_RESPONSE[Math.floor(Math.random() * TYOB_RESPONSE.length)]
-        });; 
+        });
     }
 
     if ((message.content.toLocaleLowerCase().includes('fuck you') ||
