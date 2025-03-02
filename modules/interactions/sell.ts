@@ -30,6 +30,8 @@ const SELL_PRICES: {
     'weighted coin':{price:1_000,type:'item',itemID:ITEMS.WEIGHTED_COIN_ONE_USE},
     'shop voucher':{price:10_000,type:'item',itemID:ITEMS.SHOP_VOUCHER},
     'streak restore':{price:10_500,type:'item',itemID:ITEMS.STREAK_RESTORE},
+    'drop boost 15 minute':{price:12_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_15_MIN},
+    'drop boost 30 minute':{price:37_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_30_MIN},
 }
 
 const STRINGS: {
@@ -53,7 +55,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
 
     // check if the user has this item in their inventory
     const profile = GetUserProfile(interaction.user.id);
-    const pockets = GetInventory(interaction.user.id).other;
+    const pockets = GetInventory(interaction.user.id);
     const item = interaction.options.getString('item', true).toLowerCase();
 
     if (!SELL_PRICES[item]) return interaction.editReply({
@@ -81,7 +83,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
             });
             // splice from inventory
             profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(NAMES[item]), 1);
-            profile.customization.coin_color = CUSTOMIZATION_UNLOCKS.COIN_DEF;
+            profile.customization.games.coin_color = CUSTOMIZATION_UNLOCKS.COIN_DEF;
             UpdateUserProfile(interaction.user.id, profile);
             break;
 

@@ -174,7 +174,7 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
         RemoveFromWallet(interaction.user.id, price, true);
     else {
         const inventory = GetInventory(interaction.user.id);
-        if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
+        if (inventory.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
@@ -219,7 +219,7 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
         RemoveFromWallet(interaction.user.id, price, true);
     else {
         const inventory = GetInventory(interaction.user.id);
-        if (inventory.other.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
+        if (inventory.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
@@ -261,10 +261,10 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
 
     const profile = GetUserProfile(interaction.user.id);
     
-    RemoveFromWallet(interaction.user.id, 10000+(profile.level.level * 50), true);
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.level.level * 50)}**!`});
+    RemoveFromWallet(interaction.user.id, 10000+(profile.leveling.level * 500), true);
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.leveling.level * 50)}**!`});
     
-    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.level.level, profile.level.prestige || 0));
+    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level, 0));
 }
 
 
