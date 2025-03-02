@@ -1,54 +1,63 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, Events, GatewayIntentBits, MessageFlags, Partials, TextChannel } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    Events,
+    GatewayIntentBits,
+    MessageFlags,
+    Partials,
+    TextChannel
+} from 'discord.js';
 
-import { WordleCheck } from './modules/extra/wordle';
-import { HandleCommandCoinflip } from './modules/okash/games/coinflip';
-import { HandleCommandDaily } from './modules/interactions/daily.js';
-import { HandleCommandPay } from './modules/interactions/pay.js';
-import { HandleCommandOkash } from './modules/interactions/okash.js';
+import {WordleCheck} from './modules/extra/wordle';
+import {HandleCommandCoinflip} from './modules/okash/games/coinflip';
+import {HandleCommandDaily} from './modules/interactions/daily.js';
+import {HandleCommandPay} from './modules/interactions/pay.js';
+import {HandleCommandOkash} from './modules/interactions/okash.js';
 import {DoRandomDrops} from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
-export const DMDATA_API_KEY = config.dmdata_api_key;
-export const DEV = config.extra.includes('use dev token'); // load this asap
-export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
-export const BOT_MASTER = config.bot_master;
-import { version, dependencies as pj_dep } from './package.json';
-import { Logger } from 'okayulogger';
-import { GetMostRecent, StartEarthquakeMonitoring } from './modules/earthquakes/earthquakes';
-import { HandleCommandLeaderboard } from './modules/interactions/leaderboard';
-import { HandleCommandUse } from './modules/interactions/use';
-import { HandleCommandShop } from './modules/interactions/shop';
-import { HandleCommandBuy } from './modules/interactions/buy';
-import { HandleCommandPockets } from './modules/interactions/pockets';
-import {SetupPrefs} from './modules/user/prefs';
-import { HandleCommandToggle } from './modules/interactions/toggle';
-import { HandleCommandCustomize } from './modules/interactions/customize';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { CheckForAgreementMessage, CheckRuleAgreement } from './modules/user/rules';
-import { Dangerous_WipeAllLevels, HandleCommandLevel } from './modules/levels/levels';
-import { DoLeveling } from './modules/levels/onMessage';
-import { SetupBlackjackMessage } from './modules/okash/games/blackjack';
-import { StartHTTPServer } from './modules/http/server';
-import { Dangerous_WipeAllWallets } from './modules/okash/wallet';
-import { HandleCommandSell } from './modules/interactions/sell';
-import { HandleVoiceEvent, LoadVoiceData } from './modules/levels/voicexp';
-import { ScheduleJob } from './modules/tasks/cfResetBonus';
-import { GenerateCoinflipDataDisplay, RenderStockDisplay } from './modules/extra/datarenderer';
-import { HandleCommandStock } from './modules/interactions/stock';
-import { HandleCommandHelp } from './modules/interactions/help';
-import { HandleCommandTransfer } from './modules/interactions/transfer';
-import { DeployCommands } from './modules/deployment/commands';
-import { HandleCommandRoulette, ListenForRouletteReply } from './modules/okash/games/roulette';
-import { GetMostRecentEvents } from './util/monitortool';
-import { HandleCommandRob } from './modules/okash/games/rob';
-import { LoadReminders } from './modules/tasks/dailyRemind';
-import { Achievements, GrantAchievement, HandleCommandAchievements } from './modules/passive/achievement';
+import {dependencies as pj_dep, version} from './package.json';
+import {Logger} from 'okayulogger';
+import {GetMostRecent, StartEarthquakeMonitoring} from './modules/earthquakes/earthquakes';
+import {HandleCommandLeaderboard} from './modules/interactions/leaderboard';
+import {HandleCommandUse} from './modules/interactions/use';
+import {HandleCommandShop} from './modules/interactions/shop';
+import {HandleCommandBuy} from './modules/interactions/buy';
+import {HandleCommandPockets} from './modules/interactions/pockets';
+import {SetupPrefs, UpgradeLegacyProfiles} from './modules/user/prefs';
+import {HandleCommandToggle} from './modules/interactions/toggle';
+import {HandleCommandCustomize} from './modules/interactions/customize';
+import {existsSync, readFileSync, rmSync, writeFileSync} from 'fs';
+import {join} from 'path';
+import {CheckForAgreementMessage, CheckRuleAgreement} from './modules/user/rules';
+import {Dangerous_WipeAllLevels, HandleCommandLevel} from './modules/levels/levels';
+import {DoLeveling} from './modules/levels/onMessage';
+import {SetupBlackjackMessage} from './modules/okash/games/blackjack';
+import {StartHTTPServer} from './modules/http/server';
+import {Dangerous_WipeAllWallets} from './modules/okash/wallet';
+import {HandleCommandSell} from './modules/interactions/sell';
+import {HandleVoiceEvent, LoadVoiceData} from './modules/levels/voicexp';
+import {ScheduleJob} from './modules/tasks/cfResetBonus';
+import {GenerateCoinflipDataDisplay} from './modules/extra/datarenderer';
+import {HandleCommandStock} from './modules/interactions/stock';
+import {HandleCommandHelp} from './modules/interactions/help';
+import {HandleCommandTransfer} from './modules/interactions/transfer';
+import {DeployCommands} from './modules/deployment/commands';
+import {HandleCommandRoulette, ListenForRouletteReply} from './modules/okash/games/roulette';
+import {HandleCommandRob} from './modules/okash/games/rob';
+import {LoadReminders} from './modules/tasks/dailyRemind';
+import {Achievements, GrantAchievement, HandleCommandAchievements} from './modules/passive/achievement';
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
+
+export const DMDATA_API_KEY = config.dmdata_api_key;
+export const DEV = config.extra.includes('use dev token'); // load this asap
+export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
+export const BOT_MASTER = config.bot_master;
 
 export const BASE_DIRNAME = __dirname;
 
@@ -63,6 +72,7 @@ Object.keys(pj_dep).forEach((key: string) => {
 
 const NO_LAUNCH = process.argv.includes('--no-launch');
 const DEPLOY = process.argv.includes('--deploy');
+const UPGRADE = process.argv.includes('--upgrade');
 const WIPE = process.argv.includes('--wipe');
 const WIPE_TYPE = WIPE?process.argv[process.argv.indexOf('--wipe') + 1]:'none';
 
@@ -135,8 +145,10 @@ if (WIPE) {
     }
 }
 
+
 if (!NO_LAUNCH) client.login((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token);
 if (DEPLOY) DeployCommands((config.extra && config.extra.includes('use dev token'))?config.devtoken:config.token, (config.extra && config.extra.includes('use dev token'))?config.devclientId:config.clientId);
+if (UPGRADE) UpgradeLegacyProfiles(__dirname);
 
 const HANDLERS: {[key:string]: CallableFunction} = {
     'info': async (interaction: ChatInputCommandInteraction) => {await interaction.deferReply(); await GetInfoEmbed(interaction);},
@@ -255,13 +267,18 @@ client.on(Events.MessageCreate, async message => {
         });; 
     }
 
-    if (message.content.toLocaleLowerCase().includes('fuck you') && (
-        message.content.toLocaleLowerCase().includes('okabot') ||
+    if ((message.content.toLocaleLowerCase().includes('fuck you') ||
+        message.content.toLocaleLowerCase().includes('kys'))
+        &&
+        (message.content.toLocaleLowerCase().includes('okabot') ||
         message.content.toLocaleLowerCase().includes('okaboob') ||
         (message.reference && (await message.fetchReference()).author.id == client.user!.id)
-    )) message.reply({
-        content:'https://bot.lilycatgirl.dev/gif/dekocry.gif'
-    });
+    )) {
+        await message.reply({
+            content: 'https://bot.lilycatgirl.dev/gif/dekocry.gif'
+        });
+        GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
+    }
 
     if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
         content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
