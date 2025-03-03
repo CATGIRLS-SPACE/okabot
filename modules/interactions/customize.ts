@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
+import {GetItemFromSerial, TrackableCoin} from "../okash/trackedItem";
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
@@ -54,11 +55,25 @@ const VALID_COIN_TYPES: {
 async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
     const customization = interaction.options.getString('coin', true).toLowerCase();
 
-    if (VALID_COIN_TYPES[customization] == undefined) return interaction.editReply({
-        content:`:crying_cat_face: **${interaction.user.displayName}**, that's not a valid coin!`
-    });
-
     const profile = GetUserProfile(interaction.user.id);
+
+    if (VALID_COIN_TYPES[customization] == undefined) {
+        // check if it's a valid trackable serial id
+        if (profile.trackedInventory.includes(customization)) {
+            // if so, switch to the proper coin and set the trackable ID
+            const trackable = GetItemFromSerial(customization)!.data as TrackableCoin;
+            profile.customization.games.coin_color = trackable.base;
+            profile.customization.games.equipped_trackable_coin = trackable.serial;
+
+            UpdateUserProfile(interaction.user.id, profile);
+
+            return interaction.editReply({
+                content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your coin to your trackable coin ID \`${customization}\`. Have fun flipping!`
+            });
+        } else return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, that's not a valid coin/trackable serial!`
+        });
+    }
 
     if (profile.customization.unlocked.indexOf(VALID_COIN_TYPES[customization]) == -1) return interaction.editReply({
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't own that coin!`

@@ -25,6 +25,7 @@ import {EventType, RecordMonitorEvent} from "../../../util/monitortool";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZTAION_ID_NAMES} from "../items";
+import {UpdateTrackedItem} from "../trackedItem";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -297,6 +298,10 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     UpdateUserProfile(interaction.user.id, profile);
 
     ActiveFlips.push(interaction.user.id);
+
+    if (profile.customization.games.equipped_trackable_coin != 'none') {
+        UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1});
+    }
 
     // initial reply
     const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);

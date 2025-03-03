@@ -3,6 +3,7 @@ import { GetInventory } from "../okash/wallet";
 import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
+import {GetItemFromSerial, TrackableCoin} from "../okash/trackedItem";
 
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
@@ -74,7 +75,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                 name: UNLOCK_NAMES[unlock].name, value: UNLOCK_NAMES[unlock].desc
             })
         }
-    } else {
+    } else if (page == 'items') {
         const inventory = GetInventory(interaction.user.id);
         let counts: any = {};
 
@@ -89,6 +90,23 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                 value: ITEM_NAMES[parseInt(item)].desc
             })
         });
+    } else if (page == 'tracked') {
+        const inventory = GetUserProfile(interaction.user.id).trackedInventory;
+
+        for (const serial of inventory) {
+            const tracked_item = GetItemFromSerial(serial);
+            if (tracked_item) {
+                switch (tracked_item.type) {
+                    case "customization":
+                        const name = `**Tracked ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                        fields.push({
+                            name,
+                            value: `This item is unique. It counts how many times it's been flipped. Serial no: **\`${tracked_item.serial}\`**. Flip count: ${(tracked_item.data as TrackableCoin).flips}.`
+                        })
+                        break;
+                }
+            }
+        }
     }
 
     if (fields.length == 0) {
@@ -117,5 +135,6 @@ export const PocketsSlashCommand = new SlashCommandBuilder()
         .setDescription('The pockets category to display').setDescriptionLocalization('ja', 'ポケットのカテゴリー')
         .addChoices(
             {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
-            {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}}
+            {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}},
+            {name:'Tracked Items',value:'tracked'}
     ).setRequired(true));

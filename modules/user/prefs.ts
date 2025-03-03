@@ -6,6 +6,7 @@ import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "disc
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 import {Wallet} from "../okash/wallet";
+import {UUID} from "node:crypto";
 
 const L = new Logger('profiles');
 
@@ -66,6 +67,7 @@ export interface USER_PROFILE {
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS,
+            equipped_trackable_coin: 'none' | string;
         },
         level_banner: {
             hex_bg:  string,
@@ -94,7 +96,8 @@ export interface USER_PROFILE {
         abilities:  string
     }
     inventory: Array<ITEMS>,
-    achievements: Array<Achievements>
+    achievements: Array<Achievements>,
+    trackedInventory: Array<string>
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -113,6 +116,7 @@ const DEFAULT_DATA: USER_PROFILE = {
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
+            equipped_trackable_coin: 'none'
         },
         level_banner: {
             hex_bg:  '#f00',
@@ -141,7 +145,8 @@ const DEFAULT_DATA: USER_PROFILE = {
         abilities: ""
     },
     inventory: [],
-    achievements: []
+    achievements: [],
+    trackedInventory: []
 }
 
 let PROFILES_DIR: string;
@@ -334,7 +339,8 @@ export function UpgradeLegacyProfiles(dirname: string) {
             },
             customization: {
                 games: {
-                    coin_color: old_data.customization.coin_color
+                    coin_color: old_data.customization.coin_color,
+                    equipped_trackable_coin: 'none'
                 },
                 global: {
                     pronouns: {
@@ -352,7 +358,8 @@ export function UpgradeLegacyProfiles(dirname: string) {
                 current_xp: old_data.level.current_xp
             },
             achievements: old_data.achievements || [],
-            inventory: wallet_data.inventory.other
+            inventory: wallet_data.inventory.other,
+            trackedInventory: []
         }
 
         writeFileSync(join(dirname, 'profiles', profile), JSON.stringify(new_data), 'utf-8');

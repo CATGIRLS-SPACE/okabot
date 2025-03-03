@@ -10,13 +10,14 @@ import {
 } from 'discord.js';
 
 import {WordleCheck} from './modules/extra/wordle';
-import {HandleCommandCoinflip, HandleCommandCoinflipV2} from './modules/okash/games/coinflip';
+import {HandleCommandCoinflipV2} from './modules/okash/games/coinflip';
 import {HandleCommandDaily} from './modules/interactions/daily.js';
 import {HandleCommandPay} from './modules/interactions/pay.js';
 import {HandleCommandOkash} from './modules/interactions/okash.js';
 import {DoRandomDrops} from './modules/passive/onMessage.js';
 
 import * as config from './config.json';
+export const DEV = config.extra.includes('use dev token'); // load this asap
 import {dependencies as pj_dep, version} from './package.json';
 import {Logger} from 'okayulogger';
 import {GetMostRecent, StartEarthquakeMonitoring} from './modules/earthquakes/earthquakes';
@@ -53,9 +54,10 @@ import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
+import {CreateTrackedItem, LoadSerialItemsDB} from "./modules/okash/trackedItem";
+import {CUSTOMIZATION_UNLOCKS} from "./modules/okash/items";
 
 export const DMDATA_API_KEY = config.dmdata_api_key;
-export const DEV = config.extra.includes('use dev token'); // load this asap
 export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
 export const BOT_MASTER = config.bot_master;
 
@@ -94,14 +96,20 @@ export const client = new Client({
 client.once(Events.ClientReady, (c: Client) => {
     RegisterAllShorthands();
     SetupPrefs(__dirname);
-    // SetupStocks(__dirname);
     LoadVoiceData();
     LoadReminders();
     ScheduleJob(c); // schedule the coinflip reset bonus
     LoadCasinoDB();
-    // ScheduleStocksTask(c);
+    LoadSerialItemsDB();
     L.info(`Successfully logged in as ${c.user!.tag}`);
     c.user!.setActivity(config.status.activity, {type: config.status.type});
+
+    if (process.argv.includes('--create-test-serial')) {
+        const serial = CreateTrackedItem('customization', CUSTOMIZATION_UNLOCKS.COIN_DBLUE, '1314398026315333692');
+        serial.then(s => {
+            L.debug(`Created new test serialed item: ${s}`);
+        })
+    }
 
     if (!DEV) {
         if (existsSync(join(__dirname, 'ERROR.LOG'))) {
