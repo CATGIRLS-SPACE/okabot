@@ -1,8 +1,10 @@
-import {CUSTOMIZATION_UNLOCKS, ITEM_ID_NAMES, ITEMS} from "./items";
-import {Snowflake} from "discord.js";
+import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "./items";
+import {Message, MessageFlags, Snowflake} from "discord.js";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
-import {BASE_DIRNAME} from "../../index";
+import {BASE_DIRNAME, client} from "../../index";
+import {GetEmoji} from "../../util/emoji";
+import {COIN_EMOJIS_DONE} from "./games/coinflip";
 
 export interface TrackableItem {
     type: 'item' | 'customization',
@@ -119,4 +121,22 @@ export async function CreateTrackedItem(type: 'item' | 'customization', item: IT
     SaveSerialDB();
 
     return serial;
+}
+
+export async function Check$Message(message: Message) {
+    if (!message.content.startsWith('$')) return;
+
+    const serial = message.content.split('$')[1].split(' ')[0];
+    const item = GetItemFromSerial(serial);
+    if (!item) return message.reply({
+        content:`:x: Invalid Serial No.`,
+        flags: MessageFlags.SuppressNotifications
+    });
+
+    const owner = client.users.cache.get(item.original_owner);
+
+    // only coins are supported, so we can just assume its a coin if its type is customization
+    if (item.type == 'customization') message.reply({
+        content:`Information on **Tracked:tm: ${GetEmoji(COIN_EMOJIS_DONE[item.data.base])} ${CUSTOMIZTAION_ID_NAMES[item.data.base]}** (\`${serial}\`)\nOriginally crafted by **${owner?.displayName || 'Unknown User'}** on <t:${Math.round(item.creation_time/1000)}>\nThis coin has ${(item.data as TrackableCoin).flips} flips since crafting!`
+    });
 }

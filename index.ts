@@ -54,8 +54,9 @@ import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
-import {CreateTrackedItem, LoadSerialItemsDB} from "./modules/okash/trackedItem";
+import {Check$Message, CreateTrackedItem, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {CUSTOMIZATION_UNLOCKS} from "./modules/okash/items";
+import {HandleCommandTrade} from "./modules/interactions/trade";
 
 export const DMDATA_API_KEY = config.dmdata_api_key;
 export const CAN_USE_SHORTHANDS = config.permitted_to_use_shorthands;
@@ -185,7 +186,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'achievements': HandleCommandAchievements,
     'slots': HandleCommandSlots,
     'pair': HandleCommandPair,
-    'casino': HandleCommandCasino
+    'casino': HandleCommandCasino,
+    'trade': HandleCommandTrade
 }
 
 // Handling slash commands:
@@ -243,6 +245,7 @@ client.on(Events.MessageCreate, async message => {
     CheckForShorthand(message); // v2
     DoRandomDrops(message);
     ListenForRouletteReply(message);
+    Check$Message(message);
 
     if (message.channel.id == "1321639990383476797") {
         let final_message = message.content;

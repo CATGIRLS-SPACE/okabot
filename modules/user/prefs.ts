@@ -177,6 +177,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     }
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
+    if (!data.trackedInventory) data.trackedInventory = [];
 
     ProfileCache.set(user_id, data);
 

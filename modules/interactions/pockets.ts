@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Emoji, SlashCommandBuilder } from "discord.js";
+import {ChatInputCommandInteraction, EmbedBuilder, Emoji, Locale, SlashCommandBuilder} from "discord.js";
 import { GetInventory } from "../okash/wallet";
 import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
@@ -119,7 +119,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
     // console.log(fields);
 
     const embed = new EmbedBuilder()
-        .setTitle(page=='items'?'Your pockets':'Your unlocked customizations')
+        .setTitle(page=='items'?'Your pockets':`Your unlocked ${interaction.locale==Locale.EnglishGB?'customisations':'customizations'}`)
         .setColor(0x9d60cc)
         .setFields(fields)
         .setAuthor({iconURL: interaction.user.displayAvatarURL(), name: interaction.user.displayName});

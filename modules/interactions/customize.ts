@@ -109,12 +109,15 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
 
 
 export const CustomizeSlashCommand = new SlashCommandBuilder()
-    .setName('customize').setNameLocalization('ja', 'カスタマイズ')
-    .setDescription('Customize your experience with your unlocked customizations').setDescriptionLocalization('ja', 'okabotをカスタマイズするであなたのカスタマイズ化')
+    .setName('customize')
+    .setNameLocalizations({ja:'カスタマイズ',"en-GB":'customise',"en-US":'customize'})
+    .setDescription('Customize your experience with your unlocked customizations')
+    .setDescriptionLocalizations({'ja':'okabotをカスタマイズするであなたのカスタマイズ化',"en-GB":'Customise your experience with your unlocked customisations',"en-US":'Customize your experience with your unlocked customizations'})
     .addSubcommand(subcommand => 
         subcommand
             .setName('coinflip').setNameLocalization('ja', 'コイントス')
-            .setDescription('Customize your coinflip experience').setDescriptionLocalization('ja', 'コイントスをカスタマイズ')
+            .setDescription('Customize your coinflip experience')
+            .setDescriptionLocalizations({'ja':'コイントスをカスタマイズ',"en-GB":'Customise your coinflip experience',"en-US":'Customize your coinflip experience'})
             .addStringOption(option => option
                 .setName('coin').setNameLocalization('ja', 'コイン')
                 .setDescription('The coin (or serial for Tracked™ items) you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
@@ -123,20 +126,20 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
     .addSubcommand(subcommand =>
         subcommand
             .setName('levelbar').setNameLocalization('ja', 'レベルバー')
-            .setDescription('Customize the colors of your level banner\'s XP bar').setDescriptionLocalization('ja', 'あなたのレベルバーの色をカスタマイズ')
+            .setDescription('Customize the colors of your level banner\'s XP bar').setDescriptionLocalization('ja', 'あなたのレベルバーの色をカスタマイズ').setDescriptionLocalization('en-GB', 'Customize the colours of your level banner\'s XP bar')
             .addStringOption(option => 
                 option
                     .setName('background')
-                    .setDescription('The background color of the bar. Must be a valid hex code, like #abcdef')
+                    .setDescription('The background color of the bar. Must be a valid hex code, like #abcdef').setDescriptionLocalization('en-GB', 'The background colour of the bar. Must be a valid hex code, like #abcdef')
                     .setRequired(true))
             .addStringOption(option => 
                 option
                     .setName('foreground')
-                    .setDescription('The foreground color of the bar. Must be a valid hex code, like #abcdef')
+                    .setDescription('The foreground color of the bar. Must be a valid hex code, like #abcdef').setDescriptionLocalization('en-GB', 'The foreground colour of the bar. Must be a valid hex code, like #abcdef')
                     .setRequired(true))
             .addStringOption(option => 
                 option
                     .setName('xptext')
-                    .setDescription('The text color of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef')
+                    .setDescription('The text color of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef').setDescriptionLocalization('en-GB', 'The text colour of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef')
                     .setRequired(true))
     )

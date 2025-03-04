@@ -25,6 +25,7 @@ import { AchievementsSlashCommand } from "../passive/achievement";
 import {SlotsSlashCommand} from "../okash/games/slots";
 import {CasinoSlashCommand} from "../okash/casinodb";
 import {ToggleSlashCommand} from "../interactions/toggle";
+import {TradeSlashCommand} from "../interactions/trade";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -66,6 +67,7 @@ const COMMANDS_TO_REGISTER = [
     AchievementsSlashCommand,
     SlotsSlashCommand,
     ToggleSlashCommand,
+    TradeSlashCommand,
     // CasinoSlashCommand, // <-- not ready yet!
 ].map(command => command.toJSON());
 
@@ -78,7 +80,7 @@ export async function DeployCommands(token: string, client_id: string) {
 
      rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
         .then((a) => {
-            console.log(a);
+            // console.log(a);
             L.info('Commands deployed successfully.');
         })
         .catch((err) => {
