@@ -67,7 +67,9 @@ export interface USER_PROFILE {
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS,
-            equipped_trackable_coin: 'none' | string;
+            equipped_trackable_coin: 'none' | string,
+            card_deck_theme: 'default' | string,
+            equipped_trackable_deck: 'none' | string,
         },
         level_banner: {
             hex_bg:  string,
@@ -116,7 +118,9 @@ const DEFAULT_DATA: USER_PROFILE = {
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
-            equipped_trackable_coin: 'none'
+            equipped_trackable_coin: 'none',
+            card_deck_theme: 'default',
+            equipped_trackable_deck: 'none',
         },
         level_banner: {
             hex_bg:  '#f00',
@@ -178,6 +182,8 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
     if (!data.trackedInventory) data.trackedInventory = [];
+    if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = 'default';
+    if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
 
     ProfileCache.set(user_id, data);
 
@@ -341,7 +347,9 @@ export function UpgradeLegacyProfiles(dirname: string) {
             customization: {
                 games: {
                     coin_color: old_data.customization.coin_color,
-                    equipped_trackable_coin: 'none'
+                    equipped_trackable_coin: 'none',
+                    card_deck_theme: 'default',
+                    equipped_trackable_deck: 'none',
                 },
                 global: {
                     pronouns: {

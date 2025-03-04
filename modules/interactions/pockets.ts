@@ -3,7 +3,7 @@ import { GetInventory } from "../okash/wallet";
 import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
-import {GetItemFromSerial, TrackableCoin} from "../okash/trackedItem";
+import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
@@ -38,10 +38,10 @@ const UNLOCK_NAMES: {
     9:  {name:'Blue Level Bar',desc:'Sets your level bar color to green'},
     10: {name:'Pink Level Bar',desc:'Sets your level bar color to pink'},
     11: {name:'CV_LEVEL_THEME_OKABOT',desc:'',hide:true},
-    12: {name:'Custom Coinflip Messages',desc:'Lets you change the messages you get with /coinflip.'},
-    13: {name:'Custom okash Message',desc:'Lets you change the message you get with /okash'},
-    14: {name:'bank access',desc:'this item should not be visible in the customize listing'},
-    15: {name:'loan access',desc:'this item should not be visible in the customize listing'},
+    12: {name:'Default Card Deck',desc:'The classic card deck. It\'s not unique in terms of design, but it gets the job done.'},
+    13: {name:'Trans-themed Card Deck',desc:'A card deck no different than the rest, but it lets you know that being trans is OK!'},
+    14: {name:'UNUSED_CUST_ID_14',desc:'this item should not be visible in the customize listing'},
+    15: {name:'UNUSED_CUST_ID_15',desc:'this item should not be visible in the customize listing'},
     16: {name:`${GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY)} Dark Green Coin`,desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
     17: {name:`${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} Rainbow Coin`,desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
     18: {name:'User Banner Level Background',desc:'Enables your level banner to use your Discord banner as its background'},
@@ -96,13 +96,22 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
         for (const serial of inventory) {
             const tracked_item = GetItemFromSerial(serial);
+            let name;
             if (tracked_item) {
                 switch (tracked_item.type) {
-                    case "customization":
-                        const name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                    case "coin":
+                        name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
                         fields.push({
                             name,
                             value: `This item is unique. It counts how many times it's been flipped. Serial no: **\`${tracked_item.serial}\`**. Flip count: ${(tracked_item.data as TrackableCoin).flips}.`
+                        })
+                        break;
+
+                    case "deck":
+                        name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                        fields.push({
+                            name,
+                            value: `This item is unique. It counts how many cards it has dealt. Serial no: **\`${tracked_item.serial}\`**. Dealt cards: ${(tracked_item.data as TrackableCardDeck).dealt_cards}.`
                         })
                         break;
                 }

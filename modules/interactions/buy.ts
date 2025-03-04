@@ -1,11 +1,11 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, TextChannel } from "discord.js";
-import { AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory } from "../okash/wallet";
-import { CUSTOMIZATION_UNLOCKS, ITEM_TYPE, ITEMS } from "../okash/items";
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
-import { CalculateTargetXP } from "../levels/levels";
-import { AddXP } from "../levels/onMessage";
-import { EMOJI, GetEmoji } from "../../util/emoji";
-import { GetProperItemName } from "./pockets";
+import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
+import {AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
+import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
+import {CalculateTargetXP} from "../levels/levels";
+import {AddXP} from "../levels/onMessage";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {GetProperItemName} from "./pockets";
 
 
 const LastBoughtLevel = new Map<string, number>();
@@ -37,6 +37,7 @@ const PRICES: {
     'casino pass 10 minute':25_000,
     'casino pass 30 minute':60_000,
     'casino pass 60 minute':100_000,
+    'trans card deck': 25_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -53,6 +54,7 @@ const SHORTHANDS: {[key: string]: string} = {
     'cp10': 'casino pass 10 minute',
     'cp30': 'casino pass 30 minute',
     'cp60': 'casino pass 60 minute',
+    'tcd': 'trans card deck'
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
@@ -125,6 +127,9 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'rainbow coin': case 'rbc':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.COIN_RAINBOW, price);
+
+        case 'trans card deck': case 'tcd':
+            return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.DECK_TRANS, price)
 
         // profile customizations
         case 'user banner level background': case 'ublb':

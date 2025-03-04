@@ -106,10 +106,14 @@ client.once(Events.ClientReady, (c: Client) => {
     c.user!.setActivity(config.status.activity, {type: config.status.type});
 
     if (process.argv.includes('--create-test-serial')) {
-        const serial = CreateTrackedItem('customization', CUSTOMIZATION_UNLOCKS.COIN_DBLUE, '1314398026315333692');
-        serial.then(s => {
+        const coin_serial = CreateTrackedItem('coin', CUSTOMIZATION_UNLOCKS.COIN_DBLUE, '1314398026315333692');
+        coin_serial.then(s => {
             L.debug(`Created new test serialed item: ${s}`);
-        })
+        });
+        const deck_serial = CreateTrackedItem('deck', CUSTOMIZATION_UNLOCKS.DECK_TRANS, '1314398026315333692');
+        deck_serial.then(s => {
+            L.debug(`Created new test serialed item: ${s}`);
+        });
     }
 
     if (!DEV) {

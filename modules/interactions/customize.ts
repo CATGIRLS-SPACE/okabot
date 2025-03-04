@@ -123,6 +123,14 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
                 .setDescription('The coin (or serial for Tracked™ items) you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
                 .setRequired(true))
             )
+    .addSubcommand(subcommand => subcommand
+            .setName('card deck')
+            .setDescription('Choose your card deck')
+            .addStringOption(option => option
+                .setName('coin')
+                .setDescription('The card deck name (or serial for Tracked™ items) you want to use when playing')
+                .setRequired(true))
+    )
     .addSubcommand(subcommand =>
         subcommand
             .setName('levelbar').setNameLocalization('ja', 'レベルバー')

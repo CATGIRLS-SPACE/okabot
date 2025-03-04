@@ -3,7 +3,7 @@ import { Logger } from "okayulogger";
 import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
 import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY } from "../../user/prefs";
-import { GetEmoji } from "../../../util/emoji";
+import {GetEmoji, GetEmojiID} from "../../../util/emoji";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 
@@ -81,7 +81,9 @@ interface BlackjackGame {
     gameActive: boolean,
     expires: number,
     deck: Array<HandCard>,
-    okabot_has_hit: boolean
+    okabot_has_hit: boolean,
+    card_theme: 'none' | 'trans',
+    trackable_serial?: string
 }
 
 // user_id and game
@@ -139,6 +141,11 @@ const standBtn = new ButtonBuilder()
     .setLabel('Stand!')
     .setStyle(ButtonStyle.Secondary);
 
+const mustStandBtn = new ButtonBuilder()
+    .setCustomId('blackjack-stand')
+    .setLabel('✨ Stand!')
+    .setStyle(ButtonStyle.Success);
+
 const doubleDownButton = new ButtonBuilder()
     .setCustomId('blackjack-double')
     .setLabel('Double Down!')
@@ -151,9 +158,14 @@ const row_can_double = new ActionRowBuilder()
     .addComponents(hitBtn, standBtn, doubleDownButton);
 
 const row_willbust = new ActionRowBuilder()
-    .addComponents(standBtn);
+    .addComponents(mustStandBtn);
 
 
+function GetCardThemed(id: string, theme: 'none' | 'trans') {
+    const themes: {[key:string]: string} = {'none':'','trans':'_t'};
+    // only back of card is supported atm cuz im LAZY!!!!
+    return id=='cb'?GetEmoji(`${id}${themes[theme]}`):GetEmoji(id);
+}
 
 export async function SetupBlackjackMessage(interaction: ChatInputCommandInteraction) {
     if (GamesActive.has(interaction.user.id)) return interaction.reply({
@@ -194,6 +206,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     let this_deck = CloneArray(DECK);
     ShuffleCards(this_deck);
+    const card_theme = GetUserProfile(interaction.user.id).customization.games.card_deck_theme;
+    const trackable = GetUserProfile(interaction.user.id).customization.games.equipped_trackable_deck;
 
     // create a blackjack game
     const game: BlackjackGame = {
@@ -203,7 +217,9 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         gameActive: true,
         expires: d.getTime() + 120_000,
         deck: this_deck,
-        okabot_has_hit: false
+        okabot_has_hit: false,
+        card_theme: card_theme as 'none' | 'trans',
+        trackable_serial: trackable=='none'?undefined:trackable
     }
 
     // set up deck
@@ -224,7 +240,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     GamesActive.set(interaction.user.id, game);
 
-    const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
+    const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     let response;
 
     if ((LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) && !skip_cooldown) {
@@ -342,7 +358,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         // if we doubled down, you cannot hit again
 
         await confirmation.update({
-            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}** \n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetEmoji('cb')}${GetEmoji('cb')}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}`,
+            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}** \n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}`,
             components: [player_blackjack || double_down ? row_willbust : row]
         });
     }

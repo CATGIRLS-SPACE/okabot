@@ -7,7 +7,7 @@ import {GetEmoji} from "../../util/emoji";
 import {COIN_EMOJIS_DONE} from "./games/coinflip";
 
 export interface TrackableItem {
-    type: 'item' | 'customization',
+    type: 'coin' | 'deck',
     serial: string,
     original_owner: Snowflake,
     creation_time: number,
@@ -24,7 +24,7 @@ export interface TrackableCoin {
 }
 
 export interface TrackableCardDeck {
-    base: ITEMS,
+    base: CUSTOMIZATION_UNLOCKS,
     serial: string,
     dealt_cards: number,
     original_owner: Snowflake,
@@ -94,7 +94,7 @@ export function UpdateTrackedItem(serial: string, data: {property:'name',value:s
     SaveSerialDB();
 }
 
-export async function CreateTrackedItem(type: 'item' | 'customization', item: ITEMS | CUSTOMIZATION_UNLOCKS, user_id: Snowflake): Promise<string> {
+export async function CreateTrackedItem(type: 'coin' | 'deck', item: CUSTOMIZATION_UNLOCKS, user_id: Snowflake): Promise<string> {
     const serial = crypto.randomUUID();
 
     SerialedItems[serial] = {
@@ -103,7 +103,7 @@ export async function CreateTrackedItem(type: 'item' | 'customization', item: IT
         custom_name: `Tracked ${ITEM_ID_NAMES[item]}`,
         original_owner: user_id,
         type,
-        data: type == 'item' ? <TrackableCardDeck>{
+        data: type == 'deck' ? <TrackableCardDeck>{
             base: item,
             serial,
             creation_time: Date.now(),
@@ -135,8 +135,12 @@ export async function Check$Message(message: Message) {
 
     const owner = client.users.cache.get(item.original_owner);
 
-    // only coins are supported, so we can just assume its a coin if its type is customization
-    if (item.type == 'customization') message.reply({
+    // only coins are supported, so we can just assume its a coin if its type is customization <-- wrong
+    if (item.type == 'coin') message.reply({
         content:`Information on **Tracked:tm: ${GetEmoji(COIN_EMOJIS_DONE[item.data.base])} ${CUSTOMIZTAION_ID_NAMES[item.data.base]}** (\`${serial}\`)\nOriginally crafted by **${owner?.displayName || 'Unknown User'}** on <t:${Math.round(item.creation_time/1000)}>\nThis coin has ${(item.data as TrackableCoin).flips} flips since crafting!`
+    });
+
+    if (item.type == 'deck') message.reply({
+        content:`Information on **Tracked:tm: ${CUSTOMIZTAION_ID_NAMES[item.data.base]}** (\`${serial}\`)\nOriginally crafted by **${owner?.displayName || 'Unknown User'}** on <t:${Math.round(item.creation_time/1000)}>\nThis deck has dealt ${(item.data as TrackableCardDeck).dealt_cards} cards since crafting!`
     });
 }

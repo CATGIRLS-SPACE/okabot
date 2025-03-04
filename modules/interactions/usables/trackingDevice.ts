@@ -28,7 +28,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
         content: `:electric_plug: **${interaction.user.displayName}** starts applying a **Tracking Device** to ${possessive} **${name}** and...`
     });
 
-    const serial = await CreateTrackedItem('customization', VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
+    const serial = await CreateTrackedItem('coin', VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
 
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
