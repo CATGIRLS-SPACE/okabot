@@ -32,6 +32,7 @@ const SELL_PRICES: {
     'streak restore':{price:10_500,type:'item',itemID:ITEMS.STREAK_RESTORE},
     'drop boost 15 minute':{price:12_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_15_MIN},
     'drop boost 30 minute':{price:37_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_30_MIN},
+    'tracking device':{price:50_000,type:'item',itemID:ITEMS.TRACKED_CONVERTER}
 }
 
 const STRINGS: {

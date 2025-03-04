@@ -72,8 +72,9 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
     }
 
     if (roll >= 500 && roll < 900) {
-        LootboxRecentlyDropped.set(user_id, {item: ITEMS.SHOP_VOUCHER, time})
-        return {type: LOOTBOX_REWARD_TYPE.ITEM, value: ITEMS.SHOP_VOUCHER}
+        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.SHOP_VOUCHER][Math.round(Math.random())];
+        LootboxRecentlyDropped.set(user_id, {item, time})
+        return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item}
     }
 
     if (roll >= 900 && roll != 999) {
@@ -83,7 +84,8 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
             ITEMS.CASINO_PASS_1_HOUR,
             ITEMS.LOOTBOX_INCREASE_15_MIN,
             ITEMS.LOOTBOX_INCREASE_30_MIN,
-        ][Math.round(Math.random() * 4)]; // get a random item
+            ITEMS.TRACKED_CONVERTER,
+        ][Math.round(Math.random() * 5)]; // get a random item
 
         LootboxRecentlyDropped.set(user_id, {item, time});
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};
