@@ -13,7 +13,7 @@ export const ITEM_NAMES: {
     2: {name:':package: EX Lootbox',desc:'An extremely rare box that contains the finest of items!'},
     3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
     4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'},
-    5: {name:'Unknown Item', desc:'Hmm, I\'m not exactly sure what this is!'},
+    5: {name:'Tracking Device', desc:'Turn a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic.'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
     8: {name:`Drop Boost (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
@@ -51,6 +51,7 @@ const UNLOCK_NAMES: {
 export function GetProperItemName(shop_id: string): string {
     const keys: {[key: string]: number} = {
         'streak restore': 3,
+        'tracking device': 5,
         'drop boost 15 minute': 8,
         'drop boost 30 minute': 9,
         'casino pass 10 minute': 10,
@@ -98,7 +99,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             if (tracked_item) {
                 switch (tracked_item.type) {
                     case "customization":
-                        const name = `**Tracked ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                        const name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
                         fields.push({
                             name,
                             value: `This item is unique. It counts how many times it's been flipped. Serial no: **\`${tracked_item.serial}\`**. Flip count: ${(tracked_item.data as TrackableCoin).flips}.`

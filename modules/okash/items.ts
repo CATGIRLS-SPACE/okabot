@@ -7,14 +7,14 @@ export enum ITEMS {
     LOOTBOX_EX,
     WEIGHTED_COIN_ONE_USE,
     STREAK_RESTORE,
-    UNUSED_ITEM_ID_5,
+    TRACKED_CONVERTER,
     SHOP_VOUCHER,
     LOT_SCRATCH,
     LOOTBOX_INCREASE_15_MIN,
     LOOTBOX_INCREASE_30_MIN,
     CASINO_PASS_10_MIN,
     CASINO_PASS_30_MIN,
-    CASINO_PASS_1_HOUR
+    CASINO_PASS_1_HOUR,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {
@@ -23,7 +23,7 @@ export const ITEM_ID_NAMES: {[key: number]: string} = {
     2: 'EX Lootbox',
     3: 'Weighted Coin',
     4: 'Streak Restore',
-    5: 'Unknown Item',
+    5: 'Tracking Device',
     6: 'Shop Voucher',
     7: 'Scratch Ticket',
     8: 'Drop Boost (15 minutes)',

@@ -9,6 +9,7 @@ import { PassesActive } from "../okash/games/blackjack";
 import { ITEM_NAMES} from "./pockets";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 import { BoostsActive } from "../passive/onMessage";
+import {item_tracking_device} from "./usables/trackingDevice";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -50,6 +51,10 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
 
         case 'db30':
             item_drop_boost(interaction, '30');
+            break;
+
+        case 'tracking device': case 'td':
+            item_tracking_device(interaction);
             break;
 
         default:
@@ -323,4 +328,9 @@ export const UseSlashCommand = new SlashCommandBuilder()
         option.setName('item').setNameLocalization('ja', 'アイテム')
         .setDescription('The item to use').setDescriptionLocalization('ja', 'どのアイテムを使う')
         .setRequired(true)
+    )
+    .addStringOption(option => option
+        .setName('on')
+        .setDescription('What to use the item on, if applicable')
+        .setRequired(false)
     )

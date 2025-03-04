@@ -117,7 +117,7 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
             .setDescription('Customize your coinflip experience').setDescriptionLocalization('ja', 'コイントスをカスタマイズ')
             .addStringOption(option => option
                 .setName('coin').setNameLocalization('ja', 'コイン')
-                .setDescription('The coin you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
+                .setDescription('The coin (or serial for Tracked™ items) you want to use when flipping').setDescriptionLocalization('ja', 'コイントスのコインをカスタマイズ')
                 .setRequired(true))
             )
     .addSubcommand(subcommand =>

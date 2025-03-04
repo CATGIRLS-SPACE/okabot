@@ -29,6 +29,23 @@ export interface TrackableCardDeck {
     creation_time: number,
 }
 
+export const VALID_ITEMS_TO_TRACK: {[key: string]: number} = {
+    'red coin': 1,
+    'rc': 1,
+    'dark blue coin': 2,
+    'dbc': 2,
+    'light blue coin': 3,
+    'lbc': 3,
+    'pink coin': 4,
+    'pc': 4,
+    'purple coin': 5,
+    'ppc': 5,
+    'dark green coin': 16,
+    'dgc': 16,
+    'rainbow coin': 17,
+    'rbc': 17
+}
+
 // --
 
 let SerialedItems: {[key: string]: TrackableItem} = {}
