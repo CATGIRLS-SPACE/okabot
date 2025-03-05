@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync } from 'fs';
 
 const DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT = false;
 
-const COINFLIP_MINMAX_BONUS = 1000;
+const COINFLIP_MINMAX_BONUS = 5000;
 const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 9 * * 1':'0 * * * * *';
 const BROADCAST_CHANNEL = !DEV?'1019089378343137373':'941843973641736253'; // #chatsies / #okabot-private-test
 const L = new Logger('coinflip reset bonus');
@@ -32,12 +32,12 @@ export function ScheduleJob(client: Client) {
         L.info(`channel: #${channel.name}`);
 
         await channel.send(`${GetEmoji('cff')} The weekly coinflip results are in!\n:medal: Highest: <@${stats.coinflip.daily.high.user_id}> with **${stats.coinflip.daily.high.value}**\n:medal: Lowest: <@${stats.coinflip.daily.low.user_id}> with **${stats.coinflip.daily.low.value}**`);
-        await channel.send(`The winner(s) have been given ${GetEmoji('okash')} OKA**1000** and **+50XP**`);
+        await channel.send(`The winner(s) have been given ${GetEmoji('okash')} OKA**5000** and **+350XP**`);
 
-        AddXP(stats.coinflip.daily.high.user_id, channel, 50);
+        AddXP(stats.coinflip.daily.high.user_id, channel, 7*50);
         AddToWallet(stats.coinflip.daily.high.user_id, COINFLIP_MINMAX_BONUS);
 
-        AddXP(stats.coinflip.daily.low.user_id, channel, 50);
+        AddXP(stats.coinflip.daily.low.user_id, channel, 7*50);
         AddToWallet(stats.coinflip.daily.low.user_id, COINFLIP_MINMAX_BONUS);
 
         // reset them
