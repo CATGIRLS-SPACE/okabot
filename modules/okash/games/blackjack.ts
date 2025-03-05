@@ -1,11 +1,22 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js";
-import { Logger } from "okayulogger";
-import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
-import { AddXP } from "../../levels/onMessage";
-import { CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY } from "../../user/prefs";
-import {GetEmoji, GetEmojiID} from "../../../util/emoji";
-import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    MessageFlags,
+    SlashCommandBuilder,
+    Snowflake,
+    TextChannel
+} from "discord.js";
+import {Logger} from "okayulogger";
+import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
+import {AddXP} from "../../levels/onMessage";
+import {CheckOkashRestriction, GetUserProfile, OKASH_ABILITY} from "../../user/prefs";
+import {GetEmoji} from "../../../util/emoji";
+import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
+import {CUSTOMIZATION_UNLOCKS} from "../items";
+import {UpdateTrackedItem} from "../trackedItem";
 
 
 const L = new Logger('blackjack');
@@ -82,7 +93,7 @@ interface BlackjackGame {
     expires: number,
     deck: Array<HandCard>,
     okabot_has_hit: boolean,
-    card_theme: 'none' | 'trans',
+    card_theme: CUSTOMIZATION_UNLOCKS,
     trackable_serial?: string
 }
 
@@ -143,6 +154,11 @@ const standBtn = new ButtonBuilder()
 
 const mustStandBtn = new ButtonBuilder()
     .setCustomId('blackjack-stand')
+    .setLabel('Stand!')
+    .setStyle(ButtonStyle.Secondary);
+
+const mustStandBtnWin = new ButtonBuilder()
+    .setCustomId('blackjack-stand')
     .setLabel('✨ Stand!')
     .setStyle(ButtonStyle.Success);
 
@@ -160,9 +176,12 @@ const row_can_double = new ActionRowBuilder()
 const row_willbust = new ActionRowBuilder()
     .addComponents(mustStandBtn);
 
+const row_blackjack = new ActionRowBuilder()
+    .addComponents(mustStandBtnWin);
 
-function GetCardThemed(id: string, theme: 'none' | 'trans') {
-    const themes: {[key:string]: string} = {'none':'','trans':'_t'};
+
+function GetCardThemed(id: string, theme: CUSTOMIZATION_UNLOCKS) {
+    const themes: {[key:number]: string} = {12:'',13:'_t'};
     // only back of card is supported atm cuz im LAZY!!!!
     return id=='cb'?GetEmoji(`${id}${themes[theme]}`):GetEmoji(id);
 }
@@ -218,7 +237,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         expires: d.getTime() + 120_000,
         deck: this_deck,
         okabot_has_hit: false,
-        card_theme: card_theme as 'none' | 'trans',
+        card_theme,
         trackable_serial: trackable=='none'?undefined:trackable
     }
 
@@ -238,6 +257,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         game.deck.shift()!
     );
 
+    if (game.trackable_serial) UpdateTrackedItem(trackable, {property:'dealt_cards', amount:4});
+
     GamesActive.set(interaction.user.id, game);
 
     const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
@@ -256,7 +277,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         response = await interaction.editReply({
             content: first_message_content,
             components: [
-                TallyCards(game.user) == 21 ? row_willbust
+                TallyCards(game.user) == 21 ? row_blackjack
                     : (can_double_down ? row_can_double : row ) as any
             ]
         });
@@ -264,7 +285,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         response = await interaction.reply({
             content: first_message_content,
             components: [
-                TallyCards(game.user) == 21 ? row_willbust
+                TallyCards(game.user) == 21 ? row_blackjack
                 : (can_double_down ? row_can_double : row ) as any
             ],
             flags: [MessageFlags.SuppressNotifications]
@@ -334,6 +355,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
     // deal a card to the user
     game.user.push(game.deck.shift()!);
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:1});
 
     const player_busted = TallyCards(game.user) > 21;
     const player_blackjack = TallyCards(game.user) == 21;
@@ -371,11 +393,14 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     const game = GamesActive.get(confirmation.user.id)!;
 
     // dealer must get to 17 to stand
+    let dealt = 0;
     while (TallyCards(game.dealer) < 17) {
         // add random card
         game.dealer.push(game.deck.shift()!);
+        dealt++;
         game.okabot_has_hit = true;
     }
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:dealt});
 
     const dealer_bust: boolean = TallyCards(game.dealer) > 21;
     const win = dealer_bust || TallyCards(game.user) > TallyCards(game.dealer);

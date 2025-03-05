@@ -117,10 +117,10 @@ async function CustomizeCardDeck(interaction: ChatInputCommandInteraction) {
             UpdateUserProfile(interaction.user.id, profile);
 
             return interaction.editReply({
-                content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your coin to your trackable coin ID \`${customization}\`. Have fun flipping!`
+                content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your coin to your trackable deck ID \`${customization}\`. Have fun playing!`
             });
         } else return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, that's not a valid coin/trackable serial!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, that's not a valid deck/trackable serial!`
         });
     }
 
@@ -129,6 +129,7 @@ async function CustomizeCardDeck(interaction: ChatInputCommandInteraction) {
     });
 
     profile.customization.games.card_deck_theme = VALID_DECK_TYPES[customization];
+    profile.customization.games.equipped_trackable_deck = 'none';
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({

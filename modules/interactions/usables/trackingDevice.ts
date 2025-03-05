@@ -28,12 +28,24 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
         content: `:electric_plug: **${interaction.user.displayName}** starts applying a **Tracking Device** to ${possessive} **${name}** and...`
     });
 
-    const serial = await CreateTrackedItem('coin', VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
+    const item_types: {[key: number]: 'coin' | 'deck'} = {
+        1: 'coin',
+        2: 'coin',
+        3: 'coin',
+        4: 'coin',
+        5: 'coin',
+        16: 'coin',
+        17: 'coin',
+        13: 'deck',
+    }
+
+    const serial = await CreateTrackedItem(item_types[VALID_ITEMS_TO_TRACK[use_on]], VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
 
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     profile = GetUserProfile(interaction.user.id); // just in case
     if (profile.customization.games.coin_color == VALID_ITEMS_TO_TRACK[use_on]) profile.customization.games.coin_color = CUSTOMIZATION_UNLOCKS.COIN_DEF;
+    if (profile.customization.games.card_deck_theme == VALID_ITEMS_TO_TRACK[use_on]) profile.customization.games.card_deck_theme = CUSTOMIZATION_UNLOCKS.DECK_DEFAULT;
     profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(VALID_ITEMS_TO_TRACK[use_on]), 1);
     profile.trackedInventory.push(serial);
     UpdateUserProfile(interaction.user.id, profile);

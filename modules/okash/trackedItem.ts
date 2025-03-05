@@ -45,7 +45,9 @@ export const VALID_ITEMS_TO_TRACK: {[key: string]: number} = {
     'dark green coin': 16,
     'dgc': 16,
     'rainbow coin': 17,
-    'rbc': 17
+    'rbc': 17,
+    'trans card deck': 13,
+    'tcd': 13
 }
 
 // --

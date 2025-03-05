@@ -106,7 +106,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     accepted_rules: false,
     flags: [],
     customization: {
-        unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT],
+        unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT, CUSTOMIZATION_UNLOCKS.DECK_DEFAULT],
         global: {
             okash_notifications: true,
             pronouns: {
@@ -183,6 +183,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.trackedInventory) data.trackedInventory = [];
     if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = CUSTOMIZATION_UNLOCKS.DECK_DEFAULT;
     if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
+    if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
 
     ProfileCache.set(user_id, data);
 
