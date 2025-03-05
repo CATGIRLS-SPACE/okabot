@@ -1,8 +1,8 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import {ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js";
+import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetItemFromSerial, TrackableCoin} from "../okash/trackedItem";
+import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
@@ -17,6 +17,10 @@ export async function HandleCommandCustomize(interaction: ChatInputCommandIntera
 
         case 'levelbar':
             CustomizeLevelBar(interaction);
+            break;
+
+        case 'cards':
+            CustomizeCardDeck(interaction);
             break;
     }
 }
@@ -52,6 +56,16 @@ const VALID_COIN_TYPES: {
     'dgc':CUSTOMIZATION_UNLOCKS.COIN_DGREEN,
     'rbc':CUSTOMIZATION_UNLOCKS.COIN_RAINBOW
 };
+
+const VALID_DECK_TYPES: {
+    [key: string]: CUSTOMIZATION_UNLOCKS
+} = {
+    'trans card deck': CUSTOMIZATION_UNLOCKS.DECK_TRANS,
+    'tcd': CUSTOMIZATION_UNLOCKS.DECK_TRANS,
+    'default card deck': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
+    'dcd': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT
+}
+
 async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
     const customization = interaction.options.getString('coin', true).toLowerCase();
 
@@ -87,6 +101,40 @@ async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
     });
 }
 
+async function CustomizeCardDeck(interaction: ChatInputCommandInteraction) {
+    const customization = interaction.options.getString('deck', true).toLowerCase();
+
+    const profile = GetUserProfile(interaction.user.id);
+
+    if (VALID_DECK_TYPES[customization] == undefined) {
+        // check if it's a valid trackable serial id
+        if (profile.trackedInventory.includes(customization)) {
+            // if so, switch to the proper coin and set the trackable ID
+            const trackable = GetItemFromSerial(customization)!.data as TrackableCardDeck;
+            profile.customization.games.card_deck_theme = trackable.base;
+            profile.customization.games.equipped_trackable_deck = trackable.serial;
+
+            UpdateUserProfile(interaction.user.id, profile);
+
+            return interaction.editReply({
+                content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your coin to your trackable coin ID \`${customization}\`. Have fun flipping!`
+            });
+        } else return interaction.editReply({
+            content: `:crying_cat_face: **${interaction.user.displayName}**, that's not a valid coin/trackable serial!`
+        });
+    }
+
+    if (profile.customization.unlocked.indexOf(VALID_DECK_TYPES[customization]) == -1) return interaction.editReply({
+        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't own that coin!`
+    });
+
+    profile.customization.games.card_deck_theme = VALID_DECK_TYPES[customization];
+    UpdateUserProfile(interaction.user.id, profile);
+
+    interaction.editReply({
+        content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your deck out for a \`${customization}\`. Have fun playing!`
+    });
+}
 
 async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
     const bg = interaction.options.getString('background', true);
@@ -124,10 +172,10 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
                 .setRequired(true))
             )
     .addSubcommand(subcommand => subcommand
-            .setName('card deck')
+            .setName('cards')
             .setDescription('Choose your card deck')
             .addStringOption(option => option
-                .setName('coin')
+                .setName('deck')
                 .setDescription('The card deck name (or serial for Tracked™ items) you want to use when playing')
                 .setRequired(true))
     )

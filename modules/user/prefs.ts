@@ -6,7 +6,6 @@ import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "disc
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 import {Wallet} from "../okash/wallet";
-import {UUID} from "node:crypto";
 
 const L = new Logger('profiles');
 
@@ -68,7 +67,7 @@ export interface USER_PROFILE {
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS,
             equipped_trackable_coin: 'none' | string,
-            card_deck_theme: 'default' | string,
+            card_deck_theme: CUSTOMIZATION_UNLOCKS,
             equipped_trackable_deck: 'none' | string,
         },
         level_banner: {
@@ -119,7 +118,7 @@ const DEFAULT_DATA: USER_PROFILE = {
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
             equipped_trackable_coin: 'none',
-            card_deck_theme: 'default',
+            card_deck_theme: CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
             equipped_trackable_deck: 'none',
         },
         level_banner: {
@@ -182,7 +181,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 
     const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
     if (!data.trackedInventory) data.trackedInventory = [];
-    if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = 'default';
+    if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = CUSTOMIZATION_UNLOCKS.DECK_DEFAULT;
     if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
 
     ProfileCache.set(user_id, data);
@@ -348,7 +347,7 @@ export function UpgradeLegacyProfiles(dirname: string) {
                 games: {
                     coin_color: old_data.customization.coin_color,
                     equipped_trackable_coin: 'none',
-                    card_deck_theme: 'default',
+                    card_deck_theme: CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
                     equipped_trackable_deck: 'none',
                 },
                 global: {
