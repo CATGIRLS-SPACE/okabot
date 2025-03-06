@@ -41,6 +41,33 @@ const ROLL_TABLE = [
     ROLLS.GEM
 ];
 
+// A = apple, G = grape, O = okash, E = gem
+const PAYOUT_TABLE: {[key: string]: number} = {
+    'AAA':2,    // 3x apple
+    'GGG':2,    // 3x grape
+    'AAG':1.2,  // 2x apple 1x grape <-- must be in that order!
+    'GGA':1.2,  // 2x grape 1x apple
+    'AAO':1.5,  // 2x apple 1x okash
+    'GGO':1.5,  // 2x grape 1x okash
+    'OOA':5,    // 2x okash 1x apple
+    'OOG':5,    // 2x okash 1x grape
+    'AOO':5,    // 1x apple 2x okash
+    'GOO':5,    // 1x grape 2x okash
+    'OAO':5,    // you get the point
+    'OGO':5,
+    'OOO':10,   // 3x okash
+    'EEA':15,   // 2x gem 1x any other
+    'EEG':15,
+    'EEO':15,
+    'EAE':15,
+    'EGE':15,
+    'EOE':15,
+    'AEE':15,
+    'GEE':15,
+    'OEE':15,
+    'EEE':50,   // 3x gem
+}
+
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
@@ -88,9 +115,13 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const earned_okash = Math.floor(bet * multiplier);
     const earned_xp = {
         0: 5,
-        2.5: 15,
+        1.2: 10,
+        1.5: 15,
+        2: 20,
         5: 30,
-        10: 50
+        10: 50,
+        15: 100,
+        50: 250
     }[multiplier];
 
     AddToWallet(interaction.user.id, earned_okash);
@@ -105,8 +136,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
-        `${GetEmoji(EMOJI.CAT_MONEY_EYES)} and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)**`:
-        `:crying_cat_face: and loses ${profile.customization.global.pronouns.possessive} money! **(+5XP)**`;
+        `and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)** ${GetEmoji(EMOJI.CAT_MONEY_EYES)}`:
+        `and loses ${profile.customization.global.pronouns.possessive} money! **(+5XP)** :crying_cat_face:`;
 
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
@@ -121,35 +152,18 @@ export function ManualRelease(user_id: Snowflake) {
 }
 
 // this is some horrendous way to get the multiplier
-function GetMultiplier(rolls: Array<string>): number {
+function GetMultiplier(rolls: Array<ROLLS>): number {
     // all gems = best
-    if (
-        rolls[0] == ROLLS.GEM &&
-        rolls[1] == ROLLS.GEM &&
-        rolls[2] == ROLLS.GEM
-    ) return 10;
+    const L = {
+        'OKASH':'O',
+        'GRAPE':'G',
+        'APPLE':'A',
+        'GEM':  'E'
+    };
 
-    // all okash = better
-    if (
-        rolls[0] == ROLLS.OKASH &&
-        rolls[1] == ROLLS.OKASH &&
-        rolls[2] == ROLLS.OKASH
-    ) return 5;
+    const reward = PAYOUT_TABLE[`${L[rolls[0]]}${L[rolls[1]]}${L[rolls[2]]}`];
 
-    // all grapes or apples = standard 2.5x
-    if (
-        rolls[0] == ROLLS.GRAPE &&
-        rolls[1] == ROLLS.GRAPE &&
-        rolls[2] == ROLLS.GRAPE
-    ) return 2.5;
-    if (
-        rolls[0] == ROLLS.APPLE &&
-        rolls[1] == ROLLS.APPLE &&
-        rolls[2] == ROLLS.APPLE
-    ) return 2.5;
-
-    // nothing good
-    return 0;
+    return reward || 0;
 }
 
 export const SlotsSlashCommand = new SlashCommandBuilder()
