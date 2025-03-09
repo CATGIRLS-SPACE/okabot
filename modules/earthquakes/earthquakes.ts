@@ -9,8 +9,7 @@ import {
 } from 'discord.js';
 import {join} from 'path';
 import {BASE_DIRNAME, client, DEV, DMDATA_API_KEY} from '../..';
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
-import {createCanvas} from 'canvas';
+import {readFileSync} from 'fs';
 import {GetLatestEarthquake} from './dmdata';
 import {Logger} from 'okayulogger';
 import {DMDataWebSocket} from 'lily-dmdata/socket';
@@ -18,8 +17,6 @@ import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBod
 import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
 
-const URL = 'https://www.jma.go.jp/bosai/quake/data/list.json';
-const INDV_URL = 'https://www.jma.go.jp/bosai/quake/data/';
 const L = new Logger('earthquakes');
 
 const locations_english: {[key: string]: string} = {};
@@ -51,17 +48,17 @@ const SHINDO_IMG: { [key: string]: string } = {
     '7':'7.png'
 }
 
-const SHINDO_EMOJI: { [key: string]: EMOJI } = {
-    '1': EMOJI.SHINDO_1,
-    '2': EMOJI.SHINDO_2,
-    '3': EMOJI.SHINDO_3,
-    '4': EMOJI.SHINDO_4,
-    '5-':EMOJI.SHINDO_5_LOWER,
-    '5+':EMOJI.SHINDO_5_UPPER,
-    '6-':EMOJI.SHINDO_6_LOWER,
-    '6+':EMOJI.SHINDO_6_UPPER,
-    '7': EMOJI.SHINDO_7
-}
+// const SHINDO_EMOJI: { [key: string]: EMOJI } = {
+//     '1': EMOJI.SHINDO_1,
+//     '2': EMOJI.SHINDO_2,
+//     '3': EMOJI.SHINDO_3,
+//     '4': EMOJI.SHINDO_4,
+//     '5-':EMOJI.SHINDO_5_LOWER,
+//     '5+':EMOJI.SHINDO_5_UPPER,
+//     '6-':EMOJI.SHINDO_6_LOWER,
+//     '6+':EMOJI.SHINDO_6_UPPER,
+//     '7': EMOJI.SHINDO_7
+// }
 
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
     return new EmbedBuilder()
@@ -95,8 +92,6 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 
 
 let MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
-// const MONITORING_CHANNEL = "858904835222667315" // # bots (obp)
-let last_known_quake = {};
 export let SOCKET: DMDataWebSocket;
 
 function open_socket(SOCKET: DMDataWebSocket) {
@@ -113,6 +108,13 @@ const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: nu
 let is_reconnecting = false;
 let reconnect_tries = 0;
 
+/**
+ * This function will load all dmdata locations then connect to the DMData websocket.
+ * It will listen for Earthquake Forecasts, Warnings, and Reports, and send them to the
+ * proper channel upon delivery.
+ * @param client Passed client variable from index.ts
+ * @param disable_fetching Load earthquake locations but don't connect to websocket
+ */
 export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
     L.info('Loading all locations...');
 
@@ -139,12 +141,12 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         // make embed
         console.log(data);
 
-        if (!data.intensity) {
-            return (channel as TextChannel)!.send({
-                content:'`WebSocketEvent.EARTHQUAKE_REPORT` was fired, but there was no `data.intensity`, so i\'m just gonna skip it! the real one should come soon!\n\nthis message is purely for debugging purposes -lily',
-                flags: [MessageFlags.SuppressNotifications]
-            })
-        }
+        // if (!data.intensity) {
+        //     return (channel as TextChannel)!.send({
+        //         content:'`WebSocketEvent.EARTHQUAKE_REPORT` was fired, but there was no `data.intensity`, so i\'m just gonna skip it! the real one should come soon!\n\nthis message is purely for debugging purposes -lily',
+        //         flags: [MessageFlags.SuppressNotifications]
+        //     })
+        // }
 
         const embed = await BuildEarthquakeEmbed(
             new Date(data.earthquake.originTime || 0), 
@@ -285,16 +287,16 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 // lat_min 	    lat_max 	lon_min 	    lon_max
 // 20.2145811 	45.7112046 	122.7141754 	154.205541
 
-export function RenderNewEarthquakeImage() {
-    const SAVE_LOCATION = join(BASE_DIRNAME, 'temp', 'earthquake.png');
-    const canvas = createCanvas(500, 500);
-
-
-    // save image
-    const buffer = canvas.toBuffer('image/png');
-    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
-    writeFileSync(join(BASE_DIRNAME, 'temp', 'render-stock.png'), buffer);
-}
+// export function RenderNewEarthquakeImage() {
+//     const SAVE_LOCATION = join(BASE_DIRNAME, 'temp', 'earthquake.png');
+//     const canvas = createCanvas(500, 500);
+//
+//
+//     // save image
+//     const buffer = canvas.toBuffer('image/png');
+//     if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+//     writeFileSync(join(BASE_DIRNAME, 'temp', 'render-stock.png'), buffer);
+// }
 
 
 export async function SendNewReportNow(data: any) {
