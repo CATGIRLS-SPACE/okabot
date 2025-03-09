@@ -3,7 +3,7 @@ import { Message, TextChannel } from "discord.js";
 let last_cached_date: string, last_cached_word: string;
 
 export async function WordleCheck(message: Message) {
-    if (message.channel.id == "1310486655257411594") { // #wordle
+    if (message.channel.id == "1310486655257411594" || message.channel.id == "858904835222667315") { // #wordle
         let d = new Date();
         const month = d.getMonth()+1<10?`0${d.getMonth()+1}`:d.getMonth()+1;
         const day = d.getDate()<10?`0${d.getDate()}`:d.getDate();
@@ -23,7 +23,7 @@ export async function WordleCheck(message: Message) {
             word = last_cached_word;
         }
 
-        if (message.content.toLowerCase().includes(word)) { 
+        if (message.content.toLowerCase().includes(word) && !message.content.startsWith('||') && !message.content.endsWith('||')) {
             message.delete();
             (message.channel as TextChannel).send(`<@!${message.author.id}>, don't spoil today's word!!`);
         }
