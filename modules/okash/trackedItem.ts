@@ -77,6 +77,9 @@ export function GetItemFromSerial(serial: string): TrackableItem | undefined {
 export function UpdateTrackedItem(serial: string, data: {property:'name',value:string} | {property:'flips',amount:number} | {property:'dealt_cards',amount:number}) {
     const item = SerialedItems[serial];
 
+    // if we get an undefined item, it doesn't exist, so just return
+    if (!item) return;
+
     switch (data.property) {
         case 'name':
             item.custom_name = data.value;
