@@ -72,6 +72,11 @@ let dependencies: string = '';
 Object.keys(pj_dep).forEach((key: string) => {
     dependencies += `${key}@${(pj_dep as any)[key]} `;
 });
+const RELEASE_NAMES: {[key: string]: string} = {
+    '4.0.0':'tsrw', // 4.0.0 to 2.0.0 was just tsrw
+    '4.1.0':'Eclair au Chocolat',
+    '4.2.0':'Madeleine'
+}
 
 const NO_LAUNCH = process.argv.includes('--no-launch');
 const DEPLOY = process.argv.includes('--deploy');
@@ -169,7 +174,7 @@ setTimeout(() => {
 
 const HANDLERS: {[key:string]: CallableFunction} = {
     'info': async (interaction: ChatInputCommandInteraction) => {await interaction.deferReply(); await GetInfoEmbed(interaction);},
-    'debug': async (interaction: ChatInputCommandInteraction) => {const d = new Date(); await interaction.reply({content:`okabot (tsrw) v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`, flags:[MessageFlags.Ephemeral]})},
+    'debug': async (interaction: ChatInputCommandInteraction) => {const d = new Date(); await interaction.reply({content:`You are running okabot "${RELEASE_NAMES[version] || 'generic'}" v${version}\nPackages: \`${dependencies}\`\Up since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`, flags:[MessageFlags.Ephemeral]})},
     'okash': HandleCommandOkash,
     'daily': HandleCommandDaily,
     'coinflip': HandleCommandCoinflipV2,
@@ -348,28 +353,28 @@ if (!existsSync(join(__dirname, 'stats.oka'))) writeFileSync(join(__dirname, 'st
 async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     const okawaffles = await client.users.fetch("796201956255334452");
 
-    const stats: CoinFloats = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
-
-    let all_flips = 0;
-    stats.coinflip.all_rolls.forEach(roll => all_flips += roll);
+    // const stats: CoinFloats = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
+    //
+    // let all_flips = 0;
+    // stats.coinflip.all_rolls.forEach(roll => all_flips += roll);
 
     const info_embed = new EmbedBuilder()
-    .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${version} ${GetEmoji(EMOJI.NEKOHEART)}`)
+    .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${version} "${RELEASE_NAMES[version]}" ${GetEmoji(EMOJI.NEKOHEART)}`)
     .setColor(0x9d60cc)
     .setAuthor({
         name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL() 
     })
-    .setDescription('A bot that "serves zero purpose" and exists "just because it can."')
+    .setDescription(`A bot that "serves zero purpose" and exists "just because it can."`)
     .addFields(
         {name:'Development', value: 'okawaffles, tacobella03', inline: true},
-        {name:'Testing', value:'okawaffles, tacobella03', inline: true},
+        {name:'Testing', value:'okawaffles, tacobella03, pankers2, kbgkaden', inline: true},
         {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
-        {name:'Earthquake Information Sources', value:'Japan Meteorological Agency', inline: false},
-        {name:'All-time Highest coinflip float',value:`${stats.coinflip.high.value} by <@${stats.coinflip.high.user_id}>`, inline:true},
-        {name:'All-time Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${stats.coinflip.low.user_id}>`, inline:true},
-        {name:'All-time Average coinflip float',value:`${all_flips/stats.coinflip.all_rolls.length}`, inline:false},
-        {name:'Today\'s Highest coinflip float',value:`${stats.coinflip.daily!.high.value} by <@${stats.coinflip.daily!.high.user_id}>`, inline:true},
-        {name:'Today\'s Lowest coinflip float',value:`${stats.coinflip.daily!.low.value} by <@${stats.coinflip.daily!.low.user_id}>`, inline:true},
+        {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
+        // {name:'All-time Highest coinflip float',value:`${stats.coinflip.high.value} by <@${stats.coinflip.high.user_id}>`, inline:true},
+        // {name:'All-time Lowest coinflip float',value:`${stats.coinflip.low.value} by <@${stats.coinflip.low.user_id}>`, inline:true},
+        // {name:'All-time Average coinflip float',value:`${all_flips/stats.coinflip.all_rolls.length}`, inline:false},
+        // {name:'Today\'s Highest coinflip float',value:`${stats.coinflip.daily!.high.value} by <@${stats.coinflip.daily!.high.user_id}>`, inline:true},
+        // {name:'Today\'s Lowest coinflip float',value:`${stats.coinflip.daily!.low.value} by <@${stats.coinflip.daily!.low.user_id}>`, inline:true},
     )
     .setFooter({text: 'read if cute | thanks for using my bot <3'})
     .setThumbnail(client.user!.avatarURL())
