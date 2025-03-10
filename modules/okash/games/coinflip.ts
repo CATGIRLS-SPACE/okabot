@@ -287,7 +287,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // checking conditions
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
 
-    if (profile.okash.wallet < bet) return interaction.editReply({
+    if (profile.okash.wallet < bet) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!`,
     });
 
