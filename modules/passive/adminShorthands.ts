@@ -1,6 +1,13 @@
 import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
-import {BASE_DIRNAME, BOT_MASTER, CAN_USE_SHORTHANDS, client, LISTENING, SetListening} from "../../index";
+import {
+    BASE_DIRNAME,
+    BOT_MASTER,
+    CAN_USE_SHORTHANDS,
+    client,
+    LISTENING,
+    SetListening
+} from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
@@ -312,6 +319,15 @@ export function RegisterAllShorthands() {
         ReleaseUserGame(params[2]);
         ManualRelease(params[2]);
     });
+
+    // debugging
+    RegisterShorthand('oka induce rejection crash', async () => {
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                reject('!debug rejection');
+            }, 500);
+        });
+    });
 }
 
 export async function CheckForShorthand(message: Message) {
@@ -349,6 +365,8 @@ export async function CheckForShorthand(message: Message) {
         } catch (e) {
             // if ((e as string).includes('WARN')) return;
             await message.react('❌');
+
+            if ((e as string).startsWith('!')) throw new Error(e as string);
 
             return await message.reply(`There was an error processing your shorthand. See here:\n\`${e}\`\n-# admin shorthands v2`);
         }
