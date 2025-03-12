@@ -133,7 +133,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     else AddCasinoWin(interaction.user.id, bet * multiplier, 'slots');
 
     if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
-    if (multiplier == 10) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
+    if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
         `and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)** ${GetEmoji(EMOJI.CAT_MONEY_EYES)}`:

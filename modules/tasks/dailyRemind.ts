@@ -24,6 +24,7 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
         const dd = new Date();
         quickdraw.set(user_id, dd.getTime());
         reminders.delete(user_id);
+        SaveReminders();
     }, time - d.getTime());
 
     SaveReminders();
@@ -53,6 +54,7 @@ export async function LoadReminders() {
             const dd = new Date();
             quickdraw.set(reminder.user_id, dd.getTime());
             reminders.delete(reminder.user_id);
+            SaveReminders();
         }, reminder.time - d.getTime());
     }
 
