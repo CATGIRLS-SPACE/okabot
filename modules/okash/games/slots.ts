@@ -75,13 +75,13 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 
-    ACTIVE_GAMES.set(interaction.user.id, true);
-
     const bet = Math.floor(interaction.options.getNumber('bet', true));
 
     if (GetWallet(interaction.user.id, false) < bet) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough in your wallet!`
     });
+
+    ACTIVE_GAMES.set(interaction.user.id, true);
 
     RemoveFromWallet(interaction.user.id, bet, false);
     const profile = GetUserProfile(interaction.user.id);
