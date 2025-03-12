@@ -267,7 +267,7 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
     const profile = GetUserProfile(interaction.user.id);
     
     RemoveFromWallet(interaction.user.id, 10000+(profile.leveling.level * 500), true);
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.leveling.level * 50)}**!`});
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.leveling.level * 500)}**!`});
     
     AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level, 0));
 }
