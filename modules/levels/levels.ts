@@ -149,22 +149,40 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.restore();
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
-    // beyond label if they have it
-    if (profile.leveling.level > 100) {
+    // labels
+    if (interaction.user.id == "796201956255334452" || interaction.user.id == "502879264081707008") {
         ctx.fillStyle = '#6ef5b6';
         ctx.beginPath();
-        ctx.roundRect(560-86, 10, 80, 25, 12);
+        ctx.roundRect(560-120, 10, 110, 25, 12);
         ctx.fill();
         ctx.closePath();
         ctx.strokeStyle = '#1b3b2c';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.roundRect(560-88, 8, 84, 29, 12);
+        ctx.roundRect(560-122, 8, 113, 28, 12);
         ctx.stroke();
         ctx.closePath();
         ctx.fillStyle = '#1b3b2c';
         ctx.font = 'bold italic 16px Arial'
-        ctx.fillText('BEYOND', 560-81, 28);
+        ctx.fillText('DEVELOPER', 560-116, 28);
+    }
+    // bugtest
+    // 566671009189462038
+    if (interaction.user.id == "566671009189462038" || interaction.user.id == "619655596215369749") {
+        ctx.fillStyle = '#876ef5';
+        ctx.beginPath();
+        ctx.roundRect(560-90, 10, 80, 25, 12);
+        ctx.fill();
+        ctx.closePath();
+        ctx.strokeStyle = '#1b1630';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(560-92, 8, 83, 28, 12);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#1b1630';
+        ctx.font = 'bold italic 16px Arial'
+        ctx.fillText('TESTER', 560-83, 28);
     }
     
 

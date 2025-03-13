@@ -76,6 +76,7 @@ const RELEASE_NAMES: {[key: string]: string} = {
     '4.0.0':'tsrw', // 4.0.0 to 2.0.0 was just tsrw
     '4.1.0':'Éclair au Chocolat',
     '4.1.1':'Éclair aux Fraises',
+    '4.1.2':'Éclar au Vanille',
     '4.2.0':'Madeleine'
 }
 
