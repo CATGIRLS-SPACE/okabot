@@ -33,7 +33,16 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const HypocenterDepth = earthquake.hypocenter.depth.value;
 
     const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName);
-    interaction.editReply({embeds:[embed]});
+    
+    const reports_xml = await fetch('https://www3.nhk.or.jp/sokuho/jishin/data/JishinReport.xml');
+    const report_url = (await reports_xml.text()).split('<item')[1].split('</item>')[0].split('url="')[1].split('"')[0];
+    const specific_xml = await (await fetch(report_url)).text();
+    const image_url = specific_xml.split('<Detail>')[1].split('</Detail>')[0];
+    
+    interaction.editReply({
+        content: image_url?`https://www3.nhk.or.jp/sokuho/jishin/${image_url}`:'No image found for this earthquake. Try again later.',
+        embeds:[embed]
+    });
 }
 
 const SHINDO_IMG: { [key: string]: string } = {
@@ -149,7 +158,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         // }
 
         const embed = await BuildEarthquakeEmbed(
-            new Date(data.earthquake.originTime || 0), 
+            new Date((data.earthquake || {originTime:0}).originTime), 
             data.earthquake.magnitude.value,
             (data.intensity || {maxInt:ShindoValue.ZERO}).maxInt,
             data.earthquake.hypocenter.depth.value, //this is actually depth <-- no shit sherlock??
