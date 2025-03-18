@@ -1,7 +1,7 @@
 import { scheduleJob } from 'node-schedule';
 import { Logger } from 'okayulogger';
 import { join } from 'path';
-import { BASE_DIRNAME, CoinFloats, DEV } from '../..';
+import { BASE_DIRNAME, DEV } from '../../index';
 import { Client, TextChannel } from 'discord.js';
 import { GetEmoji } from '../../util/emoji';
 import { AddXP } from '../levels/onMessage';
@@ -14,6 +14,41 @@ const COINFLIP_MINMAX_BONUS = 5000;
 const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 9 * * 1':'0 * * * * *';
 const BROADCAST_CHANNEL = !DEV?'1019089378343137373':'941843973641736253'; // #chatsies / #okabot-private-test
 const L = new Logger('coinflip reset bonus');
+
+export interface CoinFloats {
+    coinflip:{
+        high: {
+            value: number,
+            user_id: string
+        },
+        low: {
+            value: number,
+            user_id: string
+        },
+        all_time: {
+            high: {
+                value: number,
+                user_id: string
+            },
+            low: {
+                value: number,
+                user_id: string
+            }
+        },
+        daily?: {
+            next: number, // when the next day will start
+            high: {
+                value: number,
+                user_id: string,
+            },
+            low: {
+                value: number,
+                user_id: string
+            }
+        },
+        all_rolls: Array<number>
+    }
+}
 
 let c: Client;
 

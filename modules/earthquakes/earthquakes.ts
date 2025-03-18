@@ -8,7 +8,7 @@ import {
     TextChannel
 } from 'discord.js';
 import {join} from 'path';
-import {BASE_DIRNAME, client, DEV, DMDATA_API_KEY} from '../..';
+import {BASE_DIRNAME, client, DEV, CONFIG} from '../../index';
 import {readFileSync} from 'fs';
 import {GetLatestEarthquake} from './dmdata';
 import {Logger} from 'okayulogger';
@@ -24,7 +24,7 @@ const locations_english: {[key: string]: string} = {};
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
-    const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
+    const earthquake = await GetLatestEarthquake(CONFIG.dmdata_api_key);
 
     // console.log(earthquake);
 
@@ -146,7 +146,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     L.info('Starting Earthquake Monitoring...');
 
     // new
-    SOCKET = new DMDataWebSocket(DMDATA_API_KEY, 'okabot', false);
+    SOCKET = new DMDataWebSocket(CONFIG.dmdata_api_key, 'okabot', false);
     MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // reassign because discordjs is stupid
     const channel = client.channels.cache.get(MONITORING_CHANNEL);
     

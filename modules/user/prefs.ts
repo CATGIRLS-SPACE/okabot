@@ -1,7 +1,7 @@
 import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "fs"
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
-import {BASE_DIRNAME} from "../.."
+import {BASE_DIRNAME} from "../../index"
 import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"

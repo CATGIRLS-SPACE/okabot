@@ -1,6 +1,6 @@
 import {Client, MessageFlags, TextChannel, VoiceState} from "discord.js";
 import { Logger } from "okayulogger";
-import { BASE_DIRNAME, DEV } from "../..";
+import { BASE_DIRNAME, DEV } from "../../index";
 import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";

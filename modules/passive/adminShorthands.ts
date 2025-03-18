@@ -2,9 +2,7 @@ import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
-    BOT_MASTER,
-    CAN_USE_SHORTHANDS,
-    client,
+    client, CONFIG,
     LISTENING,
     SetListening
 } from "../../index";
@@ -332,7 +330,7 @@ export function RegisterAllShorthands() {
 
 export async function CheckForShorthand(message: Message) {
     if (!message.content.startsWith('oka ')) return;
-    if (!CAN_USE_SHORTHANDS.includes(message.author.id) && message.author.id != BOT_MASTER) {
+    if (!CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
         await message.reply({
             content:'https://bot.lilycatgirl.dev/gif/nibuthrow.gif'
         });
@@ -344,11 +342,11 @@ export async function CheckForShorthand(message: Message) {
     const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
 
     // if you can use shorthands but aren't the bot master, you aren't permitted to use them on yourself or the bot master
-    if (CAN_USE_SHORTHANDS.includes(message.author.id) && message.author.id != BOT_MASTER) {
-        if (params[2] == 'me' || params[2] == BOT_MASTER) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
+    if (CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
+        if (params[2] == 'me' || params[2] == CONFIG.bot_master) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
         if (params[2] == 'them' &&
             message.reference &&
-            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == BOT_MASTER ||
+            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == CONFIG.bot_master ||
             (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == message.author.id
         ) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
     }

@@ -34,9 +34,10 @@ import {HandleCommandRob} from "./modules/okash/games/rob";
 import {HandleCommandAchievements} from "./modules/passive/achievement";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {HandleCommandPair} from "./modules/http/pairing";
-import {HandleCommandCasino} from "./modules/okash/casinodb";
+import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
 import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
+import {StartHTTPServer} from "./modules/http/server";
 
 
 const L = new Logger('main');
@@ -54,6 +55,8 @@ export const client = new Client({
         Partials.Reaction
     ]
 });
+
+// some constants
 export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
 const RELEASE_NAME = ({
     '4.0.0':'tsrw', // 4.0.0 to 2.0.0 was just tsrw
@@ -62,6 +65,14 @@ const RELEASE_NAME = ({
     '4.1.2':'Éclar au Vanille',
     '4.2.0':'Madeleine'
 } as {[key: string]: string})[VERSION];
+export const BASE_DIRNAME = __dirname;
+export let LISTENING = true;
+
+/**
+ * Toggle whether okabot should listen to commands or not.
+ * @param active Whether it should be listening to commands or not
+ */
+export function SetListening(active: boolean) {LISTENING = active}
 
 /**
  * Start the bot and log in
@@ -81,6 +92,8 @@ async function StartBot() {
  */
 async function RunPreStartupTasks() {
     L.info(`Starting okabot v${VERSION} ${RELEASE_NAME}`);
+
+    LoadCasinoDB();
 }
 
 /**
@@ -88,11 +101,15 @@ async function RunPreStartupTasks() {
  */
 async function RunPostStartupTasks() {
     L.info(`Successfully logged in as ${client.user?.tag}!`);
+
+    StartHTTPServer(client);
 }
 
 
 // Execution starts here!
 if (!existsSync(join(__dirname, 'config.json'))) { L.error('No configuration file found!'); process.exit(-1) }
+
+// more constants that require config to be loaded
 export const CONFIG: {
     token: string,
     devtoken: string,

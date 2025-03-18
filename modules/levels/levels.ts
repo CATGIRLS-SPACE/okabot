@@ -1,6 +1,6 @@
 import { AttachmentBuilder, ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME } from "../../index";
 import { join, resolve } from "path";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";

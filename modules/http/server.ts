@@ -1,6 +1,6 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
-import { BASE_DIRNAME, DEV } from '../..';
+import { BASE_DIRNAME, DEV } from '../../index';
 import { Client, EmbedBuilder, MessageFlags, TextChannel, User } from 'discord.js';
 import { join } from 'path';
 import { CheckUserShares, GetSharePrice, Stocks } from '../okash/stock';

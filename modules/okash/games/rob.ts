@@ -3,7 +3,7 @@ import {AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet} from 
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {join} from "node:path";
-import {BASE_DIRNAME} from "../../..";
+import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
 

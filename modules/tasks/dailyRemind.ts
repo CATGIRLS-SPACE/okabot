@@ -1,6 +1,6 @@
 import { Snowflake, TextChannel } from "discord.js";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME, client } from "../..";
+import { BASE_DIRNAME, client } from "../../index";
 import { join } from "path";
 
 const reminders = new Map<Snowflake, {time: number, channel: Snowflake}>();

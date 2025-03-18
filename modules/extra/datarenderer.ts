@@ -2,7 +2,7 @@ import {CanvasRenderingContext2D, createCanvas} from "canvas";
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { BASE_DIRNAME, CoinFloats } from "../..";
+import { BASE_DIRNAME, CoinFloats } from "../../index";
 import { GetLastNumValues, Stocks } from "../okash/stock";
 import {GetCasinoDB} from "../okash/casinodb";
 

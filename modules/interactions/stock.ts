@@ -7,7 +7,7 @@ import { HandleCommandLink } from "./link";
 import { createCanvas, loadImage } from "canvas";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME } from "../../index";
 
 
 const STRINGS: { [key: string]: { en: string, ja: string } } = {
