@@ -26,6 +26,8 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const earthquake = await GetLatestEarthquake(DMDATA_API_KEY);
 
+    // console.log(earthquake);
+
     const OriginTime = new Date(earthquake.originTime);
     const Magnitude = earthquake.magnitude.value;
     const MaxInt = earthquake.maxInt;
@@ -38,10 +40,13 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const report_url = (await reports_xml.text()).split('<item')[1].split('</item>')[0].split('url="')[1].split('"')[0];
     const specific_xml = await (await fetch(report_url)).text();
     const image_url = specific_xml.split('<Detail>')[1].split('</Detail>')[0];
+
+    const embeds = [embed];
+    if ('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId) embeds.push(new EmbedBuilder().setImage(`https://www3.nhk.or.jp/sokuho/jishin/${image_url}`));
     
     interaction.editReply({
-        content: image_url?`https://www3.nhk.or.jp/sokuho/jishin/${image_url}`:'No image found for this earthquake. Try again later.',
-        embeds:[embed]
+        content: (('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId)?``:'No image rendered for this earthquake. Try again later.\n')+'-# Earthquake image is unofficially provided by NHK.',
+        embeds
     });
 }
 

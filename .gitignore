@@ -5,7 +5,7 @@ config.json
 /modules/**/*.js
 /util/*.js
 index.js
-index_new.js
+new_index.js
 .vscode/
 *.oka
 ERROR.LOG
