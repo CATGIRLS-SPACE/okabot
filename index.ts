@@ -97,7 +97,7 @@ async function StartBot() {
 
     if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 
-    client.once('ready', () => {
+    client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
     });
 }

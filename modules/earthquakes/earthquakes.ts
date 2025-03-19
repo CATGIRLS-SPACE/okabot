@@ -155,17 +155,12 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         // make embed
         console.log(data);
 
-        // if (!data.intensity) {
-        //     return (channel as TextChannel)!.send({
-        //         content:'`WebSocketEvent.EARTHQUAKE_REPORT` was fired, but there was no `data.intensity`, so i\'m just gonna skip it! the real one should come soon!\n\nthis message is purely for debugging purposes -lily',
-        //         flags: [MessageFlags.SuppressNotifications]
-        //     })
-        // }
+        if (!data.intensity) return;
 
         const embed = await BuildEarthquakeEmbed(
             new Date((data.earthquake || {originTime:0}).originTime), 
             data.earthquake.magnitude.value,
-            (data.intensity || {maxInt:ShindoValue.ZERO}).maxInt,
+            data.intensity.maxInt,
             data.earthquake.hypocenter.depth.value, //this is actually depth <-- no shit sherlock??
             data.earthquake.hypocenter.name, 
             true
