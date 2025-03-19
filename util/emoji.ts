@@ -1,4 +1,5 @@
 import { DEV } from ".."
+import {warn} from "okayulogger";
 
 export enum EMOJI {
     OKASH = 'okash',
@@ -112,7 +113,32 @@ const EMOJI_KEYS: {
     'c10':{prod:'1317726293542047756',dev:'1317728249551388683'},
     'cr':{prod:'1317726312986837033',dev:'1317728273823698974'},
     'cb':{prod:'1324870295755952259',dev:'1324870922859053106'},
+    // trans theme (no changed number cards so just keep them the same)
     'cb_t':{prod:'1346632054221180978',dev:'1346604850993037463'},
+    'ca_t':{prod:'1317726303541006367',dev:'1317728258652901447'},
+    'c2_t':{prod:'1317726214240206848',dev:'1317728181352009788'},
+    'c3_t':{prod:'1317726223744630834',dev:'1317728189912711208'},
+    'c4_t':{prod:'1317726232409800745',dev:'1317728197185634355'},
+    'c5_t':{prod:'1317726240714784828',dev:'1317728203967692852'},
+    'c6_t':{prod:'1317726251883958273',dev:'1317728211995459747'},
+    'c7_t':{prod:'1317726264844353566',dev:'1317728221537501344'},
+    'c8_t':{prod:'1317726276663906314',dev:'1317728233738731611'},
+    'c9_t':{prod:'1317726285799227493',dev:'1317728241359917126'},
+    'c10_t':{prod:'1317726293542047756',dev:'1317728249551388683'},
+    'cr_t':{prod:'1317726312986837033',dev:'1317728273823698974'},
+    // sakura card deck
+    'cb_s':{prod:'',dev:'1352041293580075059'},
+    'ca_s':{prod:'',dev:'1352041112960897184'},
+    'c2_s':{prod:'',dev:'1352041006278905996'},
+    'c3_s':{prod:'',dev:'1352041014361067661'},
+    'c4_s':{prod:'',dev:'1352041026273017988'},
+    'c5_s':{prod:'',dev:'1352041037534597140'},
+    'c6_s':{prod:'',dev:'1352041048305827851'},
+    'c7_s':{prod:'',dev:'1352041057772371988'},
+    'c8_s':{prod:'',dev:'1352041069298323476'},
+    'c9_s':{prod:'',dev:'1352041080073486366'},
+    'c10_s':{prod:'',dev:'1352041094166089819'},
+    'cr_s':{prod:'',dev:'1352041125560451112'},
     // shindo
     'eq1':{prod:'1335463075809071252','dev':'1335475246710657077'},
     'eq2':{prod:'1335463119052603453','dev':'1335475262606803035'},
@@ -133,12 +159,18 @@ const EMOJI_KEYS: {
     'adh':{prod:'1339366883492626473',dev:'1339366408055816232'},
     'adex':{prod:'1339366891881365624',dev:'1339366418386522152'},
     // slots
-    'smr':{prod:'1342264041623781386',dev:'1342264086377005086', animated: true}
+    'smr':{prod:'1342264041623781386',dev:'1342264086377005086', animated: true},
 }
 
 export function GetEmoji(name: string): string {
+    if (!EMOJI_KEYS[name]) return `[:question:]`;
     return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][DEV?'dev':'prod']}>`;
 }
 export function GetEmojiID(name: string): string {
     return EMOJI_KEYS[name][DEV?'dev':'prod'];
+}
+
+for (const key in EMOJI_KEYS) {
+    const emoji = EMOJI_KEYS[key];
+    if (emoji.prod == '') warn('emoji', `Emoji ID ${key} is missing a production snowflake!`);
 }

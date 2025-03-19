@@ -181,9 +181,8 @@ const row_blackjack = new ActionRowBuilder()
 
 
 function GetCardThemed(id: string, theme: CUSTOMIZATION_UNLOCKS) {
-    const themes: {[key:number]: string} = {12:'',13:'_t'};
-    // only back of card is supported atm cuz im LAZY!!!!
-    return id=='cb'?GetEmoji(`${id}${themes[theme]}`):GetEmoji(id);
+    const themes: {[key:number]: string} = {12:'',13:'_t',14:'_s'};
+    return GetEmoji(`${id}${themes[theme]}`);
 }
 
 export async function SetupBlackjackMessage(interaction: ChatInputCommandInteraction) {

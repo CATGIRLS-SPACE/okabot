@@ -2,9 +2,13 @@ import {ChatInputCommandInteraction, Locale, SlashCommandBuilder} from "discord.
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetItemFromSerial} from "../okash/trackedItem";
+import {GetItemFromSerial, TrackableCardDeck} from "../okash/trackedItem";
 import {COIN_EMOJIS_DONE} from "../okash/games/coinflip";
 
+export const DECK_EMOJIS: {[key:number]: string} = {
+    12: EMOJI.CARD_BACK,
+    13: 'cb_t'
+}
 
 const tradable_items: {[key: string]: {type:'item'|'cust', id: ITEMS | CUSTOMIZATION_UNLOCKS}} = {
     'red coin': {type:'cust',id:CUSTOMIZATION_UNLOCKS.COIN_RED},
@@ -82,9 +86,13 @@ export async function HandleCommandTrade(interaction: ChatInputCommandInteractio
         UpdateUserProfile(interaction.user.id, sender_profile);
         UpdateUserProfile(receiver.id, receiver_profile);
 
-        // only coins are supported
+        let emoji;
+
+        if (tracked_item.type == "coin") emoji = GetEmoji(COIN_EMOJIS_DONE[tracked_item.data.base]);
+        if (tracked_item.type == "deck") emoji = GetEmoji(DECK_EMOJIS[tracked_item.data.base])
+
         return interaction.editReply({
-            content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, you gave your **Tracked:tm: ${GetEmoji(COIN_EMOJIS_DONE[tracked_item.data.base])} ${CUSTOMIZTAION_ID_NAMES[tracked_item.data.base]}** to **${receiver.displayName}**!`
+            content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, you gave your **Tracked:tm: ${emoji} ${CUSTOMIZTAION_ID_NAMES[tracked_item.data.base]}** to **${receiver.displayName}**!`
         });
     }
 

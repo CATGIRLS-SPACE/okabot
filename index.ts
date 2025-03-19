@@ -10,6 +10,27 @@ import {
     Snowflake,
     TextChannel
 } from "discord.js";
+
+// Load config BEFORE imports, otherwise devmode doesn't load emojis properly
+const L = new Logger('main');
+
+if (!existsSync(join(__dirname, 'config.json'))) { L.fatal('No configuration file found!'); process.exit(-1) }
+export const CONFIG: {
+    token: string,
+    devtoken: string,
+    clientId: Snowflake,
+    devclientId: Snowflake,
+    status: {
+        type: number,
+        activity: string,
+    },
+    extra: Array<string>,
+    dmdata_api_key: string,
+    bot_master: Snowflake,
+    permitted_to_use_shorthands: Array<Snowflake>
+} = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
+export const DEV = CONFIG.extra.includes('use dev token');
+
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
 import {HandleCommandCoinflipV2} from "./modules/okash/games/coinflip";
@@ -52,7 +73,6 @@ import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 
 
-const L = new Logger('main');
 export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -74,7 +94,7 @@ const RELEASE_NAME = ({
     '4.0.0':'tsrw', // 4.0.0 to 2.0.0 was just tsrw
     '4.1.0':'Éclair au Chocolat',
     '4.1.1':'Éclair aux Fraises',
-    '4.1.2':'Éclar au Vanille',
+    '4.1.2':'Éclair au Vanille',
     '4.2.0':'Madeleine'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
@@ -135,26 +155,7 @@ async function RunPostStartupTasks() {
     });
 }
 
-
-// Execution starts here!
-if (!existsSync(join(__dirname, 'config.json'))) { L.error('No configuration file found!'); process.exit(-1) }
-
-// more constants that require config to be loaded
-export const CONFIG: {
-    token: string,
-    devtoken: string,
-    clientId: Snowflake,
-    devclientId: Snowflake,
-    status: {
-        type: number,
-        activity: string,
-    },
-    extra: Array<string>,
-    dmdata_api_key: string,
-    bot_master: Snowflake,
-    permitted_to_use_shorthands: Array<Snowflake>
-} = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-export const DEV = CONFIG.extra.includes('use dev token');
+// Execution Starts here
 
 StartBot();
 

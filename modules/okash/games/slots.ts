@@ -56,6 +56,9 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'GOO':5,    // 1x grape 2x okash
     'OAO':5,    // you get the point
     'OGO':5,
+    'OOE':5,
+    'OEO':5,
+    'EOO':5,
     'OOO':10,   // 3x okash
     'EEA':15,   // 2x gem 1x any other
     'EEG':15,

@@ -48,7 +48,7 @@ export enum CUSTOMIZATION_UNLOCKS {
     CV_LEVEL_BAR_OKABOT,
     DECK_DEFAULT,
     DECK_TRANS,
-    UNUSED_CUST_ID_14,
+    DECK_SAKURA,
     UNUSED_CUST_ID_15,
     COIN_DGREEN, // normal green = reserved for weighted coin
     COIN_RAINBOW,
@@ -68,7 +68,8 @@ export const CUSTOMIZTAION_ID_NAMES: {[key: number]: string} = {
     12:'Default Card Deck',
     13:'Trans Card Deck',
     16:'Dark Green Coin',
-    17:'Rainbow Coin'
+    17:'Rainbow Coin',
+    18:'Cherry Blossom Card Deck'
 }
 
 export enum ITEM_TYPE {

@@ -63,7 +63,11 @@ const VALID_DECK_TYPES: {
     'trans card deck': CUSTOMIZATION_UNLOCKS.DECK_TRANS,
     'tcd': CUSTOMIZATION_UNLOCKS.DECK_TRANS,
     'default card deck': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
-    'dcd': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT
+    'dcd': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
+    'sakura card deck': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
+    'scd': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
+    'cherry blossom card deck': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
+    'cbcd': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
 }
 
 async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
