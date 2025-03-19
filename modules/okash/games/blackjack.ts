@@ -2,7 +2,7 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction, Message,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake,
@@ -480,6 +480,47 @@ function CloneArray(array: Array<any>): Array<any> {
     });
 
     return cloned;
+}
+
+/**
+ * If the user asks if they should hit, do some fun
+ * calculations and figure out whether they should or shouldn't.
+ */
+export async function CheckBlackjackSilly(message: Message) {
+    if (!message.content.toLowerCase().includes('should i hit')) return;
+
+    // get their game if they have one
+    if (!GamesActive.has(message.author.id)) return;
+    const game = GamesActive.get(message.author.id)!;
+
+    if (TallyCards(game.user) == 21) return message.reply(":cat: Well, seeing as you've got a blackjack, no");
+
+    const amount_to_bust = 21 - TallyCards(game.user);
+
+    const deck: Array<HandCard> = CloneArray(game.deck);
+
+    // put okabot's cards back in the deck so you can't cheat to figure out what he has
+    for (const card of game.dealer) deck.push(card);
+
+    let winning_cards = 0;
+    let losing_cards = 0;
+
+    for (const card of deck) {
+        // if (card.name == 'ca' && amount_to_bust > 1) card.value = 1; else card.value = 11; // the else probably isn't necessary but it's nice to be able to see
+
+        if (card.value > amount_to_bust) losing_cards++;
+        if (card.value <= amount_to_bust) winning_cards++;
+    }
+
+    const chance = Math.round(winning_cards/44 * 100);
+    let choice = "";
+
+    if (chance <= 40) choice = "so this time I'd probably stand";
+    if (chance > 40 && chance < 70) choice = Math.random()>0.5?"so I'd choose to hit":"but I'd choose to stand";
+    if (chance >= 70) choice = "so I'd probably hit";
+
+    if (winning_cards > losing_cards) return message.reply(`:cat: Hmmm... Looks like you have a ~${chance}% of winning, ${choice}`);
+    if (losing_cards > winning_cards) return message.reply(`:cat: Hmmm... Looks like you have a ~${100-chance}% of losing, ${choice}`);
 }
 
 

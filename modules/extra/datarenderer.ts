@@ -2,9 +2,10 @@ import {CanvasRenderingContext2D, createCanvas} from "canvas";
 import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { BASE_DIRNAME, CoinFloats } from "../../index";
+import { BASE_DIRNAME } from "../../index";
 import { GetLastNumValues, Stocks } from "../okash/stock";
 import {GetCasinoDB} from "../okash/casinodb";
+import {CoinFloats} from "../tasks/cfResetBonus";
 
 
 export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandInteraction) {
@@ -43,7 +44,7 @@ export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandI
     
     // create a tick for each of them and do an average
     let total = 0;
-    stats.coinflip.all_rolls.forEach(roll => {
+    stats.coinflip.all_rolls.forEach((roll: number) => {
         total += roll;
         const x = 25 + (500*roll);
         ctx.fillStyle = randomColor();
@@ -61,7 +62,7 @@ export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandI
     ctx.fillText(`dmin/dmax: ${stats.coinflip.daily!.low.value} / ${stats.coinflip.daily!.high.value}`, 4, 36);
     let nwc_win = 0;
     let wc_win = 0;
-    stats.coinflip.all_rolls.forEach(roll => {
+    stats.coinflip.all_rolls.forEach((roll: number) => {
         if (roll >= 0.5) nwc_win += 1;
         if (roll >= 0.3) wc_win += 1;
     });

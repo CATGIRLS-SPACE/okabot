@@ -16,7 +16,7 @@ import {
     UpdateUserProfile
 } from "../../user/prefs";
 import {readFileSync, writeFileSync} from "fs";
-import {BASE_DIRNAME, CoinFloats} from "../../../index";
+import {BASE_DIRNAME} from "../../../index";
 import {join} from "path";
 import {AddXP} from "../../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
@@ -26,6 +26,7 @@ import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZTAION_ID_NAMES} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
+import {CoinFloats} from "../../tasks/cfResetBonus";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();

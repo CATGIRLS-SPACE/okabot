@@ -73,7 +73,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
         for (const unlock of profile.customization.unlocked) {
             if (!UNLOCK_NAMES[unlock].hide) fields.push({
-                name: UNLOCK_NAMES[unlock].name, value: UNLOCK_NAMES[unlock].desc
+                name: (UNLOCK_NAMES[unlock] || {name:'Unknown Item'}).name, value: (UNLOCK_NAMES[unlock] || {name:'I dunno what this is!'}).desc
             })
         }
     } else if (page == 'items') {

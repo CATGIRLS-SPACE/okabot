@@ -13,9 +13,9 @@ import {
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
 import {HandleCommandCoinflipV2} from "./modules/okash/games/coinflip";
-import {SetupBlackjackMessage} from "./modules/okash/games/blackjack";
+import {CheckBlackjackSilly, SetupBlackjackMessage} from "./modules/okash/games/blackjack";
 import {HandleCommandPay} from "./modules/interactions/pay";
-import {GetMostRecent} from "./modules/earthquakes/earthquakes";
+import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
 import {HandleCommandUse} from "./modules/interactions/use";
 import {HandleCommandShop} from "./modules/interactions/shop";
@@ -29,7 +29,7 @@ import {GenerateCoinflipDataDisplay} from "./modules/extra/datarenderer";
 import {HandleCommandStock} from "./modules/interactions/stock";
 import {HandleCommandHelp} from "./modules/interactions/help";
 import {HandleCommandTransfer} from "./modules/interactions/transfer";
-import {HandleCommandRoulette} from "./modules/okash/games/roulette";
+import {HandleCommandRoulette, ListenForRouletteReply} from "./modules/okash/games/roulette";
 import {HandleCommandRob} from "./modules/okash/games/rob";
 import {HandleCommandAchievements} from "./modules/passive/achievement";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
@@ -38,6 +38,18 @@ import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
 import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {StartHTTPServer} from "./modules/http/server";
+import {CheckForFunMessages} from "./modules/passive/funResponses";
+import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
+import {DoLeveling} from "./modules/levels/onMessage";
+import {CheckForAgreementMessage, CheckRuleAgreement} from "./modules/user/rules";
+import {WordleCheck} from "./modules/extra/wordle";
+import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
+import {DoRandomDrops} from "./modules/passive/onMessage";
+import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
+import {DeployCommands} from "./modules/deployment/commands";
+import {SetupPrefs} from "./modules/user/prefs";
+import {LoadReminders} from "./modules/tasks/dailyRemind";
+import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 
 
 const L = new Logger('main');
@@ -67,6 +79,9 @@ const RELEASE_NAME = ({
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
+// non-exported
+const NO_LAUNCH = process.argv.includes('--no-launch');
+const DEPLOY_COMMANDS = process.argv.includes('--deploy');
 
 /**
  * Toggle whether okabot should listen to commands or not.
@@ -80,7 +95,7 @@ export function SetListening(active: boolean) {LISTENING = active}
 async function StartBot() {
     await RunPreStartupTasks();
 
-    await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
+    if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 
     client.once('ready', () => {
         RunPostStartupTasks();
@@ -93,7 +108,16 @@ async function StartBot() {
 async function RunPreStartupTasks() {
     L.info(`Starting okabot v${VERSION} ${RELEASE_NAME}`);
 
-    LoadCasinoDB();
+    if (DEPLOY_COMMANDS) DeployCommands(!DEV?CONFIG.token:CONFIG.devtoken, !DEV?CONFIG.clientId:CONFIG.devclientId);
+    if (NO_LAUNCH) process.exit(0);
+
+    LoadCasinoDB(); // load casino games stats
+    RegisterAllShorthands(); // register all "oka [etc...]" shorthands
+    SetupPrefs(__dirname); // setup user profiles
+    LoadVoiceData(); // load voice data that might have been lost on restart
+    LoadReminders(); // load daily reminders
+    ScheduleJob(client); // schedule the coinflip reset bonus
+    LoadSerialItemsDB(); // load the tracked item database
 }
 
 /**
@@ -103,6 +127,12 @@ async function RunPostStartupTasks() {
     L.info(`Successfully logged in as ${client.user?.tag}!`);
 
     StartHTTPServer(client);
+    StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
+
+    client.user!.setActivity({
+        name: CONFIG.status.activity,
+        type: CONFIG.status.type
+    });
 }
 
 
@@ -166,9 +196,20 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) return;
 
+    // this should never trigger but its a catch just in case it does happen somehow
+    if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({
+        content:`:x: Sorry, **${interaction.user.displayName}**, but I'm not allowed to execute commands in DMs!`,
+        flags: [MessageFlags.Ephemeral]
+    });
+
     if (!HANDLERS[interaction.commandName]) return interaction.reply('No registered handler for this command. This is a bug.');
 
+    if (!LISTENING) return interaction.reply(`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to not respond to commands for now!`);
+
     L.info(`Execute command "${interaction.commandName}"`);
+
+    const has_agreed = await CheckRuleAgreement(interaction);
+    if (!has_agreed) return L.info('No rule agreement, halting'); // will automatically be replied to if no agreement
 
     HANDLERS[interaction.commandName](interaction);
 });
@@ -190,7 +231,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         .setDescription(`A bot that "serves zero purpose" and exists "just because it can."`)
         .addFields(
             {name:'Development', value: 'okawaffles, tacobella03', inline: true},
-            {name:'Testing', value:'okawaffles, tacobella03, pankers2, kbgkaden', inline: true},
+            {name:'Testing', value:'okawaffles, tacobella03, pampers2, kbgkaden', inline: true},
             {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
         )
@@ -199,6 +240,53 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 
     interaction.editReply({embeds:[info_embed]});
 }
+
+
+// Message handlers
+
+client.on(Events.MessageCreate, async message => {
+    if (message.author.id == client.user!.id) return; // don't listen to my own messages
+    if (message.author.bot || message.webhookId) return; // don't listen to bot or webhook messages
+    if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
+
+    // various checks
+    CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
+    DoLeveling(message); // self-explanatory
+    CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
+    WordleCheck(message); // checks for wordle spoilers
+    CheckForShorthand(message); // checks for shorthands like "oka update" etc...
+    DoRandomDrops(message); // drops!
+    ListenForRouletteReply(message); // checks for number in response to roulette game
+    Check$Message(message); // checks for $ messages, for serials on tracked items
+    CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
+
+    // minecraft server
+    if (message.channel.id == "1321639990383476797") { // #mc-live-chat
+        let final_message = message.content;
+
+        if (message.reference) {
+            let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+            final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
+        }
+
+        // send the message to the minecraft server
+        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+            method: 'POST',
+            body: JSON.stringify({
+                username: `@${message.author.username}`,
+                message: final_message
+            })
+        });
+    }
+});
+
+
+// Voice handlers
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+    HandleVoiceEvent(client, oldState, newState);
+});
+
 
 // Error Handlers
 

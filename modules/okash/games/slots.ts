@@ -5,6 +5,7 @@ import { AddXP } from "../../levels/onMessage";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
+import {DEV} from "../../../index";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -74,6 +75,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
+
+    if (DEV) ROLL_EMOJIS['OKASH'] = GetEmoji(EMOJI.OKASH);
 
     const bet = Math.floor(interaction.options.getNumber('bet', true));
 
