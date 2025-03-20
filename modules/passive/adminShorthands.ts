@@ -234,13 +234,13 @@ export function RegisterAllShorthands() {
     // bans
 
     RegisterShorthand('oka rs ', async (message: Message, params: string[]) => {
-         if (params.length < 6) throw new Error("not enough parameters. usage: oka rs [Snowflake | them] [expiry date] [abilities] [reason]");
+         if (params.length < 6) throw new Error("not enough parameters. usage: oka rs [Snowflake | them] [expiry date] [reason]");
          if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
 
          const user = client.users.cache.get(params[2]);
 
          // i could simplify this with "...params[]" probably but im lazy
-         RestrictUser(message.client, params[2], params[3], params[4], params[5]);
+         RestrictUser(message.client, params[2], params[3], params[4]);
 
          message.reply(`Enabled the restriction flag for **${user?.username || params[2]}**`);
     });

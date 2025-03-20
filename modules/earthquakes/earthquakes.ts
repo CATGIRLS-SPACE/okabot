@@ -75,6 +75,18 @@ const SHINDO_IMG: { [key: string]: string } = {
 // }
 
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
+    if (max_intensity == null || depth == null || magnitude == null) return new EmbedBuilder()
+        .setColor(0xf76565)
+        .setTitle('The most recent earthquake occurred overseas')
+        .setAuthor({name: 'Project DM-D.S.S'})
+        .setTimestamp(origin_time)
+        .setDescription('I\'m missing some information on this earthquake, so I can\'t display the full embed')
+        .setFields(
+            {name: 'Location', value: locations_english[hypocenter_name] || `No English localization for "${hypocenter_name}" found`}
+        )
+        .setThumbnail(`https://bot.lilycatgirl.dev/shindo/unknown.png`);
+
+
     return new EmbedBuilder()
         .setColor(0x9d60cc)
         .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : 'Most recent earthquake in Japan')

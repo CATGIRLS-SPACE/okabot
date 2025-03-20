@@ -71,6 +71,7 @@ import {DeployCommands} from "./modules/deployment/commands";
 import {SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
+import {IsUserBanned} from "./modules/user/administrative";
 
 
 export const client = new Client({
@@ -115,11 +116,11 @@ export function SetListening(active: boolean) {LISTENING = active}
 async function StartBot() {
     await RunPreStartupTasks();
 
-    if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
-
     client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
     });
+
+    if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 }
 
 /**
@@ -128,7 +129,7 @@ async function StartBot() {
 async function RunPreStartupTasks() {
     L.info(`Starting okabot v${VERSION} ${RELEASE_NAME}`);
 
-    if (DEPLOY_COMMANDS) DeployCommands(!DEV?CONFIG.token:CONFIG.devtoken, !DEV?CONFIG.clientId:CONFIG.devclientId);
+    if (DEPLOY_COMMANDS) await DeployCommands(!DEV?CONFIG.token:CONFIG.devtoken, !DEV?CONFIG.clientId:CONFIG.devclientId);
     if (NO_LAUNCH) process.exit(0);
 
     LoadCasinoDB(); // load casino games stats
@@ -154,10 +155,6 @@ async function RunPostStartupTasks() {
         type: CONFIG.status.type
     });
 }
-
-// Execution Starts here
-
-StartBot();
 
 // Command and message handlers
 
@@ -193,9 +190,14 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade
 }
 
+
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) return;
+
+    // if a user is super banned, okabot just won't respond to them
+    // this is implemented but not used because this is a private bot rn
+    // if (IsUserBanned(interaction.user.id)) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
     if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({
@@ -325,3 +327,8 @@ process.on('unhandledRejection', async (reason: any) => {
         logError(reason);
     }
 });
+
+
+// Execution Starts here
+
+StartBot();

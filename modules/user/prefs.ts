@@ -275,7 +275,7 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
 }
 
 
-export function RestrictUser(client: Client, user_id: string, until: string, abilities: string, reason: string) {
+export function RestrictUser(client: Client, user_id: string, until: string, reason: string) {
     const d = new Date(until);
 
     // update their account
@@ -284,14 +284,14 @@ export function RestrictUser(client: Client, user_id: string, until: string, abi
         active: true,
         until: d.getTime(),
         reason,
-        abilities
+        abilities: 'all'
     };
     
     UpdateUserProfile(user_id, profile);
     const embed = new EmbedBuilder()
         .setColor(0xFF0000)
         .setTitle('Important Account Update')
-        .setDescription('You have received a restriction for your behavior with the bot. You are unable to use some okash features until the restriction is lifted.')
+        .setDescription('Your account has been restricted. You are unable to use some okabot and its features until the restriction is lifted. Until then, okabot will not respond to any of your commands, and you will receive an error stating "The application did not respond."')
         .addFields(
             {name:'Reason', value:reason},
             {name:'Expires', value:d.toDateString() + ' at ' + d.toLocaleTimeString()}

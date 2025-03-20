@@ -32,6 +32,15 @@ const AVAILABLE_CUSTOMIZATIONS_PROFILE = new EmbedBuilder()
         {name:`Reset Level Bar - Free`,value:`Resets your level bar to the default colors.`},
     )
 
+const AVAILABLE_CUSTOMIZATIONS_DECK = new EmbedBuilder()
+    .setTitle('Available card decks to buy with your okash')
+    .setAuthor({name:'okabot Shop'})
+    .setColor(0x9d60cc)
+    .setFields(
+        {name:`${GetEmoji('cb_t')}${GetEmoji('c5_t')}${GetEmoji('cr_t')} Trans Card Deck - ${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**25,000**`,value:`A card deck no different than the rest, but it lets you know that being trans is OK!`},
+        {name:`${GetEmoji('cb_s')}${GetEmoji('c5_s')}${GetEmoji('cr_s')} Cherry Blossom Card Deck - ${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**50,000**`,value:`A card deck with pretty flowers and pink numbers on it.`},
+    )
+
 export async function HandleCommandShop(interaction: ChatInputCommandInteraction) {
 
     switch (interaction.options.getString('page')) {
@@ -62,6 +71,10 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
             interaction.reply({embeds:[AVAILABLE_CUSTOMIZATIONS_COIN]});
             break;
 
+        case 'customization.card':
+            interaction.reply({embeds:[AVAILABLE_CUSTOMIZATIONS_DECK]});
+            break;
+
         case 'customization.profile':
             interaction.reply({embeds:[AVAILABLE_CUSTOMIZATIONS_PROFILE]});
             break;
@@ -74,10 +87,14 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
 
 
 export const ShopSlashCommand = new SlashCommandBuilder()
-    .setName('shop').setNameLocalization('ja', 'カタログ')
-    .setDescription('Get the shop item and price listings').setDescriptionLocalization('ja', 'アイテムのカタログを見る')
-    .addStringOption(option => option.setName('page').setDescription('The shop category to display').addChoices(
+    .setName('shop').setNameLocalizations({ja:'カタログ'})
+    .setDescription('Get the shop item and price listings').setDescriptionLocalization('ja', 'アイテムのカタログと値段を見る')
+    .addStringOption(option => option
+    .setName('page').setDescriptionLocalizations({ja:'ページ'})
+    .setDescription('The shop category to display').setDescriptionLocalizations({ja:'カタログのカテゴリー'})
+    .addChoices(
         {name:'Items', value: 'gems', name_localizations:{ja:'アイテム'}},
         {name:'Customization - Coinflip', value:'customization.coin', name_localizations:{ja:'コイントスのカスタマイズ'}},
+        {name:'Customization - Card Games', value:'customization.card', name_localizations:{ja:'カードゲームのカスタマイズ'}},
         {name:'Customization - Profile', value:'customization.profile', name_localizations:{ja:'プロフィールのカスタマイズ'}},
     ).setRequired(true))

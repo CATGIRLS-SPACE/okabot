@@ -38,7 +38,7 @@ const InfoSlashCommand =
 const DebugSlashCommand = 
     new SlashCommandBuilder()
         .setName('debug')
-        .setDescription('Replies with debug info');
+        .setDescription('Replies with some debug info');
 
 
 
@@ -71,20 +71,24 @@ const COMMANDS_TO_REGISTER = [
     // CasinoSlashCommand, // <-- not ready yet!
 ].map(command => command.toJSON());
 
-export async function DeployCommands(token: string, client_id: string) {
+export async function DeployCommands(token: string, client_id: string): Promise<void> {
     const L = new Logger('deployment');
     L.info('Deploying commands...');
 
     const rest = new REST({version: '10'})
         .setToken(token);
 
+    return new Promise((resolve, reject) => {
      rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
         .then((a) => {
             // console.log(a);
             L.info('Commands deployed successfully.');
+            resolve();
         })
         .catch((err) => {
             L.error('Something went wrong while deploying commands.');
             console.error(err);
+            reject();
         });
+    });
 }
