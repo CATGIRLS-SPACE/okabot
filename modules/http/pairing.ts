@@ -29,3 +29,8 @@ export async function HandleCommandPair(interaction: ChatInputCommandInteraction
 
 
 }
+
+
+export async function SendLoginRequest(user_id: Snowflake) {
+
+}

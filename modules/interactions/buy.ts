@@ -37,7 +37,8 @@ const PRICES: {
     'casino pass 10 minute':25_000,
     'casino pass 30 minute':60_000,
     'casino pass 60 minute':100_000,
-    'trans card deck': 25_000
+    'trans card deck': 25_000,
+    'cherry blossom card deck':50_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -54,7 +55,8 @@ const SHORTHANDS: {[key: string]: string} = {
     'cp10': 'casino pass 10 minute',
     'cp30': 'casino pass 30 minute',
     'cp60': 'casino pass 60 minute',
-    'tcd': 'trans card deck'
+    'tcd': 'trans card deck',
+    'cbcd':'cherry blossom card deck',
 }
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
@@ -130,6 +132,9 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'trans card deck': case 'tcd':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.DECK_TRANS, price)
+
+        case 'cherry blossom card deck': case 'cbcd':
+            return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.DECK_SAKURA, price)
 
         // profile customizations
         case 'user banner level background': case 'ublb':

@@ -97,7 +97,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         if (violations == 5) {
             const d = new Date();
             const unrestrict_date = new Date(d.getTime()+600000);
-            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'gamble', 'Potential macro abuse (automatically issued by okabot)');
+            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
             UIDViolationTracker.set(interaction.user.id, 0);
         } 
         

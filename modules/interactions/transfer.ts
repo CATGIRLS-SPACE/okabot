@@ -13,7 +13,7 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
     });
 
     if (amount == 0 && source != 'math') return interaction.reply({
-        content: `:x: ${GetEmoji(EMOJI.OKASH)} OKA**0** is only a valid amount when using the "Two-Way Calculation" option.`,
+        content: `:x: ${GetEmoji(EMOJI.OKASH)} OKA**0** is only a valid amount when using the "Set Wallet To" option.`,
         flags:[MessageFlags.Ephemeral]
     });
 
@@ -70,21 +70,21 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
 
 export const MoveMoneySlashCommand = 
     new SlashCommandBuilder()
-        .setName('move').setNameLocalization('ja', '動く')
+        .setName('move').setNameLocalization('ja', '動かす')
         .setDescription('Move okash between your wallet and bank').setDescriptionLocalization('ja', 'okashポケットから銀行へのokash動かします')
         .addNumberOption(option => option
             .setName('amount').setNameLocalization('ja', '高')
-            .setDescription('How much to move').setDescriptionLocalization('ja', 'okashの分量を動く')
+            .setDescription('How much to move').setDescriptionLocalization('ja', 'okashの分量を動かす')
             .setRequired(true)
             .setMinValue(0)
         )
         .addStringOption(option => option
             .setName('source').setDescriptionLocalization('ja', '行き先')
-            .setDescription('How to move').setDescriptionLocalization('ja', 'どこからどこへのokash動く')
+            .setDescription('How to move').setDescriptionLocalization('ja', 'どこからどこへのokash動かす')
             .setRequired(true)
             .addChoices(
                 {name:'Wallet -> Bank', value:'wallet', name_localizations:{ja:'ポケット ➞ 銀行'}},
                 {name:'Bank -> Wallet', value:'bank', name_localizations:{ja:'銀行 ➞ ポケット'}},
-                {name:'Two-way Calculate', value:'math', name_localizations:{ja:'割り出す'}},
+                {name:'Set Wallet To', value:'math', name_localizations:{ja:'ポケット・セット'}},
             )
         )

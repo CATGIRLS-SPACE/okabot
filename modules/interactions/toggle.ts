@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder} from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 
@@ -21,6 +21,12 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
             break;
 
         case 'preferred-pronouns':
+            if (interaction.locale != Locale.EnglishUS && interaction.locale != Locale.EnglishGB) {
+                let message = 'Sorry, but this feature is not supported on your selected language. Change your Discord language to English to use this feature.';
+                if (interaction.locale == Locale.Japanese) message = '申し訳ありませんが、okawafflesは日本語の代名詞を理解しないため、この機能は日本語ではサポートされていません。この機能を使用するには、Discordの言語を英語に変更してください。';
+                if (interaction.locale == Locale.Russian) message = 'Извините, но эта функция не поддерживается, если выбран русский язык. Чтобы воспользоваться этой функцией, измените язык Discord на английский.';
+                return interaction.reply(message);
+            }
             const preferred = interaction.options.getString('pronouns', true);
             prefs.customization.global.pronouns.subjective = preferred.split('/')[0];
             prefs.customization.global.pronouns.objective = preferred.split('/')[1];
