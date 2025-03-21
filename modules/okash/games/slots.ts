@@ -50,6 +50,8 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'GGA':1.2,  // 2x grape 1x apple
     'AAO':1.5,  // 2x apple 1x okash
     'GGO':1.5,  // 2x grape 1x okash
+    'AAE':2.5,
+    'GGE':2.5,
     'OOA':5,    // 2x okash 1x apple
     'OOG':5,    // 2x okash 1x grape
     'AOO':5,    // 1x apple 2x okash
