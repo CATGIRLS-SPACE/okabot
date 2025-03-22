@@ -5,7 +5,7 @@ import {
     ChatInputCommandInteraction,
     Client, EmbedBuilder,
     Events,
-    GatewayIntentBits, MessageFlags,
+    GatewayIntentBits, Locale, MessageFlags,
     Partials,
     Snowflake,
     TextChannel
@@ -190,10 +190,13 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade
 }
 
-
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) return;
+
+    interaction.okabot = {
+        locale: (interaction.locale == Locale.Japanese)?'ja':'en'
+    };
 
     // if a user is super banned, okabot just won't respond to them
     // this is implemented but not used because this is a private bot rn

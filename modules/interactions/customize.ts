@@ -70,6 +70,45 @@ const VALID_DECK_TYPES: {
     'cbcd': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
 }
 
+const LOCALIZED_DECK_NAMES: {
+    [key:string]: {en: string, ja: string}
+} = {
+    'default card deck': {
+        en:'Default Card Deck',
+        ja:'カードデック'
+    },
+    'dcd': {
+        en:'Default Card Deck',
+        ja:'カードデック'
+    },
+
+    'trans card deck': {
+        en:'Trans Card Deck',
+        ja:'トランスジェンダーデザインのカードデック'
+    },
+    'tcd': {
+        en:'Trans Card Deck',
+        ja:'トランスジェンダーデザインのカードデック'
+    },
+
+    'cherry blossom card deck': {
+        en:'Cherry Blossom Card Deck',
+        ja:'桜デザインのカードデック'
+    },
+    'cbcd': {
+        en:'Cherry Blossom Card Deck',
+        ja:'桜デザインのカードデック'
+    },
+    'sakura card deck': {
+        en:'Cherry Blossom Card Deck',
+        ja:'桜デザインのカードデック'
+    },
+    'scd': {
+        en:'Cherry Blossom Card Deck',
+        ja:'桜デザインのカードデック'
+    },
+}
+
 async function CustomizeCoinflip(interaction: ChatInputCommandInteraction) {
     const customization = interaction.options.getString('coin', true).toLowerCase();
 
@@ -129,7 +168,7 @@ async function CustomizeCardDeck(interaction: ChatInputCommandInteraction) {
     }
 
     if (profile.customization.unlocked.indexOf(VALID_DECK_TYPES[customization]) == -1) return interaction.editReply({
-        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't own that coin!`
+        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't own that deck!`
     });
 
     profile.customization.games.card_deck_theme = VALID_DECK_TYPES[customization];
@@ -137,7 +176,7 @@ async function CustomizeCardDeck(interaction: ChatInputCommandInteraction) {
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({
-        content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your deck out for a \`${customization}\`. Have fun playing!`
+        content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, I've switched your deck to your **${LOCALIZED_DECK_NAMES[customization][interaction.okabot.locale]}**. Have fun playing!`
     });
 }
 
