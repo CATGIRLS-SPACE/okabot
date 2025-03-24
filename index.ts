@@ -308,7 +308,7 @@ process.on('uncaughtException', async (reason) => {
     console.error('Uncaught Exception:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315") as TextChannel;
-        await channel.send({content:':warning: okabot has encountered an uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
+        await channel.send({content:':warning: okabot has encountered an uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);
@@ -323,7 +323,7 @@ process.on('unhandledRejection', async (reason: any) => {
     console.error('Unhandled Rejection:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315") as TextChannel;
-        await channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason) +'```'});
+        await channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```'});
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);
