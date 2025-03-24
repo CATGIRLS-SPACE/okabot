@@ -251,9 +251,10 @@ export function CheckUserIdOkashRestriction(user_id: string, ability: string): b
         if (d.getTime() > profile.restriction.until) return false;
 
         // they are restricted in some way
+        // abilities aren't relevant anymore
         const abilities = profile.restriction.abilities.includes(',')?profile.restriction.abilities.split(','):profile.restriction.abilities;
 
-        return abilities.indexOf(ability) != -1;
+        return true;
     }
 
     return false;

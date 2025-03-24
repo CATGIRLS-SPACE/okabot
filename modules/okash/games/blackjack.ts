@@ -17,6 +17,7 @@ import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZATION_UNLOCKS} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
+import {DoRandomDrops} from "../../passive/onMessage";
 
 
 const L = new Logger('blackjack');
@@ -280,6 +281,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
                     : (can_double_down ? row_can_double : row ) as any
             ]
         });
+
+        DoRandomDrops(await response.fetch());
     } else {
         response = await interaction.reply({
             content: first_message_content,
@@ -289,6 +292,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
             ],
             flags: [MessageFlags.SuppressNotifications]
         });
+
+        DoRandomDrops(await response.fetch());
     }
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
@@ -371,6 +376,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         AddCasinoLoss(interaction.user.id, game.bet, 'blackjack');
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
+
         const d = new Date();
         LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
 

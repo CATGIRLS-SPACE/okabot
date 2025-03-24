@@ -96,7 +96,8 @@ const RELEASE_NAME = ({
     '4.1.0':'Éclair au Chocolat',
     '4.1.1':'Éclair aux Fraises',
     '4.1.2':'Éclair au Vanille',
-    '4.2.0':'Madeleine'
+    '4.2.0':'Madeleine',
+    '4.3.0':'Mont Blanc'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
@@ -200,7 +201,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
     // if a user is super banned, okabot just won't respond to them
     // this is implemented but not used because this is a private bot rn
-    // if (IsUserBanned(interaction.user.id)) return;
+    if (IsUserBanned(interaction.user.id)) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
     if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({

@@ -6,6 +6,7 @@ import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
 import {DEV} from "../../../index";
+import {DoRandomDrops} from "../../passive/onMessage";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -105,6 +106,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         flags: [MessageFlags.SuppressNotifications]
     });
 
+    const reply_as_message = await reply.fetch();
+
     await Sleep(3000);
 
     reply.edit({
@@ -150,6 +153,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     reply.edit({
         content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
+
+    DoRandomDrops(reply_as_message);
 
     ACTIVE_GAMES.delete(interaction.user.id);
 }

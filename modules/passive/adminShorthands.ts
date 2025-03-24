@@ -234,7 +234,7 @@ export function RegisterAllShorthands() {
     // bans
 
     RegisterShorthand('oka rs ', async (message: Message, params: string[]) => {
-         if (params.length < 6) throw new Error("not enough parameters. usage: oka rs [Snowflake | them] [expiry date] [reason]");
+         if (params.length < 5) throw new Error("not enough parameters. usage: oka rs [Snowflake | them] [expiry date] [reason]");
          if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
 
          const user = client.users.cache.get(params[2]);
@@ -364,7 +364,7 @@ export async function CheckForShorthand(message: Message) {
             // if ((e as string).includes('WARN')) return;
             await message.react('❌');
 
-            if ((e as string).startsWith('!')) throw new Error(e as string);
+            if ((e as string).startsWith && (e as string).startsWith('!')) throw new Error(e as string);
 
             return await message.reply(`There was an error processing your shorthand. See here:\n\`${e}\`\n-# admin shorthands v2`);
         }

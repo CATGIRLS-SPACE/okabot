@@ -27,6 +27,7 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZTAION_ID_NAMES} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {CoinFloats} from "../../tasks/cfResetBonus";
+import {DoRandomDrops} from "../../passive/onMessage";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -307,10 +308,12 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // initial reply
     const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);
     const coin_flipped = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY):GetEmoji(COIN_EMOJIS_DONE[profile.customization.games.coin_color]);
-    await interaction.reply({
+    const reply = await interaction.reply({
         flags: [MessageFlags.SuppressNotifications],
         content:`${coin_flipping} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**...`
     });
+
+    const reply_as_message = await reply.fetch();
 
     // immediately determine whether its a win or not
     const roll = Math.random();
@@ -339,6 +342,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     if (roll <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
     if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+
+    DoRandomDrops(reply_as_message);
 
     ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
 }
