@@ -6,7 +6,12 @@ import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/
 export async function item_tracking_device(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    const use_on = interaction.options.getString('on', true).toLowerCase();
+    let use_on = interaction.options.getString('on', false);
+    if (!use_on) return interaction.editReply({
+         content:`:crying_cat_face: **${interaction.user.displayName}**, please tell me what you want to use your **Tracking Device** on!`
+    });
+
+    use_on = use_on.toLowerCase();
     let profile = GetUserProfile(interaction.user.id);
 
     if (!profile.inventory.includes(ITEMS.TRACKED_CONVERTER)) return interaction.editReply({
@@ -37,6 +42,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
         16: 'coin',
         17: 'coin',
         13: 'deck',
+        18: 'deck',
     }
 
     const serial = await CreateTrackedItem(item_types[VALID_ITEMS_TO_TRACK[use_on]], VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);

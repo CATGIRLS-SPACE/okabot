@@ -59,6 +59,27 @@ const SHORTHANDS: {[key: string]: string} = {
     'cbcd':'cherry blossom card deck',
 }
 
+const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
+    CUSTOMIZATION_UNLOCKS.COIN_DBLUE,
+    CUSTOMIZATION_UNLOCKS.COIN_DGREEN,
+    CUSTOMIZATION_UNLOCKS.COIN_RED,
+    CUSTOMIZATION_UNLOCKS.COIN_BLUE,
+    CUSTOMIZATION_UNLOCKS.DECK_TRANS,
+    CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE,
+    CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER,
+];
+
+const ALLOWED_SHOP_VOUCHER_ITEMS: Array<ITEMS> = [
+    ITEMS.STREAK_RESTORE,
+    ITEMS.CASINO_PASS_10_MIN,
+    ITEMS.LOOTBOX_INCREASE_15_MIN
+];
+
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
@@ -133,7 +154,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
         case 'trans card deck': case 'tcd':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.DECK_TRANS, price)
 
-        case 'cherry blossom card deck': case 'cbcd':
+        case 'cherry blossom card deck': case 'cbcd': case 'scd': case 'sakura card deck':
             return UnlockCustomization(interaction, CUSTOMIZATION_UNLOCKS.DECK_SAKURA, price)
 
         // profile customizations
@@ -188,6 +209,10 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
+        if (!ALLOWED_SHOP_VOUCHER_CUSTOMIZATION.includes(unlock)) return interaction.editReply({
+            content: `:x: **${interaction.user.displayName}**, you can't buy this with a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
+        });
+
         RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
     }
 
@@ -231,6 +256,10 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
         const inventory = GetInventory(interaction.user.id);
         if (inventory.indexOf(ITEMS.SHOP_VOUCHER) == -1) return interaction.editReply({
             content:`:x: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
+        });
+
+        if (!ALLOWED_SHOP_VOUCHER_CUSTOMIZATION.includes(unlock)) return interaction.editReply({
+            content: `:x: **${interaction.user.displayName}**, you can't buy this with a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
         });
 
         RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
