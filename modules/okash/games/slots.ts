@@ -77,6 +77,10 @@ const PAYOUT_TABLE: {[key: string]: number} = {
 
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
+const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
+const EN_MESSAGE = '-# Enjoying okabot? Please consider [supporting me](<https://ko-fi.com/okawaffles>).\n';
+const JP_MESSAGE = '-# okabotが好きですか？[寄付](<https://ko-fi.com/okawaffles>)をご検討ください\n';
+
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
     if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
@@ -92,6 +96,16 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
 
     ACTIVE_GAMES.set(interaction.user.id, true);
 
+    let show_consider = false;
+    const consider_message = interaction.okabot.locale=='ja'?JP_MESSAGE:EN_MESSAGE;
+    if (USER_GAMES_TICK.has(interaction.user.id) && USER_GAMES_TICK.get(interaction.user.id) == 50) {
+        USER_GAMES_TICK.set(interaction.user.id, 0);
+        show_consider = true;
+    } else {
+        const current_tick = USER_GAMES_TICK.has(interaction.user.id)?USER_GAMES_TICK.get(interaction.user.id)!:49;
+        USER_GAMES_TICK.set(interaction.user.id, current_tick + 1);
+    }
+
     RemoveFromWallet(interaction.user.id, bet, false);
     const profile = GetUserProfile(interaction.user.id);
 
@@ -102,7 +116,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const rolls = [roll_first, roll_second, roll_third];
 
     const reply = await interaction.reply({
-        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
+        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -111,13 +125,13 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     await Sleep(3000);
 
     reply.edit({
-        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
+        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
     });
 
     await Sleep(1000);
 
     reply.edit({
-        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
+        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
     });
 
     await Sleep(1000);
@@ -151,7 +165,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         `and loses ${profile.customization.global.pronouns.possessive} money! **(+5XP)** :crying_cat_face:`;
 
     reply.edit({
-        content: `🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
+        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 
     DoRandomDrops(reply_as_message);
