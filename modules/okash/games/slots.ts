@@ -143,6 +143,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         1.2: 10,
         1.5: 15,
         2: 20,
+        2.5: 25,
         5: 30,
         10: 50,
         15: 100,
@@ -168,7 +169,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 
-    DoRandomDrops(reply_as_message);
+    DoRandomDrops(reply_as_message, interaction.user);
 
     ACTIVE_GAMES.delete(interaction.user.id);
 }

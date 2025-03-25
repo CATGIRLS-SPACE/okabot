@@ -53,30 +53,18 @@ export function ModifyOkashAmount(user_id: Snowflake, location: 'wallet' | 'bank
     UpdateUserProfile(user_id, profile);
 }
 
-/**
- * @Deprecated Use `ModifyOkashAmount()` instead.
- */
 export function AddToWallet(user_id: string, amount: number) {
     ModifyOkashAmount(user_id, 'wallet', amount);
 }
 
-/**
- * @Deprecated Use `ModifyOkashAmount()` instead.
- */
 export function RemoveFromWallet(user_id: string, amount: number, fallback_to_bank: boolean = false) {
     ModifyOkashAmount(user_id, 'wallet', -amount, fallback_to_bank);
 }
 
-/**
- * @Deprecated Use `ModifyOkashAmount()` instead.
- */
 export function AddToBank(user_id: string, amount: number) {
     ModifyOkashAmount(user_id, 'bank', amount)
 }
 
-/**
- * @Deprecated Use `ModifyOkashAmount()` instead.
- */
 export function RemoveFromBank(user_id: string, amount: number) {
     ModifyOkashAmount(user_id, 'bank', -amount)
 }

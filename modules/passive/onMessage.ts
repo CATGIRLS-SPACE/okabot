@@ -1,9 +1,10 @@
-import {Message, Snowflake, TextChannel} from "discord.js";
+import {Message, Snowflake, TextChannel, User} from "discord.js";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {ITEMS} from "../okash/items";
 import {Logger} from "okayulogger";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {Achievements, GrantAchievement} from "./achievement";
+import {client} from "../../index";
 
 const L = new Logger('onMessage.ts');
 
@@ -13,9 +14,11 @@ async function Sleep(ms: number): Promise<void> {
 
 export const BoostsActive = new Map<Snowflake, number>();
 
-export async function DoRandomDrops(message: Message) {
+export async function DoRandomDrops(message: Message, author?: User) {
     const time = Math.round(new Date().getTime() / 1000);
     const boost_active = (BoostsActive.has(message.author.id) && BoostsActive.get(message.author.id)! > time);
+
+    if (author) message.author = author;
 
     // usually 1 in 500 chance, boost is 1 in 300 <-- these are old, ignore them
     const small_roll = boost_active?Math.floor(Math.random() * 150):Math.floor(Math.random() * 250);

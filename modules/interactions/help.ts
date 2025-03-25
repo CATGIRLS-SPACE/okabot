@@ -49,6 +49,10 @@ Bet some okash on a roulette spin.
 You can bet on numbers, sections, or a color.
 The lower the chance of winning, the higher the reward!
 -# requires a Discord client which supports message components
+## Slots
+Bet some okash on a slots game.
+This is by far the most profitable gambling game.
+You can win up to a 50x your bet if you get lucky!
 `
 
 const StockPage =
@@ -158,12 +162,6 @@ const select_menu = new StringSelectMenuBuilder()
             .setDescription('Get information on okabot games')
             .setValue('games2')
             .setEmoji('🎲'),
-
-        new StringSelectMenuOptionBuilder()
-            .setLabel('Stocks')
-            .setDescription('Get information on the stock system')
-            .setValue('stocks')
-            .setEmoji('📈'),
         
         new StringSelectMenuOptionBuilder()
             .setLabel('Daily Rewards')

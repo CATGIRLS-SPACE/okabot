@@ -97,7 +97,8 @@ const RELEASE_NAME = ({
     '4.1.1':'Éclair aux Fraises',
     '4.1.2':'Éclair au Vanille',
     '4.2.0':'Madeleine',
-    '4.3.0':'Mont Blanc'
+    '4.3.0':'Mont Blanc',
+    '4.3.1':'Mont Blanc Q'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;

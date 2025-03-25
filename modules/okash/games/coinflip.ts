@@ -343,7 +343,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (roll <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
     if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
 
-    DoRandomDrops(reply_as_message);
+    DoRandomDrops(reply_as_message, interaction.user);
 
     ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
 }

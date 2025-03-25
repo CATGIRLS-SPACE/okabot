@@ -293,7 +293,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
             flags: [MessageFlags.SuppressNotifications]
         });
 
-        DoRandomDrops(await response.fetch());
+        DoRandomDrops(await response.fetch(), interaction.user);
     }
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
