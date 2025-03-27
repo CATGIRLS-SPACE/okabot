@@ -1,11 +1,18 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
+import {
+    ActivityType,
+    ChatInputCommandInteraction,
+    MessageFlags,
+    SlashCommandBuilder,
+    Snowflake,
+    TextChannel
+} from "discord.js";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
 import { AddXP } from "../../levels/onMessage";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
-import {DEV} from "../../../index";
+import {DEV, SetActivity} from "../../../index";
 import {DoRandomDrops} from "../../passive/onMessage";
 
 async function Sleep(time_ms: number) {
@@ -114,6 +121,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const roll_third  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
     const rolling_emoji = GetEmoji(EMOJI.SLOTS_ROLLING)
     const rolls = [roll_first, roll_second, roll_third];
+
+    SetActivity('slots', ActivityType.Playing);
 
     const reply = await interaction.reply({
         content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,

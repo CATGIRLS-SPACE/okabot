@@ -1,11 +1,28 @@
 // users bet on a number, color (red/black), or section (odd/even, 1-18, 19-36). 
 // a virtual wheel spins, and if the ball lands on their chosen option, they win based on the payout odds (e.g., betting on a single number pays 35:1).
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, InteractionCollector, InteractionResponse, Message, MessageFlags, SlashCommandBuilder, Snowflake, StringSelectMenuBuilder, StringSelectMenuInteraction, StringSelectMenuOptionBuilder, TextChannel } from "discord.js";
+import {
+    ActionRowBuilder,
+    ActivityType,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    ComponentType,
+    InteractionCollector,
+    InteractionResponse,
+    Message,
+    MessageFlags,
+    SlashCommandBuilder,
+    Snowflake,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+    StringSelectMenuOptionBuilder,
+    TextChannel
+} from "discord.js";
 import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
-import { client } from "../../..";
+import {client, SetActivity} from "../../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
@@ -100,6 +117,8 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
 
 async function StartRoulette(game: RouletteGame) {
     let second_half = '';
+
+    SetActivity('roulette', ActivityType.Playing);
 
     switch (game.game_type) {
         case RouletteGameType.COLOR:

@@ -11,7 +11,8 @@ import {
     MessageFlags,
     Partials,
     Snowflake,
-    TextChannel
+    TextChannel,
+    ActivityType
 } from "discord.js";
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
@@ -163,6 +164,36 @@ async function RunPostStartupTasks() {
     });
 }
 
+let reset_activity_at = 0;
+export function SetActivity(name: string, type: ActivityType) {
+    const d = Math.round(new Date().getTime() / 1000);
+
+    if (d < reset_activity_at - 15) return;
+
+    client.user!.setActivity({
+        name,
+        type,
+    });
+
+    reset_activity_at = d + 29;
+
+    setTimeout(() => {
+        CheckActivityTimer();
+    }, 30_000);
+}
+function CheckActivityTimer() {
+    const d = Math.round(new Date().getTime() / 1000);
+    if (reset_activity_at < d) return client.user!.setActivity({
+        name: CONFIG.status.activity,
+        type: CONFIG.status.type
+    });
+    // otherwise...
+    setTimeout(() => {
+        CheckActivityTimer();
+    }, 30_000);
+}
+
+
 // Command and message handlers
 
 // Command handling functions map
@@ -235,11 +266,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
 async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     const okawaffles = await client.users.fetch("796201956255334452");
-
-    // const stats: CoinFloats = JSON.parse(readFileSync(join(__dirname, 'stats.oka'), 'utf-8'));
-    //
-    // let all_flips = 0;
-    // stats.coinflip.all_rolls.forEach(roll => all_flips += roll);
 
     const info_embed = new EmbedBuilder()
         .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${VERSION} "${RELEASE_NAME}" ${GetEmoji(EMOJI.NEKOHEART)}`)

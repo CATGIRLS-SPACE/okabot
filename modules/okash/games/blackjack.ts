@@ -1,5 +1,5 @@
 import {
-    ActionRowBuilder,
+    ActionRowBuilder, ActivityType,
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction, Message,
@@ -18,6 +18,7 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZATION_UNLOCKS} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
+import {SetActivity} from "../../../index";
 
 
 const L = new Logger('blackjack');
@@ -260,6 +261,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     if (game.trackable_serial) UpdateTrackedItem(trackable, {property:'dealt_cards', amount:4});
 
     GamesActive.set(interaction.user.id, game);
+    SetActivity('blackjack', ActivityType.Playing);
 
     const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     let response;

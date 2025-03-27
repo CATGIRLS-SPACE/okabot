@@ -1,4 +1,5 @@
 import {
+    ActivityType,
     ChatInputCommandInteraction,
     Locale,
     MessageFlags,
@@ -16,7 +17,7 @@ import {
     UpdateUserProfile
 } from "../../user/prefs";
 import {readFileSync, writeFileSync} from "fs";
-import {BASE_DIRNAME} from "../../../index";
+import {BASE_DIRNAME, SetActivity} from "../../../index";
 import {join} from "path";
 import {AddXP} from "../../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
@@ -304,6 +305,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (profile.customization.games.equipped_trackable_coin != 'none') {
         UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1});
     }
+
+    SetActivity('a coin flip...', ActivityType.Watching);
 
     // initial reply
     const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);
