@@ -1,7 +1,7 @@
-import { ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
-import { GetBank, GetWallet } from "../okash/wallet";
-import {EMOJI, GetEmoji} from "../../util/emoji";
-import { Achievements, GrantAchievement } from "../passive/achievement";
+import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {GetBank, GetWallet} from "../okash/wallet";
+import {Achievements, GrantAchievement} from "../passive/achievement";
+import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
 import {GetCurrentFines} from "../okash/games/rob";
 
 
@@ -15,10 +15,13 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     const wallet = GetWallet(interaction.user.id);
 
     await interaction.reply({
-        content: interaction.locale==Locale.Japanese?
-                `${GetEmoji('okash')} **${interaction.user.displayName}**さん、ポケットにOKA**${wallet}**、銀行にOKA**${bank}**持ちです`:
-                `${GetEmoji('okash')} **${interaction.user.displayName}**, you've got OKA**${wallet}** in your wallet and OKA**${bank}** in your bank.\nThere is currently ${GetEmoji(EMOJI.OKASH)} OKA**${GetCurrentFines()}** in fines at the bank.`,
-        flags: [MessageFlags.SuppressNotifications]
+        content: LangGetFormattedString(LANG_INTERACTION.OKASH,
+            interaction.okabot.locale,
+            interaction.user.displayName,
+            wallet.toString(),
+            bank.toString(),
+            GetCurrentFines().toString()
+        )
     });
 }
 

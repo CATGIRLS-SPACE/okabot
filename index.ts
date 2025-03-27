@@ -3,9 +3,12 @@ import {existsSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 import {
     ChatInputCommandInteraction,
-    Client, EmbedBuilder,
+    Client,
+    EmbedBuilder,
     Events,
-    GatewayIntentBits, Locale, MessageFlags,
+    GatewayIntentBits,
+    Locale,
+    MessageFlags,
     Partials,
     Snowflake,
     TextChannel
@@ -72,6 +75,8 @@ import {SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
+// import language after dev check (emojis)
+import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 
 
 export const client = new Client({
@@ -163,7 +168,13 @@ async function RunPostStartupTasks() {
 // Command handling functions map
 const HANDLERS: {[key:string]: CallableFunction} = {
     'info': async (interaction: ChatInputCommandInteraction) => {await interaction.deferReply(); await GetInfoEmbed(interaction);},
-    'debug': async (interaction: ChatInputCommandInteraction) => {const d = new Date(); await interaction.reply({content:`You are running okabot v${VERSION} "${RELEASE_NAME || 'generic'}"\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>`, flags:[MessageFlags.Ephemeral]})},
+    'debug': async (interaction: ChatInputCommandInteraction) => {
+        const d = new Date();
+        await interaction.reply({
+            content:`You are running okabot v${VERSION} "${RELEASE_NAME || 'generic'}"\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.locale)}`,
+            flags:[MessageFlags.Ephemeral]
+        });
+    },
     'okash': HandleCommandOkash,
     'daily': HandleCommandDaily,
     'coinflip': HandleCommandCoinflipV2,
