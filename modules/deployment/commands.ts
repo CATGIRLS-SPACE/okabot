@@ -26,6 +26,7 @@ import {SlotsSlashCommand} from "../okash/games/slots";
 import {CasinoSlashCommand} from "../okash/casinodb";
 import {ToggleSlashCommand} from "../interactions/toggle";
 import {TradeSlashCommand} from "../interactions/trade";
+import {FortuneBallSlashCommand} from "../interactions/8ball";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -68,7 +69,8 @@ const COMMANDS_TO_REGISTER = [
     SlotsSlashCommand,
     ToggleSlashCommand,
     TradeSlashCommand,
-    // CasinoSlashCommand, // <-- not ready yet!
+    CasinoSlashCommand, // <-- not ready yet!
+    FortuneBallSlashCommand,
 ].map(command => command.toJSON());
 
 export async function DeployCommands(token: string, client_id: string): Promise<void> {

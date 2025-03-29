@@ -313,6 +313,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const coin_flipped = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY):GetEmoji(COIN_EMOJIS_DONE[profile.customization.games.coin_color]);
     const reply = await interaction.reply({
         flags: [MessageFlags.SuppressNotifications],
+        // @ts-ignore
         content:`${coin_flipping} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**...`
     });
 
@@ -340,6 +341,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (win) profile.okash.wallet += bet * 2;
     UpdateUserProfile(interaction.user.id, profile);
     AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
+
+    if (win) AddCasinoWin(interaction.user.id, bet*2, 'coinflip'); else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
 
     if (profile.okash.wallet + profile.okash.bank == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 

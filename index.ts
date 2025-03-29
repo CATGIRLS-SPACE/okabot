@@ -78,6 +78,7 @@ import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
 // import language after dev check (emojis)
 import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
+import {HandleCommand8Ball} from "./modules/interactions/8ball";
 
 
 export const client = new Client({
@@ -86,12 +87,14 @@ export const client = new Client({
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.GuildVoiceStates
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMembers
     ],
     partials: [
         Partials.Message,
         Partials.Channel,
-        Partials.Reaction
+        Partials.Reaction,
+        Partials.GuildMember
     ]
 });
 
@@ -104,7 +107,8 @@ const RELEASE_NAME = ({
     '4.1.2':'Éclair au Vanille',
     '4.2.0':'Madeleine',
     '4.3.0':'Mont Blanc',
-    '4.3.1':'Mont Blanc Q'
+    '4.3.1':'Mont Blanc Q',
+    '4.4.0':'Clafoutis'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
@@ -231,7 +235,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'slots': HandleCommandSlots,
     'pair': HandleCommandPair,
     'casino': HandleCommandCasino,
-    'trade': HandleCommandTrade
+    'trade': HandleCommandTrade,
+    '8ball': HandleCommand8Ball,
 }
 
 client.on(Events.InteractionCreate, async interaction => {

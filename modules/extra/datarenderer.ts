@@ -1,11 +1,12 @@
 import {CanvasRenderingContext2D, createCanvas} from "canvas";
-import { AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
-import { BASE_DIRNAME } from "../../index";
-import { GetLastNumValues, Stocks } from "../okash/stock";
+import {AttachmentBuilder, ChatInputCommandInteraction, GuildMember, SlashCommandBuilder} from "discord.js";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
+import {join} from "path";
+import {BASE_DIRNAME} from "../../index";
+import {GetLastNumValues, Stocks} from "../okash/stock";
 import {GetCasinoDB} from "../okash/casinodb";
 import {CoinFloats} from "../tasks/cfResetBonus";
+import {LANG_RENDER, LangGetFormattedString} from "../../util/language";
 
 
 export async function GenerateCoinflipDataDisplay(interaction: ChatInputCommandInteraction) {
@@ -325,6 +326,10 @@ export async function RenderCasinoDB(interaction: ChatInputCommandInteraction) {
     let bar_width = 500;
     let bar_height = 25;
 
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px azuki_font';
+    ctx.textAlign = 'center';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_TITLE, interaction.okabot.locale), width / 2, 32);
     GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
         count: 2,
         values: [casino.wins, casino.losses],
@@ -337,26 +342,107 @@ export async function RenderCasinoDB(interaction: ChatInputCommandInteraction) {
     ctx.font = '16px azuki_font';
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ff7171';
-    ctx.fillText(`${casino.losses} LOSS`, bar_start_x + bar_width, bar_start_y + bar_height + 20);
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_LOSS, interaction.okabot.locale, casino.losses), bar_start_x + bar_width, bar_start_y + bar_height + 40);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#77ff7f';
-    ctx.fillText(`WINS ${casino.wins}`, bar_start_x, bar_start_y + bar_height + 20);
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_WIN, interaction.okabot.locale, casino.wins), bar_start_x, bar_start_y + bar_height + 40);
 
-    // second bar, win all
+    // second bar, win/loss all
+    bar_start_x = 25;
+    bar_start_y = 50+35;
+    bar_height = 10;
 
-    // GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
-    //     count: 4,
-    //     values: [7, 3, 2, 6],
-    //     total: 18,
-    //     colors: [
-    //         '#35ffc7',
-    //         '#2657ff',
-    //         '#ff4afb',
-    //         '#2bea00'
-    //     ]
-    // });
+    GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
+        count: 4,
+        values: [
+            casino.games.coinflip.wins,
+            casino.games.blackjack.wins,
+            casino.games.roulette.wins,
+            casino.games.slots.wins
+        ],
+        total: casino.games.coinflip.wins + casino.games.blackjack.wins + casino.games.roulette.wins + casino.games.slots.wins,
+        colors: [
+            '#35ffc7',
+            '#2657ff',
+            '#ff4afb',
+            '#2bea00'
+        ]
+    });
 
-    // third bar, loss all
+    ctx.font = '16px azuki_font';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff4afb';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_ROULETTE, interaction.okabot.locale, casino.games.roulette.wins, casino.games.roulette.losses), bar_start_x + bar_width, bar_start_y + bar_height + 40);
+    ctx.fillStyle = '#2bea00';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_SLOTS, interaction.okabot.locale, casino.games.slots.wins, casino.games.slots.losses), bar_start_x + bar_width, bar_start_y + bar_height + 55);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#35ffc7';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_COINFLIP, interaction.okabot.locale, casino.games.coinflip.wins, casino.games.coinflip.losses), bar_start_x, bar_start_y + bar_height + 40);
+    ctx.fillStyle = '#4f77ff';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_BLACKJACK, interaction.okabot.locale, casino.games.blackjack.wins, casino.games.blackjack.losses), bar_start_x, bar_start_y + bar_height + 55);
+
+    // third bar, only you
+    bar_start_y = 215;
+    bar_height = 25;
+
+    const user_data = casino.users[interaction.user.id];
+    const user_wins = user_data.coinflip.wins + user_data.blackjack.wins + user_data.roulette.wins + user_data.slots.wins;
+    const user_losses = user_data.coinflip.losses + user_data.blackjack.losses + user_data.roulette.losses + user_data.slots.losses;
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '28px azuki_font';
+    ctx.textAlign = 'center';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_TITLE_YOU, interaction.okabot.locale, (interaction.member as GuildMember)?.displayName || interaction.user.displayName), width / 2, 200);
+    GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
+        count: 2,
+        values: [user_wins, user_losses],
+        total: user_wins + user_losses,
+        colors: [
+            '#77ff7f',
+            '#ff7171',
+        ]
+    });
+    ctx.font = '16px azuki_font';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff7171';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_LOSS, interaction.okabot.locale, user_losses), bar_start_x + bar_width, bar_start_y + bar_height + 40);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#77ff7f';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_WIN, interaction.okabot.locale, user_wins), bar_start_x, bar_start_y + bar_height + 40);
+
+    // second bar, win/loss all
+    bar_start_y = bar_start_y+35;
+    bar_height = 10;
+
+    GenerateMultiBar(ctx, bar_start_x, bar_start_y, bar_width, bar_height, {
+        count: 4,
+        values: [
+            user_data.coinflip.wins,
+            user_data.blackjack.wins,
+            user_data.roulette.wins,
+            user_data.slots.wins
+        ],
+        total: user_data.coinflip.wins + user_data.blackjack.wins + user_data.roulette.wins + user_data.slots.wins,
+        colors: [
+            '#35ffc7',
+            '#2657ff',
+            '#ff4afb',
+            '#2bea00'
+        ]
+    });
+
+    ctx.font = '16px azuki_font';
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#ff4afb';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_ROULETTE, interaction.okabot.locale, user_data.roulette.wins, user_data.roulette.losses), bar_start_x + bar_width, bar_start_y + bar_height + 40);
+    ctx.fillStyle = '#2bea00';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_SLOTS, interaction.okabot.locale, user_data.slots.wins, user_data.slots.losses), bar_start_x + bar_width, bar_start_y + bar_height + 55);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#35ffc7';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_COINFLIP, interaction.okabot.locale, user_data.coinflip.wins, user_data.coinflip.losses), bar_start_x, bar_start_y + bar_height + 40);
+    ctx.fillStyle = '#4f77ff';
+    ctx.fillText(LangGetFormattedString(LANG_RENDER.CASINO_BLACKJACK, interaction.okabot.locale, user_data.blackjack.wins, user_data.blackjack.losses), bar_start_x, bar_start_y + bar_height + 55);
+
 
     // save image
     const buffer = canvas.toBuffer('image/png');
