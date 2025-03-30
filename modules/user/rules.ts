@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, EmbedBuilder, Message, TextChannel } from "discord.js";
+import {ChatInputCommandInteraction, EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
 
 
@@ -31,9 +31,18 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     }
 
     // hasn't agreed to rules
+
+    if (!interaction.inGuild()) {
+        interaction.reply({
+            content:'Please go to a server to run a command and agree to the rules.',
+            flags: [MessageFlags.Ephemeral]
+        });
+        return false;
+    }
+
     await interaction.reply({
         embeds: [agreement],
-        ephemeral: true,
+        flags: [MessageFlags.Ephemeral]
     });
 
     AWAITING_RULE_AGREEMENT.push(interaction.user.id);

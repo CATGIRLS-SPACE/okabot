@@ -69,7 +69,7 @@ const COMMANDS_TO_REGISTER = [
     SlotsSlashCommand,
     ToggleSlashCommand,
     TradeSlashCommand,
-    CasinoSlashCommand, // <-- not ready yet!
+    // CasinoSlashCommand, // <-- not ready yet!
     FortuneBallSlashCommand,
 ].map(command => command.toJSON());
 

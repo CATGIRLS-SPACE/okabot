@@ -1,4 +1,11 @@
-import {ChatInputCommandInteraction, GuildMember, MessageFlags, SlashCommandBuilder} from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    GuildMember,
+    MessageFlags,
+    SlashCommandBuilder,
+    InteractionContextType,
+    ApplicationIntegrationType
+} from "discord.js";
 import {LANG_GAMES, LangGetFormattedString} from "../../util/language";
 
 
@@ -51,4 +58,6 @@ export const FortuneBallSlashCommand = new SlashCommandBuilder()
         .setName('question').setNameLocalizations({'ja':'問題'})
         .setDescription('the question to be asked').setDescriptionLocalizations({'ja':'あなたの問題'})
         .setRequired(true)
-    );
+    )
+    .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
+    .setIntegrationTypes(ApplicationIntegrationType.UserInstall);

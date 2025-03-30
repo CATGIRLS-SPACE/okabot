@@ -108,7 +108,8 @@ const RELEASE_NAME = ({
     '4.2.0':'Madeleine',
     '4.3.0':'Mont Blanc',
     '4.3.1':'Mont Blanc Q',
-    '4.4.0':'Clafoutis'
+    '4.4.0':'Clafoutis',
+    '4.4.1':'Clafoutis Q'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
@@ -239,6 +240,11 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     '8ball': HandleCommand8Ball,
 }
 
+const ALLOWED_COMMANDS_IN_DMS = [
+    '8ball',
+    'recent-eq'
+]
+
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) return;
@@ -252,7 +258,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (IsUserBanned(interaction.user.id)) return;
 
     // this should never trigger but its a catch just in case it does happen somehow
-    if (!interaction.channel || interaction.channel.isDMBased()) return interaction.reply({
+    if ((!interaction.channel || interaction.channel.isDMBased()) && !ALLOWED_COMMANDS_IN_DMS.includes(interaction.commandName)) return interaction.reply({
         content:`:x: Sorry, **${interaction.user.displayName}**, but I'm not allowed to execute commands in DMs!`,
         flags: [MessageFlags.Ephemeral]
     });
@@ -284,6 +290,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
             {name:'Testing', value:'okawaffles, tacobella03, pampers2, kbgkaden', inline: true},
             {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
+            {name:'Donators', value:'tacobella03', inline: false},
         )
         .setFooter({text: 'read if cute | thanks for using my bot <3'})
         .setThumbnail(client.user!.avatarURL())

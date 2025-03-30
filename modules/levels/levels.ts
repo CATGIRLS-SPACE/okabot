@@ -1,4 +1,11 @@
-import { AttachmentBuilder, ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder } from "discord.js";
+import {
+    AttachmentBuilder,
+    ChatInputCommandInteraction,
+    Locale,
+    MessageFlags,
+    SlashCommandBuilder,
+    Snowflake, User
+} from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import { BASE_DIRNAME } from "../../index";
 import { join, resolve } from "path";
@@ -93,11 +100,14 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
-async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE) {
+async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User) {
     await interaction.deferReply();
+
+    if (override_user_with) interaction.user = override_user_with;
+
     // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
-    const LEVEL_NAMES = interaction.locale==Locale.Japanese?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
+    const LEVEL_NAMES = interaction.okabot.locale=='ja'?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
 
     const width = 600; // Banner width
     const height = 150; // Banner height
@@ -129,7 +139,12 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
         const banner_img = await loadImage(banner_buffer);
-        ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+        // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+        console.log('before:', banner_img.width, banner_img.height);
+        let new_width = 600;
+        let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+        console.log('after:', new_width, new_height);
+        ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
         // darken with a slightly-transparent rectangle
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, width, height);
@@ -141,60 +156,80 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const pfp_img = await loadImage(pfp_buffer);
     ctx.save();
     ctx.beginPath();
-    ctx.roundRect(560-66, 20, 80, 80, 12);
-    // roundRectClip(ctx, 560-66, 20, 80, 80, 12);
+    // level bar ends at x=580
+    ctx.roundRect(580-90, 15, 90, 90, 12);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(pfp_img, 560-66, 20, 80, 80);
+    ctx.drawImage(pfp_img, 580-90, 15, 90, 90);
     ctx.restore();
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
     // labels
-    if (interaction.user.id == "796201956255334452" || interaction.user.id == "502879264081707008") {
+    if (interaction.user.id == "796201956255334452a") {
         ctx.fillStyle = '#6ef5b6';
         ctx.beginPath();
-        ctx.roundRect(560-120, 10, 110, 25, 12);
+        ctx.roundRect(20, 52, 88, 23, 6);
         ctx.fill();
-        ctx.closePath();
+        ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b3b2c';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(560-122, 8, 113, 28, 12);
         ctx.stroke();
         ctx.closePath();
+        // ctx.beginPath();
+        // ctx.roundRect(22, 48, 113, 28, 12);
+        // ctx.stroke();
+        // ctx.closePath();
         ctx.fillStyle = '#1b3b2c';
-        ctx.font = 'bold italic 16px Arial'
-        ctx.fillText('DEVELOPER', 560-116, 28);
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('DEVELOPER', 26, 68);
     }
     // bugtest
     // 566671009189462038
     if (interaction.user.id == "566671009189462038" || interaction.user.id == "619655596215369749") {
         ctx.fillStyle = '#876ef5';
         ctx.beginPath();
-        ctx.roundRect(560-90, 10, 80, 25, 12);
+        ctx.roundRect(20, 52, 62, 23, 6);
         ctx.fill();
-        ctx.closePath();
+        ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b1630';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.roundRect(560-92, 8, 83, 28, 12);
         ctx.stroke();
         ctx.closePath();
         ctx.fillStyle = '#1b1630';
-        ctx.font = 'bold italic 16px Arial'
-        ctx.fillText('TESTER', 560-83, 28);
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('TESTER', 26, 68);
+    }
+    // 502879264081707008
+    if (interaction.user.id == "502879264081707008") {
+        ctx.fillStyle = '#fa9de4';
+        ctx.beginPath();
+        ctx.roundRect(20, 52, 73, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#422a3d';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#422a3d';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('DONATOR', 26, 68);
     }
     
 
     // User Name
     ctx.font = "28px azuki_font, Arial, 'Segoe UI Emoji'";
+    // background
+    ctx.fillStyle = '#3d3d3d';
+    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 19, 43);
+    // foreground
     ctx.fillStyle = '#edf2f4';
-    ctx.fillText(`🐾✨ ${interaction.user.displayName} ✨🐾`, 20, 42);
+    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 16, 40);
 
     // Level
-    ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
-    ctx.fillStyle = '#b4c1d9';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 20, 90);
+    ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
+    // bg
+    ctx.fillStyle = '#3d3d3d';
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 23, 103);
+    // fg
+    ctx.fillStyle = '#f0c4ff';
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 20, 100);
 
     // XP Bar Background
     const barX = 20;
@@ -208,13 +243,15 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // XP Bar Progress
     const progressRatio = profile.leveling.current_xp / CalculateTargetXP(profile.leveling.level, 0);
-    ctx.fillStyle = bar_color.fg;
-    ctx.beginPath();
-    ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
-    ctx.fill();
+    if (progressRatio * barWidth > 16) {
+        ctx.fillStyle = bar_color.fg;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
+        ctx.fill();
+    }
 
     // XP Text
-    ctx.font = 'bold 16px Arial';
+    ctx.font = '16px azuki_font, bold Arial';
     ctx.fillStyle = num_color;
     ctx.textAlign = 'left';
     ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP`, barX + 10, barY + 19);
@@ -246,14 +283,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         UpdateUserProfile(user_to_get.id, profile);
     }
 
-    const target_xp = CalculateTargetXP(profile.leveling.level, 0);
-
-    if (user_to_get.id != interaction.user.id) return interaction.reply({
-            content:`**${user_to_get.displayName}** is currently at level **${profile.leveling.level}**.\n${CreateLevelBar(profile)} **${profile.leveling.current_xp}XP** / **${target_xp}XP**`,
-            flags: [MessageFlags.SuppressNotifications]
-    });
-
-    await generateLevelBanner(interaction, profile);
+    await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'level-banner.png'));
     interaction.editReply({
         content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
