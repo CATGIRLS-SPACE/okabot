@@ -165,7 +165,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
     // labels
-    if (interaction.user.id == "796201956255334452a") {
+    if (interaction.user.id == "796201956255334452") {
         ctx.fillStyle = '#6ef5b6';
         ctx.beginPath();
         ctx.roundRect(20, 52, 88, 23, 6);
