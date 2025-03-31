@@ -184,7 +184,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     // this will only execute if it's a '/use'able item
     RemoveFromWallet(interaction.user.id, price, true);
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one **${GetProperItemName(SHORTHANDS[wanted_item] || wanted_item)}** for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one **${GetProperItemName(SHORTHANDS[wanted_item] || wanted_item, interaction.okabot.locale)}** for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
 

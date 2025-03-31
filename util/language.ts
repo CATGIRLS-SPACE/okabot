@@ -43,6 +43,21 @@ export enum LANG_RENDER {
     CASINO_SLOTS = 'render.casino.slots',
     CASINO_TITLE_YOU = 'render.casino.title_personal',
 }
+export enum LANG_ITEMS {
+    COMMON_LOOTBOX = 'item.lootbox.common',
+    RARE_LOOTBOX = 'item.lootbox.rare',
+    EX_LOOTBOX = 'item.lootbox.ex',
+    WEIGHTED_COIN = 'item.weighted_coin',
+    STREAK_RESTORE = 'item.streak_restore',
+    TRACKING_DEVICE = 'item.tracked_maker',
+    SHOP_VOUCHER = 'item.shop_voucher',
+    SCRATCH_TICKET = 'item.scratch_ticket',
+    DROP_BOOST_15 = 'item.drop_boost.small',
+    DROP_BOOST_30 = 'item.drop_boost.large',
+    CASINO_PASS_10 = 'item.casino_pass.small',
+    CASINO_PASS_30 = 'item.casino_pass.large',
+    CASINO_PASS_60 = 'item.casino_pass.largest',
+}
 
 interface Language {
     [key: string]: string
@@ -90,6 +105,20 @@ const LANGUAGE_EN: Language = {
     'render.casino.roulette':'{1}/{2} ROULETTE',
     'render.casino.slots':'{1}/{2} SLOTS',
     'render.casino.title_personal':'{1}\'s Stats',
+
+    'item.lootbox.common':':package: Common Lootbox',
+    'item.lootbox.rare':':package: Rare Lootbox',
+    'item.lootbox.ex':':package: :sparkle: EX Lootbox :sparkle:',
+    'item.weighted_coin':`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,
+    'item.streak_restore':`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,
+    'item.tracked_maker':':electric_plug: Tracking Device',
+    'item.shop_voucher':`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,
+    'item.scratch_ticket':'Scratch Ticket',
+    'item.drop_boost.small':'Drop Boost (15 min)',
+    'item.drop_boost.large':'Drop Boost (30 min)',
+    'item.casino_pass.small':':credit_card: Casino Pass (10 min)',
+    'item.casino_pass.large':':credit_card: Casino Pass (30 min)',
+    'item.casino_pass.largest':':credit_card: Casino Pass (60 min)',
 };
 
 const LANGUAGE_JA: Language = {
@@ -127,12 +156,26 @@ const LANGUAGE_JA: Language = {
     'render.casino.blackjack':'ブラックジャック  {1}/{2}',
     'render.casino.roulette':'{1}/{2}  ルーレット',
     'render.casino.slots':'{1}/{2}  スロット',
-    'render.casino.title_personal':'{1}さんの統計'
+    'render.casino.title_personal':'{1}さんの統計',
+
+    'item.lootbox.common':':package: ありがちのパッケージ',
+    'item.lootbox.rare':':package: レアパッケージ',
+    'item.lootbox.ex':':package: :sparkle: LLのパッケージ :sparkle:',
+    'item.weighted_coin':`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} 重いコイン`,
+    'item.streak_restore':`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} 日次報酬修理`,
+    'item.tracked_maker':':electric_plug: トラッカー',
+    'item.shop_voucher':`${GetEmoji(EMOJI.SHOP_VOUCHER)} アイテムの利用券`,
+    'item.scratch_ticket':'randomチケット',
+    'item.drop_boost.small':'パッケージブースト（15分）',
+    'item.drop_boost.large':'パッケージブースト（30分）',
+    'item.casino_pass.small':':credit_card: ブラックジャックパス（10分）',
+    'item.casino_pass.large':':credit_card: ブラックジャックパス（30分）',
+    'item.casino_pass.largest':':credit_card: ブラックジャックパス（60分）',
 }
 
 // --
 
-export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES, locale: 'en' | 'ja', ...params: (string | number)[]) {
+export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: 'en' | 'ja', ...params: (string | number)[]) {
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
     let item = (locale=='ja'?LANGUAGE_JA[id]:LANGUAGE_EN[id]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 

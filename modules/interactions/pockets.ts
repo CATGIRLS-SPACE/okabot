@@ -4,6 +4,7 @@ import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
+import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
 
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
@@ -21,6 +22,22 @@ export const ITEM_NAMES: {
     10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp10".'},
     11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp30".'},
     12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cp60".'},
+}
+
+const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
+    0: LANG_ITEMS.COMMON_LOOTBOX,
+    1: LANG_ITEMS.RARE_LOOTBOX,
+    2: LANG_ITEMS.EX_LOOTBOX,
+    3: LANG_ITEMS.WEIGHTED_COIN,
+    4: LANG_ITEMS.STREAK_RESTORE,
+    5: LANG_ITEMS.TRACKING_DEVICE,
+    6: LANG_ITEMS.SHOP_VOUCHER,
+    7: LANG_ITEMS.SCRATCH_TICKET,
+    8: LANG_ITEMS.DROP_BOOST_15,
+    9: LANG_ITEMS.DROP_BOOST_30,
+    10: LANG_ITEMS.CASINO_PASS_10,
+    11: LANG_ITEMS.CASINO_PASS_30,
+    12: LANG_ITEMS.CASINO_PASS_60
 }
 
 const UNLOCK_NAMES: {
@@ -48,9 +65,9 @@ const UNLOCK_NAMES: {
     19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
 }
 
-export function GetProperItemName(shop_id: string): string {
+export function GetProperItemName(shop_id: string, locale: 'en' | 'ja' = 'en'): string {
     const keys: {[key: string]: number} = {
-        'streak restore': 3,
+        'streak restore': 4,
         'tracking device': 5,
         'drop boost 15 minute': 8,
         'drop boost 30 minute': 9,
@@ -59,7 +76,7 @@ export function GetProperItemName(shop_id: string): string {
         'casino pass 60 minute': 12,
     }
 
-    return ITEM_NAMES[keys[shop_id]].name;
+    return LangGetFormattedString(LOCALIZED_ITEM_NAME_IDS[keys[shop_id]] as LANG_ITEMS, locale);
 }
 
 export async function HandleCommandPockets(interaction: ChatInputCommandInteraction) {
