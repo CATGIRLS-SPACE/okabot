@@ -333,7 +333,7 @@ export function RegisterAllShorthands() {
         (message.channel as TextChannel).send({
             content: `attempting...`
         });
-        open_socket(SOCKET, message.channel);
+        open_socket(SOCKET, message.channel as TextChannel);
     });
 
     RegisterShorthand('oka dmdata disconnect', async (message: Message) => {
