@@ -1,8 +1,17 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel } from "discord.js";
-import { ClaimDaily, GetDailyStreak } from "../okash/daily";
-import { GetEmoji } from "../../util/emoji";
-import { quickdraw, ScheduleDailyReminder } from "../tasks/dailyRemind";
-import { Achievements, GrantAchievement } from "../passive/achievement";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Locale,
+    SlashCommandBuilder,
+    TextChannel
+} from "discord.js";
+import {ClaimDaily, GetDailyStreak} from "../okash/daily";
+import {GetEmoji} from "../../util/emoji";
+import {quickdraw, ScheduleDailyReminder} from "../tasks/dailyRemind";
+import {Achievements, GrantAchievement} from "../passive/achievement";
+import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
 
 const remindButton = new ButtonBuilder()
     .setCustomId('remindme')
@@ -13,11 +22,6 @@ const remindButtonNext = new ButtonBuilder()
     .setCustomId('remindmen')
     .setStyle(ButtonStyle.Primary)
     .setLabel('Remind Me Again');
-
-const earlyBar = new ActionRowBuilder<ButtonBuilder>()
-    .addComponents(
-        remindButton
-    );
 
 const onClaimBar = new ActionRowBuilder<ButtonBuilder>()
     .addComponents(
@@ -33,13 +37,20 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (result < 0) {
         let response;
 
+        const localizedRemindButton = new ButtonBuilder()
+            .setCustomId('remindme')
+            .setStyle(ButtonStyle.Primary)
+            .setLabel(LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_BUTTON, interaction.okabot.locale));
+
+        const earlyBar = new ActionRowBuilder<ButtonBuilder>()
+            .addComponents(
+                localizedRemindButton
+            );
+
         // must wait
-        if (interaction.locale == Locale.Japanese) response = await interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, あまりに早くです！あなたの日常の褒美は【<t:${-result}:R>】`,
-            components: [earlyBar]
-        });
-        else response = await interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, it's too early! Come back <t:${-result}:R> to claim your daily.`,
+        console.log(result);
+        response = await interaction.editReply({
+            content: LangGetFormattedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.locale, interaction.user.displayName, -result),
             components: [earlyBar]
         });
 

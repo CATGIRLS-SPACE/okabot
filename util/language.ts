@@ -6,8 +6,18 @@ export enum LANG_DEBUG {
 }
 export enum LANG_INTERACTION {
     OKASH = 'interaction.okash',
+
     DAILY = 'interaction.daily',
-    DAILY_STREAk = 'interaction.daily.streak',
+    DAILY_STREAK = 'interaction.daily.streak',
+    DAILY_SR_OK = 'interaction.daily.srok',
+    DAILY_SR_FAIL_HIGHER = 'interaction.daily.srfail_higher',
+    DAILY_SR_FAIL_TWICE = 'interaction.daily.srfail_twice',
+    DAILY_TOO_EARLY = 'interaction.daily.needtowait',
+    DAILY_REMINDER = 'interaction.daily.reminder',
+    DAILY_REMINDER_SCHEDULED = 'interaction.daily.reminder.scheduled',
+    DAILY_REMINDER_ANGRY = 'interaction.daily.reminder.angry',
+    DAILY_REMINDER_BUTTON = 'interaction.daily.reminder.button',
+    DAILY_REMINDER_BUTTON_AGAIN = 'interaction.daily.reminder.button_claim',
 }
 export enum LANG_GAMES {
     MAGIC_AFFIRMATIVE_A = 'games.8ball.aa',
@@ -71,8 +81,17 @@ const LANGUAGE_EN: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in fines at the bank.`,
 
-    'interaction.daily': '',
-    'interaction.daily.streak':'',
+    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**750** and a **{1}**!`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
+    'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
+    'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
+    'interaction.daily.needtowait': ':crying_cat_face: It\'s too early, **{1}**! Come back <t:{2}:R> to claim your daily reward!',
+    'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}! Your daily reward is ready to claim!`,
+    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} Okaaay, I'll ping you in this channel when your daily is ready!`,
+    'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
+    'interaction.daily.reminder.button': 'Remind Me',
+    'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
 
     'games.8ball.aa':'yup, certainly!',
     'games.8ball.ab':'decidedly so!',
@@ -125,6 +144,18 @@ const LANGUAGE_JA: Language = {
     'debug.helloworld': '世界こんにちは！あなたのロカールは{1}',
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**さん、ポケットにOKA**{2}**、銀行にOKA**{3}**持ちです\n銀行は罰金で${GetEmoji(EMOJI.OKASH)} OKA**{4}**持ちです`,
+
+    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**750** and a **{1}**!`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
+    'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
+    'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
+    'interaction.daily.needtowait': ':crying_cat_face: **{1}**さん、あまりに早いです！ <t:{2}:R>に戻ってくります！',
+    'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}! Your daily reward is ready to claim!`,
+    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} Okaaay, I'll ping you in this channel when your daily is ready!`,
+    'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
+    'interaction.daily.reminder.button': '整うとメンション',
+    'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
 
     'games.8ball.aa':'もちろん！',
     'games.8ball.ab':'は～～い！',

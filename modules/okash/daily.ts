@@ -1,10 +1,11 @@
 import {AddOneToInventory, ModifyOkashAmount} from "./wallet"
-import { ChatInputCommandInteraction, TextChannel } from "discord.js"
-import { ITEMS } from "./items"
-import { AddXP } from "../levels/onMessage"
-import { Achievements, GrantAchievement } from "../passive/achievement"
+import {ChatInputCommandInteraction, TextChannel} from "discord.js"
+import {ITEMS} from "./items"
+import {AddXP} from "../levels/onMessage"
+import {Achievements, GrantAchievement} from "../passive/achievement"
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
+import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
 
 const ONE_DAY = 86400000;
 
@@ -80,8 +81,11 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
     const profile = GetUserProfile(interaction.user.id);
 
     if (profile.daily.streak >= profile.daily.restore_to) {
+        // await interaction.editReply({
+        //     content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore** right now!`
+        // });
         await interaction.editReply({
-            content: `:chart_with_downwards_trend: **${interaction.user.displayName}**, your current streak is higher than your previous one, so you can't use a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore** right now!`
+            content: LangGetFormattedString(LANG_INTERACTION.DAILY_SR_FAIL_HIGHER, interaction.okabot.locale, interaction.user.displayName)
         });
         return false;
     }
@@ -90,15 +94,21 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
         profile.daily.restored = false;
         profile.daily.restore_to = 0;
 
+        // await interaction.editReply({
+        //     content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only restore a streak once!`
+        // });
         await interaction.editReply({
-            content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but you can only restore a streak once!`
+            content: LangGetFormattedString(LANG_INTERACTION.DAILY_SR_FAIL_TWICE, interaction.okabot.locale, interaction.user.displayName)
         });
     } else {
         profile.daily.streak = profile.daily.restore_to;
         profile.daily.restored = true;
         
+        // await interaction.editReply({
+        //     content:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **${interaction.user.displayName}**, you've restored your streak to **${profile.daily.restore_to} days**!`
+        // });
         await interaction.editReply({
-            content:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **${interaction.user.displayName}**, you've restored your streak to **${profile.daily.restore_to} days**!`
+            content: LangGetFormattedString(LANG_INTERACTION.DAILY_SR_OK, interaction.okabot.locale, interaction.user.displayName, profile.daily.restore_to)
         });
 
         GrantAchievement(interaction.user, Achievements.DAILY_SR, interaction.channel as TextChannel);
