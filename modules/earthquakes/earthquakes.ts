@@ -124,7 +124,7 @@ const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: nu
 let is_reconnecting = false;
 let reconnect_tries = 0;
 
-function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
+export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
     SOCKET.OpenSocket({
         classifications: [
             Classification.EEW_FORECAST,
@@ -160,7 +160,7 @@ function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
                     content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds, retrying...`,
                     flags: [MessageFlags.SuppressNotifications]
                 });
-                reopen_socket(SOCKET);
+                reopen_socket(SOCKET, channel);
             } else {
                 channel.send({
                     content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds. i have given up reconnecting. manually run "oka dmdata connect" to retry`,
@@ -233,10 +233,10 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
     SOCKET.on(WebSocketEvent.OPENED, () => {
         L.debug('dmdata connection opened ok!');
-        if (is_reconnecting) (channel as TextChannel)!.send({
-            content:`okaaay, i reconnected successfully after ${reconnect_tries>1?reconnect_tries+' tries':reconnect_tries+' try'}.`,
-            flags:[MessageFlags.SuppressNotifications]
-        });
+        // if (is_reconnecting) (channel as TextChannel)!.send({
+        //     content:`okaaay, i reconnected successfully after ${reconnect_tries>1?reconnect_tries+' tries':reconnect_tries+' try'}.`,
+        //     flags:[MessageFlags.SuppressNotifications]
+        // });
         is_reconnecting = false;
     });
 
@@ -248,7 +248,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         });
 
         setTimeout(() => {
-            reopen_socket();
+            reopen_socket(SOCKET, channel);
             reconnect_tries++;
         }, 3000);
     });
@@ -342,7 +342,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         }
     });
 
-    open_socket(SOCKET);
+    open_socket(SOCKET, channel);
 }
 
 // lat_min 	    lat_max 	lon_min 	    lon_max

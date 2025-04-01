@@ -19,6 +19,7 @@ import {ManualRelease} from "../okash/games/slots";
 import {PassesActive} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
 import {BoostsActive} from "./onMessage";
+import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 
 
 interface ShorthandList {
