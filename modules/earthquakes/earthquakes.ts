@@ -248,7 +248,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         });
 
         setTimeout(() => {
-            reopen_socket(SOCKET, channel);
+            reopen_socket(SOCKET, (channel as TextChannel)!);
             reconnect_tries++;
         }, 3000);
     });
@@ -342,7 +342,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         }
     });
 
-    open_socket(SOCKET, channel);
+    open_socket(SOCKET, (channel as TextChannel)!);
 }
 
 // lat_min 	    lat_max 	lon_min 	    lon_max
