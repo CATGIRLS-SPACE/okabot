@@ -120,8 +120,11 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 
 let MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
 export let SOCKET: DMDataWebSocket;
+const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
+let is_reconnecting = false;
+let reconnect_tries = 0;
 
-function open_socket(SOCKET: DMDataWebSocket) {
+function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
     SOCKET.OpenSocket({
         classifications: [
             Classification.EEW_FORECAST,
@@ -129,11 +132,50 @@ function open_socket(SOCKET: DMDataWebSocket) {
             Classification.TELEGRAM_EARTHQUAKE
         ]
     });
+
+    setTimeout(() => {
+        if (!SOCKET.is_active) {
+            channel.send({
+                content: ':x: dmdata connection failure. i will not retry. run "oka dmdata connect" to retry.'
+            });
+        }
+    }, 10000);
 }
 
-const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
-let is_reconnecting = false;
-let reconnect_tries = 0;
+function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
+    SOCKET.OpenSocket({
+        classifications: [
+            Classification.EEW_FORECAST,
+            Classification.EEW_WARNING,
+            Classification.TELEGRAM_EARTHQUAKE
+        ]
+    });
+
+    setTimeout(() => {
+        if (!SOCKET.is_active) {
+            L.debug('failed to reconnect!');
+            reconnect_tries++;
+            if (reconnect_tries < 25) {
+                channel.send({
+                    content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds, retrying...`,
+                    flags: [MessageFlags.SuppressNotifications]
+                });
+                reopen_socket(SOCKET);
+            } else {
+                channel.send({
+                    content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds. i have given up reconnecting. manually run "oka dmdata connect" to retry`,
+                    flags: [MessageFlags.SuppressNotifications]
+                });
+            }
+        } else {
+            channel.send({
+                content: `ok, i reconnected after ${reconnect_tries} tries.`
+            });
+            reconnect_tries = 0;
+            is_reconnecting = false;
+        }
+    }, 10000);
+}
 
 /**
  * This function will load all dmdata locations then connect to the DMData websocket.
@@ -205,11 +247,8 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             flags:[MessageFlags.SuppressNotifications]
         });
 
-        is_reconnecting = true;
-        reconnect_tries = 0;
-
         setTimeout(() => {
-            open_socket(SOCKET);
+            reopen_socket();
             reconnect_tries++;
         }, 3000);
     });

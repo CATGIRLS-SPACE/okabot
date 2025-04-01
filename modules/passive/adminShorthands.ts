@@ -326,6 +326,21 @@ export function RegisterAllShorthands() {
             }, 500);
         });
     });
+
+    // dmdata management
+    RegisterShorthand('oka dmdata connect', async (message: Message) => {
+        message.channel.send({
+            content: `attempting...`
+        });
+        open_socket(SOCKET, message.channel);
+    });
+
+    RegisterShorthand('oka dmdata disconnect', async (message: Message) => {
+        message.channel.send({
+            content: `terminating. okabot will try and reconnect automatically.`
+        });
+        SOCKET.CloseSocket();
+    });
 }
 
 export async function CheckForShorthand(message: Message) {
