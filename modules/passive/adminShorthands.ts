@@ -19,6 +19,7 @@ import {ManualRelease} from "../okash/games/slots";
 import {PassesActive} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
 import {BoostsActive} from "./onMessage";
+import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 
 
 interface ShorthandList {
@@ -325,6 +326,21 @@ export function RegisterAllShorthands() {
                 reject('!debug rejection');
             }, 500);
         });
+    });
+
+    // dmdata management
+    RegisterShorthand('oka dmdata connect', async (message: Message) => {
+        (message.channel as TextChannel).send({
+            content: `attempting...`
+        });
+        open_socket(SOCKET, message.channel as TextChannel);
+    });
+
+    RegisterShorthand('oka dmdata disconnect', async (message: Message) => {
+        (message.channel as TextChannel).send({
+            content: `terminating. okabot will try and reconnect automatically.`
+        });
+        SOCKET.CloseSocket();
     });
 }
 
