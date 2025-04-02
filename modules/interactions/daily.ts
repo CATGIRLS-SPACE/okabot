@@ -75,8 +75,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         return;
     }
 
-    if (result == 750) {
-        // 750 = no streak (technically 1 day)
+    if (result == 1500) {
+        // 1500 = no streak (technically 1 day)
         GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
 
         if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
@@ -105,7 +105,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     }
 
     // plus streak bonus
-    const bonus = result - 750;
+    const bonus = result - 1500;
     const streak_count = GetDailyStreak(interaction.user.id);
 
     GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
@@ -124,7 +124,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     let response;
 
-    let content = LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale) + '\n' + LangGetFormattedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.locale, streak_count, bonus);
+    let content = LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale, LangGetFormattedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.locale)) + '\n' + LangGetFormattedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.locale, streak_count, bonus);
 
     response = await interaction.editReply({
         content,

@@ -81,7 +81,7 @@ const LANGUAGE_EN: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in fines at the bank.`,
 
-    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**750** and a **{1}**!`,
+    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
     'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
     'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
     'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
@@ -145,17 +145,17 @@ const LANGUAGE_JA: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**さん、ポケットにOKA**{2}**、銀行にOKA**{3}**持ちです\n銀行は罰金で${GetEmoji(EMOJI.OKASH)} OKA**{4}**持ちです`,
 
-    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**750** and a **{1}**!`,
-    'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
-    'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
+    'interaction.daily': `:white_check_mark: あなたの日次報酬を${GetEmoji(EMOJI.OKASH)}OKA**1500**と**{1}**受けります！`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: ナイス！あなたの日次報酬は{1}日！あなたは継続のボーナスで${GetEmoji(EMOJI.OKASH)} OKA**{2}**を受けります！`,
+    'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**さん、あなたの日次報酬は**{2}日**へ戻す！`,
     'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
     'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
     'interaction.daily.needtowait': ':crying_cat_face: **{1}**さん、あまりに早いです！ <t:{2}:R>に戻ってくります！',
-    'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}! Your daily reward is ready to claim!`,
-    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} Okaaay, I'll ping you in this channel when your daily is ready!`,
-    'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
+    'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}さん！あなたの日次報酬は整うです！`,
+    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)}　は～い！日次報酬は整うとメンションしましょう！`,
+    'interaction.daily.reminder.angry': ':pouting_cat: **{1}**さん！もうあなたでメンションを言いています！',
     'interaction.daily.reminder.button': '整うとメンション',
-    'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
+    'interaction.daily.reminder.button_claim': 'また整うとメンション',
 
     'games.8ball.aa':'もちろん！',
     'games.8ball.ab':'は～～い！',

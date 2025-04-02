@@ -110,7 +110,8 @@ const RELEASE_NAME = ({
     '4.3.1':'Mont Blanc Q',
     '4.4.0':'Clafoutis',
     '4.4.1':'Clafoutis Q',
-    '4.4.2':'Clafoutis QP'
+    '4.4.2':'Clafoutis QP',
+    '4.4.3':'Cafoutis QP2',
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;

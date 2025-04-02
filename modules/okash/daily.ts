@@ -36,7 +36,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
 
             AddXP(user_id, channel, 50);
 
-            return 750;
+            return 1500;
         }
         console.log('daily is existing streak');
 
@@ -53,7 +53,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
         let streak_multiplier = (profile.daily.streak - 1)* 0.05;
         if (streak_multiplier > 1) streak_multiplier = 1;
 
-        const amount = Math.round(750 + (750 * streak_multiplier));
+        const amount = Math.round(1500 + (1500 * streak_multiplier));
 
         UpdateUserProfile(user_id, profile);
         AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
