@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel, MessageFlags} from "discord.js";
 import {AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
@@ -6,6 +6,7 @@ import {CalculateTargetXP} from "../levels/levels";
 import {AddXP} from "../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetProperItemName} from "./pockets";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 
 const LastBoughtLevel = new Map<string, number>();
@@ -81,9 +82,18 @@ const ALLOWED_SHOP_VOUCHER_ITEMS: Array<ITEMS> = [
 ];
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-
+    
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
+    
+    if (wanted_item == 'achievement') {
+        interaction.reply({
+            content:':smirk_cat:',
+            flags: [MessageFlags.Ephemeral]
+        });
+        return GrantAchievement(interaction.user, Achievements.ACHIEVEMENT, interaction.channel as TextChannel);
+    }
+
+    await interaction.deferReply();
 
     if (!PRICES[wanted_item] && !PRICES[SHORTHANDS[wanted_item]]) return interaction.editReply({
         content:(wanted_item == 'weighted coin')?`:crying_cat_face: Silly **${interaction.user.displayName}**, you should know I don't sell gambling buffs here!`:`${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Looks like I don't sell that here, sorry!`

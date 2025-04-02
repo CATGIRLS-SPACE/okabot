@@ -11,7 +11,7 @@ import {ClaimDaily, GetDailyStreak} from "../okash/daily";
 import {GetEmoji} from "../../util/emoji";
 import {quickdraw, ScheduleDailyReminder} from "../tasks/dailyRemind";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
+import {LANG_INTERACTION, LANG_ITEMS, LangGetFormattedString} from "../../util/language";
 
 const remindButton = new ButtonBuilder()
     .setCustomId('remindme')
@@ -66,8 +66,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             if (!success) GrantAchievement(i.user, Achievements.ANGER_OKABOT, i.channel as TextChannel);
 
             i.update({
-                content: success?`:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`
-                :`:pouting_cat: **${interaction.user.displayName}**, I already told you I'd remind you!!`,
+                content: success?LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale)
+                :LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_ANGRY, interaction.okabot.locale, interaction.user.displayName),
                 components:[]
             });
         });
@@ -83,11 +83,8 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         let response;
 
-        let content= `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** and a ${GetEmoji('cff_green')} Weighted Coin!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`;
-        if (interaction.locale == Locale.Japanese) content = `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**750**と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！`;
-
         response =  await interaction.editReply({
-            content,
+            content: LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale, LangGetFormattedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.locale)),
             components: [onClaimBar]
         });
 
@@ -99,7 +96,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
         
             i.update({
-                content: `${content}\n\n:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+                content: `${content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
                 components:[]
             });
         });
@@ -111,6 +108,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const bonus = result - 750;
     const streak_count = GetDailyStreak(interaction.user.id);
 
+    GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
     if (streak_count >= 7) GrantAchievement(interaction.user, Achievements.DAILY_7, interaction.channel as TextChannel);
     if (streak_count >= 30) GrantAchievement(interaction.user, Achievements.DAILY_30, interaction.channel as TextChannel);
     if (streak_count >= 61) GrantAchievement(interaction.user, Achievements.DAILY_61, interaction.channel as TextChannel);
@@ -126,8 +124,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     let response;
 
-    let content = `:white_check_mark: Got your daily reward of ${GetEmoji('okash')} OKA**750** (**PLUS OKA${bonus}**) and a ${GetEmoji('cff_green')} Weighted Coin!\n:chart_with_upwards_trend: You currently have a daily streak of ${streak_count} days, meaning you get ${percentage}% of the usual daily!\n-# Your daily streak will increase your okash by 5% for every day, up to 100%`;
-    if (interaction.locale == Locale.Japanese) content = `:white_check_mark: あなたの日常の褒美で${GetEmoji('okash')} OKA**${750+bonus}**（ボーナス${bonus}）と${GetEmoji('cff_green')} 1枚の重いコインをゲットしました！\nあなたの日刊連勝は${streak_count}日。褒美＋${100-percentage}%をゲットしました！`;
+    let content = LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale) + '\n' + LangGetFormattedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.locale, streak_count, bonus);
 
     response = await interaction.editReply({
         content,
@@ -142,7 +139,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
     
         i.update({
-            content: `${content}\n\n:white_check_mark: Okaaay! I'll remind you when your daily is ready <t:${Math.floor(ready/1000)}:R>!`,
+            content: `${content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
             components:[]
         });
     });

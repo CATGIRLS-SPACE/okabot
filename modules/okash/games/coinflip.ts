@@ -276,10 +276,31 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
     // interaction.deferReply();
 
-    if (ActiveFlips.indexOf(interaction.user.id) != -1) return interaction.reply({
-        content: `:x: You can only flip one coin at a time, **${interaction.user.displayName}**!`,
-        flags: [MessageFlags.SuppressNotifications]
-    });
+    if (ActiveFlips.indexOf(interaction.user.id) != -1) {
+        let violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
+
+        console.log(`violations: ${violations}`);
+
+        UIDViolationTracker.set(interaction.user.id, violations);
+        
+        if (violations == 5) {
+            const d = new Date();
+            const unrestrict_date = new Date(d.getTime()+600000);
+            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
+            UIDViolationTracker.set(interaction.user.id, 0);
+            GrantAchievement(interaction.user, Achievements.COINFLIP_BAN, interaction.channel as TextChannel);
+        } 
+        
+        return interaction.reply({
+            content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+        
+    // return interaction.reply({
+    //     content: `:x: You can only flip one coin at a time, **${interaction.user.displayName}**!`,
+    //     flags: [MessageFlags.SuppressNotifications]
+    // });
 
     // get options and user profile
     const bet = interaction.options.getNumber('amount', true);

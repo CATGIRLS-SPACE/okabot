@@ -1,6 +1,5 @@
 import { ApplicationIntegrationType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
-import { Channel } from "diagnostics_channel";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 
 
@@ -56,8 +55,10 @@ export enum Achievements {
     ROB_BANK_HIGH = 'bankrob50000', //
     ROB_BANK_PUNY = 'bankrob5percent', //
     CASINO_PASS = 'casinopass', //
-    DROP_BOOST = 'dropboost',
+    DROP_BOOST = 'dropboost', //
     SELLDROPITEM = 'selldrop', //
+    ACHIEVEMENT = 'achievement',
+    COINFLIP_BAN = 'autobanned',
 }
 
 const ACHIEVEMENTS: {
@@ -109,6 +110,9 @@ const ACHIEVEMENTS: {
     'casinopass': {name:'No Time To Waste',description:'Use a Casino Pass to bypass the blackjack cooldown',class:'fun', diff:'e'},
     'dropboost': {name:'Drop Please',description:'Use a Drop Chance Booster to increase your chances at gaining a lootbox',class:'fun', diff:'e'},
     'selldrop': {name:'Ungrateful',description:'Get an item from a lootbox and immediately sell it',class:'fun', diff:'h'},
+    // 'curious': {name:'Curious',description:'Ask the Magic 8 Ball 100 questions',class:'fun', diff:'e'},
+    'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
+    'autobanned': {name:'Slow Down!',description:'Get a temporary ban from okabot for trying to flip too many coins.',class:'gamble', diff:'e'},
 }
 
 /**
