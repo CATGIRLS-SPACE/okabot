@@ -98,7 +98,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
             {name: "Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
             {name: 'Depth', value: `**${depth} km**`, inline: true},
-            {name: 'Location', value: locations_english[hypocenter_name]},
+            {name: 'Location', value: locations_english[hypocenter_name] || hypocenter_name},
         );
 }
 
@@ -137,6 +137,10 @@ export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
         if (!SOCKET.is_active) {
             channel.send({
                 content: ':x: dmdata connection failure. i will not retry. run "oka dmdata connect" to retry.'
+            });
+        } else {
+            channel.send({
+                content: ':white_check_mark: dmdata connection success'
             });
         }
     }, 10000);
