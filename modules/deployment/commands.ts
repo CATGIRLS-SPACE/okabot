@@ -42,38 +42,37 @@ const DebugSlashCommand =
         .setDescription('Replies with some debug info');
 
 
-
-const COMMANDS_TO_REGISTER = [
-    InfoSlashCommand,
-    DebugSlashCommand,
-    OkashSlashCommand,
-    DailySlashCommand,
-    PaySlashCommand,
-    MoveMoneySlashCommand,
-    LeaderboardSlashCommand,
-    CoinflipSlashCommand,
-    RecentEarthquakeSlashCommand,
-    UseSlashCommand,
-    BuySlashCommand,
-    SellSlashCommand,
-    ShopSlashCommand,
-    PocketsSlashCommand,
-    CustomizeSlashCommand,
-    LevelSlashCommand,
-    BlackjackSlashCommand,
-    HelpSlashCommand,
-    RenderSlashCommand,
-    RouletteSlashCommand,
-    RobSlashCommand,
-    AchievementsSlashCommand,
-    SlotsSlashCommand,
-    ToggleSlashCommand,
-    TradeSlashCommand,
-    // CasinoSlashCommand, // <-- not ready yet!
-    FortuneBallSlashCommand,
-].map(command => command.toJSON());
-
 export async function DeployCommands(token: string, client_id: string): Promise<void> {
+    const COMMANDS_TO_REGISTER = [
+        InfoSlashCommand,
+        DebugSlashCommand,
+        OkashSlashCommand,
+        DailySlashCommand,
+        PaySlashCommand,
+        MoveMoneySlashCommand,
+        LeaderboardSlashCommand,
+        CoinflipSlashCommand,
+        RecentEarthquakeSlashCommand,
+        UseSlashCommand,
+        BuySlashCommand,
+        SellSlashCommand,
+        ShopSlashCommand,
+        PocketsSlashCommand,
+        CustomizeSlashCommand,
+        LevelSlashCommand,
+        BlackjackSlashCommand,
+        HelpSlashCommand,
+        RenderSlashCommand,
+        RouletteSlashCommand,
+        RobSlashCommand,
+        AchievementsSlashCommand,
+        SlotsSlashCommand,
+        ToggleSlashCommand,
+        TradeSlashCommand,
+        // CasinoSlashCommand, // <-- not ready yet!
+        FortuneBallSlashCommand,
+    ].map(command => command.toJSON());
+
     const L = new Logger('deployment');
     L.info('Deploying commands...');
 

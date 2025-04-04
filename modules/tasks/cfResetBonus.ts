@@ -12,7 +12,7 @@ const DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT = false;
 
 const COINFLIP_MINMAX_BONUS = 5000;
 const COINFLIP_MINMAX_FREQUENCY = !DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT?'0 9 * * 1':'0 * * * * *';
-const BROADCAST_CHANNEL = !DEV?'1019089378343137373':'941843973641736253'; // #chatsies / #okabot-private-test
+let BROADCAST_CHANNEL = '1019089378343137373'; // #chatsies / #okabot-private-test
 const L = new Logger('coinflip reset bonus');
 
 export interface CoinFloats {
@@ -54,6 +54,7 @@ let c: Client;
 
 export function ScheduleJob(client: Client) {
     c = client;
+    if (DEV) BROADCAST_CHANNEL = '941843973641736253';
     scheduleJob(COINFLIP_MINMAX_FREQUENCY, async () => {
         L.info('Bonus time has arrived, running tasks...');
 

@@ -118,7 +118,7 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 }
 
 
-let MONITORING_CHANNEL = !DEV?"1313343448354525214":"858904835222667315"; // #earthquakes (CC)
+let MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 export let SOCKET: DMDataWebSocket;
 const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
 let is_reconnecting = false;
@@ -190,6 +190,8 @@ function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
  */
 export async function StartEarthquakeMonitoring(client: Client, disable_fetching: boolean = false) {
     L.info('Loading all locations...');
+
+    if (DEV) MONITORING_CHANNEL = "858904835222667315";
 
     const data = readFileSync(join(BASE_DIRNAME, 'assets', 'earthquakes', 'Epicenters.txt'), 'utf-8');
     const lines = data.split('\n');

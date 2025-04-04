@@ -8,8 +8,8 @@ import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('voice xp');
 
-const CHANNEL_CHATSIES = !DEV?'1019089378343137373':'858904835222667315';
-const VC_AFK = !DEV?"1325669216828788780":"1325952874097672273";
+let CHANNEL_CHATSIES = '1019089378343137373';
+let VC_AFK = "1325669216828788780";
 let VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
@@ -75,6 +75,11 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
 
 export function LoadVoiceData() {
     if (!existsSync(join(BASE_DIRNAME, 'vcdb.oka'))) return;
+
+    if (DEV) {
+        CHANNEL_CHATSIES = '858904835222667315';
+        VC_AFK = "1325952874097672273";
+    }
 
     const data: {[key: string]: number} = JSON.parse(readFileSync(join(BASE_DIRNAME, 'vcdb.oka'), 'utf-8'));
     

@@ -33,7 +33,7 @@ export const CONFIG: {
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-export const DEV = CONFIG.extra.includes('use dev token');
+export const DEV: boolean = CONFIG.extra.includes('use dev token');
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -375,7 +375,7 @@ process.on('unhandledRejection', async (reason: any) => {
     L.error('okabot has encountered an uncaught rejection!');
     console.error('Unhandled Rejection:', reason);
     try {
-        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315") as TextChannel;
+        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
         await channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```'});
     } catch(err) {
         L.error('could not send report!!');

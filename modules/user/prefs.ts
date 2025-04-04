@@ -152,7 +152,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     trackedInventory: []
 }
 
-let PROFILES_DIR: string;
+var PROFILES_DIR: string | null = null;
 
 const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
@@ -161,6 +161,11 @@ export function SetupPrefs(base_dirname: string) {
     
     // runs on startup to ensure the profiles directory exists
     if (!existsSync(PROFILES_DIR)) mkdirSync(PROFILES_DIR);
+}
+
+function GetProfilesDir(): string {
+    if (PROFILES_DIR == null) throw new Error("SetupPrefs() must be called before GetProfilesDir() can be used.");
+    return PROFILES_DIR;
 }
 
 
@@ -193,7 +198,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
 
 
 export function UpdateUserProfile(user_id: string, new_data: USER_PROFILE) {
-    const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
+    const profile_path = join(GetProfilesDir(), `${user_id}.oka`);
     writeFileSync(profile_path, JSON.stringify(new_data), 'utf-8');
 
     ProfileCache.set(user_id, new_data);
@@ -264,7 +269,7 @@ export function CheckUserIdOkashRestriction(user_id: string, ability: string): b
 export async function GetAllLevels(): Promise<Array<{user_id: string, level: {level: number, current_xp: number}}>> {
     const all: Array<{user_id: string, level: {level: number, current_xp: number}}> = [];
 
-    const profiles = readdirSync(PROFILES_DIR);
+    const profiles = readdirSync(GetProfilesDir());
     
     profiles.forEach(profile => {
         let user_id = profile.split('.')[0];
