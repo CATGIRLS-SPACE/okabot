@@ -83,7 +83,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         let response;
 
-        response =  await interaction.editReply({
+        response = await interaction.editReply({
             content: LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale, LangGetFormattedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.locale)),
             components: [onClaimBar]
         });
@@ -94,9 +94,11 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             const d = new Date();
             const ready = d.getTime() + (24*60*60*1000);
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
+
+            let previous_content = i.message;
         
             i.update({
-                content: `${content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
+                content: `${previous_content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
                 components:[]
             });
         });
@@ -137,9 +139,10 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         const d = new Date();
         const ready = d.getTime() + (24*60*60*1000);
         ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
+        let previous_content = i.message;
     
         i.update({
-            content: `${content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
+            content: `${previous_content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
             components:[]
         });
     });

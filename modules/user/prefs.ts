@@ -168,6 +168,14 @@ function GetProfilesDir(): string {
     return PROFILES_DIR;
 }
 
+export function DumpProfileCache() {
+    ProfileCache.clear();
+}
+export function ReloadProfile(user_id: Snowflake) {
+    if (ProfileCache.has(user_id)) return ProfileCache.delete(user_id);
+    GetUserProfile(user_id);
+}
+
 
 export function GetUserProfile(user_id: string): USER_PROFILE {
     // only should trigger if you use the --wipe flag

@@ -1,4 +1,4 @@
-import {Client, EmbedBuilder, Message, TextChannel} from "discord.js";
+import {Client, EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
 import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
@@ -9,7 +9,14 @@ import {
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetUserProfile, RestrictUser, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
+import {
+    DumpProfileCache,
+    GetUserProfile,
+    ReloadProfile,
+    RestrictUser,
+    UpdateUserProfile,
+    USER_PROFILE
+} from "../user/prefs";
 import {SelfUpdate} from "../../util/updater";
 import {ReleaseUserGame} from "../okash/games/roulette";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -341,6 +348,23 @@ export function RegisterAllShorthands() {
             content: `terminating. okabot will try and reconnect automatically.`
         });
         SOCKET.CloseSocket();
+    });
+
+    // profile cache clearing
+    RegisterShorthand('oka drop profile cache', async (message: Message) => {
+        DumpProfileCache();
+        message.reply({
+            content:':white_check_mark: Dropped all profile cache.',
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    });
+
+    RegisterShorthand('oka reload', async (message: Message, params: string[]) => {
+        ReloadProfile(params[2]);
+        message.reply({
+            content:':white_check_mark: Dropped user profile from cache and reloaded from file.',
+            flags: [MessageFlags.SuppressNotifications]
+        });
     });
 }
 

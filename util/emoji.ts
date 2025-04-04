@@ -1,4 +1,4 @@
-import { DEV } from ".."
+import {BotIsDevMode, DEV} from ".."
 import {warn} from "okayulogger";
 
 export enum EMOJI {
@@ -164,10 +164,10 @@ const EMOJI_KEYS: {
 
 export function GetEmoji(name: string): string {
     if (!EMOJI_KEYS[name]) return `[:question:]`;
-    return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][DEV?'dev':'prod']}>`;
+    return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][BotIsDevMode()?'dev':'prod']}>`;
 }
 export function GetEmojiID(name: string): string {
-    return EMOJI_KEYS[name][DEV?'dev':'prod'];
+    return EMOJI_KEYS[name][BotIsDevMode()?'dev':'prod'];
 }
 
 for (const key in EMOJI_KEYS) {

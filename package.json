@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/rest": "^1.0.1",
-    "@types/express": "^5.0.0",
-    "axios": "^1.7.9",
+    "@discordjs/rest": "^1.7.1",
+    "@types/express": "^5.0.1",
+    "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "canvas": "^3.1.0",
     "discord.js": "^14.18.0",
@@ -22,11 +22,11 @@
     "lily-dmdata": "^0.1.6-beta",
     "node-schedule": "^2.1.1",
     "okayulogger": "^3.0.0",
-    "ws": "^8.18.0",
+    "ws": "^8.18.1",
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.14.0",
     "@types/node-schedule": "^2.1.7"
   }
 }

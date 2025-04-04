@@ -33,7 +33,8 @@ export const CONFIG: {
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-export const DEV: boolean = CONFIG.extra.includes('use dev token');
+export var DEV: boolean = CONFIG.extra.includes('use dev token');
+export function BotIsDevMode(): boolean { return DEV };
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -310,11 +311,11 @@ client.on(Events.MessageCreate, async message => {
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
     // various checks
+    await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
     DoLeveling(message); // self-explanatory
     CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
     WordleCheck(message); // checks for wordle spoilers
-    CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     DoRandomDrops(message); // drops!
     ListenForRouletteReply(message); // checks for number in response to roulette game
     Check$Message(message); // checks for $ messages, for serials on tracked items
