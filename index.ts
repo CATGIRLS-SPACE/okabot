@@ -111,7 +111,8 @@ const RELEASE_NAME = ({
     '4.4.0':'Clafoutis',
     '4.4.1':'Clafoutis Q',
     '4.4.2':'Clafoutis QP',
-    '4.4.3':'Cafoutis QP2',
+    '4.4.3':'Clafoutis QP2',
+    '4.4.4':'Fix for the Stupid Earthquake Issue'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
@@ -383,6 +384,19 @@ process.on('unhandledRejection', async (reason: any) => {
         logError(reason);
     }
 });
+
+export async function ManuallySendErrorReport(reason: string, silent: boolean) {
+    L.error('okabot has encountered a manual error report!');
+    console.error('reason:', reason);
+    try {
+        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
+        await channel.send({content:':warning: okabot has encountered a recoverable error! here\'s the recorded reason:\n'+'```'+ reason +'```\n' + new Error().stack!.split('\n')[2].trim()});
+    } catch(err) {
+        L.error('could not send report!!');
+        console.log(err);
+        logError(reason);
+    }
+}
 
 
 // Execution Starts here

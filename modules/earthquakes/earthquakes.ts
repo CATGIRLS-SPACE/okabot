@@ -9,7 +9,7 @@ import {
     TextChannel
 } from 'discord.js';
 import {join} from 'path';
-import {BASE_DIRNAME, client, DEV, CONFIG} from '../../index';
+import {BASE_DIRNAME, client, DEV, CONFIG, ManuallySendErrorReport} from '../../index';
 import {readFileSync} from 'fs';
 import {GetLatestEarthquake} from './dmdata';
 import {Logger} from 'okayulogger';
@@ -220,7 +220,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
         const embed = await BuildEarthquakeEmbed(
             new Date((data.earthquake || {originTime:0}).originTime), 
-            (data.earthquake.magnitude || {value:'[unknown]'}).value,
+            (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
             data.intensity.maxInt,
             data.earthquake.hypocenter.depth.value, //this is actually depth <-- no shit sherlock??
             data.earthquake.hypocenter.name, 
@@ -264,7 +264,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
         let embed = BuildEEWEmbed(
             new Date((data.earthquake || {originTime:'0'}).originTime),
-            data.earthquake.magnitude.value,
+            (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
             (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
             data.earthquake.hypocenter.depth.value,
             data.earthquake.hypocenter.name,
@@ -280,7 +280,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
             embed = BuildEEWEmbed(
                 new Date((data.earthquake || {originTime:'0'}).originTime),
-                data.earthquake.magnitude.value,
+                (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
                 (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
@@ -306,14 +306,21 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     SOCKET.on(WebSocketEvent.EEW_WARNING, async (data: EEWInformationSchemaBody) => {
         console.log(data.serialNo);
 
-        let embed = BuildEEWEmbed(
-            new Date((data.earthquake || {originTime:'0'}).originTime),
-            data.earthquake.magnitude.value,
-            data.intensity.forecastMaxInt.to,
-            data.earthquake.hypocenter.depth.value,
-            data.earthquake.hypocenter.name,
-            {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
-        );
+        let embed;
+
+        try {
+            embed = BuildEEWEmbed(
+                new Date((data.earthquake || {originTime:'0'}).originTime),
+                (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
+                data.intensity.forecastMaxInt.to,
+                data.earthquake.hypocenter.depth.value,
+                data.earthquake.hypocenter.name,
+                {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
+            );
+        } catch (err) {
+            L.error('Failed to build embed!');
+            return ManuallySendErrorReport(`WebSocketEvent.EEW_WARNING: failed to build embed.\n${err}`, true);
+        }
 
         if (EXISTING_EARTHQUAKES.has(data.eventId)) {
             const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
