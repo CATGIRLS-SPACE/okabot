@@ -1,9 +1,18 @@
-import { Message, TextChannel } from "discord.js";
+import {GuildMember, Message, TextChannel} from "discord.js";
 
 let last_cached_date: string, last_cached_word: string;
 
 export async function WordleCheck(message: Message) {
     if (message.channel.id == "1310486655257411594" || message.channel.id == "858904835222667315") { // #wordle
+        // checking if they're NOT being original, hmph...
+        if (message.author.id != "566671009189462038" && (message.content.includes('wack') && message.content.includes("word"))) {
+            message.delete();
+            return (message.channel as TextChannel).send({
+                content: `:pouting_cat: **${(message.member as GuildMember).displayName || message.author.displayName}**, you're not original!\n-# if you try and bypass, I will get really upset, and you will not be allowed to participate here!!!`
+            });
+        }
+
+
         let d = new Date();
         const month = d.getMonth()+1<10?`0${d.getMonth()+1}`:d.getMonth()+1;
         const day = d.getDate()<10?`0${d.getDate()}`:d.getDate();
