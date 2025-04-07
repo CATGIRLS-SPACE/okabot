@@ -7,13 +7,14 @@ import {
     TextChannel
 } from "discord.js";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
-import { AddToWallet, GetWallet, RemoveFromWallet } from "../wallet";
-import { AddXP } from "../../levels/onMessage";
-import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddToWallet, GetWallet, RemoveFromWallet} from "../wallet";
+import {AddXP} from "../../levels/onMessage";
+import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
 import {DEV, SetActivity} from "../../../index";
 import {DoRandomDrops} from "../../passive/onMessage";
+import {LANG_GAMES, LangGetFormattedString} from "../../../util/language";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -27,9 +28,9 @@ enum ROLLS {
 }
 const ROLL_EMOJIS: {[key: string]: string} = {
     'OKASH': GetEmoji(EMOJI.OKASH),
-    'GRAPE': ':grapes:', // <-- why do you have to be special? just "grape" wasn't enough for you?
-    'APPLE': ':apple:',
-    'GEM':   ':gem:'
+    'GRAPE': GetEmoji(EMOJI.SLOTS_GRAPE),
+    'APPLE': GetEmoji(EMOJI.SLOTS_APPLE),
+    'GEM':   GetEmoji(EMOJI.SLOTS_GEM)
 }
 
 // this is the array in which the slot thingy will spin
@@ -85,8 +86,6 @@ const PAYOUT_TABLE: {[key: string]: number} = {
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
-const EN_MESSAGE = '-# Enjoying okabot? Please consider [supporting me](<https://ko-fi.com/okawaffles>).\n';
-const JP_MESSAGE = '-# okabotが好きですか？[寄付](<https://ko-fi.com/okawaffles>)をご検討ください\n';
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
     if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
@@ -104,7 +103,6 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     ACTIVE_GAMES.set(interaction.user.id, true);
 
     let show_consider = false;
-    const consider_message = interaction.okabot.locale=='ja'?JP_MESSAGE:EN_MESSAGE;
     if (USER_GAMES_TICK.has(interaction.user.id) && USER_GAMES_TICK.get(interaction.user.id) == 50) {
         USER_GAMES_TICK.set(interaction.user.id, 0);
         show_consider = true;
@@ -125,7 +123,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     SetActivity('slots', ActivityType.Playing);
 
     const reply = await interaction.reply({
-        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
+        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -134,13 +132,13 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     await Sleep(3000);
 
     reply.edit({
-        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
+        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
     });
 
     await Sleep(1000);
 
     reply.edit({
-        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
+        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
     });
 
     await Sleep(1000);
@@ -157,7 +155,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         10: 50,
         15: 100,
         50: 250
-    }[multiplier];
+    }[multiplier]!;
 
     AddToWallet(interaction.user.id, earned_okash);
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
@@ -171,11 +169,11 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
-        `and wins ${GetEmoji(EMOJI.OKASH)} OKA**${earned_okash}**! **(+${earned_xp}XP)** ${GetEmoji(EMOJI.CAT_MONEY_EYES)}`:
-        `and loses ${profile.customization.global.pronouns.possessive} money! **(+5XP)** :crying_cat_face:`;
+        LangGetFormattedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.locale, earned_okash, earned_xp):
+        LangGetFormattedString(LANG_GAMES.SLOTS_LOSS, interaction.okabot.locale, profile.customization.global.pronouns.possessive, interaction.user.displayName);
 
     reply.edit({
-        content: `${show_consider?consider_message:''}🎰 **__SLOTS__** 🎰\n**${interaction.user.displayName}** bets ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**...\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
+        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 
     DoRandomDrops(reply_as_message, interaction.user);

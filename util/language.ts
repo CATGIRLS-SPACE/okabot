@@ -20,6 +20,8 @@ export enum LANG_INTERACTION {
     DAILY_REMINDER_BUTTON_AGAIN = 'interaction.daily.reminder.button_claim',
 }
 export enum LANG_GAMES {
+    ANY_COOLDOWN = 'games.all.cooldown',
+
     MAGIC_AFFIRMATIVE_A = 'games.8ball.aa',
     MAGIC_AFFIRMATIVE_B = 'games.8ball.ab',
     MAGIC_AFFIRMATIVE_C = 'games.8ball.ac',
@@ -42,6 +44,12 @@ export enum LANG_GAMES {
     MAGIC_UNSURE_E = 'games.8ball.ue',
     MAGIC_MESSAGE_INITIAL = 'games.8ball.initial',
     MAGIC_MESSAGE_FINAL = 'games.8ball.final',
+
+    SLOTS_ONE_MACHINE = 'games.slots.multigame',
+    SLOTS_DONATE = 'games.slots.donate',
+    SLOTS_INITIAL = 'games.slots.initial',
+    SLOTS_WIN = 'games.slots.win',
+    SLOTS_LOSS = 'games.slots.miss',
 }
 export enum LANG_RENDER {
     CASINO_WIN = 'render.casino.win',
@@ -116,6 +124,14 @@ const LANGUAGE_EN: Language = {
     'games.8ball.initial':'okabot shakes the :8ball: **Magic 8 Ball** to answer **{1}**\'s question...\n> {2}',
     'games.8ball.final':'okabot shakes the :8ball: **Magic 8 Ball** to answer **{1}**\'s question...\n> {2}\n\nand the answer is **{3}**',
 
+    'games.slots.donate':'-# Enjoying okabot? Please consider [supporting me](<https://ko-fi.com/okawaffles>).\n',
+    'games.slots.initial':`:slot_machine: **__SLOTS__** :slot_machine:\n**{1}** bets ${GetEmoji(EMOJI.OKASH)} OKA**{2}**...`,
+    'games.slots.miss':'and loses {1} money! **(+5XP)**',
+    'games.slots.win':`and wins ${GetEmoji(EMOJI.OKASH)} OKA**{1}**! **(+{2}XP)**`,
+    'games.slots.multigame':'Woah there, **{1}**! You can only use one slot machine at a time!',
+
+    'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
+
     'render.casino.win':'WINS {1}',
     'render.casino.loss':'{1} LOSS',
     'render.casino.title':'All Games (all-time)',
@@ -179,6 +195,14 @@ const LANGUAGE_JA: Language = {
     'games.8ball.ue':'それはもっと考えります',
     'games.8ball.initial':'**{1}**の問題ためにokabotは:8ball: **マジック8ボール**を使う\n> {2}',
     'games.8ball.final':'**{1}**の問題ためにokabotは:8ball: **マジック8ボール**を使う\n> {2}\n\n問題の回答は：**{3}**',
+
+    'games.slots.donate':'-# okabotが好きですか？[寄付](<https://ko-fi.com/okawaffles>)をご検討ください\n',
+    'games.slots.initial':`:slot_machine: **__スロットマシン__** :slot_machine:\n**{1}**さんが${GetEmoji(EMOJI.OKASH)} OKA**{2}**を賭けります`,
+    'games.slots.miss':'そして**{2}**さんのokashを失た！**(+5XP)**',
+    'games.slots.win':`そして${GetEmoji(EMOJI.OKASH)} OKA**{1}**を勝ち取りました！**(+{2}XP)**`,
+    'games.slots.multigame':'Woah there, **{1}**! You can only use one slot machine at a time!',
+
+    'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
 
     'render.casino.win':'ヒット{1}回',
     'render.casino.loss':'{1}回負ける',

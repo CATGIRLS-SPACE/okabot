@@ -34,7 +34,7 @@ export const CONFIG: {
     permitted_to_use_shorthands: Array<Snowflake>
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
-export function BotIsDevMode(): boolean { return DEV };
+export function BotIsDevMode(): boolean { return DEV }
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -113,7 +113,8 @@ const RELEASE_NAME = ({
     '4.4.1':'Clafoutis Q',
     '4.4.2':'Clafoutis QP',
     '4.4.3':'Clafoutis QP2',
-    '4.4.4':'Fix for the Stupid Earthquake Issue'
+    '4.4.4':'Fix for the Stupid Earthquake Issue',
+    '4.4.5':'QoL Fix for the Stupid iOS Emojis' //ive given up
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;

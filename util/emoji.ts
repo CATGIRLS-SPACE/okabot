@@ -64,6 +64,9 @@ export enum EMOJI {
     DIFF_EXHARD = 'adex',
     // slots
     SLOTS_ROLLING = 'smr',
+    SLOTS_GRAPE = 'twemoji_grapes',
+    SLOTS_APPLE = 'twemoji_apple',
+    SLOTS_GEM = 'twemoji_gem',
 }
 
 const EMOJI_KEYS: {
@@ -160,6 +163,9 @@ const EMOJI_KEYS: {
     'adex':{prod:'1339366891881365624',dev:'1339366418386522152'},
     // slots
     'smr':{prod:'1342264041623781386',dev:'1342264086377005086', animated: true},
+    'twemoji_apple':{prod:'1358923531894784151',dev:'1358922260357976326'},
+    'twemoji_grapes':{prod:'1358923559120015560',dev:'1358922392755503265'},
+    'twemoji_gem':{prod:'1358923581500952606',dev:'1358922325399048452'},
 }
 
 export function GetEmoji(name: string): string {
