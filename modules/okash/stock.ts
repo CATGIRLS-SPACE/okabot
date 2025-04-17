@@ -3,7 +3,7 @@ import { Logger } from "okayulogger";
 import { join } from "path";
 import { client, DEV } from "../..";
 import { Client, TextChannel } from "discord.js";
-import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
+// import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 
 export interface Stock {
     price: number,
@@ -257,7 +257,7 @@ export function UpdateMarkets(c: Client) {
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
     const is_event = DoEventCheck(c);
-    if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
+    // if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
 }
 
 /**
@@ -308,7 +308,7 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
 
     // send WSS update
-    WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_POSITIVE, {stock, value: MARKET[stock].price});
+    // WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_POSITIVE, {stock, value: MARKET[stock].price});
 }
 
 
@@ -382,7 +382,7 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
 
     // send WSS update
-    WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_NEGATIVE, {stock, value: MARKET[stock].price});
+    // WSS_SendStockUpdate(WSSStockMessage.USER_UPDATE_NEGATIVE, {stock, value: MARKET[stock].price});
 }
 
 export function GetLastNumValues(stock: Stocks, length: number) {
@@ -496,6 +496,6 @@ function DoEventCheck(c: Client): boolean {
         content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`
     });
 
-    WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id));
+    // WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id));
     return true;
 }
