@@ -146,6 +146,9 @@ export function AuthorizeLogin(session: string, user_id: Snowflake) {
     const priviliged = CONFIG.permitted_to_use_shorthands.includes(user_id);
     aliveConnections.forEach(ws => {
         ws.send(`SESSION ${session} ${priviliged?'PRIVILIGED':'NOT PRIVILIGED'}`);
+        if (priviliged) {
+            ws.send(`SESSION ${session} DMDATA CONNECTED`);
+        }
     });
 }
 

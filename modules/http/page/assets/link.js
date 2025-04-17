@@ -37,7 +37,7 @@ socket.onmessage = function(msg) {
     }
     if (message === `SESSION ${my_session} ERROR CANNOT DM`) {
         document.getElementById('link_code').innerText = 'Authentication Cannot Continue';
-        document.getElementById('sub_link_code').innerText = 'Please allow okabot to DM you. If you have not run a command recently, please run any command before trying again.';
+        document.getElementById('sub_link_code').innerHTML = 'Please allow okabot to DM you. Additionally, please run /debug before trying again.<br>okabot\'s cache may not have your user yet, which is why you must run a command.';
     }
     if (message === `SESSION ${my_session} PRIVILIGED`) {
         LoadMainContent();
@@ -49,6 +49,15 @@ socket.onmessage = function(msg) {
     if (message === `SESSION ${my_session} DENY`) {
         document.getElementById('link_code').innerText = 'Authentication Failed';
         document.getElementById('sub_link_code').innerText = 'Authentication request was denied.';
+    }
+
+    // data
+
+    if (message === `SESSION ${my_session} DMDATA CONNECTED`) {
+        document.getElementById('dmdata-status').innerHTML = 'Status: <span style="color: green;">CONNECTED</span>';
+    }
+    if (message === `SESSION ${my_session} DMDATA DISCONNECTED`) {
+        document.getElementById('dmdata-status').innerHTML = 'Status: <span style="color: red;">DISCONNECTED</span>';
     }
 }
 
@@ -68,7 +77,13 @@ function Start() {
 // --- main stuff ---
 
 function LoadMainContent() {
-    document.getElementById('login').style.display = 'none';
+    document.getElementById('login').style.opacity = '0';
     document.getElementById('main_page').style.display = 'revert';
-    document.getElementById('username').innerText = `Logged in (${my_session})`;
+
+    setTimeout(() => {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('main_page').style.opacity = '1';
+
+        document.getElementById('username').innerText = `Logged in (${my_session})`;
+    }, 1000);
 }
