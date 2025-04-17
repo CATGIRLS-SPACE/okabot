@@ -24,6 +24,9 @@ socket.onmessage = function(msg) {
     console.log(message);
 
     if (message === `SESSION ${my_session} REAUTH`) {
+        document.getElementById('link_code').innerText = 'Login';
+        document.getElementById('sub_link_code').innerText = 'Please enter your username';
+        my_user = prompt('Please enter your Discord username');
         document.getElementById('link_code').innerText = 'Requesting Authentication';
         document.getElementById('sub_link_code').innerText = 'Please wait...';
         socket.send(`SESSION ${my_session} REQUEST LOGIN ${my_user}`);
@@ -53,8 +56,6 @@ let socket_open = false;
 socket.onopen = () => socket_open = true;
 
 function Start() {
-    my_user = prompt('Please enter your Discord username');
-
     if (socket_open) {
         document.getElementById('link_code').innerText = 'Login';
         document.getElementById('sub_link_code').innerText = 'Querying session...';
@@ -67,5 +68,7 @@ function Start() {
 // --- main stuff ---
 
 function LoadMainContent() {
-    alert('You are priviliged!');
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('main_page').style.display = 'revert';
+    document.getElementById('username').innerText = `Logged in (${my_session})`;
 }

@@ -7,7 +7,7 @@ import { CheckUserShares, GetSharePrice, Stocks } from '../okash/stock';
 import { createServer } from 'http';
 import { Logger } from 'okayulogger';
 import { Server } from 'ws';
-import {SendLoginRequest} from "./pairing";
+import {PrivilegedConnections, SendLoginRequest} from "./pairing";
 const server = express();
 
 let channelId = "1321639990383476797";
@@ -108,7 +108,7 @@ interface PriviligedSession {
 }
 
 const aliveConnections: import("ws")[] = [];
-const priviligedSessions: { [key: string]: PriviligedSession } = {};
+// const priviligedSessions: { [key: string]: PriviligedSession } = {};
 
 
 wss.on('connection', (ws) => {
@@ -121,7 +121,7 @@ wss.on('connection', (ws) => {
         const message = raw_message.toString().split(`SESSION ${session} `)[1];
 
         if (message == `QUERY`) {
-            if (priviligedSessions[session]) ws.send(`SESSION ${session} PRIVILIGED`);
+            if (PrivilegedConnections.has(session) && PrivilegedConnections.get(session)!.privileged) ws.send(`SESSION ${session} PRIVILIGED`);
             else ws.send(`SESSION ${session} REAUTH`);
         }
 

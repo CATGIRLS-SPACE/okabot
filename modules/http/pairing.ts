@@ -6,7 +6,7 @@ import {
     MessageFlags,
     Snowflake, User
 } from "discord.js";
-import {client} from "../../index";
+import {client, CONFIG} from "../../index";
 import {Logger} from "okayulogger";
 import {AuthorizeLogin, DenyLogin} from "./server";
 
@@ -25,6 +25,7 @@ interface PairedConnection {
     user_id: Snowflake,
     privileged: boolean, // whether the account can use admin features
 }
+export const PrivilegedConnections = new Map<string, PairedConnection>();
 
 // pairing code and whether it needs to be privileged or not
 const PairingCodes = new Map<string, boolean>();
@@ -82,6 +83,11 @@ export async function SendLoginRequest(username: string, session: string): Promi
                     content: '## :unlock: __**AUTHENTICATION REQUEST**__\n:white_check_mark: Authentication request accepted, you may return to the management page.',
                     components: []
                 });
+                PrivilegedConnections.set(session, {
+                    username: user.username,
+                    privileged: CONFIG.permitted_to_use_shorthands.includes(user.id),
+                    user_id: user.id
+                })
                 AuthorizeLogin(session, user.id);
             } else if (i.customId == 'deny-login') {
                 L.info(`manual deny login for ${username}`);

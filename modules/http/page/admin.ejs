@@ -6,15 +6,63 @@
     <title>okabot Management</title>
 </head>
 <body>
-    <div class="before_linked">
+    <div class="before_linked" id="login">
         <div class="code">
             <h1 id="link_code">Please wait...</h1>
             <h3 id="sub_link_code">Connecting to okabot...</h3>
         </div>
     </div>
     <!-- nothing below here will appear unless link is successful -->
-     <div class="after_linked">
+     <div class="after_linked" id="main_page">
+        <!-- top bar -->
+        <div class="topbar">
+            <div class="left">
+                <h1>okabot</h1>
+            </div>
+            <div class="right">
+                <h3 id="username">Logged in as</h3>
+            </div>
+        </div>
 
+        <!-- main panes -->
+        <div class="panes">
+            <div class="left">
+                <h1>Project DM-D.S.S</h1>
+            </div>
+            <div class="right">
+
+            </div>
+        </div>
+
+        <!-- styling is here becuz i want to see it here -->
+         <style>
+            .topbar {
+                height: 3rem;
+                border-bottom: 2px solid white;
+                display: flex;
+                justify-content: space-between;
+                padding: 1rem;
+                align-items: center;
+            }
+            .topbar .right {
+                text-align: right;
+            }
+            .topbar .right, .topbar .left {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .panes {
+                display: flex;
+                justify-content: center;
+            }
+            .panes div {
+                margin: .5rem;
+                padding: .5rem;
+                display: flex;
+                border: 2px solid white;
+            }
+         </style>
      </div>
 </body>
 
@@ -39,6 +87,12 @@
         font-family: CR;
         background-color: black;
         color: white;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        width: 100vw;
     }
 
     /* before linking... */
