@@ -22,18 +22,7 @@
 <script>
     // since this isnt typescript im just going to 
     // prefix variables with their type abbreviation
-    Start((sCode) => {
-        // on code
-        document.getElementById('link_code').innerText = sCode;
-        document.getElementById('sub_link_code').innerText = 'Please use "/stock link" to authenticate';
-    }, (bPriviliged) => {
-        // on link
-        if (!bPriviliged) {
-            document.getElementById('link_code').innerText = 'ERROR';
-            document.getElementById('sub_link_code').innerText = 'Your user is not permitted to access this page.';
-            return;
-        }
-    });
+    Start();
 </script>
 
 <style>

@@ -108,6 +108,12 @@ const LastGameFinished = new Map<string, number>();
 // user_id & expiration (epoch sec)
 export const PassesActive = new Map<Snowflake, number>();
 
+export function ReleaseBlackjackUser(user_id: Snowflake) {
+    if (GamesActive.has(user_id)) GamesActive.delete(user_id);
+    else return false;
+    return true;
+}
+
 function TallyCards(cards: Array<HandCard>): number {
     let total = 0;
     let aces = 0;

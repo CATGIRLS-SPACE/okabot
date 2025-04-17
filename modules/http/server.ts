@@ -1,12 +1,13 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
-import { BASE_DIRNAME, DEV } from '../../index';
-import { Client, EmbedBuilder, MessageFlags, TextChannel, User } from 'discord.js';
+import {BASE_DIRNAME, client, CONFIG, DEV} from '../../index';
+import {Client, EmbedBuilder, MessageFlags, Snowflake, TextChannel, User} from 'discord.js';
 import { join } from 'path';
 import { CheckUserShares, GetSharePrice, Stocks } from '../okash/stock';
 import { createServer } from 'http';
 import { Logger } from 'okayulogger';
 import { Server } from 'ws';
+import {SendLoginRequest} from "./pairing";
 const server = express();
 
 let channelId = "1321639990383476797";
@@ -102,45 +103,35 @@ export function StartHTTPServer(c: Client) {
     });
 }
 
-const aliveConnections: import("ws")[] = [];
-const linkedConnections = new Map<string, import('ws')>();
-const awaitingLinking: {[key:string]: User} = {};
-
-const alpha = 'ABCDEF1234567890';
-function GenerateLinkCode(): string {
-    let code = '';
-    for (let i = 0; i < 6; i++) code += alpha[Math.floor(Math.random() * alpha.length)];
-    return code;
+interface PriviligedSession {
+    user_id: Snowflake,
 }
+
+const aliveConnections: import("ws")[] = [];
+const priviligedSessions: { [key: string]: PriviligedSession } = {};
 
 
 wss.on('connection', (ws) => {
     L.info('new websocket connection...');
+    aliveConnections.push(ws);
 
-    ws.on('message', (message) => {
-        L.info('(ws message) ' + message.toString());
+    ws.on('message', async (raw_message) => {
+        L.info('(ws message) ' + raw_message.toString());
+        const session = raw_message.toString().split('SESSION ')[1].split(' ')[0];
+        const message = raw_message.toString().split(`SESSION ${session} `)[1];
 
-        if (message.toString().startsWith('ACCEPT ')) {
-            const user = awaitingLinking[message.toString().split(' ')[1]];
-            console.log(user);
-            if (!user) return ws.send(`LINK ERROR ${message.toString().split(' ')[1]} NOT VALID`);
-
-            L.info(`link for ${user.username} success!`);
-            linkedConnections.set(user.id, ws);
-            ws.send(`LINK GOOD ${message.toString().split(' ')[1]} READY`);
+        if (message == `QUERY`) {
+            if (priviligedSessions[session]) ws.send(`SESSION ${session} PRIVILIGED`);
+            else ws.send(`SESSION ${session} REAUTH`);
         }
 
-        switch (message.toString()) {
-            case 'stocks latest':
-                ws.send('discontinued');
-                break;
-            case 'nya~':
-                aliveConnections.push(ws);
-                ws.send(`woof! ${GenerateLinkCode()}`);
-                break;
-            default:
-                ws.send('bad message');
-                break;
+        if (message.toString().startsWith('REQUEST LOGIN ')) {
+            const user_id = message.toString().split('REQUEST LOGIN ')[1];
+            const message_success = await SendLoginRequest(user_id, session);
+            L.info(`send login request to ${user_id} ${message_success?'success':'failure'}`);
+            if (!message_success) ws.send(`SESSION ${session} ERROR CANNOT DM`);
+            else ws.send(`SESSION ${session} SUCCESS AWAITING RESPONSE`);
+            return;
         }
     });
 
@@ -151,37 +142,15 @@ wss.on('connection', (ws) => {
     })
 });
 
-export enum WSSStockMessage {
-    NATURAL_UPDATE = 'stocks',
-    NATURAL_UPDATE_SPIKE_UP = 'spike_up',
-    NATURAL_UPDATE_SPIKE_DOWN = 'spike_down',
-    EVENT_UPDATE_POSITIVE = 'event_positive',
-    EVENT_UPDATE_NEGATIVE = 'event_negative',
-    USER_UPDATE_POSITIVE = 'user_positive',
-    USER_UPDATE_NEGATIVE = 'user_negative',
-    LINK_BALANCE = 'link_balance'
-}
-
-export function WSS_SendStockUpdate(type: WSSStockMessage, data?: any) {
-    return;
-}
-
-export function LinkWSToUserId(user: User, link_code: string) {
-    aliveConnections.forEach(connection => {
-        awaitingLinking[link_code.toLocaleUpperCase()] = user;
-        connection.send(`LINK ${link_code.toLocaleUpperCase()} ${user.username} ${user.id}`);
+export function AuthorizeLogin(session: string, user_id: Snowflake) {
+    const priviliged = CONFIG.permitted_to_use_shorthands.includes(user_id);
+    aliveConnections.forEach(ws => {
+        ws.send(`SESSION ${session} ${priviliged?'PRIVILIGED':'NOT PRIVILIGED'}`);
     });
 }
 
-function SendUserStocks(user_id: string) {
-    L.info(`getting linked stock info for ${user_id}`);
-
-    const payload = {
-        _type: 'link balance',
-        neko: Math.floor(CheckUserShares(user_id, Stocks.NEKO) * GetSharePrice(Stocks.NEKO)),
-        dogy: Math.floor(CheckUserShares(user_id, Stocks.DOGY) * GetSharePrice(Stocks.DOGY)),
-        fxgl: Math.floor(CheckUserShares(user_id, Stocks.FXGL) * GetSharePrice(Stocks.FXGL)),
-    };
-
-    linkedConnections.get(user_id)!.send(JSON.stringify(payload));
+export function DenyLogin(session: string, user_id: Snowflake) {
+    aliveConnections.forEach(ws => {
+        ws.send(`SESSION ${session} DENY`);
+    });
 }

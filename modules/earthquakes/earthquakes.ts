@@ -159,7 +159,7 @@ function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
         if (!SOCKET.is_active) {
             L.debug('failed to reconnect!');
             reconnect_tries++;
-            if (reconnect_tries < 25) {
+            if (reconnect_tries < 6) {
                 channel.send({
                     content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds, retrying...`,
                     flags: [MessageFlags.SuppressNotifications]

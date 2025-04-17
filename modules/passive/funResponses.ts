@@ -51,4 +51,13 @@ export async function CheckForFunMessages(message: Message) {
     if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
         content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
     });
+
+    if (message.content.toLowerCase().includes('kill myself') ||
+        message.content.toLowerCase().includes('killing myself') ||
+        message.content.toLowerCase().includes('kms'))
+    {
+        message.reply({
+            content:'https://bot.lilycatgirl.dev/video/neverkys.mp4'
+        });
+    }
 }

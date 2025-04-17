@@ -23,7 +23,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { error } from "node:console";
 import {ManualRelease} from "../okash/games/slots";
-import {PassesActive} from "../okash/games/blackjack";
+import {PassesActive, ReleaseBlackjackUser} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
 import {BoostsActive} from "./onMessage";
 import {SOCKET, open_socket} from "../earthquakes/earthquakes";
@@ -324,6 +324,7 @@ export function RegisterAllShorthands() {
 
         ReleaseUserGame(params[2]);
         ManualRelease(params[2]);
+        ReleaseBlackjackUser(params[2]);
     });
 
     // debugging
