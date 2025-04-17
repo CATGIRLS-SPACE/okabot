@@ -17,6 +17,7 @@ import {DMDataWebSocket} from 'lily-dmdata/socket';
 import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, ShindoValue, WebSocketEvent} from 'lily-dmdata';
 import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
+import {UpdateDMDataStatus} from "../http/server";
 
 const L = new Logger('earthquakes');
 
@@ -244,6 +245,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         //     flags:[MessageFlags.SuppressNotifications]
         // });
         is_reconnecting = false;
+        UpdateDMDataStatus(true);
     });
 
     SOCKET.on(WebSocketEvent.CLOSED, () => {
@@ -252,6 +254,8 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             content:'i was disconnected from dmdata, i will try to reconnect in 3 seconds...',
             flags:[MessageFlags.SuppressNotifications]
         });
+
+        UpdateDMDataStatus(false);
 
         setTimeout(() => {
             reopen_socket(SOCKET, (channel as TextChannel)!);

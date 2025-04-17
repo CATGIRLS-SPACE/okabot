@@ -26,7 +26,8 @@ socket.onmessage = function(msg) {
     if (message === `SESSION ${my_session} REAUTH`) {
         document.getElementById('link_code').innerText = 'Login';
         document.getElementById('sub_link_code').innerText = 'Please enter your username';
-        my_user = prompt('Please enter your Discord username');
+        my_user = window.localStorage.getItem('okabot_username') || prompt('Please enter your Discord username');
+        window.localStorage.setItem('okabot_username', my_user);
         document.getElementById('link_code').innerText = 'Requesting Authentication';
         document.getElementById('sub_link_code').innerText = 'Please wait...';
         socket.send(`SESSION ${my_session} REQUEST LOGIN ${my_user}`);
@@ -49,6 +50,11 @@ socket.onmessage = function(msg) {
     if (message === `SESSION ${my_session} DENY`) {
         document.getElementById('link_code').innerText = 'Authentication Failed';
         document.getElementById('sub_link_code').innerText = 'Authentication request was denied.';
+        window.localStorage.removeItem('okabot_username');
+        window.localStorage.removeItem('okabot_session');
+    }
+    if (message === 'KEEPALIVE') {
+        socket.send(`SESSION ${my_session} ALIVE`);
     }
 
     // data
@@ -86,4 +92,11 @@ function LoadMainContent() {
 
         document.getElementById('username').innerText = `Logged in (${my_session})`;
     }, 1000);
+
+    const dmdata_trip_button = document.getElementById('dmdata-disconnect');
+
+    dmdata_trip_button.onclick = () => {
+        dmdata_trip_button.disabled = true;
+        dmdata_trip_button.innerText = 'Please Wait...';
+    };
 }

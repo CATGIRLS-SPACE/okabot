@@ -142,13 +142,24 @@ wss.on('connection', (ws) => {
     })
 });
 
+function SendPings() {
+    aliveConnections.forEach(ws => {
+        ws.send(`KEEPALIVE`);
+    });
+    setTimeout(SendPings, 30_000);
+}
+SendPings();
+
+export function UpdateDMDataStatus(connected: boolean) {
+    aliveConnections.forEach(ws => {
+        ws.send(`DMDATA ${connected?'CONNECTED':'DISCONNECTED'}`);
+    });
+}
+
 export function AuthorizeLogin(session: string, user_id: Snowflake) {
     const priviliged = CONFIG.permitted_to_use_shorthands.includes(user_id);
     aliveConnections.forEach(ws => {
         ws.send(`SESSION ${session} ${priviliged?'PRIVILIGED':'NOT PRIVILIGED'}`);
-        if (priviliged) {
-            ws.send(`SESSION ${session} DMDATA CONNECTED`);
-        }
     });
 }
 
