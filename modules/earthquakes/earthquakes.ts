@@ -141,7 +141,8 @@ export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
             });
         } else {
             channel.send({
-                content: ':white_check_mark: dmdata connection success'
+                content: ':white_check_mark: dmdata connection success',
+                flags: [MessageFlags.SuppressNotifications]
             });
         }
     }, 10000);
@@ -217,7 +218,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         // make embed
         console.log(data);
 
-        if (!data.intensity) return;
+        if (!data.intensity || !data.earthquake) return;
 
         const embed = await BuildEarthquakeEmbed(
             new Date((data.earthquake || {originTime:0}).originTime), 

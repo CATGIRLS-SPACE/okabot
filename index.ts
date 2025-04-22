@@ -80,6 +80,7 @@ import {IsUserBanned} from "./modules/user/administrative";
 // import language after dev check (emojis)
 import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
+import {CheckModerationShorthands} from "./modules/moderation/moderation";
 
 
 export const client = new Client({
@@ -248,7 +249,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
 const ALLOWED_COMMANDS_IN_DMS = [
     '8ball',
     'recent-eq'
-]
+];
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
@@ -321,6 +322,7 @@ client.on(Events.MessageCreate, async message => {
     ListenForRouletteReply(message); // checks for number in response to roulette game
     Check$Message(message); // checks for $ messages, for serials on tracked items
     CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
+    CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
 
     // minecraft server
     if (message.channel.id == "1321639990383476797") { // #mc-live-chat
@@ -347,6 +349,20 @@ client.on(Events.MessageCreate, async message => {
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
     HandleVoiceEvent(client, oldState, newState);
+});
+
+
+// Server join handler to give role automatically
+client.on(Events.GuildMemberAdd, async (member) => {
+    if (member.guild.id != '1019089377705611294') return;
+
+    // give role
+    await member.roles.add('1019094205756350527');
+
+    // send a hello!
+    await (member.guild.channels.cache.get('1019089378343137373')! as TextChannel).send({
+        content: `## meow! hi there, <@${member.user.id}>\nwelcome to **CATGIRL CENTRAL**!\nplease read the rules before continuing!\nthanks for joining, and have fun!`
+    });
 });
 
 
@@ -392,7 +408,10 @@ export async function ManuallySendErrorReport(reason: string, silent: boolean) {
     console.error('reason:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
-        await channel.send({content:':warning: okabot has encountered a recoverable error! here\'s the recorded reason:\n'+'```'+ reason +'```\n' + new Error().stack!.split('\n')[2].trim()});
+        await channel.send({
+            content:':warning: okabot has encountered a recoverable error! here\'s the recorded reason:\n'+'```'+ reason +'```\n' + new Error().stack!.split('\n')[2].trim(),
+            flags:silent?[MessageFlags.SuppressNotifications]:[]
+        });
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);

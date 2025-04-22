@@ -57,7 +57,7 @@ export async function CheckForFunMessages(message: Message) {
         message.content.toLowerCase().includes('kms'))
     {
         message.reply({
-            content:'https://bot.lilycatgirl.dev/video/neverkys.mp4'
+            content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
         });
     }
 }
