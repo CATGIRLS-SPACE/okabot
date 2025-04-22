@@ -63,9 +63,10 @@ const CHAR_UNFILLED = '░';
 const CHAR_FILLED   = '█';
 const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
 
-export function CalculateTargetXP(level: number, prestige: number): number {
+export function CalculateTargetXP(level: number, prestige: number = 0): number {
     const base = prestige * 3600;
-    return base + Math.floor(100+(35*(level-1))); // start at 100
+    const amount = Math.floor(100+(35*(level-1)));
+    return amount<100?100:amount; // start at 100
 }
 
 function CreateLevelBar(profile: USER_PROFILE): string {
