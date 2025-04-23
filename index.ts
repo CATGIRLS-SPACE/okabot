@@ -12,7 +12,7 @@ import {
     Partials,
     Snowflake,
     TextChannel,
-    ActivityType
+    ActivityType, User
 } from "discord.js";
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
@@ -80,7 +80,7 @@ import {IsUserBanned} from "./modules/user/administrative";
 // import language after dev check (emojis)
 import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
-import {CheckModerationShorthands} from "./modules/moderation/moderation";
+import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
 
 
 export const client = new Client({
@@ -158,6 +158,7 @@ async function RunPreStartupTasks() {
     LoadReminders(); // load daily reminders
     ScheduleJob(client); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
+    LoadWarnings(); // load all user warnings from moderation database
 }
 
 /**
@@ -352,7 +353,7 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 });
 
 
-// Server join handler to give role automatically
+// Server join handler to give role automatically as well as the handler for reactions
 client.on(Events.GuildMemberAdd, async (member) => {
     if (member.guild.id != '1019089377705611294') return;
 
@@ -364,7 +365,9 @@ client.on(Events.GuildMemberAdd, async (member) => {
         content: `## meow! hi there, <@${member.user.id}>\nwelcome to **CATGIRL CENTRAL**!\nplease read the rules before continuing!\nthanks for joining, and have fun!`
     });
 });
-
+client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
+    CheckReactionFlag(reaction, reactor as User);
+});
 
 // Error Handlers
 
