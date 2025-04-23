@@ -101,9 +101,9 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     const bank = GetBank(interaction.user.id);
     const total = wallet + bank;
 
-    if (total < 250) {
+    if (total < 2500) {
         return interaction.reply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you have too little okash to your name to rob! You need at least ${GetEmoji(EMOJI.OKASH)} OKA**250**!\n-# This threshold is in place so that you can be fined in the event your robbery fails.`,
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you have too little okash to your name to rob! You need at least ${GetEmoji(EMOJI.OKASH)} OKA**2500**!\n-# This threshold is in place so that you can be fined in the event your robbery fails.`,
             flags: [MessageFlags.Ephemeral]
         });
     }
@@ -112,8 +112,8 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     COOLDOWNS.set(interaction.user.id, Math.floor(d.getTime() / 1000) + 3600);
 
     // chance to fail the rob
-    if (Math.random() < 0.34) { 
-        const fine = Math.floor(Math.random() * total - 250) + 250;
+    if (Math.random() < 0.25) {
+        const fine = Math.floor(Math.random() * ((total<robbed_user_balance)?total:robbed_user_balance) - 2500) + 2500;
         
         // calculate how much can be removed from wallet
         if (wallet >= fine) {

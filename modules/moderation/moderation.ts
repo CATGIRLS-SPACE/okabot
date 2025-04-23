@@ -212,7 +212,7 @@ interface Warning {
 const UserWarnings: {[key: Snowflake]: Array<Warning>} = {};
 
 export async function LoadWarnings() {
-    const db_path = join(BASE_DIRNAME, 'db', 'warnings.db');
+    const db_path = join(BASE_DIRNAME, 'db', 'warnings.oka');
     if (!existsSync(db_path)) return writeFileSync(db_path, JSON.stringify({}), 'utf-8');
 
     const warnings_data: {[key: Snowflake]: Array<Warning>} = JSON.parse(readFileSync(db_path, 'utf-8'));
@@ -223,7 +223,7 @@ export async function LoadWarnings() {
     L.info('Loaded warnings database');
 }
 async function SaveWarnings() {
-    const db_path = join(BASE_DIRNAME, 'db', 'warnings.db');
+    const db_path = join(BASE_DIRNAME, 'db', 'warnings.oka');
     writeFileSync(db_path, JSON.stringify(UserWarnings), 'utf-8');
 }
 
