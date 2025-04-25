@@ -115,7 +115,8 @@ const RELEASE_NAME = ({
     '4.4.2':'Clafoutis QP',
     '4.4.3':'Clafoutis QP2',
     '4.4.4':'Fix for the Stupid Earthquake Issue',
-    '4.4.5':'QoL Fix for the Stupid iOS Emojis' //ive given up
+    '4.4.5':'QoL Fix for the Stupid iOS Emojis', //ive given up
+    '4.6.0':'Adzuki Beans'
 } as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
