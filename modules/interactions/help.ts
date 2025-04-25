@@ -78,7 +78,7 @@ const DailyRewardPage =
 `
 # Daily Rewards
 Every 24 hours, you can claim your daily reward.
-In your daily reward, you are guaranteed OKA**750** and a weighted coin.
+In your daily reward, you are guaranteed OKA**1500** and a weighted coin.
 For each day in your daily reward streak, you gain 5% more okash, up to 200%.
 `
 
@@ -88,7 +88,10 @@ const LevelPage =
 Talking in the server and playing games all give you XP.
 This XP will help you level up.
 Levels 1-100 have unlockable titles which show on your /level banner.
-When you level up, you will get a small okash reward, increasing with each level.
+When you level up, you will get a small okash reward and a lootbox, increasing with each level.
+Levels such as 1, 2, 3... give a :package: **Common Lootbox**
+Levels such as 5, 15, 25... give a :package: **Rare Lootbox**
+Levels such as 10, 20, 30... give a :package: :sparkle: **EX Lootbox** :sparkle:
 `
 
 const DropsPage = 

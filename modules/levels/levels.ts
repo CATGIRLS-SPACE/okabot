@@ -7,7 +7,7 @@ import {
     Snowflake, User
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { BASE_DIRNAME } from "../../index";
+import {BASE_DIRNAME, DEV} from "../../index";
 import { join, resolve } from "path";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
@@ -103,8 +103,14 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User) {
     await interaction.deferReply();
-
     if (override_user_with) interaction.user = override_user_with;
+
+    // get active booster role
+    const guild = interaction.client.guilds.cache.get(interaction.guild!.id)!;
+    const booster_role = !DEV?guild.roles.premiumSubscriberRole:guild.roles.cache.find(role => role.name == 'fake booster role');
+    console.log(`booster role found? ${booster_role?'yes':'no'}`);
+    const user_is_booster = booster_role?guild.members.cache.get(interaction.user.id)!.roles.cache.some(role => role.id === booster_role.id):false;
+    console.log(`user is booster? ${user_is_booster?'yes':'no'}`);
 
     // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
@@ -131,7 +137,10 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     }
 
     // Background color
-    ctx.fillStyle = '#2b2d42';
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, '#271e2e');
+    gradient.addColorStop(1, '#3c3245');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
     // why do we have to force fetch the user? idk, it's dumb
@@ -166,7 +175,8 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
     // labels
-    if (interaction.user.id == "796201956255334452") {
+    let offset_width = 0; // so that we can display the booster tag no matter what
+    if (interaction.user.id == "796201956255334452" || interaction.user.id == "502879264081707008") {
         ctx.fillStyle = '#6ef5b6';
         ctx.beginPath();
         ctx.roundRect(20, 52, 88, 23, 6);
@@ -181,14 +191,15 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         // ctx.closePath();
         ctx.fillStyle = '#1b3b2c';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('DEVELOPER', 26, 68);
+        ctx.fillText('DEVELOPER', offset_width + 26, 68);
+        offset_width += 95;
     }
     // bugtest
     // 566671009189462038
-    if (interaction.user.id == "566671009189462038" || interaction.user.id == "619655596215369749") {
+    if (interaction.user.id == "566671009189462038" || interaction.user.id == "619655596215369749" || interaction.user.id == "502879264081707008") {
         ctx.fillStyle = '#876ef5';
         ctx.beginPath();
-        ctx.roundRect(20, 52, 62, 23, 6);
+        ctx.roundRect(offset_width + 20, 52, 62, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b1630';
@@ -196,13 +207,14 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.closePath();
         ctx.fillStyle = '#1b1630';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('TESTER', 26, 68);
+        ctx.fillText('TESTER', offset_width + 26, 68);
+        offset_width += 72-5;
     }
     // 502879264081707008
     if (interaction.user.id == "502879264081707008") {
         ctx.fillStyle = '#fa9de4';
         ctx.beginPath();
-        ctx.roundRect(20, 52, 73, 23, 6);
+        ctx.roundRect(offset_width + 20, 52, 73, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#422a3d';
@@ -210,7 +222,25 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.closePath();
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('DONATOR', 26, 68);
+        ctx.fillText('DONATOR', offset_width + 26, 68);
+        offset_width += 83-5;
+    }
+    if (user_is_booster) {
+        ctx.fillStyle = '#fa9de4';
+        ctx.beginPath();
+        ctx.roundRect(offset_width + 20, 52, 73, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#422a3d';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#422a3d';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('BOOSTER', offset_width + 26, 68);
+
+        // const banner_buffer = readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'boost.png'));
+        // const banner_img = await loadImage(banner_buffer);
+        // ctx.drawImage(banner_img, width-200, 50, 100, 64);
     }
     
 
@@ -220,17 +250,17 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillStyle = '#3d3d3d';
     ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 19, 43);
     // foreground
-    ctx.fillStyle = '#edf2f4';
+    ctx.fillStyle = user_is_booster?'#f5a6ff':'#edf2f4';
     ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 16, 40);
 
     // Level
     ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
     // bg
     ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 23, 103);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]} (${profile.leveling.level})`, 23, 103);
     // fg
     ctx.fillStyle = '#f0c4ff';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]}`, 20, 100);
+    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]} (${profile.leveling.level})`, 20, 100);
 
     // XP Bar Background
     const barX = 20;

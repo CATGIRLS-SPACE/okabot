@@ -86,7 +86,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
             if (!member.roles.cache.some(role => role.name === 'image perms (lvl 10)')) {
                 const role = guild.roles.cache.find(role => role.name === 'image perms (lvl 10)');
-                if (!role) throw new Error('Image permissions role does not exist in this guild!');
+                if (!role) throw new Error('Image permissions role does not exist in this guild, ensure there is one named exactly "image perms (lvl 10)"!');
                 member.roles.add(role);
             }
         }

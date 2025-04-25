@@ -37,6 +37,27 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
                 flags:[MessageFlags.Ephemeral]
             });
             break;
+
+        case 'okabot-updates':
+            const guild = interaction.client.guilds.cache.get(interaction.guild!.id)!;
+            const member = guild.members.cache.get(interaction.user.id)!;
+            const role = guild.roles.cache.find(r => r.name === 'okabot updates')!;
+            const enabled = member.roles.cache.some(r => r.id === role.id)
+
+            if (!enabled) {
+                member.roles.add(role);
+                interaction.reply({
+                    content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! you'll now receive pings when okabot updates are announced!`,
+                    flags: [MessageFlags.Ephemeral]
+                });
+            } else {
+                member.roles.remove(role);
+                interaction.reply({
+                    content: `:crying_cat_face: oh... okay. you'll no longer receive pings when okabot updates are announced!`,
+                    flags: [MessageFlags.Ephemeral]
+                });
+            }
+            break;
     
         default:
             break;
@@ -72,4 +93,8 @@ export const ToggleSlashCommand = new SlashCommandBuilder()
                 {name:'He/him/his', value:'he/him/his'},
                 {name:'They/them/their', value:'they/them/their'},
             ))
+    )
+    .addSubcommand(sc => sc
+        .setName('okabot-updates')
+        .setDescription('Toggle whether you want to receive okabot updates when announced')
     )
