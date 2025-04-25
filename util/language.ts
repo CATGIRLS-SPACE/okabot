@@ -228,11 +228,19 @@ const LANGUAGE_JA: Language = {
     'item.casino_pass.largest':':credit_card: ブラックジャックパス（60分）',
 }
 
+const LANGUAGE_BR: Language = {
+    'debug.helloworld':'Olá, mundo! Sua localidade é {1}\n-# O português brasileiro não é 100% suportado e atualmente está sendo usado como idioma de teste.',
+
+    'interaction.okash':`Okawaffles, você tem ${GetEmoji(EMOJI.OKASH)} OKA**{1}** na carteira e ${GetEmoji(EMOJI.OKASH)} OKA**{2}** no banco. Há ${GetEmoji(EMOJI.OKASH)} OKA**{3}** em multas no banco.\n-# O português brasileiro não é 100% suportado e atualmente está sendo usado como idioma de teste.`,
+
+    'interaction.daily':`:white_check_mark: Você reivindicou sua recompensa diária e ganhou ${GetEmoji(EMOJI.OKASH)} OKA**1500** e um **{1}**\n-# O português brasileiro não é 100% suportado e atualmente está sendo usado como idioma de teste.`,
+}
+
 // --
 
 export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: 'en' | 'ja', ...params: (string | number)[]) {
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
-    let item = (locale=='ja'?LANGUAGE_JA[id]:LANGUAGE_EN[id]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
+    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
     for (let i = 0; i < params.length; i++) {
         // console.log(`{${i + 1}} replace with`, params[i]);
