@@ -128,11 +128,11 @@ okabot is created with the intent to be free and fun. If you want to support, yo
 
 okabot is available in English and Japanese. It will reflect your Discord language. 
 Not all features are 100% translated, and some translations may be inaccurate.
-If you would like to help translate okabot into another language, please contact me.
+If you would like to help translate okabot into another language, please contact okawaffles.
 
-okabot is only available in CATGIRL CENTRAL. This may change in the coming future as okabot expands to be a more-polished bot.
+okabot is only available in CATGIRL CENTRAL. Any bots outside of CATGIRL CENTRAL named okabot are not official.
 
-Thanks for using okabot ${GetEmoji(EMOJI.NEKOHEART)}
+Thanks for using okabot, it means a lot to me ${GetEmoji(EMOJI.NEKOHEART)}
 `
 
 
