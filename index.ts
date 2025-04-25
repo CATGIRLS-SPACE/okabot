@@ -258,8 +258,11 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.channel?.isTextBased()) return;
 
     interaction.okabot = {
-        locale: (interaction.locale == Locale.Japanese)?'ja':'en'
+        locale: <{[key: Locale]: 'en' | 'jp' | 'br'}>{ja:'ja','en-GB':'en','en-US':'en','pt-BR':'br'}[interaction.locale as string] || 'en'
     };
+
+    // @ts-ignore
+    let locale = <{[key: Locale]: 'en' | 'jp' | 'br'}>{ja:'ja','en-GB':'en','en-US':'en','pt-BR':'br'}[interaction.locale as string] || 'en'
 
     // if a user is super banned, okabot just won't respond to them
     // this is implemented but not used because this is a private bot rn
