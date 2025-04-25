@@ -238,7 +238,7 @@ const LANGUAGE_BR: Language = {
 
 // --
 
-export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: 'en' | 'ja', ...params: (string | number)[]) {
+export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: 'en' | 'ja' | 'br', ...params: (string | number)[]) {
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
     let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
