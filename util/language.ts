@@ -1,4 +1,5 @@
 import {EMOJI, GetEmoji} from "./emoji";
+import {translateText} from "./translate";
 
 
 export enum LANG_DEBUG {
@@ -18,6 +19,8 @@ export enum LANG_INTERACTION {
     DAILY_REMINDER_ANGRY = 'interaction.daily.reminder.angry',
     DAILY_REMINDER_BUTTON = 'interaction.daily.reminder.button',
     DAILY_REMINDER_BUTTON_AGAIN = 'interaction.daily.reminder.button_claim',
+
+    LEVEL_LEVELUP = 'level.levelup',
 }
 export enum LANG_GAMES {
     ANY_COOLDOWN = 'games.all.cooldown',
@@ -101,6 +104,8 @@ const LANGUAGE_EN: Language = {
     'interaction.daily.reminder.button': 'Remind Me',
     'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
 
+    'level.levelup': `Congrats, <@{1}>! You're now level **{2}** ({3})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
+
     'games.8ball.aa':'yup, certainly!',
     'games.8ball.ab':'decidedly so!',
     'games.8ball.ac':'i have no doubt!',
@@ -173,6 +178,8 @@ const LANGUAGE_JA: Language = {
     'interaction.daily.reminder.button': '整うとメンション',
     'interaction.daily.reminder.button_claim': 'また整うとメンション',
 
+    'level.levelup': `おめでとう<@{1}>さん！あなたは**{2}**（レベル{3}）！\nあなたは${GetEmoji(EMOJI.OKASH)} OKA**{4}**と**{5}**を稼ぎました！\nあなたの次のレベルは**{6}XP**です`,
+
     'games.8ball.aa':'もちろん！',
     'games.8ball.ab':'は～～い！',
     'games.8ball.ac':'うんうん～！',
@@ -238,7 +245,7 @@ const LANGUAGE_BR: Language = {
 
 // --
 
-export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: 'en' | 'ja' | 'br', ...params: (string | number)[]) {
+export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
     let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
@@ -248,4 +255,32 @@ export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_
     }
 
     return item;
+}
+
+export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
+    // if it's not a supported locale then we use auto-translate
+    if (locale != 'en' && locale != 'ja') {
+        let item = LANGUAGE_EN[id] || '[translation error: string does not exist]';
+        for (let i = 0; i < params.length; i++) {
+            item = item.replaceAll(`{${i + 1}}`, params[i].toString());
+        }
+        return await translateText(item, locale);
+    }
+
+    // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
+    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
+
+    for (let i = 0; i < params.length; i++) {
+        item = item.replaceAll(`{${i + 1}}`, params[i].toString());
+    }
+
+    return item;
+}
+
+export async function LangGetAutoTranslatedStringRaw(text: string, locale: string, ...params: (string | number)[]) {
+    let item = text;
+    for (let i = 0; i < params.length; i++) {
+        item = item.replaceAll(`{${i + 1}}`, params[i].toString());
+    }
+    return await translateText(item, locale);
 }

@@ -1,7 +1,7 @@
 import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetBank, GetWallet} from "../okash/wallet";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
+import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
 import {GetCurrentFines} from "../okash/games/rob";
 
 
@@ -15,7 +15,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     const wallet = GetWallet(interaction.user.id);
 
     await interaction.reply({
-        content: LangGetFormattedString(LANG_INTERACTION.OKASH,
+        content: await LangGetAutoTranslatedString(LANG_INTERACTION.OKASH,
             interaction.okabot.locale,
             interaction.user.displayName,
             wallet.toString(),

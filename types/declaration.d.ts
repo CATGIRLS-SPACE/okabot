@@ -7,7 +7,8 @@ import { ChatInputCommandInteraction } from 'discord.js';
 declare module 'discord.js' {
     interface ChatInputCommandInteraction {
         okabot: {
-            locale: 'en' | 'ja' | 'br'
+            locale: 'en' | 'ja',
+            translateable_locale: string,
         }
     }
 }

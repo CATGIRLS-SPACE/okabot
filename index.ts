@@ -30,8 +30,9 @@ export const CONFIG: {
     },
     extra: Array<string>,
     dmdata_api_key: string,
+    translate_api_key: string,
     bot_master: Snowflake,
-    permitted_to_use_shorthands: Array<Snowflake>
+    permitted_to_use_shorthands: Array<Snowflake>,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
@@ -102,22 +103,6 @@ export const client = new Client({
 
 // some constants
 export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
-const RELEASE_NAME = ({
-    '4.0.0':'tsrw', // 4.0.0 to 2.0.0 was just tsrw
-    '4.1.0':'Éclair au Chocolat',
-    '4.1.1':'Éclair aux Fraises',
-    '4.1.2':'Éclair au Vanille',
-    '4.2.0':'Madeleine',
-    '4.3.0':'Mont Blanc',
-    '4.3.1':'Mont Blanc Q',
-    '4.4.0':'Clafoutis',
-    '4.4.1':'Clafoutis Q',
-    '4.4.2':'Clafoutis QP',
-    '4.4.3':'Clafoutis QP2',
-    '4.4.4':'Fix for the Stupid Earthquake Issue',
-    '4.4.5':'QoL Fix for the Stupid iOS Emojis', //ive given up
-    '4.6.0':'Adzuki Beans'
-} as {[key: string]: string})[VERSION];
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
 // non-exported
@@ -147,7 +132,7 @@ async function StartBot() {
  * Run all the tasks required for the bot to start
  */
 async function RunPreStartupTasks() {
-    L.info(`Starting okabot v${VERSION} ${RELEASE_NAME}`);
+    L.info(`Starting okabot v${VERSION}`);
 
     if (DEPLOY_COMMANDS) await DeployCommands(!DEV?CONFIG.token:CONFIG.devtoken, !DEV?CONFIG.clientId:CONFIG.devclientId);
     if (NO_LAUNCH) process.exit(0);
@@ -215,7 +200,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} "${RELEASE_NAME || 'generic'}"\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.locale)}`,
+            content:`You are running okabot v${VERSION}\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.locale)}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
@@ -253,16 +238,20 @@ const ALLOWED_COMMANDS_IN_DMS = [
     'recent-eq'
 ];
 
+const LAST_USER_LOCALE = new Map<Snowflake, string>();
+export function GetLastLocale(user_id: Snowflake) {
+    return LAST_USER_LOCALE.get(user_id) || 'en';
+}
+
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) return;
 
     interaction.okabot = {
-        locale: <{[key: Locale]: 'en' | 'jp' | 'br'}>{ja:'ja','en-GB':'en','en-US':'en','pt-BR':'br'}[interaction.locale as string] || 'en'
+        locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
+        translateable_locale: interaction.locale
     };
-
-    // @ts-ignore
-    let locale = <{[key: Locale]: 'en' | 'jp' | 'br'}>{ja:'ja','en-GB':'en','en-US':'en','pt-BR':'br'}[interaction.locale as string] || 'en'
+    LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
     // if a user is super banned, okabot just won't respond to them
     // this is implemented but not used because this is a private bot rn
@@ -290,7 +279,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
     const okawaffles = await client.users.fetch("796201956255334452");
 
     const info_embed = new EmbedBuilder()
-        .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${VERSION} "${RELEASE_NAME}" ${GetEmoji(EMOJI.NEKOHEART)}`)
+        .setTitle(`${GetEmoji(EMOJI.NEKOHEART)} okabot v${VERSION} ${GetEmoji(EMOJI.NEKOHEART)}`)
         .setColor(0x9d60cc)
         .setAuthor({
             name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL()

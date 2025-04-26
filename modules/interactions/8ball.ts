@@ -6,7 +6,7 @@ import {
     InteractionContextType,
     ApplicationIntegrationType
 } from "discord.js";
-import {LANG_GAMES, LangGetFormattedString} from "../../util/language";
+import {LANG_GAMES, LangGetAutoTranslatedString} from "../../util/language";
 
 
 const POSSIBLE_ANSWERS: Array<LANG_GAMES> = [
@@ -35,18 +35,18 @@ const POSSIBLE_ANSWERS: Array<LANG_GAMES> = [
 export async function HandleCommand8Ball(interaction: ChatInputCommandInteraction) {
     const question = interaction.options.getString('question', true);
 
-    const answer = POSSIBLE_ANSWERS[Math.round(Math.random() * POSSIBLE_ANSWERS.length)];
-    const answer_string = LangGetFormattedString(answer, interaction.okabot.locale);
+    const answer = POSSIBLE_ANSWERS[Math.ceil(Math.random() * POSSIBLE_ANSWERS.length) - 1];
+    const answer_string = await LangGetAutoTranslatedString(answer, interaction.okabot.locale);
 
     await interaction.reply({
-        content: LangGetFormattedString(LANG_GAMES.MAGIC_MESSAGE_INITIAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question),
+        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_INITIAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question),
         flags: [MessageFlags.SuppressNotifications]
     });
 
     await new Promise((resolve) => {setTimeout(resolve, 5000)});
 
     await interaction.editReply({
-        content: LangGetFormattedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
+        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
     });
 }
 

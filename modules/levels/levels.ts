@@ -35,7 +35,7 @@ const LEVEL_DICTIONARY = [
     {name:{en:'Delivery Maine Coon',ja:'配達員のメインクーン'},levels:10},
     {name:{en:'Tea-Brewing American Curl',ja:'お茶のアメリカンカール'},levels:10},
     {name:{en:'Custard Munchkin',ja:'カスタードのマンチカン'},levels:10},
-    {name:{en:'Strawberry-Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
+    {name:{en:'Strawberry Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
     {name:{en:'Blogger',ja:''},levels:25},
     {name:{en:'Chinchilla Persian',ja:''},levels:25},
     {name:{en:'Bakery Mentor',ja:''},levels:25},
@@ -114,7 +114,10 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
-    const LEVEL_NAMES = interaction.okabot.locale=='ja'?LEVEL_NAMES_JA:LEVEL_NAMES_EN; // defaults to EN
+    let LEVEL_NAMES = {'en-US':LEVEL_NAMES_EN,'en-GB':LEVEL_NAMES_EN,'ja':LEVEL_NAMES_JA}[interaction.okabot.translateable_locale];
+    let LEVEL_NAME;
+    if (!LEVEL_NAMES) LEVEL_NAME = await LangGetAutoTranslatedStringRaw(LEVEL_NAMES_EN[profile.leveling.level - 1], interaction.okabot.translateable_locale);
+    else LEVEL_NAME = LEVEL_NAMES[profile.leveling.level - 1];
 
     const width = 600; // Banner width
     const height = 150; // Banner height
@@ -254,13 +257,13 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 16, 40);
 
     // Level
-    ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
+    ctx.font = interaction.okabot.translateable_locale=='ru'?"20px Arial, 'Segoe UI Emoji'":"20px azuki_font, Arial, 'Segoe UI Emoji'";
     // bg
     ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]} (${profile.leveling.level})`, 23, 103);
+    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, 23, 103);
     // fg
     ctx.fillStyle = '#f0c4ff';
-    ctx.fillText(`🌠 ${LEVEL_NAMES[profile.leveling.level - 1]} (${profile.leveling.level})`, 20, 100);
+    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, 20, 100);
 
     // XP Bar Background
     const barX = 20;
@@ -345,6 +348,7 @@ export function Dangerous_WipeAllLevels() {
 
 import axios from 'axios';
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
+import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

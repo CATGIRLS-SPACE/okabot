@@ -14,7 +14,7 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
 import {DEV, SetActivity} from "../../../index";
 import {DoRandomDrops} from "../../passive/onMessage";
-import {LANG_GAMES, LangGetFormattedString} from "../../../util/language";
+import {LANG_GAMES, LangGetAutoTranslatedString, LangGetFormattedString} from "../../../util/language";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -123,7 +123,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     SetActivity('slots', ActivityType.Playing);
 
     const reply = await interaction.reply({
-        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
+        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -132,13 +132,13 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     await Sleep(3000);
 
     reply.edit({
-        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
+        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${rolling_emoji} ${rolling_emoji}`
     });
 
     await Sleep(1000);
 
     reply.edit({
-        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
+        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n ${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${rolling_emoji}`
     });
 
     await Sleep(1000);
@@ -169,11 +169,11 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
     const result = multiplier>0?
-        LangGetFormattedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.locale, earned_okash, earned_xp):
-        LangGetFormattedString(LANG_GAMES.SLOTS_LOSS, interaction.okabot.locale, profile.customization.global.pronouns.possessive, interaction.user.displayName);
+        await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.translateable_locale, earned_okash, earned_xp):
+        await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_LOSS, interaction.okabot.translateable_locale, profile.customization.global.pronouns.possessive, interaction.user.displayName);
 
     reply.edit({
-        content: `${show_consider?LangGetFormattedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.locale):''}${LangGetFormattedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.locale, interaction.user.displayName, bet)}\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
+        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
     });
 
     DoRandomDrops(reply_as_message, interaction.user);

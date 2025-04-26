@@ -1,8 +1,10 @@
 import {
-    ActionRowBuilder, ActivityType,
+    ActionRowBuilder,
+    ActivityType,
     ButtonBuilder,
     ButtonStyle,
-    ChatInputCommandInteraction, Message,
+    ChatInputCommandInteraction,
+    Message,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake,
@@ -19,6 +21,7 @@ import {CUSTOMIZATION_UNLOCKS} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {SetActivity} from "../../../index";
+import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 
 
 const L = new Logger('blackjack');
@@ -274,7 +277,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     if ((LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) && !skip_cooldown) {
         response = await interaction.reply({
-            content:`:hourglass_flowing_sand: One sec, waiting for your cooldown to end...`,
+            content:await LangGetAutoTranslatedString(LANG_GAMES.ANY_COOLDOWN, interaction.okabot.translateable_locale),
             flags:[MessageFlags.SuppressNotifications]
         });
 

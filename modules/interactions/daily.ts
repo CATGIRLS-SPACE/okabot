@@ -8,25 +8,14 @@ import {
     TextChannel
 } from "discord.js";
 import {ClaimDaily, GetDailyStreak} from "../okash/daily";
-import {GetEmoji} from "../../util/emoji";
 import {quickdraw, ScheduleDailyReminder} from "../tasks/dailyRemind";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {LANG_INTERACTION, LANG_ITEMS, LangGetFormattedString} from "../../util/language";
+import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../util/language";
 
 const remindButton = new ButtonBuilder()
     .setCustomId('remindme')
     .setStyle(ButtonStyle.Primary)
     .setLabel('Remind Me');
-
-const remindButtonNext = new ButtonBuilder()
-    .setCustomId('remindmen')
-    .setStyle(ButtonStyle.Primary)
-    .setLabel('Remind Me Again');
-
-const onClaimBar = new ActionRowBuilder<ButtonBuilder>()
-    .addComponents(
-        remindButtonNext
-    );
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -40,7 +29,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         const localizedRemindButton = new ButtonBuilder()
             .setCustomId('remindme')
             .setStyle(ButtonStyle.Primary)
-            .setLabel(LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_BUTTON, interaction.okabot.locale));
+            .setLabel(await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_BUTTON, interaction.okabot.translateable_locale));
 
         const earlyBar = new ActionRowBuilder<ButtonBuilder>()
             .addComponents(
@@ -50,7 +39,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         // must wait
         console.log(result);
         response = await interaction.editReply({
-            content: LangGetFormattedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.locale, interaction.user.displayName, -result),
+            content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.translateable_locale, interaction.user.displayName, -result),
             components: [earlyBar]
         });
 
@@ -66,14 +55,24 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             if (!success) GrantAchievement(i.user, Achievements.ANGER_OKABOT, i.channel as TextChannel);
 
             i.update({
-                content: success?LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale)
-                :LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_ANGRY, interaction.okabot.locale, interaction.user.displayName),
+                content: success?await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale)
+                :await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_ANGRY, interaction.okabot.translateable_locale, interaction.user.displayName),
                 components:[]
             });
         });
 
         return;
     }
+
+    const remindButtonNext = new ButtonBuilder()
+        .setCustomId('remindmen')
+        .setStyle(ButtonStyle.Primary)
+        .setLabel(await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_BUTTON, interaction.okabot.translateable_locale));
+
+    const onClaimBar = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+            remindButtonNext
+        );
 
     if (result == 1500) {
         // 1500 = no streak (technically 1 day)
@@ -84,7 +83,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         let response;
 
         response = await interaction.editReply({
-            content: LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale, LangGetFormattedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.locale)),
+            content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)),
             components: [onClaimBar]
         });
 
@@ -98,7 +97,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             let previous_content = i.message;
         
             i.update({
-                content: `${previous_content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
+                content: `${previous_content}\n\n` + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale),
                 components:[]
             });
         });
@@ -126,7 +125,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     let response;
 
-    let content = LangGetFormattedString(LANG_INTERACTION.DAILY, interaction.okabot.locale, LangGetFormattedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.locale)) + '\n' + LangGetFormattedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.locale, streak_count, bonus);
+    let content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
 
     response = await interaction.editReply({
         content,
@@ -142,7 +141,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         let previous_content = i.message;
     
         i.update({
-            content: `${previous_content}\n\n` + LangGetFormattedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.locale),
+            content: `${previous_content}\n\n` + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale),
             components:[]
         });
     });
