@@ -36,17 +36,17 @@ export async function HandleCommand8Ball(interaction: ChatInputCommandInteractio
     const question = interaction.options.getString('question', true);
 
     const answer = POSSIBLE_ANSWERS[Math.ceil(Math.random() * POSSIBLE_ANSWERS.length) - 1];
-    const answer_string = await LangGetAutoTranslatedString(answer, interaction.okabot.locale);
+    const answer_string = await LangGetAutoTranslatedString(answer, interaction.okabot.translateable_locale);
 
     await interaction.reply({
-        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_INITIAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question),
+        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_INITIAL, interaction.okabot.translateable_locale, (interaction.member as GuildMember || interaction.user).displayName, question),
         flags: [MessageFlags.SuppressNotifications]
     });
 
     await new Promise((resolve) => {setTimeout(resolve, 5000)});
 
     await interaction.editReply({
-        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
+        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.translateable_locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
     });
 }
 

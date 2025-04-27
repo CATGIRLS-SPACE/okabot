@@ -16,7 +16,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
 
     await interaction.reply({
         content: await LangGetAutoTranslatedString(LANG_INTERACTION.OKASH,
-            interaction.okabot.locale,
+            interaction.okabot.translateable_locale,
             interaction.user.displayName,
             wallet.toString(),
             bank.toString(),

@@ -4,7 +4,8 @@ import {ITEMS} from "../okash/items";
 import {Logger} from "okayulogger";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {Achievements, GrantAchievement} from "./achievement";
-import {client} from "../../index";
+import {client, GetLastLocale} from "../../index";
+import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 const L = new Logger('onMessage.ts');
 
@@ -22,6 +23,7 @@ export async function DoRandomDrops(message: Message, author?: User) {
 
     // usually 1 in 500 chance, boost is 1 in 300 <-- these are old, ignore them
     const small_roll = boost_active?Math.floor(Math.random() * 150):Math.floor(Math.random() * 250);
+    // const small_roll: number = 97; // for testing only
     // usually 1 in 2500, boost is 1 in 1500 <-- these are old, ignore them
     const large_roll = boost_active?Math.floor(Math.random() * 400):Math.floor(Math.random() * 800);
     // usually 1 in 5000, boost is 1 in 1700 <-- low so that incentive is high <-- these are old, ignore them
@@ -33,18 +35,18 @@ export async function DoRandomDrops(message: Message, author?: User) {
             if (boost_active) break;
             L.info('trigger small reward');
             const found_amount = Math.ceil(Math.random() * 1000);
-            const sr_reply = await message.reply(":grey_question: Hey, something's on the ground...");
+            const sr_reply = await message.reply(await LangGetAutoTranslatedStringRaw("<:grey_question:0> Hey, something's on the ground...", GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await sr_reply.edit(`:scream_cat: Hey, something's on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`);
+            await sr_reply.edit(await LangGetAutoTranslatedStringRaw('<<:scream_cat:0>0> Hey, something\'s on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!', GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
             AddToWallet(message.author.id, found_amount);
             break;
 
         case 97:
             L.info('trigger common lootbox');
-            const cl_reply = await message.reply(':anger: Ow..!?');
+            const cl_reply = await message.reply(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!?', GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await cl_reply.edit(':anger: Ow..!? Why was there a :package: **Common Lootbox** there!?');
+            await cl_reply.edit(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!? Why was there a <:package:0> **Common Lootbox** there!?', GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
             AddOneToInventory(message.author.id, ITEMS.LOOTBOX_COMMON);
             break;
@@ -58,18 +60,18 @@ export async function DoRandomDrops(message: Message, author?: User) {
             if (boost_active) break;
             L.info('trigger large reward');
             const found_amount = Math.ceil(Math.random() * 5000) + 5000; // 5000-10000
-            const sr_reply = await message.reply(":question: Hey, something's on the ground...");
+            const sr_reply = await message.reply(await LangGetAutoTranslatedStringRaw("<:question:0> Hey, something's on the ground...", GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await sr_reply.edit(`:scream_cat: Hey, something's on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`);
+            await sr_reply.edit(await LangGetAutoTranslatedStringRaw(`<:scream_cat:0> Hey, something's on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`, GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
             AddToWallet(message.author.id, found_amount);
             break;
 
         case 37:
             L.info('trigger rare lootbox');
-            const cl_reply = await message.reply(':anger: Ow..!?');
+            const cl_reply = await message.reply(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!?', GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await cl_reply.edit(':anger: Ow..!? Why was there a :package: **Rare Lootbox** there!?');
+            await cl_reply.edit(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!? Why was there a <:package:0> **Rare Lootbox** there!?', GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
             AddOneToInventory(message.author.id, ITEMS.LOOTBOX_RARE);
             break;
@@ -80,9 +82,9 @@ export async function DoRandomDrops(message: Message, author?: User) {
 
     if (ex_roll == 679) { // im like yea she's fine, wonder when she'll be mine
         L.info('trigger ex lootbox');
-        const cl_reply = await message.reply(':anger: Ow..!?');
+        const cl_reply = await message.reply(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!?', GetLastLocale(message.author.id)));
         await Sleep(3000);
-        await cl_reply.edit(':anger: Ow..!? That :package: :sparkle: **EX Lootbox** :sparkle: is so shiny, it hurts my eyes!!');
+        await cl_reply.edit(await LangGetAutoTranslatedStringRaw('<:anger:0> Ow..!? That <:package:0> :sparkle: **EX Lootbox** :sparkle: is so shiny, it hurts my eyes!!', GetLastLocale(message.author.id)));
         GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
         AddOneToInventory(message.author.id, ITEMS.LOOTBOX_EX);
     }

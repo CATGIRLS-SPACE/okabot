@@ -1,5 +1,6 @@
 import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, MessageFlags, SelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../util/emoji";
+import {LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 
 const STRINGS: {[key: string]: {en:string,ja:string}} = {
@@ -16,7 +17,7 @@ Choose a menu below to see information!
 const CurrencyPage =
 `
 # The okash Currency
-okash is okabot's currency. It can be earned by playing games,
+${GetEmoji(EMOJI.OKASH)} okash is okabot's currency. It can be earned by playing games,
 leveling up, claiming your daily rewards, and more!
 
 You can use okash in the shop to buy items or cosmetics.
@@ -36,7 +37,7 @@ But be careful! If you go over 21, you lose!
 okabot must draw to at least 17 and then stand. You have these options:
 - Hit: Get another card (unavailable if you have a Blackjack).
 - Stand: Finish drawing and show the game results.
-- Double Down: Only available on the first hit, you double your money and draw one card, then you must stand.
+- Double Down: Only available on the first hit. You will double your money and draw one card, then you must stand.
 Winning will double your bet, winning with a Blackjack hand will give you 3x your bet, and tying will refund you.
 -# requires a Discord client which supports message components
 `
@@ -55,25 +56,6 @@ This is by far the most profitable gambling game.
 You can win up to a 50x your bet if you get lucky!
 `
 
-const StockPage =
-`
-# okash Stocks
-You can invest your okash into the stock market, too!
-You don't have to purchase a whole-number amount of shares, 
-so you can buy half a share, quarter of a share, however much you want!
-
-The okabot stock market consists of three stocks:
-- Catgirl: The most expensive, but the highest change in cost per update.
-- Doggirl: A middle-ground that's not too expensive, but still worth investment.
-- Foxgirl: A low-priced stock that has the highest chance of spiking, but less movement in price.
-
-Stocks update every 5 minutes, and you can only invest with money in your bank.
-There's a chance that an event might happen, too! Keep an eye out for these events,
-they could really help your investment portfolio!
-
-As of okabot 3.0.3, there is a small fee when selling. This is only to prevent abuse.
-`
-
 const DailyRewardPage =
 `
 # Daily Rewards
@@ -89,9 +71,9 @@ Talking in the server and playing games all give you XP.
 This XP will help you level up.
 Levels 1-100 have unlockable titles which show on your /level banner.
 When you level up, you will get a small okash reward and a lootbox, increasing with each level.
-Levels such as 1, 2, 3... give a :package: **Common Lootbox**
-Levels such as 5, 15, 25... give a :package: **Rare Lootbox**
-Levels such as 10, 20, 30... give a :package: :sparkle: **EX Lootbox** :sparkle:
+Levels such as 1, 2, 3... give a <:package:0> **Common Lootbox**
+Levels such as 5, 15, 25... give a <:package:0> **Rare Lootbox**
+Levels such as 10, 20, 30... give a <:package:0> <:sparkle:0> **EX Lootbox** <:sparkle:0>
 `
 
 const DropsPage = 
@@ -206,58 +188,52 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
         switch (selection) { 
             case 'okash':
                 await i.update({
-                    content: CurrencyPage,
+                    content: await LangGetAutoTranslatedStringRaw(CurrencyPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
             case 'earthquakes':
                 await i.update({
-                    content: EarthquakePage,
+                    content: await LangGetAutoTranslatedStringRaw(EarthquakePage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
             case 'games':
                 await i.update({
-                    content: GamesPage,
+                    content: await LangGetAutoTranslatedStringRaw(GamesPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
             case 'games2':
                 await i.update({
-                    content: GamesPage2,
-                    components: [row]
-                });
-                break;
-            case 'stocks':
-                await i.update({
-                    content: StockPage,
+                    content: await LangGetAutoTranslatedStringRaw(GamesPage2, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
             case 'daily':
                 await i.update({
-                    content: DailyRewardPage,
+                    content: await LangGetAutoTranslatedStringRaw(DailyRewardPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
             
             case 'level':
                 await i.update({
-                    content: LevelPage,
+                    content: await LangGetAutoTranslatedStringRaw(LevelPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
                 
             case 'drops':
                 await i.update({
-                    content: DropsPage,
+                    content: await LangGetAutoTranslatedStringRaw(DropsPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;
 
             case 'extra':
                 await i.update({
-                    content: ExtraPage,
+                    content: await LangGetAutoTranslatedStringRaw(ExtraPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;

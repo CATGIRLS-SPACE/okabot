@@ -18,6 +18,7 @@ import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBod
 import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
 import {UpdateDMDataStatus} from "../http/server";
+import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 const L = new Logger('earthquakes');
 
@@ -26,6 +27,10 @@ const locations_english: {[key: string]: string} = {};
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
+    if (CONFIG.extra.includes('disable jma fetching')) return interaction.editReply({
+        content: 'err: jma fetch disabled'
+    });
+
     const earthquake = await GetLatestEarthquake(CONFIG.dmdata_api_key);
 
     // console.log(earthquake);
@@ -36,7 +41,7 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const HypocenterName = earthquake.hypocenter.name;
     const HypocenterDepth = earthquake.hypocenter.depth.value;
 
-    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName);
+    const embed = await BuildEarthquakeEmbed(OriginTime, Magnitude, MaxInt, HypocenterDepth, HypocenterName, false, interaction.okabot.translateable_locale);
     
     const reports_xml = await fetch('https://www3.nhk.or.jp/sokuho/jishin/data/JishinReport.xml');
     const report_url = (await reports_xml.text()).split('<item')[1].split('</item>')[0].split('url="')[1].split('"')[0];
@@ -47,7 +52,7 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     if ('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId) embeds.push(new EmbedBuilder().setImage(`https://www3.nhk.or.jp/sokuho/jishin/${image_url}`));
     
     interaction.editReply({
-        content: (('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId)?``:'No image rendered for this earthquake. Try again later.\n')+'-# Earthquake image is unofficially provided by NHK.',
+        content: (('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId)?``:await LangGetAutoTranslatedStringRaw('No image rendered for this earthquake. Try again later.\n', interaction.okabot.translateable_locale))+await LangGetAutoTranslatedStringRaw('-# Earthquake image is unofficially provided by NHK.', interaction.okabot.translateable_locale),
         embeds
     });
 }
@@ -76,22 +81,22 @@ const SHINDO_IMG: { [key: string]: string } = {
 //     '7': EMOJI.SHINDO_7
 // }
 
-export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false) {
+export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false, locale: string = 'en') {
     if (max_intensity == null || depth == null || magnitude == null) return new EmbedBuilder()
         .setColor(0xf76565)
-        .setTitle('The most recent earthquake occurred overseas')
+        .setTitle(await LangGetAutoTranslatedStringRaw('The most recent earthquake occurred overseas', locale))
         .setAuthor({name: 'Project DM-D.S.S'})
         .setTimestamp(origin_time)
-        .setDescription('I\'m missing some information on this earthquake, so I can\'t display the full embed')
+        .setDescription(await LangGetAutoTranslatedStringRaw('I\'m missing some information on this earthquake, so I can\'t display the full embed', locale))
         .setFields(
-            {name: 'Location', value: locations_english[hypocenter_name] || `No English localization for "${hypocenter_name}" found`}
+            {name: await LangGetAutoTranslatedStringRaw('Location', locale), value: locations_english[hypocenter_name] || await LangGetAutoTranslatedStringRaw(`No English localization for "${hypocenter_name}" found`, locale)}
         )
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/unknown.png`);
 
 
     return new EmbedBuilder()
         .setColor(0x9d60cc)
-        .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : 'Most recent earthquake in Japan')
+        .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : await LangGetAutoTranslatedStringRaw('Most recent earthquake in Japan', locale))
         .setTimestamp(origin_time)
         .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`})
         .setThumbnail(`https://bot.lilycatgirl.dev/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)

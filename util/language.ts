@@ -53,6 +53,19 @@ export enum LANG_GAMES {
     SLOTS_INITIAL = 'games.slots.initial',
     SLOTS_WIN = 'games.slots.win',
     SLOTS_LOSS = 'games.slots.miss',
+
+    BLACKJACK_TOP = 'games.blackjack.top',
+    BLACKJACK_YOU = 'games.blackjack.you',
+    BLACKJACK_OKABOT = 'games.blackjack.okabot',
+    BLACKJACK_TIE = 'games.blackjack.tie',
+    BLACKJACK_TIE_21 = 'games.blackjack.tie_21',
+    BLACKJACK_WIN = 'games.blackjack.win',
+    BLACKJACK_LOSS = 'games.blackjack.loss',
+    BLACKJACK_BUST = 'games.blackjack.bust',
+    BLACKJACK_NEXT_PREVIEW = 'games.blackjack.next',
+    BLACKJACK_BUTTON_HIT = 'games.blackjack.hit',
+    BLACKJACK_BUTTON_STAND = 'games.blackjack.stand',
+    BLACKJACK_BUTTON_DOUBLE = 'games.blackjack.doubledown',
 }
 export enum LANG_RENDER {
     CASINO_WIN = 'render.casino.win',
@@ -135,6 +148,19 @@ const LANGUAGE_EN: Language = {
     'games.slots.win':`and wins ${GetEmoji(EMOJI.OKASH)} OKA**{1}**! **(+{2}XP)**`,
     'games.slots.multigame':'Woah there, **{1}**! You can only use one slot machine at a time!',
 
+    'games.blackjack.top':`okabot Blackjack | You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**\n-# Blackjack pays 3x, win pays 2x`,
+    'games.blackjack.okabot':'**okabot**: [ {1} ] {2}',
+    'games.blackjack.you':'**you**: [ {1} ] {2}',
+    'games.blackjack.tie':'You tied! **(+10XP)**',
+    'games.blackjack.tie_21':'You tied! **(+10XP)**-# You got a blackjack, but so did okabot. This is frustrating, so you got 1.5x your bet anyways!',
+    'games.blackjack.win':`You won ${GetEmoji(EMOJI.OKASH)} OKA**{1}**! **(+{2}XP)**`,
+    'games.blackjack.loss':'You lost! **(+10XP)**', // losing always gives 10xp
+    'games.blackjack.bust':'You busted! **(+10XP)**', // busting always gives 10xp
+    'games.blackjack.next':'Had you hit, you would\'ve drawn',
+    'games.blackjack.hit':'Hit!',
+    'games.blackjack.stand':'Stand!',
+    'games.blackjack.doubledown':'Double Down!',
+
     'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
 
     'render.casino.win':'WINS {1}',
@@ -209,7 +235,20 @@ const LANGUAGE_JA: Language = {
     'games.slots.win':`そして${GetEmoji(EMOJI.OKASH)} OKA**{1}**を勝ち取りました！**(+{2}XP)**`,
     'games.slots.multigame':'Woah there, **{1}**! You can only use one slot machine at a time!',
 
-    'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
+    'games.blackjack.top':`okabot ブラックジャック・あなたのベットは${GetEmoji(EMOJI.OKASH)} OKA**{1}**です\n-# 21は3x・ウィンは2x`,
+    'games.blackjack.okabot':'**okabot**：[ {1} ] {2}',
+    'games.blackjack.you':'**あなた**：[ {1} ] {2}',
+    'games.blackjack.tie':'あなたとokabotは同点です！**(+10XP)**',
+    'games.blackjack.tie_21':'あなたとokabotは同点です！**(+10XP)**',
+    'games.blackjack.win':`あなたは${GetEmoji(EMOJI.OKASH)} OKA**{1}**を稼ぎます！**(+{2}XP)**`,
+    'games.blackjack.loss':'あなたは負けします！**(+10XP)**', // losing always gives 10xp
+    'games.blackjack.bust':'あなたは絶します！**(+10XP)**', // busting always gives 10xp
+    'games.blackjack.next':'次のカードは',
+    'games.blackjack.hit':'ヒット！',
+    'games.blackjack.stand':'やめて！',
+    'games.blackjack.doubledown':'ダブルベット！',
+
+    'games.all.cooldown':':hourglass: しばらくお待ちください :zzz:',
 
     'render.casino.win':'ヒット{1}回',
     'render.casino.loss':'{1}回負ける',
@@ -260,7 +299,7 @@ export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_
 export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // if it's not a supported locale then we use auto-translate
     if (locale != 'en' && locale != 'ja') {
-        let item = LANGUAGE_EN[id] || '[translation error: string does not exist]';
+        let item = LANGUAGE_EN[id] || `[translation error: string \`${id}\` does not exist]`;
         for (let i = 0; i < params.length; i++) {
             item = item.replaceAll(`{${i + 1}}`, params[i].toString());
         }
@@ -278,6 +317,8 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
 }
 
 export async function LangGetAutoTranslatedStringRaw(text: string, locale: string, ...params: (string | number)[]) {
+    if (locale == 'en-US') return text;
+
     let item = text;
     for (let i = 0; i < params.length; i++) {
         item = item.replaceAll(`{${i + 1}}`, params[i].toString());

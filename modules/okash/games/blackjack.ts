@@ -99,7 +99,13 @@ interface BlackjackGame {
     deck: Array<HandCard>,
     okabot_has_hit: boolean,
     card_theme: CUSTOMIZATION_UNLOCKS,
-    trackable_serial?: string
+    trackable_serial?: string,
+    buttons: {
+        hit: ButtonBuilder,
+        stand: ButtonBuilder,
+        stand_blackjack: ButtonBuilder,
+        dd: ButtonBuilder,
+    },
 }
 
 // user_id and game
@@ -238,6 +244,30 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     const card_theme = GetUserProfile(interaction.user.id).customization.games.card_deck_theme;
     const trackable = GetUserProfile(interaction.user.id).customization.games.equipped_trackable_deck;
 
+
+    // create buttons for game
+    // these are stored in the game for
+    // locale purposes
+    const hitButton = new ButtonBuilder()
+        .setCustomId('blackjack-hit')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUTTON_HIT, interaction.okabot.translateable_locale))
+        .setStyle(ButtonStyle.Primary);
+
+    const standButton = new ButtonBuilder()
+        .setCustomId('blackjack-stand')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUTTON_STAND, interaction.okabot.translateable_locale))
+        .setStyle(ButtonStyle.Secondary);
+
+    const standButtonWin = new ButtonBuilder()
+        .setCustomId('blackjack-stand')
+        .setLabel(`✨ ${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUTTON_STAND, interaction.okabot.translateable_locale)}`)
+        .setStyle(ButtonStyle.Success);
+
+    const doubleDownButton = new ButtonBuilder()
+        .setCustomId('blackjack-double')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUTTON_DOUBLE, interaction.okabot.translateable_locale))
+        .setStyle(ButtonStyle.Primary);
+
     // create a blackjack game
     const game: BlackjackGame = {
         dealer: [],
@@ -248,7 +278,13 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         deck: this_deck,
         okabot_has_hit: false,
         card_theme,
-        trackable_serial: trackable=='none'?undefined:trackable
+        trackable_serial: trackable=='none'?undefined:trackable,
+        buttons: {
+            hit: hitButton,
+            stand_blackjack: standButtonWin,
+            stand: standButton,
+            dd: doubleDownButton
+        }
     }
 
     // set up deck
@@ -272,7 +308,12 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     GamesActive.set(interaction.user.id, game);
     SetActivity('blackjack', ActivityType.Playing);
 
-    const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
+    // const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
+    const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, bet);
+    const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, '??', `${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}`);
+    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+    const first_message_content = `${msg_top}\n${msg_okabot}\n${msg_you}`;
+
     let response;
 
     if ((LastGameFinished.has(interaction.user.id) && LastGameFinished.get(interaction.user.id)! + 5 > d.getTime()/1000) && !skip_cooldown) {
@@ -288,8 +329,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         response = await interaction.editReply({
             content: first_message_content,
             components: [
-                TallyCards(game.user) == 21 ? row_blackjack
-                    : (can_double_down ? row_can_double : row ) as any
+                TallyCards(game.user) == 21 ? new ActionRowBuilder().addComponents(game.buttons.stand_blackjack)
+                    : (can_double_down ? new ActionRowBuilder().addComponents(game.buttons.hit, game.buttons.stand, game.buttons.dd) : new ActionRowBuilder().addComponents(game.buttons.hit, game.buttons.stand) ) as any
             ]
         });
 
@@ -298,8 +339,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         response = await interaction.reply({
             content: first_message_content,
             components: [
-                TallyCards(game.user) == 21 ? row_blackjack
-                : (can_double_down ? row_can_double : row ) as any
+                TallyCards(game.user) == 21 ? new ActionRowBuilder().addComponents(game.buttons.stand_blackjack)
+                    : (can_double_down ? new ActionRowBuilder().addComponents(game.buttons.hit, game.buttons.stand, game.buttons.dd) : new ActionRowBuilder().addComponents(game.buttons.hit, game.buttons.stand) ) as any
             ],
             flags: [MessageFlags.SuppressNotifications]
         });
@@ -377,8 +418,13 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
     const dealer_blackjack = TallyCards(game.dealer) == 21;
 
     if (player_busted) {
+        const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
+        const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
+        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+        const message_content = `${msg_top}\n${msg_okabot}\n${msg_you}\n${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUST, interaction.okabot.translateable_locale)}`;
+
         await confirmation.update({
-            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)}\n\nYou busted! **(+10XP)**`,
+            content: message_content,
             components: []
         });
 
@@ -394,10 +440,14 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         GamesActive.delete(interaction.user.id);
     } else {
         // if we doubled down, you cannot hit again
+        const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
+        const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, '??', `${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}`);
+        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+        const message_content = `${msg_top}\n${msg_okabot}\n${msg_you}`;
 
         await confirmation.update({
-            content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}** \n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}`,
-            components: [player_blackjack || double_down ? row_willbust : row]
+            content: message_content,
+            components: [player_blackjack ? new ActionRowBuilder().addComponents(game.buttons.stand_blackjack) : (double_down ? new ActionRowBuilder().addComponents(game.buttons.stand) : new ActionRowBuilder().addComponents(game.buttons.hit, game.buttons.stand))]
         });
     }
 }
@@ -429,14 +479,21 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     let earned_xp = tie ? 5 : (win ? 15 : 10);
     if (player_blackjack) earned_xp += 5;
 
-    const wouldve_been_drawn = `Had you hit, you would've drawn ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!])}`;
+    const wouldve_been_drawn = `${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_NEXT_PREVIEW, interaction.okabot.translateable_locale)} ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!])}`;
+    const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
+    const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
+    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
 
     await confirmation.update({
-        content: `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${game.bet}**\n-# Blackjack pays 3x, win pays 2x\
-        \n**okabot**: [ ${TallyCards(game.dealer)} ] ${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}\
-        \n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${player_blackjack ? ' :sparkles:' : ''}\
-        \n\nYou ${tie ? `tied!${player_blackjack?'\n-# You got a blackjack, but we tied. I know this is infuriating, so I refunded you 1.5x your bet.':''}` : (win ? 'won ' + GetEmoji('okash') + ' OKA**' + game.bet * (player_blackjack ? 3 : 2) + '**!' : 'lost!')} **(+${earned_xp}XP)**\
-        \n${!game.okabot_has_hit?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
+        content: `${msg_top}\
+        \n${msg_okabot}\
+        \n${msg_you}\
+        \n\n${win?await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_WIN, interaction.okabot.translateable_locale, player_blackjack?game.bet*3:game.bet*2, earned_xp):
+            (tie?(dealer_blackjack?await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TIE_21, interaction.okabot.translateable_locale):
+                    await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TIE, interaction.okabot.translateable_locale)
+                ):
+                await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_LOSS, interaction.okabot.translateable_locale))}\
+        \n${!game.okabot_has_hit&&!player_blackjack?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
         components: []
     });
 
