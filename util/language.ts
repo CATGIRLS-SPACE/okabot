@@ -298,7 +298,7 @@ export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_
 
 export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // if it's not a supported locale then we use auto-translate
-    if (locale != 'en' && locale != 'ja') {
+    if (locale != 'en' && locale != 'en-US' && locale != 'en-GB' && locale != 'ja') {
         let item = LANGUAGE_EN[id] || `[translation error: string \`${id}\` does not exist]`;
         for (let i = 0; i < params.length; i++) {
             item = item.replaceAll(`{${i + 1}}`, params[i].toString());
@@ -307,7 +307,7 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
     }
 
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
-    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
+    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale as 'en' | 'ja' | 'br']) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
     for (let i = 0; i < params.length; i++) {
         item = item.replaceAll(`{${i + 1}}`, params[i].toString());
