@@ -1,0 +1,111 @@
+{
+    "debug": {
+        "helloworld": "Hello World! Your locale is {1}"
+    },
+  
+    "interaction":{
+        "okash": "{EMOJI:okash} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently {EMOJI:okash} OKA**{4}** in fines at the bank.",
+        
+        "daily":{
+            "command": ":white_check_mark: You claimed your daily reward of {EMOJI:okash} OKA**1500** and a **{1}**!",
+            "streak": ":chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of {EMOJI:okash} OKA**{2}**!",
+            "srok": "{EMOJI:g00} **{1}**, you've restored your daily reward streak to **{2} days**!",
+            "srfail_higher": ":crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can't restore it...",
+            "srfail_twice": ":crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can't restore it...",
+            "needtowait": ":crying_cat_face: It's too early, **{1}**! Come back <t:{2}:R> to claim your daily reward!",
+            "reminder":{
+                "notice": "{EMOJI:cat_money} {1}! Your daily reward is ready to claim!",
+                "scheduled": "{EMOJI:cat_sunglasses} Okaaay, I'll ping you in this channel when your daily is ready!",
+                "angry": ":pouting_cat: **{1}**! I already told you that I'd remind you!",
+                "button": "Remind Me",
+                "button_claim": "Remind Me Tomorrow"
+            }
+        }
+    },
+  
+    "level":{
+        "levelup": "Congrats, <@{1}>! You're now level **{2}** ({3})!\nYou earned {EMOJI:okash} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**."
+    },
+
+    "games":{
+        "cooldown":"<:hourglass:0> Waiting for your cooldown to finish... <:zzz:0>",
+
+        "8ball":{
+            "command":{
+                "initial":"okabot shakes the <:8ball:0> **Magic 8 Ball** to answer **{1}**'s question...\n> {2}",
+                "final":"okabot shakes the <:8ball:0> **Magic 8 Ball** to answer **{1}**'s question...\n> {2}\n\nand the answer is **{3}**"
+            },
+            "affirmative": {
+                "a": "yup, certainly!",
+                "b": "decidedly so!",
+                "c": "i have no doubt!",
+                "d": "yes, definitely!",
+                "e": "you should rely on it!",
+                "f": "as i see it, yeah!",
+                "g": "most likely",
+                "h": "looks promising",
+                "i": "yes",
+                "j": "signs are pointing to yes"
+            },
+            "negative": {
+                "a": "don't count on it",
+                "b": "my thoughts are nah",
+                "c": "my sources don't think so",
+                "d": "doesn't look promising",
+                "e": "i'm pretty doubtful"
+            },
+            "unsure": {
+                "a": "hmmm... reply hazy, try again",
+                "b": "ask me again later",
+                "c":"maybe i shouldn't tell you now",
+                "d":"i can't predict now",
+                "e":"i need to concentrate and think again..."
+            }
+        },
+
+        "slots": {
+            "donate":"-# Enjoying okabot? Please consider [supporting me](<https://ko-fi.com/okawaffles>).\n",
+            "initial":"<:slot_machine:0> **__SLOTS__** <:slot_machine:0>\n**{1}** bets {EMOJI:okash} OKA**{2}**...",
+            "miss":"and loses {1} money! **(+5XP)**",
+            "win":"and wins {EMOJI:okash} OKA**{1}**! **(+{2}XP)**",
+            "multigame":"Woah there, **{1}**! You can only use one slot machine at a time!"
+        },
+
+        "blackjack": {
+            "top":"okabot Blackjack | You bet {EMOJI:okash} OKA**{1}**\n-# Blackjack pays 3x, win pays 2x",
+            "okabot":"**okabot**: [ {1} ] {2}",
+            "you":"**you**: [ {1} ] {2}",
+            "tie":"You tied! **(+10XP)**",
+            "tie_21":"You tied! **(+10XP)**\n-# You got a blackjack, but so did okabot. This is frustrating, so you got 1.5x your bet anyways!",
+            "win":"You won {EMOJI:okash} OKA**{1}**! **(+{2}XP)**",
+            "loss":"You lost! **(+10XP)**",
+            "bust":"You busted! **(+10XP)**",
+            "next":"Had you hit, you would've drawn",
+            "hit":"Hit!",
+            "stand":"Stand!",
+            "doubledown":"Double Down!"
+        },
+
+        "item": {
+            "lootbox": {
+                "common":"<:package:0> Common Lootbox",
+                "rare":"<:package:0> Rare Lootbox",
+                "ex":"<:package:0> <:sparkle:0> EX Lootbox <:sparkle:0>"
+            },
+            "weighted_coin":"{EMOJI:cff_green} Weighted Coin",
+            "streak_restore":"{EMOJI:g00} Streak Restore",
+            "tracked_maker":"<:electric_plug:0> Tracking Device",
+            "shop_voucher":"{EMOJI:sv2} Shop Voucher",
+            "scratch_ticket":"Scratch Ticket",
+            "drop_boost": {
+                "small":"Drop Boost (15 min)",
+                "large":"Drop Boost (30 min)"
+            },
+            "casino_pass": {
+                "small":"<:credit_card:0> Casino Pass (10 min)",
+                "large":"<:credit_card:0> Casino Pass (30 min)",
+                "largest":"<:credit_card:0> Casino Pass (60 min)"
+            }
+        }
+    }
+}
