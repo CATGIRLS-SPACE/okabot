@@ -440,7 +440,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         // if we doubled down, you cannot hit again
         const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
         const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, `${game.dealer[0].value} + ??`, `${GetCardThemed(game.dealer[0].name, game.card_theme)}${GetCardThemed('cb', game.card_theme)}`);
-        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user, game.card_theme)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
         const message_content = `${msg_top}\n${msg_okabot}\n${msg_you}`;
 
         await confirmation.update({
