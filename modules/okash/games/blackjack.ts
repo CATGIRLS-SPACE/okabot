@@ -146,13 +146,11 @@ function TallyCards(cards: Array<HandCard>): number {
     return total;
 }
 
-function GetCardEmojis(hand: Array<HandCard>) {
+function GetCardEmojis(hand: Array<HandCard>, theme: CUSTOMIZATION_UNLOCKS) {
     let final = '';
 
     hand.forEach(card => {
-        if (card.name === 'ca') final += GetEmoji('ca');
-        else if (card.name === 'cr') final += GetEmoji('cr');
-        else final += GetEmoji(`${card.name}`);
+        final += GetCardThemed(card.name, theme);
     });
 
     return final;
@@ -311,7 +309,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     // const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, bet);
     const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, `${game.dealer[0].value} + ??`, `${GetCardThemed(game.dealer[0].name, game.card_theme)}${GetCardThemed('cb', game.card_theme)}`);
-    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user, game.card_theme)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
     const first_message_content = `${msg_top}\n${msg_okabot}\n${msg_you}`;
 
     let response;
@@ -419,8 +417,8 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
     if (player_busted) {
         const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
-        const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
-        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+        const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer, game.card_theme)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
+        const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user, game.card_theme)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
         const message_content = `${msg_top}\n${msg_okabot}\n${msg_you}\n${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_BUST, interaction.okabot.translateable_locale)}`;
 
         await confirmation.update({
@@ -479,10 +477,10 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     let earned_xp = tie ? 5 : (win ? 15 : 10);
     if (player_blackjack) earned_xp += 5;
 
-    const wouldve_been_drawn = `${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_NEXT_PREVIEW, interaction.okabot.translateable_locale)} ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!])}`;
+    const wouldve_been_drawn = `${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_NEXT_PREVIEW, interaction.okabot.translateable_locale)} ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!], game.card_theme)}`;
     const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
-    const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
-    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+    const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer, game.card_theme)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
+    const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user, game.card_theme)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
 
     await confirmation.update({
         content: `${msg_top}\
