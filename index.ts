@@ -31,6 +31,10 @@ export const CONFIG: {
     extra: Array<string>,
     dmdata_api_key: string,
     translate_api_key: string,
+    gemini: {
+        enable: boolean,
+        api_key: string,
+    },
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
@@ -82,6 +86,7 @@ import {IsUserBanned} from "./modules/user/administrative";
 import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
+import {GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
 
 
 export const client = new Client({
@@ -317,6 +322,11 @@ client.on(Events.MessageCreate, async message => {
     Check$Message(message); // checks for $ messages, for serials on tracked items
     CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
     CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
+
+    if (message.content.toLowerCase().startsWith('okabot, ')) {
+        if (!CONFIG.gemini.enable) return;
+        GeminiDemoRespondToInquiry(message);
+    }
 
     // minecraft server
     if (message.channel.id == "1321639990383476797") { // #mc-live-chat

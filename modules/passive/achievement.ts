@@ -141,7 +141,7 @@ export function GrantAchievement(user: User, achievement: Achievements, channel:
     };
 
     channel.send({
-        content: `:trophy: Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# Use "/achievement Progress Bar" to see what this achievement is!`
+        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# Use "/achievements Progress Bar" to see what this achievement is!`
     });
 
     UpdateUserProfile(user.id, profile);
