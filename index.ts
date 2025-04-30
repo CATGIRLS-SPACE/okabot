@@ -86,7 +86,7 @@ import {IsUserBanned} from "./modules/user/administrative";
 import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
-import {GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
+import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
 
 
 export const client = new Client({
@@ -326,6 +326,11 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.toLowerCase().startsWith('okabot, ')) {
         if (!CONFIG.gemini.enable) return;
         GeminiDemoRespondToInquiry(message);
+    }
+
+    if (message.reference) {
+        let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+        if (reference.content.includes('-# GenAI')) GeminiDemoReplyToConversationChain(message);
     }
 
     // minecraft server
