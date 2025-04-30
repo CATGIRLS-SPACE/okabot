@@ -6,8 +6,11 @@ const translationClient = new Translate({apiKey:CONFIG.translate_api_key,key:CON
 let translation_id = 0;
 
 export async function translateText(text_to_translate: string, target_language: string): Promise<string> {
+    if (target_language == 'en' || target_language == 'en-US' || target_language == 'en-GB') return text_to_translate;
+
     translation_id++;
     console.log(`translating ID ${translation_id} "${text_to_translate}"...`);
+
     try {
         // Run request
         const response = await translationClient.translate([text_to_translate], {from:'en',to:target_language})
