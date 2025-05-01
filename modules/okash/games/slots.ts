@@ -85,12 +85,16 @@ const PAYOUT_TABLE: {[key: string]: number} = {
 
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
 
+const WIN_STREAKS = new Map<Snowflake, number>();
+
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
     if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
+
+    if (!WIN_STREAKS.has(interaction.user.id)) WIN_STREAKS.set(interaction.user.id, 0);
 
     if (DEV) ROLL_EMOJIS['OKASH'] = GetEmoji(EMOJI.OKASH);
 
@@ -168,12 +172,17 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
 
+    let streak = WIN_STREAKS.get(interaction.user.id) || 0;
+    if (multiplier > 0) streak++; else streak = 0;
+    WIN_STREAKS.set(interaction.user.id, streak);
+    const streak_part = LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak);
+
     const result = multiplier>0?
         await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.translateable_locale, earned_okash, earned_xp):
         await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_LOSS, interaction.okabot.translateable_locale, profile.customization.global.pronouns.possessive, interaction.user.displayName);
 
     reply.edit({
-        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n`+result
+        content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n${ROLL_EMOJIS[roll_first]} ${ROLL_EMOJIS[roll_second]} ${ROLL_EMOJIS[roll_third]}\n\n${result}\n${streak>1?streak_part:''}`
     });
 
     DoRandomDrops(reply_as_message, interaction.user);

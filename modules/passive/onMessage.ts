@@ -37,7 +37,7 @@ export async function DoRandomDrops(message: Message, author?: User) {
             const found_amount = Math.ceil(Math.random() * 1000);
             const sr_reply = await message.reply(await LangGetAutoTranslatedStringRaw("<:grey_question:0> Hey, something's on the ground...", GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await sr_reply.edit(await LangGetAutoTranslatedStringRaw('<<:scream_cat:0>0> Hey, something\'s on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!', GetLastLocale(message.author.id)));
+            await sr_reply.edit(await LangGetAutoTranslatedStringRaw(`<:scream_cat:0> Hey, something\'s on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`, GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
             AddToWallet(message.author.id, found_amount);
             break;

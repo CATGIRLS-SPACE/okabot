@@ -24,6 +24,7 @@ export enum LANG_INTERACTION {
 }
 export enum LANG_GAMES {
     ANY_COOLDOWN = 'games.all.cooldown',
+    ANY_WIN_STREAK = 'games.all.winstreak',
 
     MAGIC_AFFIRMATIVE_A = 'games.8ball.affirmative.a',
     MAGIC_AFFIRMATIVE_B = 'games.8ball.affirmative.b',
@@ -162,6 +163,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjack.doubledown':'Double Down!',
 
     'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
+    'games.all.winstreak':':fire: **{1} in a row!**',
 
     'render.casino.win':'WINS {1}',
     'render.casino.loss':'{1} LOSS',
@@ -249,6 +251,7 @@ const LANGUAGE_JA: Language = {
     'games.blackjack.doubledown':'ダブルベット！',
 
     'games.all.cooldown':':hourglass: しばらくお待ちください :zzz:',
+    'games.all.winstreak':':fire: **{1}連勝！**',
 
     'render.casino.win':'ヒット{1}回',
     'render.casino.loss':'{1}回負ける',

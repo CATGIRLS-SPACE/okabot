@@ -116,6 +116,8 @@ const BetRecovery = new Map<string, number>();
 const LastGameFinished = new Map<string, number>();
 // user_id & expiration (epoch sec)
 export const PassesActive = new Map<Snowflake, number>();
+// user_id and wins
+const WinStreak = new Map<Snowflake, number>();
 
 export function ReleaseBlackjackUser(user_id: Snowflake) {
     if (GamesActive.has(user_id)) GamesActive.delete(user_id);
@@ -205,6 +207,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         content: `:bangbang: Woah there, **${interaction.user.displayName}**! You've already got a blackjack game going!`,
         flags: [MessageFlags.SuppressNotifications]
     });
+
+    if (!WinStreak.has(interaction.user.id)) WinStreak.set(interaction.user.id, 0);
 
     const d = new Date();
 
@@ -429,6 +433,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 
         AddCasinoLoss(interaction.user.id, game.bet, 'blackjack');
+        WinStreak.set(interaction.user.id, 0);
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
 
@@ -477,10 +482,14 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     let earned_xp = tie ? 5 : (win ? 15 : 10);
     if (player_blackjack) earned_xp += 5;
 
+    let streak = WinStreak.get(interaction.user.id) || 0;
+    if (win) streak++;
+
     const wouldve_been_drawn = `${await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_NEXT_PREVIEW, interaction.okabot.translateable_locale)} ${GetCardEmojis([game.deck.shift()!,game.deck.shift()!,game.deck.shift()!], game.card_theme)}`;
     const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
     const msg_okabot = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_OKABOT, interaction.okabot.translateable_locale, TallyCards(game.dealer), `${GetCardEmojis(game.dealer, game.card_theme)} ${dealer_blackjack ? ' :sparkles:' : ''}`);
     const msg_you = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_YOU, interaction.okabot.translateable_locale, TallyCards(game.user), `${GetCardEmojis(game.user, game.card_theme)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`);
+    const msg_streak = await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak);
 
     await confirmation.update({
         content: `${msg_top}\
@@ -491,7 +500,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
                     await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TIE, interaction.okabot.translateable_locale)
                 ):
                 await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_LOSS, interaction.okabot.translateable_locale))}\
-        \n${!game.okabot_has_hit&&!player_blackjack?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
+        \n${streak>1?msg_streak+'\n':''}${!game.okabot_has_hit&&!player_blackjack?wouldve_been_drawn:''}`, // <-- show what would've been drawn if no one drew
         components: []
     });
 
@@ -506,12 +515,15 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
             AddCasinoWin(confirmation.user.id, game.bet * 2, 'blackjack');
         }
 
+        WinStreak.set(interaction.user.id, streak);
 
         if (game.bet == 5000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
+        WinStreak.set(interaction.user.id, 0);
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
         else AddToWallet(confirmation.user.id, game.bet);
     } else {
+        WinStreak.set(interaction.user.id, 0);
         if (GetWallet(interaction.user.id) == 0 && GetBank(interaction.user.id) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
         AddCasinoLoss(interaction.user.id, game.bet, 'blackjack');
     }
