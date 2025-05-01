@@ -1,17 +1,24 @@
 import {GoogleGenAI} from '@google/genai';
-import {CONFIG, DEV} from "../../index";
+import {CONFIG, DEV, GetLastLocale} from "../../index";
 import {Message, Snowflake, TextChannel} from "discord.js";
+import * as repl from "node:repl";
 
 let ai: GoogleGenAI;
 
 const ConversationChains: {
     [key: string]: {
         author: Snowflake,
+        orignal_message: Snowflake,
         messages: Array<{
-            user: 'okabot' | string,
+            user: 'okabot' | 'system' | string,
             content: string,
         }>
     }
+} = {};
+
+// makes it so that we can reply to a reply and be sent back to the correct chain
+const ConversationChainReplyPointers: {
+    [key: string]: Snowflake
 } = {};
 
 /**
@@ -38,7 +45,7 @@ export async function GeminiDemoRespondToInquiry(message: Message) {
         extra = `The user has also replied to a message by user "${reference.author.displayName}", which has the content "${reference.content}", so you should use that as context additionally.`
     }
 
-    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response shorthand, being "okabot, xyz" where "xyz" is the query. The content of the message is "${message.content}". ${extra} Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response.`;
+    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response shorthand, being "okabot, xyz" where "xyz" is the query. The content of the message is "${message.content}". ${extra} Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible.`;
 
     await channel.sendTyping();
 
@@ -53,15 +60,32 @@ export async function GeminiDemoRespondToInquiry(message: Message) {
         }
     });
 
-    await message.reply({
-        content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)`
+    const reply = await message.reply({
+        content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# Incorrect language? Run any okabot command to update your active locale!`
     });
+
+    // create a new conversation chain
+    ConversationChains[reply.id] = {
+        author: message.author.id,
+        orignal_message: reply.id,
+        messages: [
+            {
+                user: user.nickname || user.displayName,
+                content: message.content,
+            },
+            {
+                user: 'okabot',
+                content: response.text!
+            }
+        ]
+    }
 }
 
 
 export async function GeminiDemoReplyToConversationChain(message: Message) {
-    if (!CONFIG.gemini.enable) return;
+    if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
     if (!ai) ai = new GoogleGenAI({apiKey: CONFIG.gemini.api_key});
+    if (!ConversationChains[message.reference?.messageId!] && !ConversationChainReplyPointers[message.reference?.messageId!]) return;
 
     const guild = message.client.guilds.cache.get(message.guild!.id);
     if (!guild) throw new Error('no guild');
@@ -76,4 +100,68 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     });
 
     message.react('✨');
+
+    const channel = message.client.channels.cache.get(message.channel.id) as TextChannel;
+
+    await channel.sendTyping();
+
+    const chain = ConversationChains[message.reference!.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
+    if (!chain) throw new Error(`conversation chain "${message.reference!.messageId!}" not found`);
+
+    let replies: string = '';
+    chain.messages.forEach(message => {
+        replies = replies + `${message.user}: ${message.content}\n`;
+    });
+
+    const prompt = `${replies}\nYou are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response in a chain of replies. The content of the message is "${message.content}". Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. The current chain of replies is listed above.`;
+
+    const response = await ai.models.generateContent({
+        model:'gemini-2.5-pro-preview-03-25',
+        contents: prompt,
+        config: {
+            thinkingConfig: {
+                thinkingBudget: 1024,
+                includeThoughts: true,
+            }
+        }
+    });
+
+    const reply = await message.reply({
+        content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
+    });
+
+    ConversationChains[chain.orignal_message].messages.push({
+        user: user.nickname || user.displayName,
+        content: message.content
+    }, {
+        user: 'okabot',
+        content: response.text!
+    });
+
+    ConversationChainReplyPointers[reply.id] = chain.orignal_message;
+}
+
+
+export async function GetWackWordDefinitions(message: Message) {
+    if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
+    if (!ai) ai = new GoogleGenAI({apiKey: CONFIG.gemini.api_key});
+
+    message.react('✨')
+
+    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user has just submitted their "wack words of the day", which are Wordle words which are unconventional/uncommon and sound funny. The content of the message is "${message.content}". Define the words only, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. An example of a defined word message would be: "1. BURNT - definition goes here\n2. CHARK - definition goes here".`;
+
+    const response = await ai.models.generateContent({
+        model:'gemini-2.5-pro-preview-03-25',
+        contents: prompt,
+        config: {
+            thinkingConfig: {
+                thinkingBudget: 1024,
+                includeThoughts: true,
+            }
+        }
+    });
+
+    message.reply({
+        content: `||${response.text!}||`
+    });
 }

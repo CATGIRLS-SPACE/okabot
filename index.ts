@@ -247,6 +247,9 @@ const LAST_USER_LOCALE = new Map<Snowflake, string>();
 export function GetLastLocale(user_id: Snowflake) {
     return LAST_USER_LOCALE.get(user_id) || 'en';
 }
+export function SetLastLocale(user_id: Snowflake, locale: string) {
+    LAST_USER_LOCALE.set(user_id, locale);
+}
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;

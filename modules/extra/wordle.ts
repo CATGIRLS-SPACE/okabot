@@ -1,8 +1,11 @@
 import {GuildMember, Message, TextChannel} from "discord.js";
+import {GetWackWordDefinitions} from "../passive/geminidemo";
 
 let last_cached_date: string, last_cached_word: string;
 
 export async function WordleCheck(message: Message) {
+    if (message.content.toLowerCase().startsWith("lily's wack words of the day") || message.content.toLowerCase().startsWith("lily's wack word of the day")) return GetWackWordDefinitions(message);
+
     if (message.channel.id == "1310486655257411594" || message.channel.id == "941843973641736253") { // #wordle
         // checking if they're NOT being original, hmph...
         if (message.author.id != "796201956255334452" && (message.content.includes('wack') && message.content.includes("word"))) {
@@ -11,7 +14,6 @@ export async function WordleCheck(message: Message) {
                 content: `:pouting_cat: **${(message.member as GuildMember).displayName || message.author.displayName}**, you're not original!\n-# if you try and bypass, I will get really upset, and you will not be allowed to participate here!!!`
             });
         }
-
 
         let d = new Date();
         const month = d.getMonth()+1<10?`0${d.getMonth()+1}`:d.getMonth()+1;

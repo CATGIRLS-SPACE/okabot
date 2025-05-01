@@ -3,7 +3,7 @@ import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
     client, CONFIG,
-    LISTENING,
+    LISTENING, SetLastLocale,
     SetListening
 } from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
@@ -365,6 +365,13 @@ export function RegisterAllShorthands() {
         message.reply({
             content:':white_check_mark: Dropped user profile from cache and reloaded from file.',
             flags: [MessageFlags.SuppressNotifications]
+        });
+    });
+
+    RegisterShorthand('oka loc', async (message: Message, params: string[]) => {
+        SetLastLocale(params[2], params[3]);
+        message.reply({
+            content:`locale forced to '${params[3]}'. if the user runs a command, their locale will be changed automatically.`
         });
     });
 }
