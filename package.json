@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/builders": "^1.11.1",
     "@discordjs/rest": "^1.7.1",
     "@google-cloud/translate": "^9.0.1",
     "@google/genai": "^0.10.0",
@@ -17,7 +18,7 @@
     "axios": "^1.8.4",
     "body-parser": "^1.20.3",
     "canvas": "^3.1.0",
-    "discord.js": "^14.18.0",
+    "discord.js": "^14.19.2",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "json": "^11.0.0",

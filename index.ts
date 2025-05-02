@@ -44,7 +44,7 @@ export function BotIsDevMode(): boolean { return DEV }
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
 import {HandleCommandCoinflipV2} from "./modules/okash/games/coinflip";
-import {CheckBlackjackSilly, SetupBlackjackMessage} from "./modules/okash/games/blackjack";
+import {CheckBlackjackSilly, HandleCommandBlackjackV2, SetupBlackjackMessage} from "./modules/okash/games/blackjack";
 import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
@@ -212,7 +212,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'okash': HandleCommandOkash,
     'daily': HandleCommandDaily,
     'coinflip': HandleCommandCoinflipV2,
-    'blackjack': SetupBlackjackMessage,
+    'blackjack': !DEV?SetupBlackjackMessage:HandleCommandBlackjackV2,
     'pay': (interaction: ChatInputCommandInteraction) => HandleCommandPay(interaction, client),
     'recent-eq': GetMostRecent,
     'leaderboard': HandleCommandLeaderboard,

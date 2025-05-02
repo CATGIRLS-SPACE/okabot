@@ -149,7 +149,7 @@ const LANGUAGE_EN: Language = {
     'games.slots.win':`and wins ${GetEmoji(EMOJI.OKASH)} OKA**{1}**! **(+{2}XP)**`,
     'games.slots.multigame':'Woah there, **{1}**! You can only use one slot machine at a time!',
 
-    'games.blackjack.top':`okabot Blackjack | You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**\n-# Blackjack pays 3x, win pays 2x`,
+    'games.blackjack.top':`okabot Blackjack | You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**\n-# Blackjack pays 3x, win pays 2x\n-# 🆕 *The Components V2 version of blackjack is available! Set your Discord language to English to try it out!*`,
     'games.blackjack.okabot':'**okabot**: [ {1} ] {2}',
     'games.blackjack.you':'**you**: [ {1} ] {2}',
     'games.blackjack.tie':'You tied! **(+10XP)**',

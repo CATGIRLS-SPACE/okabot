@@ -4,17 +4,19 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
+    ContainerBuilder,
     Message,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake,
-    TextChannel
+    TextChannel,
+    TextDisplayBuilder
 } from "discord.js";
 import {Logger} from "okayulogger";
 import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
 import {AddXP} from "../../levels/onMessage";
 import {CheckOkashRestriction, GetUserProfile, OKASH_ABILITY} from "../../user/prefs";
-import {GetEmoji} from "../../../util/emoji";
+import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZATION_UNLOCKS} from "../items";
@@ -157,44 +159,6 @@ function GetCardEmojis(hand: Array<HandCard>, theme: CUSTOMIZATION_UNLOCKS) {
 
     return final;
 }
-
-
-const hitBtn = new ButtonBuilder()
-    .setCustomId('blackjack-hit')
-    .setLabel('Hit!')
-    .setStyle(ButtonStyle.Primary);
-
-const standBtn = new ButtonBuilder()
-    .setCustomId('blackjack-stand')
-    .setLabel('Stand!')
-    .setStyle(ButtonStyle.Secondary);
-
-const mustStandBtn = new ButtonBuilder()
-    .setCustomId('blackjack-stand')
-    .setLabel('Stand!')
-    .setStyle(ButtonStyle.Secondary);
-
-const mustStandBtnWin = new ButtonBuilder()
-    .setCustomId('blackjack-stand')
-    .setLabel('✨ Stand!')
-    .setStyle(ButtonStyle.Success);
-
-const doubleDownButton = new ButtonBuilder()
-    .setCustomId('blackjack-double')
-    .setLabel('Double Down!')
-    .setStyle(ButtonStyle.Primary);
-
-const row = new ActionRowBuilder()
-    .addComponents(hitBtn, standBtn);
-
-const row_can_double = new ActionRowBuilder()
-    .addComponents(hitBtn, standBtn, doubleDownButton);
-
-const row_willbust = new ActionRowBuilder()
-    .addComponents(mustStandBtn);
-
-const row_blackjack = new ActionRowBuilder()
-    .addComponents(mustStandBtnWin);
 
 
 function GetCardThemed(id: string, theme: CUSTOMIZATION_UNLOCKS) {
@@ -607,6 +571,125 @@ export async function CheckBlackjackSilly(message: Message) {
 }
 
 
+/**
+ * Command handler for blackjack using components v2
+ * @param interaction The interaction object from Discord.js
+ */
+export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInteraction) {
+    // if the locale isn't english or the user prefers to use the classic game display
+    // non-english users can choose to force the components v2 version by setting the "classic" option to false
+    const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
+    const use_classic = interaction.options.getBoolean('classic');
+    if ((use_classic == undefined && !locale_supported) || use_classic) return SetupBlackjackMessage(interaction);
+
+    const d = new Date();
+
+    // start setup of blackjack game
+    const bet = interaction.options.getNumber('bet', true);
+
+    if (bet.toString().includes('.')) return interaction.reply({
+        content:`:x: **${interaction.user.displayName}**, I don't have change!`,
+        flags: [MessageFlags.SuppressNotifications]
+    });
+
+    const profile = GetUserProfile(interaction.user.id);
+    const wallet = profile.okash.wallet;
+    if (wallet < bet) return interaction.reply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have that much in your wallet!`,
+        flags: [MessageFlags.SuppressNotifications]
+    });
+
+    // shuffle deck of cards
+    const deck: Array<HandCard> = CloneArray(DECK);
+    ShuffleCards(deck);
+
+    // create buttons
+    const hitButton = new ButtonBuilder()
+        .setCustomId('blackjack-hit')
+        .setLabel('Hit!')
+        .setStyle(ButtonStyle.Primary);
+
+    const standButton = new ButtonBuilder()
+        .setCustomId('blackjack-stand')
+        .setLabel('Stand!')
+        .setStyle(ButtonStyle.Secondary);
+
+    const standButtonWin = new ButtonBuilder()
+        .setCustomId('blackjack-stand')
+        .setLabel(`✨ Stand!`)
+        .setStyle(ButtonStyle.Success);
+
+    const doubleDownButton = new ButtonBuilder()
+        .setCustomId('blackjack-double')
+        .setLabel('Double Down!')
+        .setStyle(ButtonStyle.Primary);
+
+    // create game object
+    const game: BlackjackGame = {
+        deck,
+        dealer: [],
+        user: [],
+        bet,
+        gameActive: true,
+        expires: d.getTime() + 30_000,
+        card_theme: profile.customization.games.card_deck_theme,
+        trackable_serial: undefined,
+        okabot_has_hit: false,
+        buttons: {
+            hit: hitButton,
+            stand_blackjack: standButtonWin,
+            stand: standButton,
+            dd: doubleDownButton
+        }
+    }
+
+    // deal two cards to okabot and user
+    game.dealer.push(game.deck.shift()!, game.deck.shift()!);
+    game.user.push(game.deck.shift()!, game.deck.shift()!);
+
+    // save game
+    // TODO: enable this, it's disabled for debugging purposes
+    // GamesActive.set(interaction.user.id, game);
+
+    // split the creation of the container outside
+    // of this function so it's not too messy
+    const BlackjackContainer = BuildBlackjackContainer(game);
+
+
+
+    interaction.reply({
+        components: [BlackjackContainer],
+        flags:[MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
+    });
+}
+
+function BuildBlackjackContainer(game: BlackjackGame) {
+    const BlackjackContainer = new ContainerBuilder();
+    const Header = new TextDisplayBuilder().setContent([
+        '# okabot Blackjack',
+        `You bet ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}**`
+    ].join('\n'));
+
+    BlackjackContainer.addTextDisplayComponents(Header);
+
+    const CardDisplaysTexts = new TextDisplayBuilder().setContent([
+        `## okabot: ${GetCardThemed(game.dealer[0].name, game.card_theme)} ${GetCardThemed('cb', game.card_theme)}`,
+        `...totaling \`[ ${game.dealer[0].value} + ?? ]\``,
+        `## you: ${GetCardEmojis(game.user, game.card_theme)}`,
+        `...totaling \`[ ${TallyCards(game.user)} ]\``,
+    ].join('\n'));
+
+    BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
+
+    const is_blackjack = TallyCards(game.user)==21;
+
+    BlackjackContainer.addActionRowComponents(row => row.addComponents(
+        is_blackjack?[game.buttons.stand_blackjack]:[game.buttons.hit, game.buttons.stand, game.buttons.dd]
+    ));
+
+    return BlackjackContainer;
+}
+
 export const BlackjackSlashCommand = new SlashCommandBuilder()
     .setName('blackjack')
     .setDescription('Play a game of blackjack for a chance at increasing your money!')
@@ -615,3 +698,7 @@ export const BlackjackSlashCommand = new SlashCommandBuilder()
         .setRequired(true)
         .setDescription('The amount of okash to bet')
         .setMaxValue(5_000).setMinValue(1))
+    .addBooleanOption(option => option
+        .setName('classic')
+        .setRequired(false)
+        .setDescription('Use the classic blackjack game instead of the Components V2 version.'))

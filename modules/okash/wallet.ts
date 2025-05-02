@@ -70,7 +70,7 @@ export function RemoveFromBank(user_id: string, amount: number) {
 }
 
 /**
- * @Deprecated Use `GetUserProfile(user_id).okash.wallet` instead
+ * Easy shorthand of `GetUserProfile(user_id).okash.wallet`
  */
 export function GetWallet(user_id: string, include_bank: boolean = false): number {
     const profile = GetUserProfile(user_id);
@@ -79,7 +79,7 @@ export function GetWallet(user_id: string, include_bank: boolean = false): numbe
 }
 
 /**
- * @Deprecated Use `GetUserProfile(user_id).okash.bank` instead
+ * Easy shorthand of `GetUserProfile(user_id).okash.bank`
  */
 export function GetBank(user_id: string): number {
     return GetUserProfile(user_id).okash.bank;
