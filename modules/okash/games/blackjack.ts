@@ -5,7 +5,7 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ContainerBuilder,
+    ContainerBuilder, InteractionResponse,
     Message,
     MessageFlags,
     SeparatorBuilder,
@@ -27,6 +27,7 @@ import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {SetActivity} from "../../../index";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
+import * as repl from "node:repl";
 
 
 const L = new Logger('blackjack');
@@ -574,6 +575,14 @@ export async function CheckBlackjackSilly(message: Message) {
 }
 
 
+/*
+*
+* START BLACKJACK V2 (COMPONENTS V2 REWRITE)
+*
+* */
+
+
+
 /**
  * Command handler for blackjack using components v2
  * @param interaction The interaction object from Discord.js
@@ -585,22 +594,18 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     const use_classic = interaction.options.getBoolean('classic');
     if ((use_classic == undefined && !locale_supported) || use_classic) return SetupBlackjackMessage(interaction);
 
+    // check for cooldowns
     const d = new Date();
     let cooldown = false;
 
-    if (LastGameFinished.get(interaction.user.id) || 0 > (d.getTime() / 1000) + 5_000) cooldown = true;
+    if (LastGameFinished.get(interaction.user.id) || 0 > (d.getTime() / 1000) + 7_000) cooldown = true;
     if (PassesActive.get(interaction.user.id) || 0 > d.getTime() / 1000) cooldown = false;
 
+    // declare the reply up here
+    // this is because the reply object
+    // will be kinda weird if there is
+    // a cooldown
     let reply;
-
-    if (cooldown) {
-        reply = interaction.reply({
-            content: ':zzz: Waiting for your cooldown to end...',
-            flags: [MessageFlags.SuppressNotifications]
-        });
-        
-        await new Promise((resolve) => setTimeout(resolve, LastGameFinished.get(interaction.user.id)! * 1000 - d.getTime()));
-    }
 
     // start setup of blackjack game
     const bet = interaction.options.getNumber('bet', true);
@@ -642,7 +647,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     const doubleDownButton = new ButtonBuilder()
         .setCustomId('blackjack-double')
         .setLabel('⏬ Double Down!')
-        .setStyle(ButtonStyle.Danger);
+        .setStyle(ButtonStyle.Primary);
 
     // does the user have a trackable deck equipped?
     const trackable_serial = profile.customization.games.equipped_trackable_deck!='none'?profile.customization.games.equipped_trackable_deck:undefined;
@@ -654,7 +659,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         user: [],
         bet,
         gameActive: true,
-        expires: d.getTime() + 30_000,
+        expires: d.getTime() + 10_000,
         card_theme: profile.customization.games.card_deck_theme,
         trackable_serial,
         okabot_has_hit: false,
@@ -674,6 +679,20 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // save game
     GamesActive.set(interaction.user.id, game);
 
+    // activate cooldown if needed
+    if (cooldown) {
+        reply = await interaction.reply({
+            components: [
+                new ContainerBuilder().addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('💤 ah! one sec! waiting for your cooldown to end...')
+                )
+            ],
+            flags: [MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
+        });
+
+        await new Promise((resolve) => setTimeout(resolve, LastGameFinished.get(interaction.user.id)! * 1000 - d.getTime()));
+    }
+
     // split the creation of the container outside
     // of this function so it's not too messy
     const BlackjackContainer = BuildBlackjackContainer(game, wallet - bet >= bet);
@@ -690,10 +709,12 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         });
     }
 
+    setTimeout(() => GameIdleCheckV2(interaction.user.id, reply), 11_000)
+
     // listen for buttons
     const collector = reply.createMessageComponentCollector({
         filter: (i: any) => i.user.id === interaction.user.id,
-        time: 120_000
+        time: 60_000
     });
 
     collector.on('collect', (i) => {
@@ -711,6 +732,31 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
                 break;
         }
     });
+}
+
+function GameIdleCheckV2(user_id: Snowflake, reply: InteractionResponse | Message) {
+    const game = GamesActive.get(user_id);
+    if (!game) return;
+
+    const now = (new Date()).getTime();
+
+    if (now > game.expires) {
+        reply.edit({
+            components: [
+                new ContainerBuilder().addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`⌛ This inactive blackjack game has expired.\nThe bet of ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}** was refunded.`)
+                )
+            ],
+            flags: [MessageFlags.IsComponentsV2]
+        });
+
+        AddToWallet(user_id, game.bet);
+        GamesActive.delete(user_id);
+    } else {
+        // add another 10 seconds before checking for expired games
+        // if the game was still active when checked
+        setTimeout(() => GameIdleCheckV2(user_id, reply), 10_000);
+    }
 }
 
 function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction, double_down = false) {
@@ -889,6 +935,8 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     if (can_double_down) default_buttons.push(game.buttons.dd);
 
     if (gameover == 'no') {
+        BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
+
         BlackjackContainer.addActionRowComponents(row => row.addComponents(
             is_blackjack?[game.buttons.stand_blackjack]:default_buttons
         ));
