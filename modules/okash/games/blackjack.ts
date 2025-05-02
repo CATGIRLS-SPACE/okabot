@@ -2,6 +2,7 @@ import {
     ActionRowBuilder,
     ActivityType,
     ButtonBuilder,
+    ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
     ContainerBuilder,
@@ -653,17 +654,120 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     // split the creation of the container outside
     // of this function so it's not too messy
-    const BlackjackContainer = BuildBlackjackContainer(game);
+    const BlackjackContainer = BuildBlackjackContainer(game, wallet - bet >= bet);
 
-
-
-    interaction.reply({
+    const reply = await interaction.reply({
         components: [BlackjackContainer],
         flags:[MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
     });
+
+    // listen for buttons
+    const collector = reply.createMessageComponentCollector({
+        filter: (i: any) => i.user.id === interaction.user.id,
+        time: 120_000
+    });
+
+    collector.on('collect', (i) => {
+        switch (i.customId) {
+            case 'blackjack-hit':
+                HitV2(interaction, i as ButtonInteraction);
+                break;
+            
+            case 'blackjack-stand':
+                StandV2(interaction, i as ButtonInteraction);
+                break;
+                
+            case 'blackjack-double':
+                break;
+        }
+    });
 }
 
-function BuildBlackjackContainer(game: BlackjackGame) {
+function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
+    const game = GamesActive.get(i.user.id)!;
+
+    // chose to hit, so deal a card to the user
+    game.user.push(game.deck.shift()!);
+
+    // check if the user has bust
+    if (TallyCards(game.user) > 21) LoseV2(i, game, 'bust');
+
+    // user hasn't bust
+    // build new embed
+    const BlackjackContainer = BuildBlackjackContainer(game);
+    
+    // update message
+    i.update({
+        components: [BlackjackContainer],
+        flags: [MessageFlags.IsComponentsV2]
+    });
+}
+
+function StandV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
+    const game = GamesActive.get(interaction.user.id)!;
+
+    // deal until okabot is at or above 17
+    while (TallyCards(game.dealer) < 17) {
+        game.dealer.push(game.deck.shift()!);
+    }
+
+    // did okabot bust?
+    if (TallyCards(game.dealer) > 21) {
+        // yes, so user wins
+
+        return;
+    }
+
+    const user_total = TallyCards(game.user);
+    const dealer_total = TallyCards(game.dealer);
+
+    // okabot didn't bust, did we get less?
+    if (user_total < dealer_total) return LoseV2(i, game, 'value');
+    // did we get equal?
+    if (user_total == dealer_total) return LoseV2(i, game, 'value');
+    // we got more
+    // build new embed
+    const BlackjackContainer = BuildBlackjackContainer(game, false, 'win');
+
+    // update reply
+    i.update({
+        components: [BlackjackContainer],
+        flags: [MessageFlags.IsComponentsV2]
+    });
+
+    // give the reward money!
+    AddToWallet(i.user.id, game.bet * ((user_total == 21)?3:2));
+    AddXP(i.user.id, i.channel as TextChannel, user_total==21?20:15);
+
+    // remove their game
+    GamesActive.delete(i.user.id);
+}
+
+function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
+    // build embed
+    const BlackjackContainer = BuildBlackjackContainer(game, false, reason);
+
+    // update interaction
+    i.update({
+        components: [BlackjackContainer],
+        flags: [MessageFlags.IsComponentsV2]
+    });
+
+    // did they tie?
+    if (TallyCards(game.user) == TallyCards(game.dealer)) {
+        // yes, return their bet
+        AddToWallet(i.user.id, game.bet);
+    } else {
+        // didn't tie, so we add a blackjack loss to
+        // the casino database
+        AddCasinoLoss(i.user.id, game.bet, 'blackjack');
+    }
+
+    // delete their game
+    GamesActive.delete(i.user.id);
+}
+
+function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no') {
     const BlackjackContainer = new ContainerBuilder();
     const Header = new TextDisplayBuilder().setContent([
         '# okabot Blackjack',
@@ -672,23 +776,44 @@ function BuildBlackjackContainer(game: BlackjackGame) {
 
     BlackjackContainer.addTextDisplayComponents(Header);
 
+    let okabot_cards = `${GetCardThemed(game.dealer[0].name, game.card_theme)} ${GetCardThemed('cb', game.card_theme)}`;
+    if (gameover != 'no') {
+        // show all of okabot's cards if we end
+        okabot_cards = GetCardEmojis(game.dealer, game.card_theme);
+    }
+
     const CardDisplaysTexts = new TextDisplayBuilder().setContent([
-        `## okabot: ${GetCardThemed(game.dealer[0].name, game.card_theme)} ${GetCardThemed('cb', game.card_theme)}`,
+        `## okabot: ${okabot_cards}`,
         `...totaling \`[ ${game.dealer[0].value} + ?? ]\``,
         `## you: ${GetCardEmojis(game.user, game.card_theme)}`,
         `...totaling \`[ ${TallyCards(game.user)} ]\``,
     ].join('\n'));
 
-    BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
+    if (gameover == 'no') {
+        BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
+    } else if (gameover == 'win') {
+        BlackjackContainer.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)**`:`You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)**`)
+        );
+    } else {
+        BlackjackContainer.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(gameover=='value'?'You lost!':'You busted!')
+        );
+    }
 
     const is_blackjack = TallyCards(game.user)==21;
+    const default_buttons = [game.buttons.hit, game.buttons.stand];
+    if (can_double_down) default_buttons.push(game.buttons.dd);
 
-    BlackjackContainer.addActionRowComponents(row => row.addComponents(
-        is_blackjack?[game.buttons.stand_blackjack]:[game.buttons.hit, game.buttons.stand, game.buttons.dd]
+    if (gameover == 'no') BlackjackContainer.addActionRowComponents(row => row.addComponents(
+        is_blackjack?[game.buttons.stand_blackjack]:default_buttons
     ));
 
     return BlackjackContainer;
 }
+
+
+
 
 export const BlackjackSlashCommand = new SlashCommandBuilder()
     .setName('blackjack')
