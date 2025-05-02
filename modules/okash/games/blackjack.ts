@@ -484,7 +484,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
         WinStreak.set(interaction.user.id, streak);
 
-        if (game.bet == 5000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+        if (game.bet == 12500) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
         WinStreak.set(interaction.user.id, 0);
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
@@ -586,6 +586,21 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     if ((use_classic == undefined && !locale_supported) || use_classic) return SetupBlackjackMessage(interaction);
 
     const d = new Date();
+    let cooldown = false;
+
+    if (LastGameFinished.get(interaction.user.id) || 0 > (d.getTime() / 1000) + 5_000) cooldown = true;
+    if (PassesActive.get(interaction.user.id) || 0 > d.getTime() / 1000) cooldown = false;
+
+    let reply;
+
+    if (cooldown) {
+        reply = interaction.reply({
+            content: ':zzz: Waiting for your cooldown to end...',
+            flags: [MessageFlags.SuppressNotifications]
+        });
+        
+        await new Promise((resolve) => setTimeout(resolve, LastGameFinished.get(interaction.user.id)! * 1000 - d.getTime()));
+    }
 
     // start setup of blackjack game
     const bet = interaction.options.getNumber('bet', true);
@@ -663,10 +678,17 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // of this function so it's not too messy
     const BlackjackContainer = BuildBlackjackContainer(game, wallet - bet >= bet);
 
-    const reply = await interaction.reply({
-        components: [BlackjackContainer],
-        flags:[MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
-    });
+    if (cooldown) {
+        reply = await interaction.editReply({
+            components: [BlackjackContainer],
+            flags:[MessageFlags.IsComponentsV2]
+        });
+    } else {
+        reply = await interaction.reply({
+            components: [BlackjackContainer],
+            flags:[MessageFlags.IsComponentsV2]
+        });
+    }
 
     // listen for buttons
     const collector = reply.createMessageComponentCollector({
@@ -730,14 +752,22 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // did okabot bust?
     if (TallyCards(game.dealer) > 21) {
         // yes, so user wins
-        const BlackjackContainer = BuildBlackjackContainer(game, false, 'win');
-
+        const streak = WinStreak.get(i.user.id) || 0;
+        WinStreak.set(i.user.id, streak + 1);
+        
+        const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
+        
         // give the reward money!
         AddToWallet(i.user.id, game.bet * ((TallyCards(game.user) == 21)?3:2));
         AddXP(i.user.id, i.channel as TextChannel, TallyCards(game.user)==21?20:15);
+
+        if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
         
         // remove their game
         GamesActive.delete(i.user.id);
+
+        // cooldown
+        LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
 
         // update reply
         return await i.update({
@@ -755,7 +785,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     if (user_total == dealer_total) return LoseV2(i, game, 'value');
     // we got more
     // build new embed
-    const BlackjackContainer = BuildBlackjackContainer(game, false, 'win');
+    const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
 
     // update reply
     await i.update({
@@ -763,17 +793,27 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         flags: [MessageFlags.IsComponentsV2]
     });
 
+    // achievement for max bet (remember max can be 25_000 due to dd)
+    if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
+
     // give the reward money!
     AddToWallet(i.user.id, game.bet * ((user_total == 21)?3:2));
     AddXP(i.user.id, i.channel as TextChannel, user_total==21?20:15);
 
+    DoRandomDrops(await i.fetchReply());
+
     // remove their game
     GamesActive.delete(i.user.id);
+
+    // cooldown
+    LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
 }
 
 async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
+    WinStreak.set(i.user.id, 0);
+
     // build embed
-    const BlackjackContainer = BuildBlackjackContainer(game, false, reason);
+    const BlackjackContainer = BuildBlackjackContainer(game, false, reason, i.user.id);
 
     // update interaction
     await i.update({
@@ -789,13 +829,19 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
         // didn't tie, so we add a blackjack loss to
         // the casino database
         AddCasinoLoss(i.user.id, game.bet, 'blackjack');
+        if (GetWallet(i.user.id, true) == 0) GrantAchievement(i.user, Achievements.NO_MONEY, i.channel as TextChannel);
     }
+
+    DoRandomDrops(await i.fetchReply());
 
     // delete their game
     GamesActive.delete(i.user.id);
+
+    // cooldown
+    LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
 }
 
-function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no') {
+function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no', user_id?: Snowflake) {
     const BlackjackContainer = new ContainerBuilder();
     const Header = new TextDisplayBuilder().setContent([
         '# okabot Blackjack',
@@ -821,11 +867,14 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
 
     BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
 
+    const streak = WinStreak.get(user_id!) || 0;
+    const streak_text = streak>1?`\n### :fire: ${streak} in a row!`:'';
+
     if (gameover == 'win') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)**`:`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)**`)
+            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)** ${streak_text}`:`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)** ${streak_text}`)
         );
     } else if (gameover != 'no') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
