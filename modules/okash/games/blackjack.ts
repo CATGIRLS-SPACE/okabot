@@ -8,6 +8,8 @@ import {
     ContainerBuilder,
     Message,
     MessageFlags,
+    SeparatorBuilder,
+    SeparatorSpacingSize,
     SlashCommandBuilder,
     Snowflake,
     TextChannel,
@@ -600,6 +602,8 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         flags: [MessageFlags.SuppressNotifications]
     });
 
+    RemoveFromWallet(interaction.user.id, bet);
+
     // shuffle deck of cards
     const deck: Array<HandCard> = CloneArray(DECK);
     ShuffleCards(deck);
@@ -607,12 +611,12 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // create buttons
     const hitButton = new ButtonBuilder()
         .setCustomId('blackjack-hit')
-        .setLabel('Hit!')
+        .setLabel('➕ Hit!')
         .setStyle(ButtonStyle.Primary);
 
     const standButton = new ButtonBuilder()
         .setCustomId('blackjack-stand')
-        .setLabel('Stand!')
+        .setLabel('🛑 Stand!')
         .setStyle(ButtonStyle.Secondary);
 
     const standButtonWin = new ButtonBuilder()
@@ -622,8 +626,11 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     const doubleDownButton = new ButtonBuilder()
         .setCustomId('blackjack-double')
-        .setLabel('Double Down!')
-        .setStyle(ButtonStyle.Primary);
+        .setLabel('⏬ Double Down!')
+        .setStyle(ButtonStyle.Danger);
+
+    // does the user have a trackable deck equipped?
+    const trackable_serial = profile.customization.games.equipped_trackable_deck!='none'?profile.customization.games.equipped_trackable_deck:undefined;
 
     // create game object
     const game: BlackjackGame = {
@@ -634,7 +641,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         gameActive: true,
         expires: d.getTime() + 30_000,
         card_theme: profile.customization.games.card_deck_theme,
-        trackable_serial: undefined,
+        trackable_serial,
         okabot_has_hit: false,
         buttons: {
             hit: hitButton,
@@ -647,10 +654,10 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // deal two cards to okabot and user
     game.dealer.push(game.deck.shift()!, game.deck.shift()!);
     game.user.push(game.deck.shift()!, game.deck.shift()!);
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:4});
 
     // save game
-    // TODO: enable this, it's disabled for debugging purposes
-    // GamesActive.set(interaction.user.id, game);
+    GamesActive.set(interaction.user.id, game);
 
     // split the creation of the container outside
     // of this function so it's not too messy
@@ -678,19 +685,27 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
                 break;
                 
             case 'blackjack-double':
+                HitV2(interaction, i as ButtonInteraction, true);
                 break;
         }
     });
 }
 
-function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
-    const game = GamesActive.get(i.user.id)!;
+function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction, double_down = false) {
+    const game = GamesActive.get(interaction.user.id)!;
+
+    // did the user double down?
+    if (double_down) {
+        RemoveFromWallet(interaction.user.id, game.bet);
+        game.bet = game.bet * 2;
+    }
 
     // chose to hit, so deal a card to the user
     game.user.push(game.deck.shift()!);
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1});
 
     // check if the user has bust
-    if (TallyCards(game.user) > 21) LoseV2(i, game, 'bust');
+    if (TallyCards(game.user) > 21) return LoseV2(i, game, 'bust');
 
     // user hasn't bust
     // build new embed
@@ -703,19 +718,32 @@ function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
     });
 }
 
-function StandV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
+async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction) {
     const game = GamesActive.get(interaction.user.id)!;
 
     // deal until okabot is at or above 17
     while (TallyCards(game.dealer) < 17) {
         game.dealer.push(game.deck.shift()!);
+        if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1});
     }
 
     // did okabot bust?
     if (TallyCards(game.dealer) > 21) {
         // yes, so user wins
+        const BlackjackContainer = BuildBlackjackContainer(game, false, 'win');
 
-        return;
+        // give the reward money!
+        AddToWallet(i.user.id, game.bet * ((TallyCards(game.user) == 21)?3:2));
+        AddXP(i.user.id, i.channel as TextChannel, TallyCards(game.user)==21?20:15);
+        
+        // remove their game
+        GamesActive.delete(i.user.id);
+
+        // update reply
+        return await i.update({
+            components: [BlackjackContainer],
+            flags: [MessageFlags.IsComponentsV2]
+        });
     }
 
     const user_total = TallyCards(game.user);
@@ -730,7 +758,7 @@ function StandV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction)
     const BlackjackContainer = BuildBlackjackContainer(game, false, 'win');
 
     // update reply
-    i.update({
+    await i.update({
         components: [BlackjackContainer],
         flags: [MessageFlags.IsComponentsV2]
     });
@@ -743,12 +771,12 @@ function StandV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction)
     GamesActive.delete(i.user.id);
 }
 
-function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
+async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
     // build embed
     const BlackjackContainer = BuildBlackjackContainer(game, false, reason);
 
     // update interaction
-    i.update({
+    await i.update({
         components: [BlackjackContainer],
         flags: [MessageFlags.IsComponentsV2]
     });
@@ -784,20 +812,26 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
 
     const CardDisplaysTexts = new TextDisplayBuilder().setContent([
         `## okabot: ${okabot_cards}`,
-        `...totaling \`[ ${game.dealer[0].value} + ?? ]\``,
+        `...totaling \`[ ${gameover!='no'?TallyCards(game.dealer):game.dealer[0].value+' + ??'} ]\``,
         `## you: ${GetCardEmojis(game.user, game.card_theme)}`,
         `...totaling \`[ ${TallyCards(game.user)} ]\``,
     ].join('\n'));
 
-    if (gameover == 'no') {
-        BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
-    } else if (gameover == 'win') {
+    BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
+
+    BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
+
+    if (gameover == 'win') {
+        BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
+
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)**`:`You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)**`)
+            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)**`:`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)**`)
         );
-    } else {
+    } else if (gameover != 'no') {
+        BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
+
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(gameover=='value'?'You lost!':'You busted!')
+            new TextDisplayBuilder().setContent(gameover=='value'?'### :crying_cat_face: You lost!':'### :crying_cat_face: You busted!')
         );
     }
 
@@ -805,9 +839,11 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     const default_buttons = [game.buttons.hit, game.buttons.stand];
     if (can_double_down) default_buttons.push(game.buttons.dd);
 
-    if (gameover == 'no') BlackjackContainer.addActionRowComponents(row => row.addComponents(
-        is_blackjack?[game.buttons.stand_blackjack]:default_buttons
-    ));
+    if (gameover == 'no') {
+        BlackjackContainer.addActionRowComponents(row => row.addComponents(
+            is_blackjack?[game.buttons.stand_blackjack]:default_buttons
+        ));
+    }
 
     return BlackjackContainer;
 }
@@ -822,7 +858,7 @@ export const BlackjackSlashCommand = new SlashCommandBuilder()
         .setName('bet')
         .setRequired(true)
         .setDescription('The amount of okash to bet')
-        .setMaxValue(5_000).setMinValue(1))
+        .setMaxValue(12_500).setMinValue(1))
     .addBooleanOption(option => option
         .setName('classic')
         .setRequired(false)
