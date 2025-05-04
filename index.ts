@@ -213,7 +213,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'okash': HandleCommandOkash,
     'daily': HandleCommandDaily,
     'coinflip': HandleCommandCoinflipV2,
-    'blackjack': !DEV?SetupBlackjackMessage:HandleCommandBlackjackV2,
+    'blackjack': HandleCommandBlackjackV2,
     'pay': (interaction: ChatInputCommandInteraction) => HandleCommandPay(interaction, client),
     'recent-eq': GetMostRecent,
     'leaderboard': HandleCommandLeaderboard,
