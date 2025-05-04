@@ -358,7 +358,6 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const streak = WinStreaks.get(interaction.user.id) || 0;
 
     if (win) {
-        WinStreaks.set(interaction.user.id, streak + 1);
         if (streak == 2) GrantAchievement(interaction.user, Achievements.STREAK_2, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
         if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
         if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
