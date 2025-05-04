@@ -27,8 +27,6 @@ import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {SetActivity} from "../../../index";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
-import * as repl from "node:repl";
-
 
 const L = new Logger('blackjack');
 
@@ -631,7 +629,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // create buttons
     const hitButton = new ButtonBuilder()
         .setCustomId('blackjack-hit')
-        .setLabel('➕ Hit!')
+        .setLabel('🎴 Hit!')
         .setStyle(ButtonStyle.Primary);
 
     const standButton = new ButtonBuilder()
@@ -646,7 +644,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     const doubleDownButton = new ButtonBuilder()
         .setCustomId('blackjack-double')
-        .setLabel('⏬ Double Down!')
+        .setLabel('‼️ Double Down!')
         .setStyle(ButtonStyle.Primary);
 
     // does the user have a trackable deck equipped?
@@ -659,7 +657,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         user: [],
         bet,
         gameActive: true,
-        expires: d.getTime() + 10_000,
+        expires: d.getTime() + 60_000,
         card_theme: profile.customization.games.card_deck_theme,
         trackable_serial,
         okabot_has_hit: false,
@@ -709,7 +707,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         });
     }
 
-    setTimeout(() => GameIdleCheckV2(interaction.user.id, reply), 11_000)
+    setTimeout(() => GameIdleCheckV2(interaction.user.id, reply), 60_000)
 
     // listen for buttons
     const collector = reply.createMessageComponentCollector({
@@ -734,7 +732,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     });
 }
 
-function GameIdleCheckV2(user_id: Snowflake, reply: InteractionResponse | Message) {
+function GameIdleCheckV2(user_id: Snowflake, reply: any) {
     const game = GamesActive.get(user_id);
     if (!game) return;
 
@@ -925,8 +923,10 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     } else if (gameover != 'no') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
+        const tie = TallyCards(game.user) == TallyCards(game.dealer);
+
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(gameover=='value'?'### :crying_cat_face: You lost!':'### :crying_cat_face: You busted!')
+            new TextDisplayBuilder().setContent(gameover=='value'?(tie?'### :crying_cat_face: You tied!':'### :crying_cat_face: You lost!'):'### :crying_cat_face: You busted!')
         );
     }
 
