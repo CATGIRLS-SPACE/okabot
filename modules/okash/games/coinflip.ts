@@ -271,6 +271,8 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     }, 3000);
 }
 
+const WinStreaks = new Map<Snowflake, number>();
+
 // probably finish this sometime else
 // current function is messy af, needs a makeover
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
@@ -353,8 +355,19 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // check if we need to show a new float message
     const nfm = CheckFloatRecords(roll, interaction);
 
+    const streak = WinStreaks.get(interaction.user.id) || 0;
+
+    if (win) {
+        WinStreaks.set(interaction.user.id, streak + 1);
+        if (streak == 2) GrantAchievement(interaction.user, Achievements.STREAK_2, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+    } else WinStreaks.set(interaction.user.id, 0);
+
+
     interaction.editReply({
-        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${roll>=0.5?'heads':'tails'}**, ${final}\n-# ${roll}${nfm}`
+        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${roll>=0.5?'heads':'tails'}**, ${final}${streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':''}\n-# ${roll}${nfm}`
     });
 
     // reload their profile so we don't cause any desync issues and give reward
@@ -364,6 +377,15 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
     if (win) AddCasinoWin(interaction.user.id, bet*2, 'coinflip'); else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
+
+    if (win) {
+        const streak = WinStreaks.get(interaction.user.id) || 0;
+        WinStreaks.set(interaction.user.id, streak + 1);
+        if (streak == 2) GrantAchievement(interaction.user, Achievements.STREAK_2, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+    } else WinStreaks.set(interaction.user.id, 0);
 
     if (profile.okash.wallet + profile.okash.bank == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 

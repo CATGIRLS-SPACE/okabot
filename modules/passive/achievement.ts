@@ -57,8 +57,12 @@ export enum Achievements {
     CASINO_PASS = 'casinopass', //
     DROP_BOOST = 'dropboost', //
     SELLDROPITEM = 'selldrop', //
-    ACHIEVEMENT = 'achievement',
-    COINFLIP_BAN = 'autobanned',
+    ACHIEVEMENT = 'achievement', //
+    COINFLIP_BAN = 'autobanned', //
+    STREAK_2 = 'streak2',
+    STREAK_5 = 'streak5',
+    STREAK_10 = 'streak10',
+    STREAK_25 = 'streak25',
 }
 
 const ACHIEVEMENTS: {
@@ -113,6 +117,10 @@ const ACHIEVEMENTS: {
     // 'curious': {name:'Curious',description:'Ask the Magic 8 Ball 100 questions',class:'fun', diff:'e'},
     'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
     'autobanned': {name:'Slow Down!',description:'Get a temporary ban from okabot for trying to flip too many coins.',class:'gamble', diff:'e'},
+    'streak2': {name:'Twice or it\'s Luck',description:'Win a (supported) gambling game twice in a row',class:'gamble',diff:'e'},
+    'streak5': {name:'On a Roll',description:'Win a (supported) gambling game five times in a row',class:'gamble',diff:'t'},
+    'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row',class:'gamble',diff:'h'},
+    'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail',class:'gamble',diff:'ex'},
 }
 
 /**

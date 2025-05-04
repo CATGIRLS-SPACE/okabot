@@ -87,6 +87,7 @@ import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
+import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 
 
 export const client = new Client({
@@ -325,6 +326,9 @@ client.on(Events.MessageCreate, async message => {
     Check$Message(message); // checks for $ messages, for serials on tracked items
     CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
     CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
+
+    // text-based official commands
+    if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
 
     if (message.content.toLowerCase().startsWith('okabot, ')) {
         if (!CONFIG.gemini.enable) return;

@@ -46,7 +46,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
         target_xp = CalculateTargetXP(profile.leveling.level, 0);
 
-        const okash_reward = CalculateOkashReward(profile.leveling.level, 0);
+        const okash_reward = CalculateOkashReward(profile.leveling.level);
         AddToWallet(user_id, okash_reward);
 
         let earned_item = 'none';

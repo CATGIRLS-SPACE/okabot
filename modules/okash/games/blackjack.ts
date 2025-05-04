@@ -798,6 +798,11 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         // yes, so user wins
         const streak = WinStreak.get(i.user.id) || 0;
         WinStreak.set(i.user.id, streak + 1);
+
+        if (streak == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
+        if (streak == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
+        if (streak == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
+        if (streak == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
         
         const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
         
@@ -828,8 +833,19 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // did we get equal?
     if (user_total == dealer_total) return LoseV2(i, game, 'value');
     // we got more
+
+    // must do streak before container
+    const streak = WinStreak.get(i.user.id) || 0;
+    WinStreak.set(i.user.id, streak + 1);
+
+    if (streak == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
+    if (streak == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
+    if (streak == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
+    if (streak == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
+
     // build new embed
     const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
+    AddCasinoWin(i.user.id, game.bet, 'blackjack');
 
     // update reply
     await i.update({
@@ -844,7 +860,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     AddToWallet(i.user.id, game.bet * ((user_total == 21)?3:2));
     AddXP(i.user.id, i.channel as TextChannel, user_total==21?20:15);
 
-    DoRandomDrops(await i.fetchReply());
+    DoRandomDrops(await i.fetchReply(), i.user);
 
     // remove their game
     GamesActive.delete(i.user.id);
@@ -855,6 +871,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
 
 async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
     WinStreak.set(i.user.id, 0);
+    console.log(i.user.id, 'streak now 0');
 
     // build embed
     const BlackjackContainer = BuildBlackjackContainer(game, false, reason, i.user.id);
@@ -876,7 +893,7 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
         if (GetWallet(i.user.id, true) == 0) GrantAchievement(i.user, Achievements.NO_MONEY, i.channel as TextChannel);
     }
 
-    DoRandomDrops(await i.fetchReply());
+    DoRandomDrops(await i.fetchReply(), i.user);
 
     // delete their game
     GamesActive.delete(i.user.id);
@@ -912,7 +929,8 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
 
     const streak = WinStreak.get(user_id!) || 0;
-    const streak_text = streak>1?`\n### :fire: ${streak} in a row!`:'';
+    const streak_text = streak>1?`\n### Heck yea, :fire: ${streak} in a row!`:'';
+    // console.log(streak);
 
     if (gameover == 'win') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
