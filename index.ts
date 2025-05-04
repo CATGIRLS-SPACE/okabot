@@ -88,6 +88,7 @@ import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
+import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 
 
 export const client = new Client({
@@ -372,12 +373,14 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 client.on(Events.GuildMemberAdd, async (member) => {
     if (member.guild.id != '1019089377705611294') return;
 
+    AutomodAccountCreationDate(member.user);
+
     // give role
     await member.roles.add('1019094205756350527');
 
     // send a hello!
     await (member.guild.channels.cache.get('1019089378343137373')! as TextChannel).send({
-        content: `## meow! hi there, <@${member.user.id}>\nwelcome to **CATGIRL CENTRAL**!\nplease read the rules before continuing!\nthanks for joining, and have fun!`
+        content: `## meow! hi there, <@${member.user.id}>\nwelcome to **CATGIRL CENTRAL**!\nplease read the rules before continuing!\nmake sure to check out what okabot has to offer in <#1019091099639361576> too!\nthanks for joining, and have fun!`
     });
 });
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {

@@ -65,7 +65,7 @@ export async function CheckReactionFlag(reaction: MessageReaction | PartialMessa
         );
 
     (channel_to_send as TextChannel).send({
-        content: `<@&1364078830595084349> **Message flagged in <#${reaction.message.channel.id}>!**\nGo to message: ${message_link}`,
+        content: `<@&1364076117358674052> **Message flagged in <#${reaction.message.channel.id}>!**\nGo to message: ${message_link}`,
         embeds: [embed]
     });
 
