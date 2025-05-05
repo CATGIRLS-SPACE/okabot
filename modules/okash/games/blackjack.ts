@@ -110,6 +110,7 @@ interface BlackjackGame {
         stand_blackjack: ButtonBuilder,
         dd: ButtonBuilder,
     },
+    language?: string
 }
 
 // user_id and game
@@ -588,9 +589,9 @@ export async function CheckBlackjackSilly(message: Message) {
 export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInteraction) {
     // if the locale isn't english or the user prefers to use the classic game display
     // non-english users can choose to force the components v2 version by setting the "classic" option to false
-    const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
-    const use_classic = interaction.options.getBoolean('classic');
-    if ((use_classic == undefined && !locale_supported) || use_classic) return SetupBlackjackMessage(interaction);
+    // const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
+    const use_classic = interaction.options.getBoolean('classic') || false;
+    if (use_classic) return SetupBlackjackMessage(interaction);
 
     // check for cooldowns
     const d = new Date();
@@ -629,22 +630,22 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // create buttons
     const hitButton = new ButtonBuilder()
         .setCustomId('blackjack-hit')
-        .setLabel('🎴 Hit!')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUTTON_HIT, interaction.okabot.translateable_locale))
         .setStyle(ButtonStyle.Primary);
 
     const standButton = new ButtonBuilder()
         .setCustomId('blackjack-stand')
-        .setLabel('🛑 Stand!')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUTTON_STAND, interaction.okabot.translateable_locale))
         .setStyle(ButtonStyle.Secondary);
 
     const standButtonWin = new ButtonBuilder()
         .setCustomId('blackjack-stand')
-        .setLabel(`✨ Stand!`)
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUTTON_BLACKJACK, interaction.okabot.translateable_locale))
         .setStyle(ButtonStyle.Success);
 
     const doubleDownButton = new ButtonBuilder()
         .setCustomId('blackjack-double')
-        .setLabel('‼️ Double Down!')
+        .setLabel(await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUTTON_DOUBLE, interaction.okabot.translateable_locale))
         .setStyle(ButtonStyle.Primary);
 
     // does the user have a trackable deck equipped?
@@ -666,7 +667,8 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
             stand_blackjack: standButtonWin,
             stand: standButton,
             dd: doubleDownButton
-        }
+        },
+        language: interaction.okabot.translateable_locale
     }
 
     // deal two cards to okabot and user
@@ -682,7 +684,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         reply = await interaction.reply({
             components: [
                 new ContainerBuilder().addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent('💤 ah! one sec! waiting for your cooldown to end...')
+                    new TextDisplayBuilder().setContent(await LangGetAutoTranslatedString(LANG_GAMES.ANY_COOLDOWN, game.language!))
                 )
             ],
             flags: [MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
@@ -693,7 +695,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     // split the creation of the container outside
     // of this function so it's not too messy
-    const BlackjackContainer = BuildBlackjackContainer(game, wallet - bet >= bet);
+    const BlackjackContainer = await BuildBlackjackContainer(game, wallet - bet >= bet);
 
     if (cooldown) {
         reply = await interaction.editReply({
@@ -732,7 +734,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     });
 }
 
-function GameIdleCheckV2(user_id: Snowflake, reply: any) {
+async function GameIdleCheckV2(user_id: Snowflake, reply: any) {
     const game = GamesActive.get(user_id);
     if (!game) return;
 
@@ -757,7 +759,7 @@ function GameIdleCheckV2(user_id: Snowflake, reply: any) {
     }
 }
 
-function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction, double_down = false) {
+async function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction, double_down = false) {
     const game = GamesActive.get(interaction.user.id)!;
 
     // did the user double down?
@@ -775,7 +777,7 @@ function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteraction, d
 
     // user hasn't bust
     // build new embed
-    const BlackjackContainer = BuildBlackjackContainer(game);
+    const BlackjackContainer = await BuildBlackjackContainer(game);
     
     // update message
     i.update({
@@ -804,7 +806,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         if (streak+1 == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
         if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
         
-        const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
+        const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);
         
         // give the reward money!
         AddToWallet(i.user.id, game.bet * ((TallyCards(game.user) == 21)?3:2));
@@ -844,7 +846,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
 
     // build new embed
-    const BlackjackContainer = BuildBlackjackContainer(game, false, 'win', i.user.id);
+    const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);
     AddCasinoWin(i.user.id, game.bet, 'blackjack');
 
     // update reply
@@ -874,7 +876,7 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
     console.log(i.user.id, 'streak now 0');
 
     // build embed
-    const BlackjackContainer = BuildBlackjackContainer(game, false, reason, i.user.id);
+    const BlackjackContainer = await BuildBlackjackContainer(game, false, reason, i.user.id);
 
     // update interaction
     await i.update({
@@ -902,11 +904,11 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
     LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
 }
 
-function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no', user_id?: Snowflake) {
+async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no', user_id?: Snowflake) {
     const BlackjackContainer = new ContainerBuilder();
     const Header = new TextDisplayBuilder().setContent([
-        '# okabot Blackjack',
-        `You bet ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}**`
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOP, game.language!),
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BET, game.language!, game.bet)
     ].join('\n'));
 
     BlackjackContainer.addTextDisplayComponents(Header);
@@ -918,10 +920,10 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     }
 
     const CardDisplaysTexts = new TextDisplayBuilder().setContent([
-        `## okabot: ${okabot_cards}`,
-        `...totaling \`[ ${gameover!='no'?TallyCards(game.dealer):game.dealer[0].value+' + ??'} ]\``,
-        `## you: ${GetCardEmojis(game.user, game.card_theme)}`,
-        `...totaling \`[ ${TallyCards(game.user)} ]\``,
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_OKABOT, game.language!, okabot_cards),
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOTAL, game.language!, TallyCards(game.dealer)),
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_YOU, game.language!, GetCardEmojis(game.user, game.card_theme)),
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOTAL, game.language!, TallyCards(game.user)),
     ].join('\n'));
 
     BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
@@ -929,22 +931,32 @@ function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, g
     BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
 
     const streak = WinStreak.get(user_id!) || 0;
-    const streak_text = streak>1?`\n### Heck yea, :fire: ${streak} in a row!`:'';
+    const streak_text = streak>1?await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, game.language!, streak):'';
     // console.log(streak);
 
     if (gameover == 'win') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*3}**! **(+20XP)** ${streak_text}`:`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet*2}**! **(+15XP)** ${streak_text}`)
-        );
+            new TextDisplayBuilder().setContent(TallyCards(game.user)==21?
+                await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_WIN_BLACKJACK, game.language!, game.bet*3, streak_text)
+                :
+                await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_WIN, game.language!, game.bet*2, streak_text)
+            ));
     } else if (gameover != 'no') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
         const tie = TallyCards(game.user) == TallyCards(game.dealer);
 
         BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(gameover=='value'?(tie?'### :crying_cat_face: You tied!':'### :crying_cat_face: You lost!'):'### :crying_cat_face: You busted!')
+            new TextDisplayBuilder().setContent(gameover=='value'?
+                (tie?
+                    await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TIED, game.language!)
+                    :
+                    await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_LOSS, game.language!)
+                ) :
+                await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUST, game.language!)
+            )
         );
     }
 

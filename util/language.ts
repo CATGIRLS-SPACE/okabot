@@ -77,6 +77,11 @@ export enum LANG_GAMES {
     BLACKJACKV2_WIN_BLACKJACK = 'games.blackjackv2.blackjack',
     BLACKJACKV2_LOSS = 'games.blackjackv2.loss',
     BLACKJACKV2_BUST = 'games.blackjackv2.bust',
+    BLACKJACKV2_TIED = 'games.blackjackv2.tied',
+    BLACKJACKV2_BUTTON_HIT = 'games.blackjackv2.button.hit',
+    BLACKJACKV2_BUTTON_STAND = 'games.blackjackv2.button.stand',
+    BLACKJACKV2_BUTTON_BLACKJACK = 'games.blackjackv2.button.must_stand',
+    BLACKJACKV2_BUTTON_DOUBLE = 'games.blackjackv2.button.double',
 }
 export enum LANG_RENDER {
     CASINO_WIN = 'render.casino.win',
@@ -172,17 +177,22 @@ const LANGUAGE_EN: Language = {
     'games.blackjack.stand':'Stand!',
     'games.blackjack.doubledown':'Double Down!',
 
-    'games.blackjackv2.top':'okabot Blackjack',
+    'games.blackjackv2.top':'# okabot Blackjack',
     'games.blackjackv2.bet':`You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**`,
-    'games.blackjackv2.okabot':'okabot: {1}',
-    'games.blackjackv2.you':'you: {1}',
+    'games.blackjackv2.okabot':'## okabot: {1}',
+    'games.blackjackv2.you':'## you: {1}',
     'games.blackjackv2.total':'...totaing `[ {1} ]`',
-    'games.blackjackv2.win':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+15XP)`,
-    'games.blackjackv2.blackjack':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+20XP)`,
-    'games.blackjackv2.loss':':crying_cat_face: You lost! (+10XP)',
-    'games.blackjackv2.bust':':crying_cat_face: You busted! (+10XP)',
+    'games.blackjackv2.win':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+15XP)`,
+    'games.blackjackv2.blackjack':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+20XP)`,
+    'games.blackjackv2.loss':'### :crying_cat_face: You lost! (+10XP)',
+    'games.blackjackv2.bust':'### :crying_cat_face: You busted! (+10XP)',
+    'games.blackjackv2.tied':'### :crying_cat_face: You tied! (+10XP)',
+    'games.blackjackv2.button.hit':'🎴 Hit!',
+    'games.blackjackv2.button.stand':'🛑 Stand!',
+    'games.blackjackv2.button.must_stand':'✨ Stand!',
+    'games.blackjackv2.button.double':'‼️ Double Down!',
 
-    'games.all.cooldown':':hourglass: Waiting for your cooldown to finish... :zzz:',
+    'games.all.cooldown':':zzz: ah! one sec! waiting for your cooldown to end...',
     'games.all.winstreak':':fire: **Heck yea, {1} in a row!**',
 
     'render.casino.win':'WINS {1}',
@@ -270,6 +280,21 @@ const LANGUAGE_JA: Language = {
     'games.blackjack.stand':'やめて！',
     'games.blackjack.doubledown':'ダブルベット！',
 
+    'games.blackjackv2.top':'# okabot ブラックジャック',
+    'games.blackjackv2.bet':`あなたのベットは${GetEmoji(EMOJI.OKASH)} OKA**{1}**です`,
+    'games.blackjackv2.okabot':'## okabot：{1}',
+    'games.blackjackv2.you':'## あなた：{1}',
+    'games.blackjackv2.total':'...は`[ {1} ]`です',
+    'games.blackjackv2.win':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} あなたは${GetEmoji(EMOJI.OKASH)} OKA{1}を稼ぎます！(+15XP)`,
+    'games.blackjackv2.blackjack':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: ブラックジャック！あなたは${GetEmoji(EMOJI.OKASH)} OKA{1}を稼ぎます！(+20XP)`,
+    'games.blackjackv2.loss':'### :crying_cat_face: あなたは負けします！(+10XP)',
+    'games.blackjackv2.bust':'### :crying_cat_face: あなたは絶します！(+10XP)',
+    'games.blackjackv2.tied':'### :crying_cat_face: あなたとokabotは同点です！(+10XP)',
+    'games.blackjackv2.button.hit':'🎴 ヒット！',
+    'games.blackjackv2.button.stand':'🛑 やめて！',
+    'games.blackjackv2.button.must_stand':'✨ やッタめて！',
+    'games.blackjackv2.button.double':'‼️ ダブルベット',
+
     'games.all.cooldown':':hourglass: しばらくお待ちください :zzz:',
     'games.all.winstreak':':fire: **{1}連勝！**',
 
@@ -330,6 +355,7 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
     }
 
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
+    // if (locale == 'ja' && !LANGUAGE_JA[id]) return await translateText(LANGUAGE_EN[id], locale);
     let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale as 'en' | 'ja' | 'br']) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
     for (let i = 0; i < params.length; i++) {

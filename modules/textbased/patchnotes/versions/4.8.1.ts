@@ -26,7 +26,9 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
             "- Fixed coinflip wins adding 2 to your streak instead of just 1",
             "- Fixed some games incorrectly giving out achievements",
             "- Slightly modified the welcome message",
-            "- Various invisible automod changes"
+            "- Various invisible automod changes",
+            "- Nerfed level rewards to be 3/5 of what they were before",
+            "- Fixed a bug where using a tracking device would not remove it from your pockets"
         ].join('\n'))
     )
     .addSeparatorComponents(
