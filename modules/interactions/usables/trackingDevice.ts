@@ -2,6 +2,7 @@ import {ChatInputCommandInteraction} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../../user/prefs";
 import {CreateTrackedItem, VALID_ITEMS_TO_TRACK} from "../../okash/trackedItem";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/items";
+import { RemoveOneFromInventory } from "../../okash/wallet";
 
 export async function item_tracking_device(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();

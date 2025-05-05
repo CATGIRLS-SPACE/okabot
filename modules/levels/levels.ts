@@ -326,7 +326,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 }
 
 export function CalculateOkashReward(level: number): number {
-    return Math.floor((500 * level + 500));
+    return Math.floor((500 * level + 500) * 3/5);
 }
 
 export function Dangerous_WipeAllLevels() {
