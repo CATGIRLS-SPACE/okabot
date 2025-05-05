@@ -2,6 +2,7 @@ import {ChatInputCommandInteraction} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../../user/prefs";
 import {CreateTrackedItem, VALID_ITEMS_TO_TRACK} from "../../okash/trackedItem";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/items";
+import { RemoveOneFromInventory } from "../../okash/wallet";
 
 export async function item_tracking_device(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -46,7 +47,8 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
     }
 
     const serial = await CreateTrackedItem(item_types[VALID_ITEMS_TO_TRACK[use_on]], VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
-
+    RemoveOneFromInventory(interaction.user.id, ITEMS.TRACKED_CONVERTER);
+    
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     profile = GetUserProfile(interaction.user.id); // just in case
