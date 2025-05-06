@@ -3,7 +3,7 @@ import {ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBui
 
 export const PATCHNOTES_COMPONENT = new ContainerBuilder()
     .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent('# okabot 4.8.0')
+        new TextDisplayBuilder().setContent('# okabot 4.8.1')
     )
     .addSeparatorComponents(
         new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)

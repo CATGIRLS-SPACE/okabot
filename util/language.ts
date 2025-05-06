@@ -181,7 +181,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjackv2.bet':`You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**`,
     'games.blackjackv2.okabot':'## okabot: {1}',
     'games.blackjackv2.you':'## you: {1}',
-    'games.blackjackv2.total':'...totaing `[ {1} ]`',
+    'games.blackjackv2.total':'...totaling `[ {1} ]`',
     'games.blackjackv2.win':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+15XP)`,
     'games.blackjackv2.blackjack':`### ${GetEmoji(EMOJI.CAT_MONEY_EYES)} :sparkles: Blackjack! You won ${GetEmoji(EMOJI.OKASH)} OKA{1}! (+20XP)`,
     'games.blackjackv2.loss':'### :crying_cat_face: You lost! (+10XP)',

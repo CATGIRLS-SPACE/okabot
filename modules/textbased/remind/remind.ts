@@ -39,10 +39,10 @@ function ScheduleReminder(r: Reminder) {
         if (!message) return channel.send({content: `:crying_cat_face: <@${r.user}>, you asked me to remind you of a message, but it seems it was deleted. sorry...`});
 
         message.reply({
-            content: `<@${r.user}>, you asked me to remind you about this <t:${r.time}:R>`
+            content: `:bell: hey <@${r.user}>! you asked me to remind you about this <t:${r.time}:R>!`
         });
         REMINDERS.splice(REMINDERS.indexOf(r), 1);
-    }, r.time - Math.round(d.getTime()/1000));
+    }, (r.time - Math.round(d.getTime()/1000)) * 1000);
 }
 
 export function RemindLater(message: Message) {
@@ -73,5 +73,5 @@ export function RemindLater(message: Message) {
     ScheduleReminder(reminder);
 
     // save reminders
-    writeFileSync(join(BASE_DIRNAME, 'db', 'user-remind.oka'), JSON.stringify(REMINDERS), 'utf-8');
+    writeFileSync(join(BASE_DIRNAME, 'db', 'user-remind.oka'), JSON.stringify({reminders:REMINDERS}), 'utf-8');
 }
