@@ -89,6 +89,7 @@ import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modu
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
+import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 
 
 export const client = new Client({
@@ -149,6 +150,7 @@ async function RunPreStartupTasks() {
     SetupPrefs(__dirname); // setup user profiles
     LoadVoiceData(); // load voice data that might have been lost on restart
     LoadReminders(); // load daily reminders
+    LoadUserReminders(); // o.remind reminders
     ScheduleJob(client); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
@@ -330,6 +332,7 @@ client.on(Events.MessageCreate, async message => {
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
+    if (message.content.startsWith('o.remind')) RemindLater(message);
 
     if (message.content.toLowerCase().startsWith('okabot, ')) {
         if (!CONFIG.gemini.enable) return;
