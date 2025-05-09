@@ -344,6 +344,13 @@ export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_
     return item;
 }
 
+// holds strings that have already been translated into the target language in hopes to finish LangGetAutoTranslatedString calls faster
+const STRING_CACHE: {[key: string]: {[key: string]: string}} = {
+    'pl':{
+        'abcdef this string will never be used':'abcdef imagine this string is in polish'
+    }
+};
+
 export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // if it's not a supported locale then we use auto-translate
     if (locale != 'en' && locale != 'en-US' && locale != 'en-GB' && locale != 'ja') {
@@ -351,7 +358,17 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
         for (let i = 0; i < params.length; i++) {
             item = item.replaceAll(`{${i + 1}}`, params[i].toString());
         }
-        return await translateText(item, locale);
+
+        // check if we've already translated this
+        if (STRING_CACHE[locale][item]) {
+            console.log('(language.ts) using cached string...');
+            return STRING_CACHE[locale][item];
+        }
+        // else
+        console.log('(language.ts) string was not cached...');
+        const result = await translateText(item, locale);
+        STRING_CACHE[locale][item] = result;
+        return result;
     }
 
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string

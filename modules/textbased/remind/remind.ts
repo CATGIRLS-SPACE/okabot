@@ -45,16 +45,39 @@ function ScheduleReminder(r: Reminder) {
     }, (r.time - Math.round(d.getTime()/1000)) * 1000);
 }
 
+function GetBoostStatus(user_id: string, guild_id: Snowflake): boolean {
+    const guild = client.guilds.cache.get(guild_id)!;
+    const member = guild.members.cache.get(user_id)!;
+    return member.roles.cache.some((role) => role.id === "1317337805512507483");
+}
+
 export function RemindLater(message: Message) {
     const parsed_time = ParseRelativeTime(message.content.split('o.remind ')[1]);
     if (isNaN(parsed_time)) return message.reply({
         content: `please tell me when, like "o.remind 3h" for 3 hours from now!`,
-        flags: [MessageFlags.SuppressNotifications],
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     if (!message.reference) return message.reply({
-        content: `you need to tell me which message to remind you about!`
+        content: `you need to tell me which message to remind you about!`,
+        flags: [MessageFlags.SuppressNotifications]
     });
+
+    let r = 0;
+    for (const reminder of REMINDERS) {
+        if (reminder.user == message.author.id) r++;
+    }
+    if (r >= 5 && GetBoostStatus(message.author.id, message.guildId!)) {
+        return message.reply({
+            content: `sorry, but you've already got 5 reminders scheduled.\nboost CATGIRL CENTRAL to get access to up to 25 reminders.`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    } else if (r >= 25) {
+        return message.reply({
+            content: `sorry, but you've already got 25 reminders scheduled.`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
 
     const d = new Date();
     console.log(`remind in ${parsed_time} sec`);
@@ -71,6 +94,8 @@ export function RemindLater(message: Message) {
 
     REMINDERS.push(reminder);
     ScheduleReminder(reminder);
+
+    message.react('👍');
 
     // save reminders
     writeFileSync(join(BASE_DIRNAME, 'db', 'user-remind.oka'), JSON.stringify({reminders:REMINDERS}), 'utf-8');

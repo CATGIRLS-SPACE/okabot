@@ -50,12 +50,12 @@ export async function GeminiDemoRespondToInquiry(message: Message) {
     await channel.sendTyping();
 
     const response = await ai.models.generateContent({
-        model:'gemini-2.5-pro-preview-03-25',
+        model:'gemini-2.5-pro-preview-05-06',
         contents: prompt,
         config: {
             thinkingConfig: {
                 thinkingBudget: 1024,
-                includeThoughts: true,
+                includeThoughts: true
             }
         }
     });
@@ -69,6 +69,10 @@ export async function GeminiDemoRespondToInquiry(message: Message) {
         author: message.author.id,
         orignal_message: reply.id,
         messages: [
+            {
+                user: reply.author.displayName,
+                content: reply.content,
+            },
             {
                 user: user.nickname || user.displayName,
                 content: message.content,

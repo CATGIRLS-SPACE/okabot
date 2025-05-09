@@ -170,6 +170,7 @@ export const RobSlashCommand = new SlashCommandBuilder()
         .addUserOption(o => o
             .setName('user')
             .setDescription('who you want to rob')
+            .setRequired(true)
         )
     )
     .addSubcommand(sc => sc

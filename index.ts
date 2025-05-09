@@ -209,7 +209,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION}\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.locale)}`,
+            content:`You are running okabot v${VERSION}\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
@@ -413,6 +413,8 @@ process.on('uncaughtException', async (reason) => {
     process.exit(1); // Exit the process safely
 });
 
+const uncaughtRejections = new Map<string, Error>();
+
 // Catch unhandled promise rejections
 process.on('unhandledRejection', async (reason: any) => {
     L.error('okabot has encountered an uncaught rejection!');
@@ -420,6 +422,7 @@ process.on('unhandledRejection', async (reason: any) => {
     try {
         const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
         await channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```'});
+        // await channel.send({content:`:warning: okabot encountered an uncaught rejection! `});
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);
