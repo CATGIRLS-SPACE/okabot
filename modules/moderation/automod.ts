@@ -1,5 +1,6 @@
-import {EmbedBuilder, Message, TextChannel, User} from "discord.js";
+import {EmbedBuilder, Guild, Message, Snowflake, TextChannel, User} from "discord.js";
 import {Logger} from "okayulogger";
+import { client } from "../..";
 
 const L = new Logger('automod');
 const URL_REGEX = new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&\/=]*$/);
@@ -8,19 +9,31 @@ const URL_REGEX = new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}
  * Runs some checks on a message to ensure it follows rules
  * @param message The message to check
  */
-export function AutomodCheckMessage(message: Message) {
+export async function AutomodCheckMessage(message: Message) {
     const words = message.content.split(' ');
 
     // URL checks
     // check each word for a link
     const links = [];
+    let check_links = true; // if there's links, can they be sent?
     for (const word of words) {
-        if (URL_REGEX.test(word)) links.push(word);
+        if (URL_REGEX.test(word)) check_links = check_links && await RunURLCheck(word, message.author.id, message.guildId!);
     }
 }
 
-async function RunURLCheck(url: string) {
+let GUILD: Guild | undefined;
+const CAN_SEND_LINKS: Array<Snowflake> = [];
 
+async function RunURLCheck(url: string, user_id: Snowflake, guild_id: Snowflake): Promise<boolean> {
+    if (!GUILD) GUILD = client.guilds.cache.get(guild_id)!;
+    if (!CAN_SEND_LINKS.includes(user_id)) {
+        const member = GUILD.members.cache.get(user_id)!;
+        if (!member.roles.cache.some(role => role.name === 'image perms (lvl 10)')) return false; 
+        // can send links
+        CAN_SEND_LINKS.push(user_id);
+    }
+
+    return true;
 }
 
 /**

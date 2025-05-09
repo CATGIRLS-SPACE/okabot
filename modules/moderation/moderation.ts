@@ -18,6 +18,7 @@ const L = new Logger('moderation');
 
 // flagging cooldowns should be 60s
 const FlaggingCooldowns = new Map<Snowflake, number>();
+const AlreadyFlagged: Array<Snowflake> = [];
 
 /**
  * Check if a reaction is a flag, and if so, create a report message in the moderation channel
@@ -46,6 +47,7 @@ export async function CheckReactionFlag(reaction: MessageReaction | PartialMessa
     // is the user on a flagging cooldown?
     // if so, remove the reaction and ignore
     if (FlaggingCooldowns.has(reactor.id) && FlaggingCooldowns.get(reactor.id)! > now) return reaction.remove();
+    if (AlreadyFlagged.includes(message.id)) return reaction.remove();
 
     // if not, send to appropriate channel
     const channel_id_to_send = !DEV?'1364076295348289628':'941843973641736253';
