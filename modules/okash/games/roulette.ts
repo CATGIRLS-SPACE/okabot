@@ -27,6 +27,7 @@ import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
+import {CheckGambleLock, SetGambleLock} from "./_lock";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -180,6 +181,7 @@ async function StartRoulette(game: RouletteGame) {
         AddXP(game.interaction.user.id, game.interaction.channel as TextChannel, earned_xp);
 
         GAMES_ACTIVE.delete(game.interaction.user.id);
+        SetGambleLock(game.interaction.user.id, false);
         RecordMonitorEvent(EventType.ROULETTE_END, {user_id: game.interaction.user.id, bet:game.bet}, `${game.interaction.user.username} ended roulette`);
     }, 5000);
 }
@@ -341,6 +343,7 @@ async function ConfirmMultiNumberGame(user_id: string) {
             return StartRoulette(game);
         } else if (selection == 'decline') {
             GAMES_ACTIVE.delete(user_id);
+            SetGambleLock(user_id, false);
             AddToWallet(user_id, game.bet);
             i.update({
                 content: 'Game cancelled, your bet has been refunded.',
@@ -356,7 +359,7 @@ async function ConfirmMultiNumberGame(user_id: string) {
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
 
-    if (GAMES_ACTIVE.has(interaction.user.id)) {
+    if (CheckGambleLock(interaction.user.id)) {
         return interaction.reply({
             content:`:x: Woah there, **${interaction.user.displayName}**, you've already got a roulette game going!`,
             flags:[MessageFlags.SuppressNotifications]
@@ -379,6 +382,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
+    SetGambleLock(interaction.user.id, true);
     GAMES_ACTIVE.set(interaction.user.id, {
         bet,
         game_type: RouletteGameType.NUMBER,
@@ -418,6 +422,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                 single_collector.on('collect', async ii => {
                     await ii.update({content:'Okaaay, your game has been cancelled!',components:[]});
                     GAMES_ACTIVE.delete(interaction.user.id);
+                    SetGambleLock(interaction.user.id, false);
                     AddToWallet(interaction.user.id, bet);
                     return;
                 });
@@ -441,6 +446,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     if (ii.customId != 'cancel') return;
                     await ii.update({content:'Okaaay, your game has been cancelled!',components:[]});
                     GAMES_ACTIVE.delete(interaction.user.id);
+                    SetGambleLock(interaction.user.id, false);
                     AddToWallet(interaction.user.id, bet);
                     return;
                 });
@@ -519,11 +525,12 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     });
 
     collector.on('end', async i => {
-        if (!GAMES_ACTIVE.has(interaction.user.id)) return;
+        if (!CheckGambleLock(interaction.user.id)) return;
         if (GAMES_ACTIVE.get(interaction.user.id)?.picked) return;
 
         AddToWallet(interaction.user.id, bet);
         GAMES_ACTIVE.delete(interaction.user.id);
+        SetGambleLock(interaction.user.id, false);
         interaction.editReply({
             content:`Ummm, **${interaction.user.displayName}**, you didn't interact, so I cancelled your game...`,
             components: []
@@ -590,6 +597,7 @@ export async function ListenForRouletteReply(message: Message) {
 
 export function ReleaseUserGame(user_id: Snowflake) {
     GAMES_ACTIVE.delete(user_id);
+    SetGambleLock(user_id, false);
 }
 
 // -- command for deployment --

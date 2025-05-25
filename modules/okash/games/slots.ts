@@ -15,6 +15,7 @@ import {GetUserProfile} from "../../user/prefs";
 import {DEV, SetActivity} from "../../../index";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString, LangGetFormattedString} from "../../../util/language";
+import {CheckGambleLock, SetGambleLock} from "./_lock";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -90,7 +91,7 @@ const WIN_STREAKS = new Map<Snowflake, number>();
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
-    if (ACTIVE_GAMES.has(interaction.user.id) && ACTIVE_GAMES.get(interaction.user.id) == true) return interaction.reply({
+    if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
 
@@ -104,7 +105,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough in your wallet!`
     });
 
-    ACTIVE_GAMES.set(interaction.user.id, true);
+    SetGambleLock(interaction.user.id, true)
 
     let show_consider = false;
     if (USER_GAMES_TICK.has(interaction.user.id) && USER_GAMES_TICK.get(interaction.user.id) == 50) {
@@ -192,10 +193,12 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
 
     DoRandomDrops(reply_as_message, interaction.user);
 
-    ACTIVE_GAMES.delete(interaction.user.id);
+    // ACTIVE_GAMES.delete(interaction.user.id);
+    SetGambleLock(interaction.user.id, false);
 }
 
 export function ManualRelease(user_id: Snowflake) {
+    SetGambleLock(user_id, false);
     ACTIVE_GAMES.set(user_id, false);
     ACTIVE_GAMES.delete(user_id);
 }

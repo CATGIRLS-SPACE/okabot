@@ -29,6 +29,7 @@ import {CUSTOMIZTAION_ID_NAMES} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {CoinFloats} from "../../tasks/cfResetBonus";
 import {DoRandomDrops} from "../../passive/onMessage";
+import {CheckGambleLock} from "./_lock";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -278,7 +279,7 @@ const WinStreaks = new Map<Snowflake, number>();
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
     // interaction.deferReply();
 
-    if (ActiveFlips.indexOf(interaction.user.id) != -1) {
+    if (ActiveFlips.indexOf(interaction.user.id) != -1 || CheckGambleLock(interaction.user.id)) {
         let violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
 
         console.log(`violations: ${violations}`);

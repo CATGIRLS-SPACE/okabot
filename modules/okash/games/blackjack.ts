@@ -27,6 +27,7 @@ import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {SetActivity} from "../../../index";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
+import {CheckGambleLock, SetGambleLock} from "./_lock";
 
 const L = new Logger('blackjack');
 
@@ -170,7 +171,7 @@ function GetCardThemed(id: string, theme: CUSTOMIZATION_UNLOCKS) {
 }
 
 export async function SetupBlackjackMessage(interaction: ChatInputCommandInteraction) {
-    if (GamesActive.has(interaction.user.id)) return interaction.reply({
+    if (GamesActive.has(interaction.user.id) || CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:bangbang: Woah there, **${interaction.user.displayName}**! You've already got a blackjack game going!`,
         flags: [MessageFlags.SuppressNotifications]
     });
@@ -275,6 +276,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
     if (game.trackable_serial) UpdateTrackedItem(trackable, {property:'dealt_cards', amount:4});
 
     GamesActive.set(interaction.user.id, game);
+    SetGambleLock(interaction.user.id, true);
     SetActivity('blackjack', ActivityType.Playing);
 
     // const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
@@ -356,6 +358,7 @@ async function CheckGameIdle(interaction: ChatInputCommandInteraction) {
             AddToWallet(interaction.user.id, game.bet);
         }
         GamesActive.delete(interaction.user.id);
+        SetGambleLock(interaction.user.id, false);
     } else if (game) {
         // wait 30s and check again
         setTimeout(() => CheckGameIdle(interaction), 30_000);
@@ -408,6 +411,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
 
         GamesActive.delete(interaction.user.id);
+        SetGambleLock(interaction.user.id, false);
     } else {
         // if we doubled down, you cannot hit again
         const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, game.bet);
@@ -503,6 +507,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     
     game.gameActive = false;
     GamesActive.delete(interaction.user.id);
+    SetGambleLock(interaction.user.id, false);
 }
 
 function ShuffleCards(array: Array<HandCard>) {
@@ -592,6 +597,11 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
     const use_classic = interaction.options.getBoolean('classic') || false;
     if (use_classic) return SetupBlackjackMessage(interaction);
+
+    if (CheckGambleLock(interaction.user.id)) return interaction.reply({
+        content:`A game of Blackjack with fewer than 52 cards would be unfair to someone, wouldn't it, **${interaction.user.displayName}**?\n-# Well, okabot card decks actually only have 44 cards. This is because I was pissed off at the sheer number of value 10 cards. I will not revert this change because I am a baby.`,
+        flags: [MessageFlags.SuppressNotifications]
+    });
 
     // check for cooldowns
     const d = new Date();
@@ -752,6 +762,7 @@ async function GameIdleCheckV2(user_id: Snowflake, reply: any) {
 
         AddToWallet(user_id, game.bet);
         GamesActive.delete(user_id);
+        SetGambleLock(user_id, false);
     } else {
         // add another 10 seconds before checking for expired games
         // if the game was still active when checked
@@ -816,6 +827,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         
         // remove their game
         GamesActive.delete(i.user.id);
+        SetGambleLock(i.user.id, false);
 
         // cooldown
         LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
@@ -866,6 +878,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
 
     // remove their game
     GamesActive.delete(i.user.id);
+    SetGambleLock(i.user.id, false);
 
     // cooldown
     LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
@@ -899,6 +912,7 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
 
     // delete their game
     GamesActive.delete(i.user.id);
+    SetGambleLock(i.user.id, false);
 
     // cooldown
     LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
@@ -921,7 +935,7 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
 
     const CardDisplaysTexts = new TextDisplayBuilder().setContent([
         await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_OKABOT, game.language!, okabot_cards),
-        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOTAL, game.language!, TallyCards(game.dealer)),
+        await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOTAL, game.language!, gameover=='no'?`${game.dealer[0].value} + ??`:TallyCards(game.dealer)),
         await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_YOU, game.language!, GetCardEmojis(game.user, game.card_theme)),
         await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_TOTAL, game.language!, TallyCards(game.user)),
     ].join('\n'));
