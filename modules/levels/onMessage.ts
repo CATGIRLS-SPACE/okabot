@@ -102,7 +102,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         if (profile.leveling.level >= 80) GrantAchievement(user, Achievements.LEVEL_80, channel);
         if (profile.leveling.level >= 90) GrantAchievement(user, Achievements.LEVEL_90, channel);
         if (profile.leveling.level >= 100) GrantAchievement(user, Achievements.LEVEL_100, channel);
-        if (profile.leveling.level >= 101) GrantAchievement(user, Achievements.LEVEL_BEYOND, channel);
+        // if (profile.leveling.level >= 101) GrantAchievement(user, Achievements.LEVEL_BEYOND, channel);
         return;
     }
 

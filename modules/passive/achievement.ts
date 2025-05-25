@@ -21,7 +21,7 @@ export enum Achievements {
     LEVEL_80 = 'level80', //
     LEVEL_90 = 'level90', //
     LEVEL_100 = 'level100', //
-    LEVEL_BEYOND = 'level_beyond', //
+    // LEVEL_BEYOND = 'level_beyond', //
     LOW_COINFLIP = 'lowcf', //
     HIGH_COINFLIP = 'highcf', //
     WEIGHTED_COINFLIP = 'usewc', //
@@ -78,7 +78,7 @@ const ACHIEVEMENTS: {
     'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
     'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
     'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
-    'level_beyond': {name:'BEYOND',description:'Get past level 100 to BEYOND', class:'noshow', diff:'na'},
+    // 'level_beyond': {name:'BEYOND',description:'Get past level 100 to BEYOND', class:'noshow', diff:'na'},
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
     'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
     'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},

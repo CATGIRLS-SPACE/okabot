@@ -232,7 +232,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'stock': HandleCommandStock,
     'help': HandleCommandHelp,
     'move': HandleCommandTransfer,
-    // 'roulette': HandleCommandRoulette,
+    'roulette': HandleCommandRoulette,
     'rob': HandleCommandRob,
     'achievements': HandleCommandAchievements,
     'slots': HandleCommandSlots,
