@@ -246,7 +246,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
 
 const ALLOWED_COMMANDS_IN_DMS = [
     '8ball',
-    'recent-eq'
+    'recent-eq',
+    'catgirl'
 ];
 
 const LAST_USER_LOCALE = new Map<Snowflake, string>();
