@@ -90,6 +90,7 @@ import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
+import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 
 
 export const client = new Client({
@@ -240,6 +241,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'casino': HandleCommandCasino,
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
+    'catgirl': HandleCommandCatgirl,
 }
 
 const ALLOWED_COMMANDS_IN_DMS = [
