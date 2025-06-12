@@ -363,7 +363,7 @@ client.on(Events.MessageCreate, async message => {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',
-                username: `@${message.author.username}`,
+                username: message.author.username==message.author.displayName?`@{message.author.username}`:message.author.displayName,
                 message: final_message
             })
         });
@@ -376,8 +376,7 @@ client.on(Events.TypingStart, async typingEvent => {
         fetch('https://bot.lilycatgirl.dev/okabot/discord', {
             method: 'POST',
             body: JSON.stringify({
-                event: 'typing',
-                username: `@${typingEvent.user.username}`,
+                event: 'typing', username:message.author.username==message.author.displayName?`@{message.author.username}`:message.author.displayName,
             })
         });
     }
