@@ -360,8 +360,21 @@ client.on(Events.MessageCreate, async message => {
         fetch('https://bot.lilycatgirl.dev/okabot/discord', {
             method: 'POST',
             body: JSON.stringify({
+                event: 'message',
                 username: `@${message.author.username}`,
                 message: final_message
+            })
+        });
+    }
+});
+
+client.on(Events.TypingStart, async typingEvent => {
+    if (typingEvent.channel.id == "1321639990383476797") {
+        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+            method: 'POST',
+            body: JSON.stringify({
+                event: 'typing',
+                username: `@${typingEvent.user.username}`,
             })
         });
     }
