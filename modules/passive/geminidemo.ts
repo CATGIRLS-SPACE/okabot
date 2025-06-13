@@ -24,8 +24,9 @@ const ConversationChainReplyPointers: {
 /**
  * Respond to an "okabot, xyz..." message
  * @param message The message object passed by discord.js
+ * @param send_to_minecraft Send the response to Minecraft?
  */
-export async function GeminiDemoRespondToInquiry(message: Message) {
+export async function GeminiDemoRespondToInquiry(message: Message, send_to_minecraft: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({apiKey: CONFIG.gemini.api_key});
 
@@ -63,6 +64,18 @@ export async function GeminiDemoRespondToInquiry(message: Message) {
     const reply = await message.reply({
         content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# Incorrect language? Run any okabot command to update your active locale!`
     });
+
+    if (send_to_minecraft) {
+        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+            method: 'POST',
+            body: JSON.stringify({
+                event: 'message',
+                username: 'okabot',
+                message: response.text
+            })
+        });
+        return;
+    }
 
     // create a new conversation chain
     ConversationChains[reply.id] = {

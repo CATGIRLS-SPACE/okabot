@@ -37,7 +37,7 @@ server.post('/minecraft', async (req: Request, res: Response) => {
             });
             if ((req.body.content as string).startsWith('okabot, ')) {
                 // try this ridiculous idea
-                GeminiDemoRespondToInquiry(chat_message);
+                GeminiDemoRespondToInquiry(chat_message, true);
             }
             break;
 
