@@ -8,6 +8,7 @@ import { createServer } from 'http';
 import { Logger } from 'okayulogger';
 import { Server } from 'ws';
 import {PrivilegedConnections, SendLoginRequest} from "./pairing";
+import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 const server = express();
 
 let channelId = "1321639990383476797";
@@ -22,7 +23,7 @@ server.set('views', join(__dirname, 'page'));
 server.get('/minecraft', (req, res) => {
     res.send('cannot get this route, please post instead.');
 });
-server.post('/minecraft', (req: Request, res: Response) => {
+server.post('/minecraft', async (req: Request, res: Response) => {
     // console.log('request: ', req.body);
     res.status(200).end();
     
@@ -30,10 +31,14 @@ server.post('/minecraft', (req: Request, res: Response) => {
     
     switch (req.body.type) {
         case 'chat':
-            channel.send({
+            const chat_message = await channel.send({
                 content: `**${req.body.username}:** ${req.body.content}`,
                 flags: MessageFlags.SuppressNotifications
             });
+            if ((req.body.content as string).startsWith('okabot, ')) {
+                // try this ridiculous idea
+                GeminiDemoRespondToInquiry(chat_message);
+            }
             break;
 
         case 'join':

@@ -319,8 +319,8 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 // Message handlers
 
 client.on(Events.MessageCreate, async message => {
-    if (message.author.id == client.user!.id) return; // don't listen to my own messages
-    if (message.author.bot || message.webhookId) return; // don't listen to bot or webhook messages
+    if (message.author.id == client.user!.id && message.channel.id != "1321639990383476797") return; // don't listen to my own messages UNLESS i'm in #mc-live-chat
+    if ((message.author.bot || message.webhookId) && message.channel.id != "1321639990383476797") return; // don't listen to bot or webhook messages
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
     // various checks
