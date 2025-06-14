@@ -366,9 +366,9 @@ client.on(Events.MessageCreate, async message => {
             for (const attachment of iterator) {
                 if (message.attachments.get(attachment)!.contentType?.startsWith('image/')) links.push(message.attachments.get(attachment)!.url!);
             }
-            CreateSharedMedia(message.attachments.keyAt(0)!, links);
+            const id = CreateSharedMedia(links);
 
-            attachlink = `(attached ${message.attachments.size} item(s), view at: https://b.whats.moe/shared/${message.attachments.keyAt(0)!})`;
+            attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id} [you might need to type this manually])`;
         }
 
         // send the message to the minecraft server

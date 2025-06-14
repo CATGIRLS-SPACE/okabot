@@ -89,12 +89,75 @@ server.post('/minecraft', async (req: Request, res: Response) => {
     }
 });
 
+const words = [
+    // this is meant to make the link easy to type since some clients are stupid
+    // and cant click links modified by server plugins
+    // naming random things on my desk sometimes lol
+    'vanilla',
+    'chocola',
+    'cinnamon',
+    'coconut',
+    'maple',
+    'azuki',
+    'fraise',
+    'milk',
+    'pill',
+    'camera',
+    'hairtie',
+    'joycon',
+    'switch',
+    'figure',
+    'cassette',
+    'coffee',
+    'tea',
+    'catgirl',
+    'doggirl',
+    'plush',
+    '1984',
+    'phone',
+    'wallet',
+    'game',
+    'card',
+    'bottle',
+    'knife',
+    'computer',
+    'mic',
+    'mouse',
+    'keyboard',
+    'cable',
+    'aphex',
+    'twin',
+    'hatsune',
+    'miku',
+    'kagamine',
+    'rin',
+    'len',
+    'kasane',
+    'teto',
+    'watch',
+    'anime',
+    'manga',
+    'cd',
+    'beans',
+    'rikka',
+    'dekomori',
+    'kumin',
+    'mimi',
+    'reimu',
+    'keychain',
+    'dumb',
+    'silly',
+    'schizo'
+];
+
 const SHARED_MEDIA = new Map<string, string[]>();
-export function CreateSharedMedia(id: string, links: string[]) {
+export function CreateSharedMedia(links: string[]): string {
+    const id = `${words.at(Math.floor(Math.random() * words.length))}-${words.at(Math.floor(Math.random() * words.length))}`
     SHARED_MEDIA.set(id, links);
+    return id;
 }
 // @ts-ignore
-server.get('/shared/:id', (req, res) => {
+server.get('/s/:id', (req, res) => {
     if (!SHARED_MEDIA.has(req.params.id)) return res.sendStatus(404);
 
     if (SHARED_MEDIA.get(req.params.id)!.length == 1) return res.redirect(SHARED_MEDIA.get(req.params.id)![0]);
