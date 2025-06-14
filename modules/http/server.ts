@@ -89,6 +89,25 @@ server.post('/minecraft', async (req: Request, res: Response) => {
     }
 });
 
+const SHARED_MEDIA = new Map<string, string[]>();
+export function CreateSharedMedia(id: string, links: string[]) {
+    SHARED_MEDIA.set(id, links);
+}
+// @ts-ignore
+server.get('/shared/:id', (req, res) => {
+    if (!SHARED_MEDIA.has(req.params.id)) return res.sendStatus(404);
+
+    if (SHARED_MEDIA.get(req.params.id)!.length == 1) return res.redirect(SHARED_MEDIA.get(req.params.id)![0]);
+
+    // multiple links
+    const linkObjects: string[] = [];
+    SHARED_MEDIA.get(req.params.id)!.forEach(link => {
+        linkObjects.push(`<button onclick="document.getElementById('view').src = '${link}'">Attachment ${SHARED_MEDIA.get(req.params.id)!.indexOf(link) + 1}</button>`)
+    });
+
+    res.send(`<style>*{font-family: sans-serif;color:white;background-color:black;text-align:center;} button{background-color:#9d60cc;padding:10px;margin:2px;border:3px solid white;border-radius:.5rem;font-weight:bold;font-size:1.5rem;}button:hover{background-color:#9d60cc66;}</style><h1>Shared Media</h1><h3>Click a button to view the image. Attachment 1 is shown by default. Attachments that are not images cannot be viewed.</h3><hr><div class="links">${linkObjects.join('<br>')}</div><hr><img id='view' src="${SHARED_MEDIA.get(req.params.id)![0]}"/>`);
+});
+
 server.get('/asset/:item', (req: Request, res: Response) => {
     res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'assets', req.params.item));
 });

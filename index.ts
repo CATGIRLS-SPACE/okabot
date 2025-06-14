@@ -68,7 +68,7 @@ import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
 import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
-import {StartHTTPServer} from "./modules/http/server";
+import {CreateSharedMedia, StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
 import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
@@ -319,7 +319,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 // Message handlers
 
 client.on(Events.MessageCreate, async message => {
-    if (message.author.id == client.user!.id) return; // don't listen to my own messages UNLESS i'm in #mc-live-chat
+    if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
     if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
@@ -358,13 +358,26 @@ client.on(Events.MessageCreate, async message => {
             final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
         }
 
+        let attachlink = '';
+
+        if (message.attachments.size > 0) {
+            const links: string[] = [];
+            const iterator = message.attachments.keys();
+            for (const attachment of iterator) {
+                if (message.attachments.get(attachment)!.contentType?.startsWith('image/')) links.push(message.attachments.get(attachment)!.url!);
+            }
+            CreateSharedMedia(message.attachments.keyAt(0)!, links);
+
+            attachlink = `(attached ${message.attachments.size} item(s), view at: https://b.whats.moe/shared/${message.attachments.keyAt(0)!})`;
+        }
+
         // send the message to the minecraft server
         fetch('https://bot.lilycatgirl.dev/okabot/discord', {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',
                 username: message.author.username==message.author.displayName?`@${message.author.username}`:message.author.displayName,
-                message: final_message
+                message: final_message + attachlink
             })
         });
     }
