@@ -366,9 +366,14 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
         }
         // else
         console.log('(language.ts) string was not cached...');
-        const result = await translateText(item, locale);
-        STRING_CACHE[locale][item] = result;
-        return result;
+        try {
+            const result = await translateText(item, locale);
+            STRING_CACHE[locale][item] = result;
+            return result;
+        } catch (err) {
+            console.error(err);
+            return `\`[**INTERNAL: Translation Failed**]\`${LANGUAGE_EN[id]}`
+        }
     }
 
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
