@@ -6,12 +6,11 @@ let last_cached_date: string, last_cached_word: string;
 export async function WordleCheck(message: Message) {
     if (message.content.toLowerCase().startsWith("millie's wack words of the day") || message.content.toLowerCase().startsWith("millie's wack word of the day")) return GetWackWordDefinitions(message);
 
-    if (message.channel.id == "1310486655257411594" || message.channel.id == "941843973641736253") { // #wordle
+    if (["1310486655257411594","941843973641736253"].includes(message.channel.id)) { // #wordle
         // checking if they're NOT being original, hmph...
         if (message.author.id != "796201956255334452" && (message.content.includes('wack') && message.content.includes("word"))) {
-            message.delete();
-            return (message.channel as TextChannel).send({
-                content: `:pouting_cat: **${(message.member as GuildMember).displayName || message.author.displayName}**, you're not original!`
+            return message.reply({
+                content: `:pouting_cat: **${(message.member as GuildMember).displayName || message.author.displayName}**, I'll trust that you're just chiming in, but if you're trying to take the spotlight...`
             });
         }
 
