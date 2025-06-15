@@ -89,7 +89,7 @@ server.post('/minecraft', async (req: Request, res: Response) => {
     }
 });
 
-const words = [
+const words: Array<string> = [
     // this is meant to make the link easy to type since some clients are stupid
     // and cant click links modified by server plugins
     // naming random things on my desk sometimes lol

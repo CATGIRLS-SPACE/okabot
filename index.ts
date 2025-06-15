@@ -350,7 +350,7 @@ client.on(Events.MessageCreate, async message => {
     }
 
     // minecraft server
-    if (message.channel.id == "1321639990383476797") { // #mc-live-chat
+    if (message.channel.id == "1321639990383476797" || message.channel.id == '858904835222667315') { // #mc-live-chat
         let final_message = message.content;
 
         if (message.reference) {
@@ -368,11 +368,13 @@ client.on(Events.MessageCreate, async message => {
             }
             const id = CreateSharedMedia(links);
 
-            attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id} [you might need to type this manually])`;
+            attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id})`;
+
+            message.reply(`Your attachment(s) was/were sent to the server chat with ID \`${id}\`.`);
         }
 
         // send the message to the minecraft server
-        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+        if (!DEV) fetch('https://bot.lilycatgirl.dev/okabot/discord', {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',
