@@ -3,7 +3,7 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetLastPrices, GetSharePrice, SellShares, Stocks } from "../okash/stock";
 import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
 import { format } from "util";
-import { HandleCommandLink } from "./link";
+// import { HandleCommandLink } from "./link";
 import { createCanvas, loadImage } from "canvas";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
@@ -216,7 +216,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
     }
 
     if (command == 'link') {
-        HandleCommandLink(interaction);
+        // HandleCommandLink(interaction);
     }
 }
 

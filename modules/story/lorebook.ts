@@ -20,7 +20,13 @@ async function DecryptAESString(data: string): Promise<ArrayBuffer> {
     return await subtle.decrypt({name: 'AES-CBC', iv:STORY_KEY_BYTES}, AES_KEY!, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
 }
 
-export async function ReadChapterData(chapter: number, page: number): Promise<string> {
+interface StoryData {
+    success: boolean,
+    page_count: number,
+    data: string
+}
+
+export async function ReadChapterData(chapter: number, page: number): Promise<StoryData> {
     const mesy_path = join(BASE_DIRNAME, 'assets', 'stories', `ch${chapter}.mesy`);
     if (!existsSync(mesy_path)) throw new Error(`could not load story data from "${mesy_path}" (exist)`);
     let data;
@@ -28,30 +34,34 @@ export async function ReadChapterData(chapter: number, page: number): Promise<st
         data = new MESYFile(mesy_path);
     } catch(err) {
         L.error(`Failed to load MESY file: ${err}`);
-        return "Story data load failed!";
+        return {success:false, page_count: -1, data:'Story failed to load'};
     }
 
     // test AES
     const aes_test_data = data.getValueOfKey('AES_TEST');
     const expected_result = data.getValueOfKey('EXPECT_AES_TEST');
-    const test_result = new TextDecoder().decode((await DecryptAESString(aes_test_data)));
-    if (test_result != expected_result) {
-        L.error(`AES Test failed! Expected result "${expected_result}", but got result "${test_result}"!`);
-        return "Decryption of story data failed.";
+    try {
+        const test_result = new TextDecoder().decode((await DecryptAESString(aes_test_data)));
+        if (test_result != expected_result) {
+            L.error(`AES Test failed! Expected result "${expected_result}", but got result "${test_result}"!`);
+            return {success:false, page_count: -1, data:'Story data decryption failed'};
+        }
+    } catch (err) {
+        return {success:false, page_count: -1, data:`Story data decryption failed (${err})`};
     }
     L.debug(`AES Test succeeded for chapter ${chapter}!`);
 
     try {
         data.getValueOfKey(`pg${page}`);
     } catch (err) {
-        return "Not a valid page of chapter " + chapter+1 + "!"
+        return {success:false, page_count: -1, data:`Not a valid page of chaper ${chapter}`};
     }
     const page_data = (page>=0)?data.getValueOfKey(`pg${page}`):data.getValueOfKey('title');
     const title = new TextDecoder().decode(await DecryptAESString(data.getValueOfKey('title')));
     const pages = data.getValueOfKey('pg_count');
     const story_content = new TextDecoder().decode(await DecryptAESString(page_data));
 
-    return `**${title}** (page ${page+1}/${pages})\n \n${story_content}\n-# Keep in mind, many parts of the story are up for interpretation, or may not become clear until later chapters.\n-# Feel free to discuss these parts, however do not spoil the story for others.`;
+    return {success: true, page_count:parseInt(pages), data:`**${title}** (Ch${chapter} page ${page+1}/${pages})\n \n${story_content}\n-# Keep in mind, many parts of the story are up for interpretation, or may not become clear until later chapters.\n-# Feel free to discuss these parts, however do not spoil the story for others.`};
 }
 
 
