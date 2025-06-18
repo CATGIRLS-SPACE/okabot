@@ -35,6 +35,7 @@ export const CONFIG: {
         enable: boolean,
         api_key: string,
     },
+    story_key: string,
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
@@ -62,7 +63,7 @@ import {HandleCommandHelp} from "./modules/interactions/help";
 import {HandleCommandTransfer} from "./modules/interactions/transfer";
 import {HandleCommandRoulette, ListenForRouletteReply} from "./modules/okash/games/roulette";
 import {HandleCommandRob} from "./modules/okash/games/rob";
-import {HandleCommandAchievements} from "./modules/passive/achievement";
+import {Achievements, GrantAchievement, HandleCommandAchievements} from "./modules/passive/achievement";
 import {HandleCommandSlots} from "./modules/okash/games/slots";
 import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
@@ -91,6 +92,8 @@ import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
+import { GrantStoryAccess, ReadChapterData } from "./modules/story/lorebook";
+import { HandleCommandStory } from "./modules/interactions/story";
 
 
 export const client = new Client({
@@ -244,6 +247,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
+    'story': HandleCommandStory,
 }
 
 const ALLOWED_COMMANDS_IN_DMS = [
@@ -338,6 +342,10 @@ client.on(Events.MessageCreate, async message => {
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
+    // if (message.content.startsWith('o.storytest')) { 
+    //     const chapter_data: string = await ReadChapterData(parseInt(message.content.split(' ')[1]), parseInt(message.content.split(' ')[2])-1);
+    //     message.reply(chapter_data);
+    // }
 
     if (message.content.toLowerCase().startsWith('okabot, ')) {
         if (!CONFIG.gemini.enable) return;
@@ -419,8 +427,30 @@ client.on(Events.GuildMemberAdd, async (member) => {
         content: `## meow! hi there, <@${member.user.id}>\nwelcome to **CATGIRL CENTRAL**!\nplease read the rules before continuing!\nmake sure to check out what okabot has to offer in <#1019091099639361576> too!\nthanks for joining, and have fun!`
     });
 });
+
+const DANGO_COUNT = new Map<Snowflake, number>();
+
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
-    CheckReactionFlag(reaction, reactor as User);
+    // CheckReactionFlag(reaction, reactor as User);
+
+    // L.debug('new reaction ' + reaction.emoji.name);
+
+    if (reaction.emoji.name == '🍡') {
+        const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
+        const message = await channel.messages.fetch(reaction.message.id);
+        if (message.author.id != client.user!.id) return;
+
+        if (DANGO_COUNT.has(reactor.id)) {
+            DANGO_COUNT.set(reactor.id, DANGO_COUNT.get(reactor.id)! + 1);
+            if (DANGO_COUNT.get(reactor.id)! == 3) {
+                GrantAchievement(reactor as User, Achievements.STORY, channel);
+                GrantStoryAccess(reactor as User, 1, channel);
+            }
+        } else {
+            DANGO_COUNT.set(reactor.id, 1);
+            GrantAchievement(reactor as User, Achievements.DANGO, channel);
+        }
+    }
 });
 
 // Error Handlers

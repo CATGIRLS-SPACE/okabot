@@ -63,6 +63,8 @@ export enum Achievements {
     STREAK_5 = 'streak5',
     STREAK_10 = 'streak10',
     STREAK_25 = 'streak25',
+    DANGO = 'dango',
+    STORY = 'story',
 }
 
 const ACHIEVEMENTS: {
@@ -121,6 +123,8 @@ const ACHIEVEMENTS: {
     'streak5': {name:'On a Roll',description:'Win a (supported) gambling game five times in a row',class:'gamble',diff:'t'},
     'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row',class:'gamble',diff:'h'},
     'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail',class:'gamble',diff:'ex'},
+    'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
+    'story':{name:'Lore?!',description:'Unlock an okabot lorebook story',class:'okabot',diff:'e'}
 }
 
 /**

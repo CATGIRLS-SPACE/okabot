@@ -47,7 +47,7 @@ export interface LEGACY_USER_PROFILE {
         current_xp: number,
         prestige?: number
     },
-    achievements: Array<Achievements>
+    achievements: Array<Achievements>,
 }
 
 export interface USER_PROFILE {
@@ -98,7 +98,8 @@ export interface USER_PROFILE {
     }
     inventory: Array<ITEMS>,
     achievements: Array<Achievements>,
-    trackedInventory: Array<string>
+    trackedInventory: Array<string>,
+    story_unlocks: Array<number>
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -149,7 +150,8 @@ const DEFAULT_DATA: USER_PROFILE = {
     },
     inventory: [],
     achievements: [],
-    trackedInventory: []
+    trackedInventory: [],
+    story_unlocks: [],
 }
 
 var PROFILES_DIR: string | null = null;
@@ -198,6 +200,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.games.equipped_trackable_coin) data.customization.games.equipped_trackable_coin = 'none';
     if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
     if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
+    if (!data.story_unlocks) data.story_unlocks = [];
 
     ProfileCache.set(user_id, data);
 
@@ -383,7 +386,8 @@ export function UpgradeLegacyProfiles(dirname: string) {
             },
             achievements: old_data.achievements || [],
             inventory: wallet_data.inventory.other,
-            trackedInventory: []
+            trackedInventory: [],
+            story_unlocks: [],
         }
 
         writeFileSync(join(dirname, 'profiles', profile), JSON.stringify(new_data), 'utf-8');
