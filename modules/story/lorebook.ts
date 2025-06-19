@@ -61,14 +61,14 @@ export async function ReadChapterData(chapter: number, page: number): Promise<St
     const pages = data.getValueOfKey('pg_count');
     const story_content = new TextDecoder().decode(await DecryptAESString(page_data));
 
-    return {success: true, page_count:parseInt(pages), data:`**${title}** (Ch${chapter} page ${page+1}/${pages})\n \n${story_content}\n-# Keep in mind, many parts of the story are up for interpretation, or may not become clear until later chapters.\n-# Feel free to discuss these parts, however do not spoil the story for others.`};
+    return {success: true, page_count:parseInt(pages), data:`📚 **${title}** (Ch${chapter+1} page ${page+1}/${pages})\n \n${story_content}\n-# Keep in mind, many parts of the story are up for interpretation, or may not become clear until later chapters.\n-# Feel free to discuss these parts, however do not spoil the story for others.`};
 }
 
 
 export function GrantStoryAccess(user: User, story_number: number, channel: TextChannel) {
     const user_id = user.id;
     const profile = GetUserProfile(user_id);
-    if (story_number != 1 && profile.story_unlocks.includes(story_number - 1)) return console.debug(`can't unlock story ${story_number} because previous story isn't unlocked`);
+    if (story_number != 1 && profile.story_unlocks.includes(story_number)) return console.debug(`can't unlock story ${story_number} because previous story isn't unlocked`);
     if (profile.story_unlocks.includes(story_number)) return;
     profile.story_unlocks.push(story_number);
     UpdateUserProfile(user_id, profile);

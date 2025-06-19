@@ -70,9 +70,11 @@ export async function HandleCommandStory(interaction: ChatInputCommandInteractio
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
     const collector = reply.createMessageComponentCollector({filter: collectorFilter, time: 120_000});
     collector.on('collect', async i => {
+        await i.deferUpdate();
+
         const reply_content = (await reply.fetch()).content;
-        let current_page = parseInt(reply_content.split('page ')[1].split('/')[0]);
-        let current_chapter = parseInt(reply_content.split('Ch')[1].split(' ')[0]);
+        let current_page = parseInt(reply_content.split('page ')[1].split('/')[0]) - 1;
+        let current_chapter = parseInt(reply_content.split('Ch')[1].split(' ')[0]) - 1;
 
         let new_story_data;
 
@@ -80,8 +82,20 @@ export async function HandleCommandStory(interaction: ChatInputCommandInteractio
         if (i.customId == 'prev-page') current_page--;
         if (i.customId == 'last-page') {
             new_story_data = await ReadChapterData(current_chapter, current_page);
-            current_page = new_story_data.page_count;
+            current_page = new_story_data.page_count-1;
         }
+        if (i.customId == 'first-page') current_page = 0;
+
+        new_story_data = await ReadChapterData(current_chapter, current_page);
+
+        let componentRowUpdate = componentRowDefault;
+        if (current_page == 0) componentRowUpdate = componentRowFirst;
+        if (current_page+1 == new_story_data.page_count) componentRowUpdate = componentRowLast;
+
+        await i.editReply({
+            content: new_story_data.data,
+            components: [componentRowUpdate as any]
+        });
     });
 }
 
