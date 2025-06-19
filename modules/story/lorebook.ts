@@ -68,7 +68,7 @@ export async function ReadChapterData(chapter: number, page: number): Promise<St
 export function GrantStoryAccess(user: User, story_number: number, channel: TextChannel) {
     const user_id = user.id;
     const profile = GetUserProfile(user_id);
-    if (story_number != 1 && profile.story_unlocks.includes(story_number)) return console.debug(`can't unlock story ${story_number} because previous story isn't unlocked`);
+    if (story_number != 1 && !profile.story_unlocks.includes(story_number-1)) return console.debug(`can't unlock story ${story_number} because previous story isn't unlocked`);
     if (profile.story_unlocks.includes(story_number)) return;
     profile.story_unlocks.push(story_number);
     UpdateUserProfile(user_id, profile);
