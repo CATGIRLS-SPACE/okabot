@@ -81,7 +81,7 @@ export function GetProperItemName(shop_id: string, locale: 'en' | 'ja' = 'en'): 
 
 export async function HandleCommandPockets(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
-    const page = interaction.options.getString('page');
+    const page = interaction.options.getString('page', true);
 
     const fields: any = [];
 
@@ -134,6 +134,21 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                 }
             }
         }
+    } else if (page == 'scraps') {
+        const profile = GetUserProfile(interaction.user.id);
+        const scrap_names: {[key: string]: string} = {
+            'plastic':`${GetEmoji(EMOJI.SCRAP_PLASTIC)} Plastic`,
+            'metal':`${GetEmoji(EMOJI.SCRAP_METAL)} Metal`,
+            'wood':`${GetEmoji(EMOJI.SCRAP_WOOD)} Wood`,
+            'rubber':`${GetEmoji(EMOJI.SCRAP_RUBBER)} Rubber`,
+            'electrical':`${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical`,
+        };
+        for (const scrap of Object.keys(profile.inventory_scraps)) {
+            fields.push({
+                name: `** ${profile.inventory_scraps[scrap as 'plastic'|'metal'|'wood'|'rubber'|'electrical']}x ${scrap_names[scrap]}**`,
+                value: 'Scraps you can use to craft items'
+            });
+        }
     }
 
     if (fields.length == 0) {
@@ -145,7 +160,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
     // console.log(fields);
 
     const embed = new EmbedBuilder()
-        .setTitle(page=='items'?'Your pockets':`Your unlocked ${interaction.locale==Locale.EnglishGB?'customisations':'customizations'}`)
+        .setTitle(page=='items'||page=='scraps'?'Your pockets':`Your unlocked ${interaction.locale==Locale.EnglishGB?'customisations':'customizations'}`)
         .setColor(0x9d60cc)
         .setFields(fields)
         .setAuthor({iconURL: interaction.user.displayAvatarURL(), name: interaction.user.displayName});
@@ -163,5 +178,6 @@ export const PocketsSlashCommand = new SlashCommandBuilder()
         .addChoices(
             {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
             {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}},
-            {name:'Tracked Items',value:'tracked'}
+            {name:'Tracked Items',value:'tracked'},
+            {name:'Scraps',value:'scraps'}
     ).setRequired(true));

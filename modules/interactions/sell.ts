@@ -32,7 +32,10 @@ const SELL_PRICES: {
     'streak restore':{price:10_500,type:'item',itemID:ITEMS.STREAK_RESTORE},
     'drop boost 15 minute':{price:12_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_15_MIN},
     'drop boost 30 minute':{price:37_500,type:'item',itemID:ITEMS.LOOTBOX_INCREASE_30_MIN},
-    'tracking device':{price:50_000,type:'item',itemID:ITEMS.TRACKED_CONVERTER}
+    'tracking device':{price:50_000,type:'item',itemID:ITEMS.TRACKED_CONVERTER},
+    'casino pass 10 minute':{price:20_000,type:'item',itemID:ITEMS.CASINO_PASS_10_MIN},
+    'casino pass 30 minute':{price:50_000,type:'item',itemID:ITEMS.CASINO_PASS_30_MIN},
+    'casino pass 60 minute':{price:90_000,type:'item',itemID:ITEMS.CASINO_PASS_1_HOUR},
 }
 
 const STRINGS: {

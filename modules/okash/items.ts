@@ -15,6 +15,11 @@ export enum ITEMS {
     CASINO_PASS_10_MIN,
     CASINO_PASS_30_MIN,
     CASINO_PASS_1_HOUR,
+    SCRAP_TYPE_METAL,
+    SCRAP_TYPE_PLASTIC,
+    SCRAP_TYPE_WOOD,
+    SCRAP_TYPE_RUBBER,
+    SCRAP_TYPE_ELECTRICAL,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {

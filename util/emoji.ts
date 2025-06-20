@@ -67,6 +67,12 @@ export enum EMOJI {
     SLOTS_GRAPE = 'twemoji_grapes',
     SLOTS_APPLE = 'twemoji_apple',
     SLOTS_GEM = 'twemoji_gem',
+    // scraps
+    SCRAP_PLASTIC = 'scp',
+    SCRAP_METAL = 'scm',
+    SCRAP_WOOD = 'scw',
+    SCRAP_RUBBER = 'scr',
+    SCRAP_ELECTRICAL = 'sce',
 }
 
 const EMOJI_KEYS: {
@@ -166,6 +172,12 @@ const EMOJI_KEYS: {
     'twemoji_apple':{prod:'1358923531894784151',dev:'1358922260357976326'},
     'twemoji_grapes':{prod:'1358923559120015560',dev:'1358922392755503265'},
     'twemoji_gem':{prod:'1358923581500952606',dev:'1358922325399048452'},
+    // scraps
+    'scp':{prod:'',dev:'1385396904506163200'},
+    'scm':{prod:'',dev:'1385396929101299803'},
+    'scw':{prod:'',dev:'1385396946146951178'},
+    'scr':{prod:'',dev:'1385396958130081984'},
+    'sce':{prod:'',dev:'1385396976593670234'}
 }
 
 export function GetEmoji(name: string): string {
