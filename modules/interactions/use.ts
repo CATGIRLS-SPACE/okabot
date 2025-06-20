@@ -1,14 +1,14 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
-import { RestoreLastDailyStreak } from "../okash/daily";
-import { CUSTOMIZATION_UNLOCKS, ITEM_TYPE, ITEMS } from "../okash/items";
-import { AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory } from "../okash/wallet";
-import { FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { commonLootboxReward, exLootboxReward, LOOTBOX_REWARD_TYPE, rareLootboxReward } from "../okash/lootboxes";
-import { GetEmoji, EMOJI } from "../../util/emoji";
-import { PassesActive } from "../okash/games/blackjack";
-import { ITEM_NAMES} from "./pockets";
-import { Achievements, GrantAchievement } from "../passive/achievement";
-import { BoostsActive } from "../passive/onMessage";
+import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {RestoreLastDailyStreak} from "../okash/daily";
+import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
+import {AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
+import {FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
+import {exLootboxReward, LOOTBOX_REWARD_TYPE, lootboxRewardCommon, rareLootboxReward} from "../okash/lootboxes";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {PassesActive} from "../okash/games/blackjack";
+import {ITEM_NAMES} from "./pockets";
+import {Achievements, GrantAchievement} from "../passive/achievement";
+import {BoostsActive} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
@@ -120,7 +120,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     if (inventory.indexOf(ITEMS.LOOTBOX_COMMON) == -1) {
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any :package: **Common Lootboxes**!`
+            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :package: **Common Lootbox** to open!`
         });
     }
 
@@ -132,18 +132,24 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const reward = commonLootboxReward(interaction.user.id);
+    const reward = lootboxRewardCommon(interaction.user.id);
     let rewardMessage = '';
 
     switch (reward.type) {
         case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, reward.value)
-            rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`
+            AddOneToInventory(interaction.user.id, reward.item_id)
+            rewardMessage = reward.item_id==ITEMS.WEIGHTED_COIN_ONE_USE?`a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`:`a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore**!`;
             break;
 
         case LOOTBOX_REWARD_TYPE.OKASH:
-            AddToWallet(interaction.user.id, reward.value)
-            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
+            AddToWallet(interaction.user.id, reward.amount)
+            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.amount}**`;
+            break;
+
+        case LOOTBOX_REWARD_TYPE.SCRAPS:
+            rewardMessage = `some **scraps**!\n`;
+            const s = reward.amount;
+            rewardMessage += `**${GetEmoji(EMOJI.SCRAP_METAL)} x ${s.m}, ${GetEmoji(EMOJI.SCRAP_PLASTIC)} x ${s.p}, ${GetEmoji(EMOJI.SCRAP_WOOD)} x ${s.w}, ${GetEmoji(EMOJI.SCRAP_RUBBER)} x ${s.r}, ${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} x ${s.e}**`;
             break;
 
         default:
@@ -152,7 +158,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} **Common Lootbox** and finds ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds ${rewardMessage}`
     })
 }
 async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
@@ -199,7 +205,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
             break;
     }
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} **Rare Lootbox** and finds ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds ${rewardMessage}`
     })
 }
 

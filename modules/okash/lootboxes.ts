@@ -5,12 +5,35 @@ import { GetUserProfile} from "../user/prefs";
 export enum LOOTBOX_REWARD_TYPE {
     OKASH = 'money',
     ITEM = 'item',
-    CUSTOMIZATION = ''
+    CUSTOMIZATION = '',
+    SCRAPS = 'scrap',
+}
+
+export interface LootboxRewardsOkash {
+    type: LOOTBOX_REWARD_TYPE.OKASH,
+    amount: number
+}
+export interface LootboxRewardsItem {
+    type: LOOTBOX_REWARD_TYPE.ITEM,
+    item_id: ITEMS
+}
+export interface LootboxRewardsScraps {
+    type: LOOTBOX_REWARD_TYPE.SCRAPS,
+    amount: {
+        p: number,
+        m: number,
+        w: number,
+        r: number,
+        e: number,
+    }
 }
 
 export const LootboxRecentlyDropped = new Map<Snowflake, {item:ITEMS,time:number}>();
 
 // Function that calculates Lootbox Rewards
+/**
+ * @deprecated Code is written with ChatGPT and does not award scraps. Use `lootboxCommonReward()` instead. It will be removed soon.
+ */
 export function commonLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TYPE, value: number } {
     const roll = Math.floor(Math.random() * 100);  // Roll between 0 and 99
     // console.log(`Reward Roll: ${roll}`);
@@ -25,9 +48,39 @@ export function commonLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_
     } else { // get a weighted coin if the value is LOWER than 15
         LootboxRecentlyDropped.set(user_id, {item:ITEMS.WEIGHTED_COIN_ONE_USE, time});
         return { 
-            type: LOOTBOX_REWARD_TYPE.ITEM, 
+            type: LOOTBOX_REWARD_TYPE.ITEM,
             value: ITEMS.WEIGHTED_COIN_ONE_USE 
         };
+    }
+}
+
+export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | LootboxRewardsItem | LootboxRewardsScraps {
+    const roll = Math.floor(Math.random() * 3) + 1; // roll 1-3
+
+    switch (roll) {
+        case 1: // 1 = okash
+            const okash_reward = Math.floor(Math.random()*400) + 100; // 100-500
+            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward};
+
+        case 2:
+            const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.STREAK_RESTORE;
+            LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
+            return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item};
+
+        case 3:
+            const rolled_scraps = {
+                p: Math.floor(Math.random() * 50) + 1,
+                m: Math.floor(Math.random() * 50) + 1,
+                w: Math.floor(Math.random() * 50) + 1,
+                r: Math.floor(Math.random() * 50) + 1,
+                e: Math.floor(Math.random() * 50) + 1,
+            };
+            return {type:LOOTBOX_REWARD_TYPE.SCRAPS, amount:rolled_scraps}
+
+        default:
+            // how did we get here?
+            const okash_reward_d = Math.floor(Math.random()*400) + 100; // 100-500
+            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward_d};
     }
 }
 
