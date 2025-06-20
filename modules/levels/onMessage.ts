@@ -79,20 +79,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         const user = client.users.cache.get(user_id)!;
 
         // achievements
-        if (profile.leveling.level >= 10) {
-            GrantAchievement(user, Achievements.LEVEL_10, channel);
-            // also gets image permissions at level 10
-            const guild = client.guilds.cache.get(!DEV?'1019089377705611294':'748284249487966282');
-            if (!guild) throw new Error('Could not get guild when attempting to give image permissions role!');
-            const member = guild.members.cache.get(user_id);
-            if (!member) throw new Error('Could not get member from guild when attempting to give image permissions role!');
-
-            if (!member.roles.cache.some(role => role.name === 'image perms (lvl 10)')) {
-                const role = guild.roles.cache.find(role => role.name === 'image perms (lvl 10)');
-                if (!role) throw new Error('Image permissions role does not exist in this guild, ensure there is one named exactly "image perms (lvl 10)"!');
-                member.roles.add(role);
-            }
-        }
+        if (profile.leveling.level >= 10) GrantAchievement(user, Achievements.LEVEL_10, channel);
         if (profile.leveling.level >= 20) GrantAchievement(user, Achievements.LEVEL_20, channel);
         if (profile.leveling.level >= 30) GrantAchievement(user, Achievements.LEVEL_30, channel);
         if (profile.leveling.level >= 40) GrantAchievement(user, Achievements.LEVEL_40, channel);
