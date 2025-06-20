@@ -94,6 +94,7 @@ import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remin
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import { GrantStoryAccess, ReadChapterData } from "./modules/story/lorebook";
 import { HandleCommandStory } from "./modules/interactions/story";
+import {HandleCommandCraft} from "./modules/interactions/craft";
 
 
 export const client = new Client({
@@ -248,6 +249,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
     'story': HandleCommandStory,
+    'craft': HandleCommandCraft,
 }
 
 const ALLOWED_COMMANDS_IN_DMS = [
