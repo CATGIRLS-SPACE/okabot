@@ -35,8 +35,12 @@ function ScheduleReminder(r: Reminder) {
     setTimeout(async () => {
         const channel = await client.channels.fetch(r.message.channel) as TextChannel;
         if (!channel) return console.error('reminder\'s channel could not be found');
-        const message = await channel.messages.fetch(r.message.message);
-        if (!message) return channel.send({content: `:crying_cat_face: <@${r.user}>, you asked me to remind you of a message, but it seems it was deleted. sorry...`});
+        let message;
+        try {
+            message = await channel.messages.fetch(r.message.message);
+        } catch (err) {
+            return channel.send({content: `:crying_cat_face: <@${r.user}>, you asked me to remind you of a message, but it seems it was deleted. sorry...`});
+        }
 
         message.reply({
             content: `:bell: hey <@${r.user}>! you asked me to remind you about this <t:${r.time}:R>!`
@@ -54,7 +58,7 @@ function GetBoostStatus(user_id: string, guild_id: Snowflake): boolean {
 export function RemindLater(message: Message) {
     const parsed_time = ParseRelativeTime(message.content.split('o.remind ')[1]);
     if (isNaN(parsed_time)) return message.reply({
-        content: `please tell me when, like "o.remind 3h" for 3 hours from now!`,
+        content: `please tell me when, like "o.remind 3h" for 3 hours from now! supported suffixes are \`s, m, h, d, w, mo, y\`.`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -67,14 +71,14 @@ export function RemindLater(message: Message) {
     for (const reminder of REMINDERS) {
         if (reminder.user == message.author.id) r++;
     }
-    if (r >= 5 && GetBoostStatus(message.author.id, message.guildId!)) {
+    if (r >= 3 && !GetBoostStatus(message.author.id, message.guildId!)) {
         return message.reply({
-            content: `sorry, but you've already got 5 reminders scheduled.\nboost CATGIRL CENTRAL to get access to up to 25 reminders.`,
+            content: `sorry, but you've already got 3 reminders scheduled.\nboost CATGIRL CENTRAL to get access to up to 10 reminders.`,
             flags: [MessageFlags.SuppressNotifications]
         });
-    } else if (r >= 25) {
+    } else if (r >= 10) {
         return message.reply({
-            content: `sorry, but you've already got 25 reminders scheduled.`,
+            content: `sorry, but you've already got 10 reminders scheduled.`,
             flags: [MessageFlags.SuppressNotifications]
         });
     }
