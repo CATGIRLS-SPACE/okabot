@@ -23,7 +23,8 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
             "- Fixed a bug causing an uncaught rejection when leveling up.",
             "- Fixed a bug where the final lootbox message would not contain the emoji respective to Common or Rare Lootbox.",
             "- Fixed a bug where okabot attempting to remind someone of a nonexistent message would result in an uncaught rejection.",
-            "- Fixed a bug where boosting the server would not grant access to 10 reminders."
+            "- Fixed a bug where boosting the server would not grant access to 10 reminders.",
+            "- Silenced Shindo 1- and 2-intensity earthquake notifications."
         ].join('\n'))
     )
     .addSeparatorComponents(

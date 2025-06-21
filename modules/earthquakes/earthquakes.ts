@@ -237,7 +237,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         EXISTING_EARTHQUAKES.delete(data.eventId);
 
         // send embed
-        (channel as TextChannel)!.send({embeds:[embed]});
+        (channel as TextChannel)!.send({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
     });
 
     SOCKET.on(WebSocketEvent.PING, () => {
