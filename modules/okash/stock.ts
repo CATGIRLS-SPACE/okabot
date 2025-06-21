@@ -43,7 +43,7 @@ const L = new Logger('stocks');
 
 /**
  * Set up and load the stocks module
- * @param dirname the __dirname variable as found in index.tr
+ * @param dirname the __dirname variable as found in index.ts
  */
 export function SetupStocks(dirname: string) {
     if (!existsSync(join(dirname, 'db'))) mkdirSync(join(dirname, 'db'));

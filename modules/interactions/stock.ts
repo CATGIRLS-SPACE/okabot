@@ -142,7 +142,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
 
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'render-stock-list.png'));
     interaction.editReply({
-        content: STRINGS.psst[locale],
+        content: '',
         files: [image]
     });
 }
@@ -179,7 +179,7 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
 
             // okey
             interaction.editReply({
-                content: `### ${STRINGS.current[locale]}\n${STRINGS.psst[locale]}\n${neko}\n${dogy}\n${fxgl}`
+                content: `### ${STRINGS.current[locale]}\n${neko}\n${dogy}\n${fxgl}`
             });
         } catch {
             interaction.editReply({
@@ -290,61 +290,61 @@ async function HandleSellConfirmation(interaction: ChatInputCommandInteraction, 
 export const StockSlashCommand = new SlashCommandBuilder()
     .setName('stock')
     .setDescription('Manage stocks')
-    // .addSubcommand(sc => sc
-    //     .setName('purchase')
-    //     .setDescription('Purchase shares of a stock')
-    //     .addStringOption(option => option
-    //         .setName('stock')
-    //         .setDescription('which stock to buy')
-    //         .addChoices(
-    //             { name: 'Foxgirl - FXGL', value: 'foxgirl' },
-    //             { name: 'Doggirl - DOGY', value: 'doggirl' },
-    //             { name: 'Catgirl - NEKO', value: 'catgirl' },
-    //         )
-    //         .setRequired(true)
-    //     )
-    //     .addNumberOption(option => option
-    //         .setName('amount')
-    //         .setDescription('amount of shares to buy')
-    //         .setRequired(true)
-    //         .setMinValue(0.00000000000000000000001)
-    //     )
-    // )
-    // .addSubcommand(sc => sc
-    //     .setName('sell')
-    //     .setDescription('Sell shares of a stock')
-    //     .addStringOption(option => option
-    //         .setName('stock')
-    //         .setDescription('which stock to sell')
-    //         .addChoices(
-    //             { name: 'Foxgirl - FXGL', value: 'foxgirl' },
-    //             { name: 'Doggirl - DOGY', value: 'doggirl' },
-    //             { name: 'Catgirl - NEKO', value: 'catgirl' },
-    //         )
-    //         .setRequired(true)
-    //     )
-    //     .addNumberOption(option => option
-    //         .setName('amount')
-    //         .setDescription('amount of shares to sell')
-    //         .setRequired(true)
-    //         .setMinValue(0.00000000000000000000001)
-    //     )
-    // )
-    // .addSubcommand(sc => sc
-    //     .setName('show')
-    //     .setDescription('Show stock prices and how many shares you own')
-    //     .addBooleanOption(option => option
-    //         .setName('classic')
-    //         .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
-    //         .setRequired(false)
-    //     )
-    // )
     .addSubcommand(sc => sc
-        .setName('link')
-        .setDescription('Link a browser session to your account')
+        .setName('purchase')
+        .setDescription('Purchase shares of a stock')
         .addStringOption(option => option
-            .setName('code')
-            .setDescription('the code shown in the browser')
+            .setName('stock')
+            .setDescription('which stock to buy')
+            .addChoices(
+                { name: 'Foxgirl - FXGL', value: 'foxgirl' },
+                { name: 'Doggirl - DOGY', value: 'doggirl' },
+                { name: 'Catgirl - NEKO', value: 'catgirl' },
+            )
             .setRequired(true)
         )
-    );
+        .addNumberOption(option => option
+            .setName('amount')
+            .setDescription('amount of shares to buy')
+            .setRequired(true)
+            .setMinValue(0.00000000000000000000001)
+        )
+    )
+    .addSubcommand(sc => sc
+        .setName('sell')
+        .setDescription('Sell shares of a stock')
+        .addStringOption(option => option
+            .setName('stock')
+            .setDescription('which stock to sell')
+            .addChoices(
+                { name: 'Foxgirl - FXGL', value: 'foxgirl' },
+                { name: 'Doggirl - DOGY', value: 'doggirl' },
+                { name: 'Catgirl - NEKO', value: 'catgirl' },
+            )
+            .setRequired(true)
+        )
+        .addNumberOption(option => option
+            .setName('amount')
+            .setDescription('amount of shares to sell')
+            .setRequired(true)
+            .setMinValue(0.00000000000000000000001)
+        )
+    )
+    .addSubcommand(sc => sc
+        .setName('show')
+        .setDescription('Show stock prices and how many shares you own')
+        .addBooleanOption(option => option
+            .setName('classic')
+            .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
+            .setRequired(false)
+        )
+    )
+    // .addSubcommand(sc => sc
+    //     .setName('link')
+    //     .setDescription('Link a browser session to your account')
+    //     .addStringOption(option => option
+    //         .setName('code')
+    //         .setDescription('the code shown in the browser')
+    //         .setRequired(true)
+    //     )
+    // );

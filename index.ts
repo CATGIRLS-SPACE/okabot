@@ -57,7 +57,7 @@ import {HandleCommandPockets} from "./modules/interactions/pockets";
 import {HandleCommandCustomize} from "./modules/interactions/customize";
 import {HandleCommandToggle} from "./modules/interactions/toggle";
 import {HandleCommandLevel} from "./modules/levels/levels";
-import {GenerateCoinflipDataDisplay} from "./modules/extra/datarenderer";
+import {GenerateCoinflipDataDisplay, HandleCommandRender} from "./modules/extra/datarenderer";
 import {HandleCommandStock} from "./modules/interactions/stock";
 import {HandleCommandHelp} from "./modules/interactions/help";
 import {HandleCommandTransfer} from "./modules/interactions/transfer";
@@ -95,6 +95,7 @@ import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import { GrantStoryAccess, ReadChapterData } from "./modules/story/lorebook";
 import { HandleCommandStory } from "./modules/interactions/story";
 import {HandleCommandCraft} from "./modules/interactions/craft";
+import { SetupStocks } from "./modules/okash/stock";
 
 
 export const client = new Client({
@@ -161,6 +162,7 @@ async function RunPreStartupTasks() {
     ScheduleJob(client); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
+    if (DEV) SetupStocks(__dirname);
 }
 
 /**
@@ -235,7 +237,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'customize': HandleCommandCustomize,
     'toggle': HandleCommandToggle,
     'level': HandleCommandLevel,
-    'render': GenerateCoinflipDataDisplay,
+    'render': HandleCommandRender,
     'stock': HandleCommandStock,
     'help': HandleCommandHelp,
     'move': HandleCommandTransfer,

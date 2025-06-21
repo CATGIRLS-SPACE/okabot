@@ -463,6 +463,18 @@ function sortPrices(a: number, b: number): -1 | 1 | 0 {
     return 0;
 }
 
+export function HandleCommandRender(interaction: ChatInputCommandInteraction) {
+    const sc = interaction.options.getSubcommand(true);
+    switch (sc) {
+        case 'coinflip':
+            GenerateCoinflipDataDisplay(interaction);
+            break;
+        
+        case 'stocks':
+            RenderStockDisplay(interaction);
+            break;
+    }
+}
 
 export const RenderSlashCommand = new SlashCommandBuilder()
     .setName('render')
@@ -471,4 +483,16 @@ export const RenderSlashCommand = new SlashCommandBuilder()
         .setName('coinflip')
         .setDescription('Render coinflip data')
         .addNumberOption(option => option.setName('length').setDescription('how many of the last coinflips to render').setRequired(false)),
+    )
+    .addSubcommand(sc => sc
+        .setName('stocks')
+        .setDescription('Render stock data')
+        .addStringOption(option => option.setName('stock').setDescription('which stock to render').setRequired(true).setChoices(
+            {name:'FXGL - Foxgirl', value:'foxgirl'},
+            {name:'DOGY - Doggirl', value:'doggirl'},
+            {name:'NEKO - Catgirl', value:'catgirl'},
+        ))
+        .addStringOption(option => option.setName('length').setDescription('length of render').setRequired(true).setChoices(
+            {name: 'Last 100', value:'100'}
+        )),
     );
