@@ -77,7 +77,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         CatgirlSlashCommand,
         StorySlashCommand,
         CraftSlashCommand,
-        StockSlashCommand,
+        // StockSlashCommand,
     ].map(command => command.toJSON());
 
     const L = new Logger('deployment');

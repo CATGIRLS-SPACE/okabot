@@ -88,6 +88,12 @@ export interface UserPet {
     last_interact: number, // when was the last time the user interacted with their pet
 }
 
+
+export function CalculatePetTargetXP(level: number): number {
+    return 250 + (150 * (level-1)) + Math.round(150 * ((level-1) * 0.01));
+}
+
+
 // MOST AWFUL, HORRENDOUS CODE YOU HAVE EVER SEEN BELOW!!!
 // YOU HAVE BEEN WARNED!
 
@@ -99,7 +105,8 @@ export function PetGetLikedFoodValue(seed: number, food: PetFood, favorite: PetF
     if (food == favorite) return PetLikeValue.FAVORITE;
 
     let values = [0,1,2,3];
-    return values[Math.round(food * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+    let picked = values[Math.round(food * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+    if (picked != 3) return picked; else return 2; // can't return 3 because that's favorite
 }
 
 export function PetGetLikedActivityValue(seed: number, activity: PetActivity, favorite: PetActivity): PetLikeValue {

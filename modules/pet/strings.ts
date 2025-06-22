@@ -14,13 +14,13 @@ export enum FOOD_STRING {
     DANGO_HATE,
 }
 
-const STRINGS: {[key: number]: string} = {
+export const SPECIAL_STRINGS: {[key: number]: string} = {
     // special feed strings
     100: "**$PET** likes the rice cracker--hey, wait! You're supposed to be focused on your grades!",
     101: "**$PET** hates the rice cracker. Guess they won't be eloping anytime soon...",
     102: "**$PET** thinks the lemon is *way* too sour...",
-    103: "grapes are poisonous to dogs...",
-    104: "**$PET** is nearly set on fire by how spicy the pepper is...",
+    103: ":x: **$PET** seems interested, but grapes are poisonous to dogs...",
+    104: "**$PET** is nearly set on fire by how spicy the pepper is... Needless to say, they didn't like it. At all.",
     105: "**$PET** absolutely loves waffles, it's their favorite!\n-# I love waffles too...if you know what I mean.",
     106: "**$PET** hates the waffle! It makes me upset to know that!",
     107: "**$PET** absolutely loves beans, it's their favorite! I wonder if they like naughty beans, too?",
@@ -58,4 +58,43 @@ export const FOOD_NAMES: Array<string> = [
     "🍡 Dango",
     "🫘 Beans",
     "🥝 Kiwi",
+];
+
+
+export const FOOD_NAMES_TYPED: Array<string> = [
+    "apple",
+    "lemon",
+    "banana",
+    "watermelon",
+    "grape",
+    "strawberry",
+    "blueberry",
+    "cherry",
+    "pineapple",
+    "tomato",
+    "cucumber",
+    "hotpepper",
+    "carrot",
+    "corn",
+    "potato",
+    "croissant",
+    "bread",
+    "cheese",
+    "pancakes",
+    "waffle",
+    "sushi",
+    "onigiri",
+    "ricecracker",
+    "oden",
+    "dango",
+    "beans",
+    "kiwi",
+];
+
+
+export const ACTIVITY_NAMES: Array<string> = [
+    "Playing",
+    "Sleeping",
+    "Hunting",
+    "Eating",
 ];

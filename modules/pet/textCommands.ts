@@ -1,11 +1,11 @@
-import {EmbedBuilder, Message} from "discord.js";
-import {FOOD_NAMES} from "./strings";
+import {EmbedBuilder, Message, TextChannel} from "discord.js";
+import {ACTIVITY_NAMES, FOOD_NAMES, FOOD_NAMES_TYPED, FOOD_STRING, SPECIAL_STRINGS} from "./strings";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {FOOD_PRICES, PET_EMOJIS, PET_NAMES} from "./common";
+import {FOOD_PRICES, FOOD_VALUES, PET_EMOJIS, PET_NAMES} from "./common";
 import {DEV} from "../../index";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {GetWallet, RemoveFromWallet} from "../okash/wallet";
-import {UserPet} from "./pet";
+import {CalculatePetTargetXP, PetFood, PetGetLikedFoodValue, PetLikeValue, PetType, UserPet} from "./pet";
 
 
 const allowed_subcommands: Array<string> = [
@@ -41,6 +41,20 @@ export async function PetParseTextCommand(message: Message) {
 
         case 'buy':
             SubcommandBuy(message, args);
+            break;
+
+        case 'status':
+            SubcommandStatus(message, args);
+            break;
+
+        case 'feed':
+            SubcommandFeed(message, args);
+            break;
+
+        case 'play':
+            break;
+
+        case 'hunt':
             break;
     }
 }
@@ -102,9 +116,16 @@ async function SubcommandList(message: Message, args: Array<string>) {
 
     // user has pets
     let index = 1;
+    const now = Math.round((new Date()).getTime() / 1000);
     let content = 'Your pets:\n'
     profile.pet_data.pets.forEach(pet => {
-        content += `${index}. LVL${pet.level} ${PET_EMOJIS[pet.type]} **${pet.name}**`;
+        if (pet.neglect_runaway_date < now && pet.level < 10) {
+            message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
+            profile.pet_data.pets.splice(profile.pet_data.pets.indexOf(pet), 1);
+            UpdateUserProfile(message.author.id, profile);
+            return;
+        }
+        content += `${index}. LVL**${pet.level}**  ${PET_EMOJIS[pet.type]} **${pet.name}**\n`;
         index++;
     });
 
@@ -137,7 +158,12 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
         case 'pet':
             if (!args[3]) return message.reply({content: ':x: Please tell me what pet you want to adopt!'});
             if (!['cat','dog','fox','wolf','bunny'].includes(args[3].toLowerCase())) return message.reply({content:':x: Not a valid pet! Valid pets are `cat, dog, fox, wolf, bunny`.'});
-            if (profile.okash.wallet < 100_000) return message.reply({content:':crying_cat_face: You don\'t have enough okash to adopt that pet!'})
+            if (profile.okash.wallet < 100_000) return message.reply({content:':crying_cat_face: You don\'t have enough okash to adopt that pet!'});
+
+            let has_neglectable_pet = false;
+            profile.pet_data.pets.forEach(pet => { if (pet.level < 10) has_neglectable_pet = true; });
+            if (has_neglectable_pet) return message.reply({content: ':crying_cat_face: Sorry, but you have a pet under level 10. Please level up your pet to level 10 to adopt another!'});
+            
             // create the pet
             profile.okash.wallet -= 100_000;
             const d = new Date();
@@ -172,11 +198,108 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
             profile.pet_data.pets.push(new_pet);
 
             message.reply({
-                content: `:purple_heart: You adopted a ${PET_NAMES[['cat','dog','fox','wolf','bunny'].indexOf(args[3].toLowerCase())]}! Be sure to take good care of it!`
+                content: `:purple_heart: You adopted a **${PET_NAMES[['cat','dog','fox','wolf','bunny'].indexOf(args[3].toLowerCase())]}**! Be sure to take good care of it!`
             });
 
             break;
     }
 
+    UpdateUserProfile(message.author.id, profile);
+}
+
+
+async function SubcommandStatus(message: Message, args: Array<string>) {
+    if (!args[2] || isNaN(parseInt(args[2]))) return message.reply({content:`:x: Please supply the number pet you want to view the status of! Use command \`o.pet list\` to see.`});
+
+    const profile = GetUserProfile(message.author.id);
+    if (profile.pet_data.pets.length == 0) return message.reply({content:':x: You don\'t have any pets yet!'});
+    if (profile.pet_data.pets.length < parseInt(args[2])) return message.reply({content:':x: You don\'t have that many pets!'});
+
+    const pet = profile.pet_data.pets[parseInt(args[2]) - 1];
+
+    const pet_fav_food = pet.favorite.unlocks.food?FOOD_NAMES[pet.favorite.food]:'[ ??? ]';
+    const pet_fav_activity = pet.favorite.unlocks.activity?ACTIVITY_NAMES[pet.favorite.activity]:'[ ??? ]';
+
+    message.reply({
+        content: `${PET_EMOJIS[pet.type]}  LVL**${pet.level}**  (${pet.xp}/${CalculatePetTargetXP(pet.level)}XP)  |  **${pet.name}**\n> Favorite Food: **${pet_fav_food}**  |  Favorite Activity: **${pet_fav_activity}**\n` +
+            `> Hunger: ${pet.hunger}/100  |  Energy: ${pet.energy}/100`
+    });
+}
+
+
+async function SubcommandFeed(message: Message, args: Array<string>) {
+    if (!args[2] || isNaN(parseInt(args[2]))) return message.reply({content:':x: Please give me the number of the pet you want to feed! Use `o.pet list` to see.'});
+    
+    const profile = GetUserProfile(message.author.id);
+    if (profile.pet_data.pets.length == 0) message.reply({content:':x: You don\'t have any pets yet!'});
+    if (profile.pet_data.pets.length < parseInt(args[2])) message.reply({content:':x: You don\'t have that many pets!'});
+
+    if (!args[3] || !FOOD_NAMES_TYPED.includes(args[3].toLowerCase())) return message.reply({content:':x: Not a valid food!\nIf your food has a space, join the two words (eg. `Rice Cracker` = `ricecracker`)'});
+    const food_id = FOOD_NAMES_TYPED.indexOf(args[3].toLowerCase());
+    if (!profile.pet_data.inventory.includes(food_id)) return message.reply({content:`You don't have any ${FOOD_NAMES[food_id]}!`});
+
+    // all checks passed, feed the pet
+    const pet = profile.pet_data.pets[parseInt(args[2]) - 1];
+
+    if (pet.type == PetType.DOG && food_id == PetFood.GRAPE) return message.reply({content:SPECIAL_STRINGS[FOOD_STRING.GRAPE_DOGS].replace('$PET', pet.name)});
+    
+    const d = new Date();
+    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 10) { 
+        message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
+
+        return;
+    }
+
+    if (pet.hunger + FOOD_VALUES[food_id][0] > 100) return message.reply({content:`${PET_EMOJIS[pet.type]} **${pet.name}** is too full to eat ${FOOD_NAMES[food_id]} right now!`});
+
+    profile.pet_data.inventory.splice(profile.pet_data.inventory.indexOf(food_id), 1);
+
+    pet.hunger += FOOD_VALUES[food_id][0];
+    pet.energy = Math.min(100, pet.energy + FOOD_VALUES[food_id][1]); // max of 100 energy
+
+    pet.stats.feeds++;
+
+    if (pet.level < 10) pet.neglect_runaway_date = Math.round(d.getTime()/1000) + (86400 * 5);
+    pet.last_interact = Math.round(d.getTime()/1000);
+
+    switch (PetGetLikedFoodValue(pet.seed, food_id, pet.favorite.food)) {
+        case PetLikeValue.HATES:
+            pet.xp += 5;
+            if (food_id == PetFood.RICE_CRACKER) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.RICE_CRACKER_HATE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.LEMON) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.LEMON_HATE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.WAFFLE) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.WAFFLE_HATE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.BEANS) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.BEANS_HATE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.DANGO) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.DANGO_HATE].replace('$PET', pet.name)});
+            else message.reply({content:`${PET_EMOJIS[pet.type]} **${pet.name}** eats a ${FOOD_NAMES[food_id]}, but they absolutely hate it!`});
+            break;
+
+        case PetLikeValue.LIKES:
+            pet.xp += 25;
+            message.reply({content:`${PET_EMOJIS[pet.type]} **${pet.name}** eats a ${FOOD_NAMES[food_id]}, they think it's alright.`});
+            break;
+
+        case PetLikeValue.LOVES:
+            pet.xp += 50;
+            if (food_id == PetFood.RICE_CRACKER) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.RICE_CRACKER_LIKE].replace('$PET', pet.name)});
+            else message.reply({content:`${PET_EMOJIS[pet.type]} **${pet.name}** eats a ${FOOD_NAMES[food_id]}, and they seem to really like it!`});
+            break;
+
+        case PetLikeValue.FAVORITE:
+            pet.xp += 150;
+            pet.favorite.unlocks.food = true;
+            if (food_id == PetFood.WAFFLE) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.WAFFLE_FAVORITE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.BEANS) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.BEANS_FAVORITE].replace('$PET', pet.name)});
+            else if (food_id == PetFood.DANGO) message.reply({content:PET_EMOJIS[pet.type] +' '+ SPECIAL_STRINGS[FOOD_STRING.DANGO_FAVORITE].replace('$PET', pet.name)});
+            else message.reply({content:`${PET_EMOJIS[pet.type]} **${pet.name}** eats a ${FOOD_NAMES[food_id]}, and they really, really like it, it's their favorite!`});
+            break;
+    }
+
+    if (pet.xp >= CalculatePetTargetXP(pet.level)) {
+        pet.xp -= CalculatePetTargetXP(pet.level);
+        pet.level++;
+        (message.channel as TextChannel).send({content: `:tada: Congrats, **${message.author.displayName}**! ${PET_EMOJIS[pet.type]} **${pet.name}** has leveled up to LVL**${pet.level}**!`});
+    }
+
+    profile.pet_data.pets[parseInt(args[2]) - 1] = pet;
     UpdateUserProfile(message.author.id, profile);
 }
