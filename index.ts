@@ -96,6 +96,7 @@ import { GrantStoryAccess, ReadChapterData } from "./modules/story/lorebook";
 import { HandleCommandStory } from "./modules/interactions/story";
 import {HandleCommandCraft} from "./modules/interactions/craft";
 import { SetupStocks } from "./modules/okash/stock";
+import {PetParseTextCommand} from "./modules/pet/textCommands";
 
 
 export const client = new Client({
@@ -350,6 +351,7 @@ client.on(Events.MessageCreate, async message => {
     //     const chapter_data: string = await ReadChapterData(parseInt(message.content.split(' ')[1]), parseInt(message.content.split(' ')[2])-1);
     //     message.reply(chapter_data);
     // }
+    if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
     if (message.content.toLowerCase().startsWith('okabot, ')) {
         if (!CONFIG.gemini.enable) return;

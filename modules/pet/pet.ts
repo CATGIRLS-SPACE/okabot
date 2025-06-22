@@ -1,0 +1,114 @@
+
+
+
+export enum PetType {
+    CAT,
+    DOG,
+    FOX,
+    WOLF,
+    BUNNY,
+}
+
+export enum PetFood {
+    APPLE,
+    LEMON,
+    BANANA,
+    WATERMELON,
+    GRAPE,
+    STRAWBERRY,
+    BLUEBERRY,
+    CHERRY,
+    PINEAPPLE,
+    TOMATO,
+    CUCUMBER,
+    HOT_PEPPER,
+    CARROT,
+    CORN,
+    POTATO,
+    CROISSANT,
+    BREAD,
+    CHEESE,
+    PANCAKES,
+    WAFFLE,
+    SUSHI,
+    ONIGIRI,
+    RICE_CRACKER,
+    ODEN,
+    DANGO,
+    BEANS,
+    KIWI,
+}
+
+export enum PetLikeValue {
+    HATES,
+    LIKES,
+    LOVES,
+    FAVORITE
+}
+
+export enum PetActivity {
+    PLAYING,
+    SLEEPING,
+    HUNTING,
+    EATING,
+}
+
+export interface UserPet {
+    name: string,
+    type: PetType,
+    level: number, // if the pet is less than rank 10, it has a chance of running away if neglected
+    xp: number,
+    adopt_date: number,
+    neglect_runaway_date: number, // when the pet will run away if neglected
+    serial: string, // unique identifier for this pet
+    seed: number, // randomness seed for this pet
+    stats: {
+        dailies: number, // how many dailies claimed
+        hunts: {
+            items: number, // how many items the pet has brought back
+            scraps: number, // how many scraps the pet has brought back
+            food: number, // how many food items the pet has brought back
+        },
+        feeds: number, // how many times the user has fed the pet
+        plays: number, // how many times the user has done an activity with the pet
+    },
+    flags: {
+        claim_next_daily: boolean, // will the pet automatically claim the next daily?
+    },
+    favorite: { // the pet's favorite xyz
+        unlocks: { // has the user discovered their pet's favorite thing yet?
+            food: boolean,
+            activity: boolean
+        },
+        food: PetFood,
+        activity: PetActivity
+    },
+    hunger: number,
+    energy: number,
+    last_interact: number, // when was the last time the user interacted with their pet
+}
+
+// MOST AWFUL, HORRENDOUS CODE YOU HAVE EVER SEEN BELOW!!!
+// YOU HAVE BEEN WARNED!
+
+export function PetGetLikedFoodValue(seed: number, food: PetFood, favorite: PetFood): PetLikeValue {
+    // a really stupid way of doing seeded randomness for food like values
+    // returns 0-3 based on like value
+
+    // will always return favorite for predetermined favorite food
+    if (food == favorite) return PetLikeValue.FAVORITE;
+
+    let values = [0,1,2,3];
+    return values[Math.round(food * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+}
+
+export function PetGetLikedActivityValue(seed: number, activity: PetActivity, favorite: PetActivity): PetLikeValue {
+    // a really stupid way of doing seeded randomness for activity like values
+    // returns 0-3 based on like value
+
+    // will always return favorite for predetermined favorite activity
+    if (activity == favorite) return PetLikeValue.FAVORITE;
+
+    let values = [0,1,2,3];
+    return values[Math.round(activity * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+}

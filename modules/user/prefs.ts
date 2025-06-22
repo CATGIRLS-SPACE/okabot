@@ -6,6 +6,7 @@ import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "disc
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 import {Wallet} from "../okash/wallet";
+import {UserPet} from "../pet/pet";
 
 const L = new Logger('profiles');
 
@@ -107,6 +108,10 @@ export interface USER_PROFILE {
     achievements: Array<Achievements>,
     trackedInventory: Array<string>,
     story_unlocks: Array<number>,
+    pet_data: {
+        pets: Array<UserPet>,
+        inventory: Array<number>,
+    },
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -166,6 +171,10 @@ const DEFAULT_DATA: USER_PROFILE = {
     achievements: [],
     trackedInventory: [],
     story_unlocks: [],
+    pet_data: {
+        pets: [],
+        inventory: [],
+    },
 }
 
 var PROFILES_DIR: string | null = null;
@@ -216,6 +225,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
     if (!data.story_unlocks) data.story_unlocks = [];
     if (!data.inventory_scraps) data.inventory_scraps = {metal: 0, plastic: 0, wood: 0, rubber: 0, electrical: 0 };
+    if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
 
     ProfileCache.set(user_id, data);
 
