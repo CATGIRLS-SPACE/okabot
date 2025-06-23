@@ -83,7 +83,7 @@ async function SubcommandShop(message: Message, args: Array<string>) {
             break;
 
         case 'food3':
-            embed = new EmbedBuilder().setAuthor({name:message.author.displayName}).setTitle('Food Shop (page 2/3)').setColor(0x9d60cc);
+            embed = new EmbedBuilder().setAuthor({name:message.author.displayName}).setTitle('Food Shop (page 3/3)').setColor(0x9d60cc);
             for (let i = 18; i < 27; i++) {
                 embed.addFields({name:FOOD_NAMES[i],value:`\`(ID ${i+1})\` ${GetEmoji(EMOJI.OKASH)} OKA**${FOOD_PRICES[i]}**`});
             }
@@ -95,7 +95,7 @@ async function SubcommandShop(message: Message, args: Array<string>) {
                 {name: '🐕 Dog', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
                 {name: '🦊 Fox', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
                 {name: '🐺 Wolf', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
-                {name: '🐇 Bunny', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
+                {name: `${GetEmoji(EMOJI.BOOST)}☕ 🐇 Bunny`, value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
             );
             break;
     }
@@ -160,6 +160,22 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
             if (!['cat','dog','fox','wolf','bunny'].includes(args[3].toLowerCase())) return message.reply({content:':x: Not a valid pet! Valid pets are `cat, dog, fox, wolf, bunny`.'});
             if (profile.okash.wallet < 100_000) return message.reply({content:':crying_cat_face: You don\'t have enough okash to adopt that pet!'});
 
+            if (args[3].toLowerCase() == 'bunny') {
+                // ensure the user is a booster/donator
+                let donator = false;
+                // only ko-fi donator is tacobella03
+                if (message.author.id == '502879264081707008') donator = true;
+                // boost role
+                const guild = message.client.guilds.cache.get(message.guild!.id)!;
+                const booster_role = !DEV?guild.roles.premiumSubscriberRole:guild.roles.cache.find(role => role.name == 'fake booster role');
+                console.log(`booster role found? ${booster_role?'yes':'no'}`);
+                const user_is_booster = booster_role?guild.members.cache.get(message.author.id)!.roles.cache.some(role => role.id === booster_role.id):false;
+                console.log(`user is booster? ${user_is_booster?'yes':'no'}`);
+                if (!user_is_booster && !donator) return message.reply({
+                    content: `:crying_cat_face: Sorry, **${message.author.displayName}**, but you need to either be a donator or server booster to adopt this type of pet!`
+                });
+            }
+
             let has_neglectable_pet = false;
             profile.pet_data.pets.forEach(pet => { if (pet.level < 10) has_neglectable_pet = true; });
             if (has_neglectable_pet) return message.reply({content: ':crying_cat_face: Sorry, but you have a pet under level 10. Please level up your pet to level 10 to adopt another!'});
@@ -173,7 +189,7 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
                 name: `${message.author.displayName}'s ${PET_NAMES[['cat','dog','fox','wolf','bunny'].indexOf(args[3].toLowerCase())]}`,
                 type: ['cat','dog','fox','wolf','bunny'].indexOf(args[3].toLowerCase()),
                 adopt_date: Math.floor(d.getTime()/1000),
-                neglect_runaway_date: Math.floor(d.getTime()/1000)+(86400)*5, // 5 days until neglect runaway
+                neglect_runaway_date: Math.floor(d.getTime()/1000)+(86400)*3, // 3 days until neglect runaway
                 serial: crypto.randomUUID(),
                 energy: 50,
                 hunger: 50,
@@ -217,6 +233,13 @@ async function SubcommandStatus(message: Message, args: Array<string>) {
 
     const pet = profile.pet_data.pets[parseInt(args[2]) - 1];
 
+    const d = new Date();
+    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 10) {
+        message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
+        profile.pet_data.pets.splice(profile.pet_data.pets.indexOf(pet));
+        return;
+    }
+
     const pet_fav_food = pet.favorite.unlocks.food?FOOD_NAMES[pet.favorite.food]:'[ ??? ]';
     const pet_fav_activity = pet.favorite.unlocks.activity?ACTIVITY_NAMES[pet.favorite.activity]:'[ ??? ]';
 
@@ -246,7 +269,8 @@ async function SubcommandFeed(message: Message, args: Array<string>) {
     const d = new Date();
     if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 10) { 
         message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
-
+        profile.pet_data.pets.splice(profile.pet_data.pets.indexOf(pet));
+        UpdateUserProfile(message.author.id, profile);
         return;
     }
 
@@ -259,7 +283,7 @@ async function SubcommandFeed(message: Message, args: Array<string>) {
 
     pet.stats.feeds++;
 
-    if (pet.level < 10) pet.neglect_runaway_date = Math.round(d.getTime()/1000) + (86400 * 5);
+    if (pet.level < 10) pet.neglect_runaway_date = Math.round(d.getTime()/1000) + (86400 * 3);
     pet.last_interact = Math.round(d.getTime()/1000);
 
     switch (PetGetLikedFoodValue(pet.seed, food_id, pet.favorite.food)) {

@@ -73,6 +73,8 @@ export enum EMOJI {
     SCRAP_WOOD = 'scw',
     SCRAP_RUBBER = 'scr',
     SCRAP_ELECTRICAL = 'sce',
+    // etc
+    BOOST = 'boost',
 }
 
 const EMOJI_KEYS: {
@@ -177,7 +179,9 @@ const EMOJI_KEYS: {
     'scm':{prod:'1385422056811659395',dev:'1385396929101299803'},
     'scw':{prod:'1385422079792386108',dev:'1385396946146951178'},
     'scr':{prod:'1385422093658886174',dev:'1385396958130081984'},
-    'sce':{prod:'1385422104777986069',dev:'1385396976593670234'}
+    'sce':{prod:'1385422104777986069',dev:'1385396976593670234'},
+    // etc
+    'boost':{prod:'',dev:'1386506534426775552'},
 }
 
 export function GetEmoji(name: string): string {

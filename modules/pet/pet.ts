@@ -94,6 +94,13 @@ export function CalculatePetTargetXP(level: number): number {
 }
 
 
+export function UpdatePetStatusValues(pet: UserPet): {hunger: number, energy: number} {
+    // pets lose hunger twice an hour
+    const now = Math.round((new Date()).getTime()/1000);
+
+}
+
+
 // MOST AWFUL, HORRENDOUS CODE YOU HAVE EVER SEEN BELOW!!!
 // YOU HAVE BEEN WARNED!
 

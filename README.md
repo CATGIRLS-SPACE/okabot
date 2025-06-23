@@ -1,3 +1,8 @@
+# thanks to the donators/boosters! <3 you guys
+- **tacobella03** (Ko-Fi donator)
+- KBGKaden (booster)
+- JadyLan (booster)
+
 # style guide (sorta)! :3
 
 - okabot is not serious, there should be no harsh language that isn't implemented jokingly.
