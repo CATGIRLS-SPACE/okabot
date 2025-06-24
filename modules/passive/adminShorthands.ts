@@ -4,7 +4,7 @@ import {
     BASE_DIRNAME,
     client, CONFIG,
     LISTENING, SetLastLocale,
-    SetListening
+    SetListening, ToggleDisableOfCommand
 } from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
@@ -277,9 +277,17 @@ export function RegisterAllShorthands() {
     // maintenance
 
     RegisterShorthand('oka toggle', async (message: Message, params: string[]) => {
-        SetListening(!LISTENING);
-        await message.reply({
-            content:LISTENING?`Okaaaay, I'll start listening to commands now!`:`Okaaaay, I'll hold off on command handling for now.`
+        if (!params[2]) {
+            SetListening(!LISTENING);
+
+            return await message.reply({
+                content:LISTENING?`Okaaaay, I'll start listening to commands now!`:`Okaaaay, I'll hold off on command handling for now.`
+            });
+        }
+
+        const enabled = !ToggleDisableOfCommand(params[2]);
+        message.reply({
+            content:enabled?`Okaaaay, I've enabled listening for \`/${params[2]}\`!`:`Okaaaay, I've disabled listening for \`${params[2]}\``
         });
     });
 

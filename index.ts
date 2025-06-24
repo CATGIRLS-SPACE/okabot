@@ -38,6 +38,7 @@ export const CONFIG: {
     story_key: string,
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
+    minecraft_relay_key: string,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
@@ -107,8 +108,6 @@ export const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildPresences,
-        GatewayIntentBits.GuildMessageTyping,
     ],
     partials: [
         Partials.Message,
@@ -131,6 +130,13 @@ const DEPLOY_COMMANDS = process.argv.includes('--deploy');
  * @param active Whether it should be listening to commands or not
  */
 export function SetListening(active: boolean) {LISTENING = active}
+
+export function ToggleDisableOfCommand(command: string): boolean {
+    if (TEMPORARILY_DISABLED_COMMANDS.includes(command)) TEMPORARILY_DISABLED_COMMANDS.splice(TEMPORARILY_DISABLED_COMMANDS.indexOf(command), 1);
+    else TEMPORARILY_DISABLED_COMMANDS.push(command);
+
+    return TEMPORARILY_DISABLED_COMMANDS.includes(command);
+}
 
 /**
  * Start the bot and log in
@@ -251,7 +257,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
-    'story': HandleCommandStory,
+    // 'story': HandleCommandStory,
     'craft': HandleCommandCraft,
 }
 
@@ -259,6 +265,10 @@ const ALLOWED_COMMANDS_IN_DMS = [
     '8ball',
     'recent-eq',
     'catgirl'
+];
+
+const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
+
 ];
 
 const LAST_USER_LOCALE = new Map<Snowflake, string>();
@@ -279,9 +289,10 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
-    // if a user is super banned, okabot just won't respond to them
-    // this is implemented but not used because this is a private bot rn
-    if (IsUserBanned(interaction.user.id)) return;
+    // if a user is super banned, okabot will stop here
+    if (IsUserBanned(interaction.user.id)) return interaction.reply({
+        content: `:x: You are currently **banned** from using okabot. Please contact a bot admin to appeal your ban.`
+    });
 
     // this should never trigger but its a catch just in case it does happen somehow
     if ((!interaction.channel || interaction.channel.isDMBased()) && !ALLOWED_COMMANDS_IN_DMS.includes(interaction.commandName)) return interaction.reply({
@@ -291,7 +302,11 @@ client.on(Events.InteractionCreate, async interaction => {
 
     if (!HANDLERS[interaction.commandName]) return interaction.reply('No registered handler for this command. This is a bug.');
 
+    // emergency killswitch for commands and bugs
     if (!LISTENING) return interaction.reply(`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to not respond to commands for now!`);
+    if (TEMPORARILY_DISABLED_COMMANDS.includes(interaction.commandName)) return interaction.reply({
+        content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to disable this command temporarily. This is probably due to a bug that could be exploited. Please try again later.`
+    });
 
     L.info(`Execute command "${interaction.commandName}"`);
 
@@ -330,38 +345,35 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
-    if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
+
+    // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
     // various checks
     await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
     DoLeveling(message); // self-explanatory
     CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
-    WordleCheck(message); // checks for wordle spoilers
+    if (message.channel.id == "1310486655257411594") WordleCheck(message); // checks for wordle spoilers
     DoRandomDrops(message); // drops!
     ListenForRouletteReply(message); // checks for number in response to roulette game
     Check$Message(message); // checks for $ messages, for serials on tracked items
     CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
-    CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
+    // CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
-    // if (message.content.startsWith('o.storytest')) { 
-    //     const chapter_data: string = await ReadChapterData(parseInt(message.content.split(' ')[1]), parseInt(message.content.split(' ')[2])-1);
-    //     message.reply(chapter_data);
-    // }
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
-    if (message.content.toLowerCase().startsWith('okabot, ')) {
-        if (!CONFIG.gemini.enable) return;
-        GeminiDemoRespondToInquiry(message);
-    }
-
-    if (message.reference) {
-        let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
-        if (reference.content.includes('-# GenAI')) GeminiDemoReplyToConversationChain(message);
-    }
+    // if (message.content.toLowerCase().startsWith('okabot, ')) {
+    //     if (!CONFIG.gemini.enable) return;
+    //     GeminiDemoRespondToInquiry(message);
+    // }
+    //
+    // if (message.reference) {
+    //     let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+    //     if (reference.content.includes('-# GenAI')) GeminiDemoReplyToConversationChain(message);
+    // }
 
     // minecraft server
     if (message.channel.id == "1321639990383476797" || message.channel.id == '858904835222667315') { // #mc-live-chat
@@ -388,24 +400,12 @@ client.on(Events.MessageCreate, async message => {
         }
 
         // send the message to the minecraft server
-        if (!DEV) fetch('https://bot.lilycatgirl.dev/okabot/discord', {
+        if (!DEV) fetch(`https://bot.lilycatgirl.dev/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',
                 username: message.author.username==message.author.displayName?`@${message.author.username}`:message.author.displayName,
                 message: final_message + attachlink
-            })
-        });
-    }
-});
-
-client.on(Events.TypingStart, async typingEvent => {
-    L.debug("someone typing...");
-    if (typingEvent.channel.id == "1321639990383476797") {
-        fetch('https://bot.lilycatgirl.dev/okabot/discord', {
-            method: 'POST',
-            body: JSON.stringify({
-                event: 'typing', username:typingEvent.user.username==typingEvent.user.displayName?`@${typingEvent.user.username}`:typingEvent.user.displayName,
             })
         });
     }
@@ -472,7 +472,7 @@ process.on('uncaughtException', async (reason) => {
     L.error('okabot has encountered an uncaught exception!');
     console.error('Uncaught Exception:', reason);
     try {
-        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315") as TextChannel;
+        const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315") as TextChannel;
         await channel.send({content:':warning: okabot has encountered an uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
     } catch(err) {
         L.error('could not send report!!');
@@ -489,7 +489,7 @@ process.on('unhandledRejection', async (reason: any) => {
     L.error('okabot has encountered an uncaught rejection!');
     console.error('Unhandled Rejection:', reason);
     try {
-        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
+        const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315")! as TextChannel;
         await channel.send({content:':warning: okabot has encountered an uncaught rejection! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```'});
         // await channel.send({content:`:warning: okabot encountered an uncaught rejection! `});
     } catch(err) {
@@ -503,7 +503,7 @@ export async function ManuallySendErrorReport(reason: string, silent: boolean) {
     L.error('okabot has encountered a manual error report!');
     console.error('reason:', reason);
     try {
-        const channel = client.channels.cache.get(!DEV?"1315805846910795846":"858904835222667315")! as TextChannel;
+        const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315")! as TextChannel;
         await channel.send({
             content:':warning: okabot has encountered a recoverable error! here\'s the recorded reason:\n'+'```'+ reason +'```\n' + new Error().stack!.split('\n')[2].trim(),
             flags:silent?[MessageFlags.SuppressNotifications]:[]

@@ -3,15 +3,13 @@ import { EMOJI, GetEmoji, GetEmojiID } from "../../util/emoji";
 import {LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 
-const STRINGS: {[key: string]: {en:string,ja:string}} = {
-
-};
-
-
 const FirstPage = 
 `
 # Welcome to okabot!
 Choose a menu below to see information!
+
+:grey_exclamation: okabot just went publicly available! There may be some bugs!
+If you encounter any, please report them [here](<https://github.com/okawaffles/okabot/issues/new>)!
 `
 
 const CurrencyPage =
@@ -93,9 +91,10 @@ whereas large drops are more okash but less common.
 const EarthquakePage = 
 `
 # Earthquakes
+## Auto Reports (CATGIRL CENTRAL-exclusive feature):
 okabot is connected to [Project DM-D.S.S](<https://dmdata.jp>) to get live earthquake information.
 When a new one is detected, a message is sent in <#1313343448354525214>
-## Magnitude vs Shindo
+## Magnitude vs Shindo (try /recent-eq)
 okabot shows both the earthquake magnitude and Shindo level. So what's the difference?
 The magnitude of an earthquake is the educated estimation of the intensity at the epicenter.
 The Shindo level is a recorded intensity felt at a station (listed as "Maximum Intensity").
@@ -105,19 +104,34 @@ common method of showing intensity in Japanese earthquake research.
 You see the difference between the levels [here](<https://www.data.jma.go.jp/multi/quake/quake_advisory.html>).
 `
 
+const PetsPage =
+`
+# Pets
+okabot has a pets feature where you can adopt an animal of your choice and take care of it.
+You may adopt as many pets as you wish, but you must level up your most recent pet to level 25 before you can adopt another.
+The Bunny pet is a supporter-exclusive pet. You must either support on Ko-Fi or boost CATGIRL CENTRAL.
+
+Pets are unique. They each are assigned a seed which determines their most-liked and most-disliked foods.
+Be careful! If you neglect a pet for 3 days or more and they're under level 25, they'll run away!
+Pets can do some special things! If you take care of them enough, they might surprise you with something!
+`
+
 
 const ExtraPage =
 `
 # Extra info
-okabot is created with the intent to be free and fun. If you want to support, you can do so [here](<https://ko-fi.com/okawaffles>).
+okabot is created with the intent to be free and fun. 
+If you want to support me and his development, you can do so [here](<https://ko-fi.com/okawaffles>).
 
 okabot is available in English and Japanese. It will reflect your Discord language. 
 Not all features are 100% translated, and some translations may be inaccurate.
 If you would like to help translate okabot into another language, please contact okawaffles.
 
-okabot is only available in CATGIRL CENTRAL. Any bots outside of CATGIRL CENTRAL named okabot are not official.
+okabot was originally intended to be an exclusive bot for a specific server.
+I'm in the process of converting it to be able to be used in any server.
+If there are any bugs you encounter, please report them [here](<https://github.com/okawaffles/okabot/issues/new>)!
 
-Thanks for using okabot, it means a lot to me ${GetEmoji(EMOJI.NEKOHEART)}
+Thanks for using okabot, it really does mean a lot to me ${GetEmoji(EMOJI.NEKOHEART)}
 `
 
 
@@ -162,9 +176,15 @@ const select_menu = new StringSelectMenuBuilder()
         
         new StringSelectMenuOptionBuilder()
             .setLabel('Drops')
-            .setDescription('Get information on drops')
+            .setDescription('Get information on how drops work')
             .setValue('drops')
             .setEmoji('📦'),
+
+        new StringSelectMenuOptionBuilder()
+            .setLabel('Pets')
+            .setDescription('Get information on how pets work')
+            .setValue('pets')
+            .setEmoji('🦊'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('Extra')
@@ -227,6 +247,13 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
             case 'drops':
                 await i.update({
                     content: await LangGetAutoTranslatedStringRaw(DropsPage, interaction.okabot.translateable_locale),
+                    components: [row]
+                });
+                break;
+
+            case 'pets':
+                await i.update({
+                    content: await LangGetAutoTranslatedStringRaw(PetsPage, interaction.okabot.translateable_locale),
                     components: [row]
                 });
                 break;

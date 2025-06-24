@@ -72,6 +72,7 @@ export async function PetParseTextCommand(message: Message) {
 }
 
 async function DebugSeed(seed: number, message: Message) {
+    if (!DEV) return message.reply({content:':x: That subcommand isn\'t available unless the bot is running in developer mode!'});
     let final = `## Seed \`${seed}\` Food Values:\n`
     for (let i = 0; i < 26; i++) {
         const like_value = ['HATE','LIKE','LOVE','FAVORITE'][PetGetLikedFoodValue(seed, i, -1)];
@@ -199,8 +200,8 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
             }
 
             let has_neglectable_pet = false;
-            profile.pet_data.pets.forEach(pet => { if (pet.level < 10) has_neglectable_pet = true; });
-            if (has_neglectable_pet) return message.reply({content: ':crying_cat_face: Sorry, but you have a pet under level 10. Please level up your pet to level 10 to adopt another!'});
+            profile.pet_data.pets.forEach(pet => { if (pet.level < 25) has_neglectable_pet = true; });
+            if (has_neglectable_pet) return message.reply({content: ':crying_cat_face: Sorry, but you have a pet under level 25. Please level up your pet to level 25 to adopt another!'});
             
             // create the pet
             profile.okash.wallet -= 100_000;
@@ -256,7 +257,7 @@ async function SubcommandStatus(message: Message, args: Array<string>) {
     const pet = profile.pet_data.pets[parseInt(args[2]) - 1];
 
     const d = new Date();
-    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 10) {
+    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 25) {
         message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
         profile.pet_data.pets.splice(profile.pet_data.pets.indexOf(pet));
         return;
@@ -291,7 +292,7 @@ async function SubcommandFeed(message: Message, args: Array<string>) {
     if (pet.type == PetType.DOG && food_id == PetFood.GRAPE) return message.reply({content:SPECIAL_STRINGS[FOOD_STRING.GRAPE_DOGS].replace('$PET', pet.name)});
     
     const d = new Date();
-    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 10) { 
+    if (Math.round(d.getTime()/1000) > pet.neglect_runaway_date && pet.level < 25) {
         message.reply({content:`:crying_cat_face: You neglected ${PET_EMOJIS[pet.type]} **${pet.name}**, and they ran away...\nPlease try to take better care of your pets.`});
         profile.pet_data.pets.splice(profile.pet_data.pets.indexOf(pet));
         UpdateUserProfile(message.author.id, profile);

@@ -23,11 +23,14 @@ server.set('views', join(__dirname, 'page'));
 server.get('/minecraft', (req, res) => {
     res.send('cannot get this route, please post instead.');
 });
+// @ts-ignore why is typescript suddenly so upset with express?
 server.post('/minecraft', async (req: Request, res: Response) => {
     // console.log('request: ', req.body);
-    res.status(200).end();
-    
     if (DEV) return;
+
+    if (!req.query.key || req.query.key != CONFIG.minecraft_relay_key) return res.status(401).json({success:false,reason:'invalid key'});
+
+    res.status(200).json({success:true});
     
     switch (req.body.type) {
         case 'chat':
