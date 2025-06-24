@@ -5,7 +5,15 @@ import {FOOD_PRICES, FOOD_VALUES, PET_EMOJIS, PET_NAMES} from "./common";
 import {DEV} from "../../index";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {GetWallet, RemoveFromWallet} from "../okash/wallet";
-import {CalculatePetTargetXP, PetFood, PetGetLikedFoodValue, PetLikeValue, PetType, UserPet} from "./pet";
+import {
+    CalculatePetTargetXP,
+    PetFood,
+    PetGetLikedFoodValue,
+    PetLikeValue,
+    PetType,
+    UpdatePetStatusValues,
+    UserPet
+} from "./pet";
 
 
 const allowed_subcommands: Array<string> = [
@@ -26,7 +34,7 @@ export async function PetParseTextCommand(message: Message) {
     if (!DEV) return message.reply({content:':hourglass: That feature isn\'t ready quite yet!'});
 
     const args = message.content.split(' ');
-    if (!args[1] || !allowed_subcommands.includes(args[1].toLowerCase())) return message.reply({
+    if (!args[1] || !allowed_subcommands.includes(args[1].toLowerCase()) && !DEV) return message.reply({
         content: ':x: Invalid subcommand. Valid subcommands are: `' + allowed_subcommands.join(', ') + '`.'
     });
 
@@ -56,7 +64,21 @@ export async function PetParseTextCommand(message: Message) {
 
         case 'hunt':
             break;
+
+        case 'debug-seed':
+            DebugSeed(parseInt(args[2]), message);
+            break;
     }
+}
+
+async function DebugSeed(seed: number, message: Message) {
+    let final = `## Seed \`${seed}\` Food Values:\n`
+    for (let i = 0; i < 26; i++) {
+        const like_value = ['HATE','LIKE','LOVE','FAVORITE'][PetGetLikedFoodValue(seed, i, -1)];
+        final += `- ${FOOD_NAMES[i]}: ${like_value}\n`;
+    }
+
+    message.reply({content:final});
 }
 
 
@@ -243,9 +265,11 @@ async function SubcommandStatus(message: Message, args: Array<string>) {
     const pet_fav_food = pet.favorite.unlocks.food?FOOD_NAMES[pet.favorite.food]:'[ ??? ]';
     const pet_fav_activity = pet.favorite.unlocks.activity?ACTIVITY_NAMES[pet.favorite.activity]:'[ ??? ]';
 
+    const values = UpdatePetStatusValues(pet);
+
     message.reply({
         content: `${PET_EMOJIS[pet.type]}  LVL**${pet.level}**  (${pet.xp}/${CalculatePetTargetXP(pet.level)}XP)  |  **${pet.name}**\n> Favorite Food: **${pet_fav_food}**  |  Favorite Activity: **${pet_fav_activity}**\n` +
-            `> Hunger: ${pet.hunger}/100  |  Energy: ${pet.energy}/100`
+            `> Hunger: ${values.hunger}/100  |  Energy: ${values.energy}/100`
     });
 }
 

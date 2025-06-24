@@ -37,6 +37,8 @@ export enum PetFood {
     DANGO,
     BEANS,
     KIWI,
+
+    DEBUG = -1,
 }
 
 export enum PetLikeValue {
@@ -95,14 +97,14 @@ export function CalculatePetTargetXP(level: number): number {
 
 
 export function UpdatePetStatusValues(pet: UserPet): {hunger: number, energy: number} {
-    // pets lose hunger twice an hour
+    // pets lose hunger and energy twice an hour
+    // pets can only naturally go down to 25 energy and will instead gain energy if they are below 25
     const now = Math.round((new Date()).getTime()/1000);
-
+    const hours_elapsed = Math.round((now-pet.last_interact) / 1600);
+    let energy = Math.max(25, pet.energy - hours_elapsed);
+    if (pet.energy < 25) energy = Math.min(25, pet.energy + hours_elapsed);
+    return {hunger: Math.max(pet.hunger-hours_elapsed, 0), energy};
 }
-
-
-// MOST AWFUL, HORRENDOUS CODE YOU HAVE EVER SEEN BELOW!!!
-// YOU HAVE BEEN WARNED!
 
 export function PetGetLikedFoodValue(seed: number, food: PetFood, favorite: PetFood): PetLikeValue {
     // a really stupid way of doing seeded randomness for food like values
@@ -112,7 +114,7 @@ export function PetGetLikedFoodValue(seed: number, food: PetFood, favorite: PetF
     if (food == favorite) return PetLikeValue.FAVORITE;
 
     let values = [0,1,2,3];
-    let picked = values[Math.round(food * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+    let picked = values[((1664525 * (seed + (food*3%5)) * (1013904223)) % (2 ** 32)) % 3];
     if (picked != 3) return picked; else return 2; // can't return 3 because that's favorite
 }
 
@@ -124,5 +126,6 @@ export function PetGetLikedActivityValue(seed: number, activity: PetActivity, fa
     if (activity == favorite) return PetLikeValue.FAVORITE;
 
     let values = [0,1,2,3];
-    return values[Math.round(activity * (seed*(seed*0xff/seed*seed)/(seed*4))/seed*(seed*(10/seed)))%3] // a REALLY stupid way of doing this lmao
+    let picked = values[((1664525 * (seed + (activity*3%5)) * (1013904223)) % (2 ** 32)) % 3];
+    if (picked != 3) return picked; else return 2; // can't return 3 because that's favorite
 }
