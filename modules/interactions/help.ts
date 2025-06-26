@@ -10,6 +10,8 @@ Choose a menu below to see information!
 
 :grey_exclamation: okabot just went publicly available! There may be some bugs!
 If you encounter any, please report them [here](<https://github.com/okawaffles/okabot/issues/new>)!
+
+Join the official okabot Discord: discord.gg/2yznVpbuCw
 `
 
 const CurrencyPage =

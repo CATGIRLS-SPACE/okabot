@@ -105,12 +105,10 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     await interaction.deferReply();
     if (override_user_with) interaction.user = override_user_with;
 
-    // get active booster role
-    const guild = interaction.client.guilds.cache.get(interaction.guild!.id)!;
-    const booster_role = !DEV?guild.roles.premiumSubscriberRole:guild.roles.cache.find(role => role.name == 'fake booster role');
-    console.log(`booster role found? ${booster_role?'yes':'no'}`);
-    const user_is_booster = booster_role?guild.members.cache.get(interaction.user.id)!.roles.cache.some(role => role.id === booster_role.id):false;
-    console.log(`user is booster? ${user_is_booster?'yes':'no'}`);
+    const supporter = GetUserSupportStatus(interaction.user.id);
+    const user_is_booster = supporter == 'booster';
+    const dev_status = GetUserDevStatus(interaction.user.id);
+    const tester_status = GetUserTesterStatus(interaction.user.id);
 
     // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
@@ -179,8 +177,8 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fill();
     // labels
     let offset_width = 0; // so that we can display the booster tag no matter what
-    if (interaction.user.id == "796201956255334452" || interaction.user.id == "502879264081707008") {
-        ctx.fillStyle = '#6ef5b6';
+    if (dev_status != 'none') {
+        ctx.fillStyle = dev_status=='contributor'?'#6eeaf5':'#6ef5b6';
         ctx.beginPath();
         ctx.roundRect(20, 52, 88, 23, 6);
         ctx.fill();
@@ -188,18 +186,27 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.strokeStyle = '#1b3b2c';
         ctx.stroke();
         ctx.closePath();
-        // ctx.beginPath();
-        // ctx.roundRect(22, 48, 113, 28, 12);
-        // ctx.stroke();
-        // ctx.closePath();
         ctx.fillStyle = '#1b3b2c';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('DEVELOPER', offset_width + 26, 68);
         offset_width += 95;
     }
     // bugtest
-    // 566671009189462038
-    if (interaction.user.id == "566671009189462038" || interaction.user.id == "619655596215369749" || interaction.user.id == "502879264081707008") {
+    if (tester_status == 'cgc-beta') {
+        ctx.fillStyle = '#876ef5';
+        ctx.beginPath();
+        ctx.roundRect(offset_width + 20, 52, 62, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#1b1630';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#1b1630';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('LEGACY', offset_width + 26, 68);
+        offset_width += 72-5;
+    }
+    if (tester_status == 'public') {
         ctx.fillStyle = '#876ef5';
         ctx.beginPath();
         ctx.roundRect(offset_width + 20, 52, 62, 23, 6);
@@ -213,8 +220,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.fillText('TESTER', offset_width + 26, 68);
         offset_width += 72-5;
     }
-    // 502879264081707008
-    if (interaction.user.id == "502879264081707008") {
+    if (supporter == 'ko-fi') {
         ctx.fillStyle = '#fa9de4';
         ctx.beginPath();
         ctx.roundRect(offset_width + 20, 52, 73, 23, 6);
@@ -240,10 +246,6 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('BOOSTER', offset_width + 26, 68);
-
-        // const banner_buffer = readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'boost.png'));
-        // const banner_img = await loadImage(banner_buffer);
-        // ctx.drawImage(banner_img, width-200, 50, 100, 64);
     }
     
 
@@ -349,6 +351,7 @@ export function Dangerous_WipeAllLevels() {
 import axios from 'axios';
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
+import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

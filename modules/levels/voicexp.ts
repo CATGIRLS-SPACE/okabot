@@ -8,8 +8,6 @@ import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('voice xp');
 
-let CHANNEL_CHATSIES = '1019089378343137373';
-let VC_AFK = "1325669216828788780";
 let VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
@@ -29,7 +27,7 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         VoiceData.set(newState.member!.id, event_time);
     }
 
-    if (newState.channelId == null || newState.channelId == VC_AFK) {   
+    if (newState.channelId == null || newState.channel?.name.toLowerCase().includes('afk')) {
         // user has left a channel
         L.info(`${newState.member!.displayName} left voice.`);
         
@@ -51,14 +49,17 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         if (minutes_elapsed == 0) return;
         for (let i = 0; i <= minutes_elapsed; i++) xp_gained += Math.floor(Math.random() * 7) + 3;
         
-        const channel = client.channels.cache.get(CHANNEL_CHATSIES) as TextChannel;
-        AddXP(newState.member!.id, channel, xp_gained);
+        // const channel = client.channels.cache.get(CHANNEL_CHATSIES) as TextChannel;
+        const channel = oldState.channel;
+        if (channel == null) return;
+
+        AddXP(newState.member!.id, <unknown>channel as TextChannel, xp_gained);
 
         channel.send({
             content:`<@${newState.member!.id}>, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
         });
 
-        if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, channel as TextChannel);
+        if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);
 
         VoiceData.delete(newState.member!.id);
     }
@@ -75,11 +76,6 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
 
 export function LoadVoiceData() {
     if (!existsSync(join(BASE_DIRNAME, 'vcdb.oka'))) return;
-
-    if (DEV) {
-        CHANNEL_CHATSIES = '858904835222667315';
-        VC_AFK = "1325952874097672273";
-    }
 
     const data: {[key: string]: number} = JSON.parse(readFileSync(join(BASE_DIRNAME, 'vcdb.oka'), 'utf-8'));
     

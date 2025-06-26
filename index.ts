@@ -98,6 +98,7 @@ import { HandleCommandStory } from "./modules/interactions/story";
 import {HandleCommandCraft} from "./modules/interactions/craft";
 import { SetupStocks } from "./modules/okash/stock";
 import {PetParseTextCommand} from "./modules/pet/textCommands";
+import {LoadSpecialUsers} from "./util/users";
 
 
 export const client = new Client({
@@ -169,6 +170,7 @@ async function RunPreStartupTasks() {
     ScheduleJob(client); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
+    LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
     if (DEV) SetupStocks(__dirname);
 }
 
@@ -449,8 +451,8 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         if (DANGO_COUNT.has(reactor.id)) {
             DANGO_COUNT.set(reactor.id, DANGO_COUNT.get(reactor.id)! + 1);
             if (DANGO_COUNT.get(reactor.id)! == 3) {
-                GrantAchievement(reactor as User, Achievements.STORY, channel);
-                GrantStoryAccess(reactor as User, 1, channel);
+                // GrantAchievement(reactor as User, Achievements.STORY, channel);
+                // GrantStoryAccess(reactor as User, 1, channel);
             }
         } else {
             DANGO_COUNT.set(reactor.id, 1);
