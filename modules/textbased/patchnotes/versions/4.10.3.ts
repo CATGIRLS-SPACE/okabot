@@ -20,7 +20,7 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
     .addTextDisplayComponents(
         new TextDisplayBuilder().setContent([
             "## Changes/Bugfixes",
-            "- Start work on allowing okabot to be used in other servers.",
+            "- Continue work on allowing okabot to be used in other servers.",
         ].join('\n'))
     )
     .addSeparatorComponents(

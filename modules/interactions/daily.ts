@@ -13,11 +13,7 @@ import {Achievements, GrantAchievement} from "../passive/achievement";
 import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../util/language";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-
-const remindButton = new ButtonBuilder()
-    .setCustomId('remindme')
-    .setStyle(ButtonStyle.Primary)
-    .setLabel('Remind Me');
+import {GetUserSupportStatus} from "../../util/users";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -50,7 +46,16 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
 
         collector.on('collect', async i => {
+            // remind me button
+            // requires supporter
             const d = new Date;
+            const hours_until = Math.round((-(result*1000) - d.getTime())/1000) / 3600;
+            console.log(`${hours_until} hours until...`);
+            if (GetUserSupportStatus(i.user.id) != 'ko-fi' && hours_until > 6) return i.update({
+                content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
+                components: []
+            });
+
             const ready = -(result * 1000);
             const success = ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel); // 5 seconds for testing purposes
         
@@ -179,11 +184,19 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
     const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
     collector.on('collect', async i => {
+        // remind me button
+        let previous_content = i.message;
+
+        // requires supporter
+        if (GetUserSupportStatus(i.user.id) != 'ko-fi') return i.update({
+            content: `${previous_content}\n\n:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
+            components: []
+        });
+
         const d = new Date();
         const ready = d.getTime() + (24*60*60*1000);
         ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
-        let previous_content = i.message;
-    
+
         i.update({
             content: `${previous_content}\n\n` + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale),
             components:[]
