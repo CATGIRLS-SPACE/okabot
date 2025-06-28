@@ -13,7 +13,7 @@ import {Achievements, GrantAchievement} from "../passive/achievement";
 import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../util/language";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetUserSupportStatus} from "../../util/users";
+import {GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -51,7 +51,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             const d = new Date;
             const hours_until = Math.round((-(result*1000) - d.getTime())/1000) / 3600;
             console.log(`${hours_until} hours until...`);
-            if (GetUserSupportStatus(i.user.id) != 'ko-fi' && hours_until > 6) return i.update({
+            if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta') && hours_until > 6) return i.update({
                 content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
                 components: []
             });
@@ -188,7 +188,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         let previous_content = i.message;
 
         // requires supporter
-        if (GetUserSupportStatus(i.user.id) != 'ko-fi') return i.update({
+        if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta')) return i.update({
             content: `${previous_content}\n\n:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
             components: []
         });
