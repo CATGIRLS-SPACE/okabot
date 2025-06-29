@@ -7,7 +7,9 @@ import {
     ApplicationIntegrationType
 } from "discord.js";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../util/language";
+import {Logger} from "okayulogger";
 
+const L = new Logger('8ball');
 
 const POSSIBLE_ANSWERS: Array<LANG_GAMES> = [
     LANG_GAMES.MAGIC_AFFIRMATIVE_A,
@@ -45,9 +47,14 @@ export async function HandleCommand8Ball(interaction: ChatInputCommandInteractio
 
     await new Promise((resolve) => {setTimeout(resolve, 5000)});
 
-    await interaction.editReply({
-        content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.translateable_locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
-    });
+    try {
+        await interaction.editReply({
+            content: await LangGetAutoTranslatedString(LANG_GAMES.MAGIC_MESSAGE_FINAL, interaction.okabot.translateable_locale, (interaction.member as GuildMember || interaction.user).displayName, question, answer_string)
+        });
+    } catch (err) {
+        L.error('could not edit 8ball reply, likely message was deleted?');
+        L.error(err as string);
+    }
 }
 
 
@@ -60,4 +67,4 @@ export const FortuneBallSlashCommand = new SlashCommandBuilder()
         .setRequired(true)
     )
     .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
-    .setIntegrationTypes(ApplicationIntegrationType.UserInstall);
+    .setIntegrationTypes(ApplicationIntegrationType.UserInstall, ApplicationIntegrationType.GuildInstall);

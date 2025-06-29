@@ -1,5 +1,11 @@
 import {ITEMS} from "../okash/items";
-import {ChatInputCommandInteraction, EmbedBuilder, InteractionContextType, SlashCommandBuilder} from "discord.js";
+import {
+    ApplicationIntegrationType,
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    InteractionContextType,
+    SlashCommandBuilder
+} from "discord.js";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {ITEM_NAMES} from "./pockets";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
@@ -108,3 +114,4 @@ export const CraftSlashCommand = new SlashCommandBuilder()
     .setDescription('Craft an item using scraps!')
     .addStringOption(option => option.setName('item').setDescription('Which item to craft. Leave blank for a list of craftable items.'))
     .setContexts(InteractionContextType.Guild)
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)

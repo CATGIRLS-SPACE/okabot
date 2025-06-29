@@ -245,7 +245,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'pockets': HandleCommandPockets,
     'customize': HandleCommandCustomize,
     'toggle': HandleCommandToggle,
-    'level': HandleCommandLevel,
+    'profile': HandleCommandLevel,
     'render': HandleCommandRender,
     'stock': HandleCommandStock,
     'help': HandleCommandHelp,
@@ -436,6 +436,19 @@ client.on(Events.GuildMemberAdd, async (member) => {
     });
 });
 
+client.on(Events.GuildCreate, async (guild) => {
+    const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315")! as TextChannel;
+    const owner = await guild.members.fetch(guild.ownerId);
+    await channel.send({
+        content:`# :tada: okabot was added to a new server!\n**Server name**: ${guild.name} (${guild.id})\n**Member count**: ${guild.memberCount}\n**Owner**: ${owner.user.displayName} (@${owner.user.username} <@${guild.ownerId}>)`,
+    });
+
+    if (!guild.systemChannelId) return;
+    const syschannel = await guild.channels.fetch(guild.systemChannelId);
+    (syschannel as TextChannel).send(`# hi there, thanks for inviting me in!\nplease note, i've just gone public, so some features might not work properly!\nif you find any bugs, please report them at the links found in /help!\ni hope you have fun! ${GetEmoji(EMOJI.NEKOHEART)}`);
+});
+
+
 const DANGO_COUNT = new Map<Snowflake, number>();
 
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
@@ -471,14 +484,15 @@ function logError(error: Error | string) {
 
 // Catch uncaught exceptions
 process.on('uncaughtException', async (reason) => {
-    L.error('okabot has encountered an uncaught exception!');
+    L.fatal('okabot has encountered an uncaught exception!');
     console.error('Uncaught Exception:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315") as TextChannel;
-        await channel.send({content:':warning: okabot has encountered an uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
+        await channel.send({content:':warning: okabot has encountered an unrecoverable uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);
+        console.log(reason);
         logError(reason);
     }
     process.exit(1); // Exit the process safely

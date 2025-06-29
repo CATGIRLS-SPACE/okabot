@@ -101,7 +101,19 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
-async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User) {
+const COOLDOWNS = new Map<Snowflake, number>();
+
+async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User): Promise<boolean | undefined> {
+    const d = new Date();
+    if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0)) {
+        interaction.reply({
+            content: `:hourglass: Slow down, **${interaction.user.displayName}**! You *just* ran this command!`
+        });
+        return true;
+    }
+
+    COOLDOWNS.set(interaction.user.id, Math.round(d.getTime()/1000) + 30);
+
     await interaction.deferReply();
     if (override_user_with) interaction.user = override_user_with;
 
@@ -319,7 +331,8 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         UpdateUserProfile(user_to_get.id, profile);
     }
 
-    await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
+    const return_out = await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
+    if (return_out) return;
     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'level-banner.png'));
     interaction.editReply({
         content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
@@ -362,9 +375,9 @@ async function fetchImage(url: string) {
 
 
 export const LevelSlashCommand = new SlashCommandBuilder()
-    .setName('level').setNameLocalization('ja', 'レベル')
-    .setDescription('Get information on your current level!').setDescriptionLocalization('ja', 'レベルを見て')
+    .setName('profile').setNameLocalization('ja', 'プロフィール')
+    .setDescription('Show your okabot profile banner').setDescriptionLocalization('ja', 'プロフィールを見て')
     .addUserOption(option => option
         .setName('user').setNameLocalization('ja', 'ユーザ')
-        .setDescription('Get another user\'s level info').setDescriptionLocalization('ja', '誰のレベルを見て')
+        .setDescription('Get another user\'s profile info').setDescriptionLocalization('ja', '誰のプロフィールを見て')
         .setRequired(false))
