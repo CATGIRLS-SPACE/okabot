@@ -25,7 +25,6 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZATION_UNLOCKS} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
-import {SetActivity} from "../../../index";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 
@@ -277,7 +276,6 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     GamesActive.set(interaction.user.id, game);
     SetGambleLock(interaction.user.id, true);
-    SetActivity('blackjack', ActivityType.Playing);
 
     // const first_message_content = `okabot Blackjack | You bet ${GetEmoji('okash')} OKA**${bet}**\n-# Blackjack pays 3x, win pays 2x\n**okabot**: [ ?? ] ${GetCardThemed('cb', game.card_theme)}${GetCardThemed('cb', game.card_theme)}\n**you:** [ ${TallyCards(game.user)} ] ${GetCardEmojis(game.user)} ${TallyCards(game.user) == 21 ? ':sparkles:' : ''}`;
     const msg_top = await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACK_TOP, interaction.okabot.translateable_locale, bet);

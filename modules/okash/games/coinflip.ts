@@ -17,7 +17,6 @@ import {
     UpdateUserProfile
 } from "../../user/prefs";
 import {readFileSync, writeFileSync} from "fs";
-import {BASE_DIRNAME, SetActivity} from "../../../index";
 import {join} from "path";
 import {AddXP} from "../../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
@@ -30,6 +29,7 @@ import {UpdateTrackedItem} from "../trackedItem";
 import {CoinFloats} from "../../tasks/cfResetBonus";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {CheckGambleLock} from "./_lock";
+import {BASE_DIRNAME} from "../../../index";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -329,8 +329,6 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (profile.customization.games.equipped_trackable_coin != 'none') {
         UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1});
     }
-
-    SetActivity('a coin flip...', ActivityType.Watching);
 
     // initial reply
     const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);

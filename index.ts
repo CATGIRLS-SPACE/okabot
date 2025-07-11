@@ -189,35 +189,6 @@ async function RunPostStartupTasks() {
     });
 }
 
-let reset_activity_at = 0;
-export function SetActivity(name: string, type: ActivityType) {
-    const d = Math.round(new Date().getTime() / 1000);
-
-    if (d < reset_activity_at - 15) return;
-
-    client.user!.setActivity({
-        name,
-        type,
-    });
-
-    reset_activity_at = d + 29;
-
-    setTimeout(() => {
-        CheckActivityTimer();
-    }, 30_000);
-}
-function CheckActivityTimer() {
-    const d = Math.round(new Date().getTime() / 1000);
-    if (reset_activity_at < d) return client.user!.setActivity({
-        name: CONFIG.status.activity,
-        type: CONFIG.status.type
-    });
-    // otherwise...
-    setTimeout(() => {
-        CheckActivityTimer();
-    }, 30_000);
-}
-
 
 // Command and message handlers
 

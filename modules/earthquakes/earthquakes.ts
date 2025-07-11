@@ -270,6 +270,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     });
 
     SOCKET.on(WebSocketEvent.EEW_FORECAST, async (data: EEWInformationSchemaBody) => {
+        L.debug('WebSocketEvent.EEW_FORECAST');
         console.log(data);
 
         let embed = BuildEEWEmbed(
@@ -314,7 +315,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     });
 
     SOCKET.on(WebSocketEvent.EEW_WARNING, async (data: EEWInformationSchemaBody) => {
-        console.log(data.serialNo);
+        console.log(data);
 
         let embed;
 

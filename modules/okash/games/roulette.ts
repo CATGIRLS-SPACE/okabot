@@ -22,12 +22,12 @@ import {
 import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
-import {client, SetActivity} from "../../..";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
 import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
+import {client} from "../../../index";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -118,8 +118,6 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
 
 async function StartRoulette(game: RouletteGame) {
     let second_half = '';
-
-    SetActivity('roulette', ActivityType.Playing);
 
     switch (game.game_type) {
         case RouletteGameType.COLOR:

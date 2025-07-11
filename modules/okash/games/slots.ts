@@ -12,10 +12,10 @@ import {AddXP} from "../../levels/onMessage";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
-import {DEV, SetActivity} from "../../../index";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString, LangGetFormattedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
+import {DEV} from "../../../index";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -124,8 +124,6 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const roll_third  = ROLL_TABLE[Math.round(Math.random() * (ROLL_TABLE.length - 1))];
     const rolling_emoji = GetEmoji(EMOJI.SLOTS_ROLLING)
     const rolls = [roll_first, roll_second, roll_third];
-
-    SetActivity('slots', ActivityType.Playing);
 
     const reply = await interaction.reply({
         content: `${show_consider?await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_DONATE, interaction.okabot.translateable_locale):''}${await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_INITIAL, interaction.okabot.translateable_locale, interaction.user.displayName, bet)}\n${rolling_emoji} ${rolling_emoji} ${rolling_emoji}`,
