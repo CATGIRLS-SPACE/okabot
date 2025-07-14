@@ -254,7 +254,7 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
 
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return console.log('Not chat command!');
-    if (!interaction.channel?.isTextBased()) return console.log('Not text based channel!');
+    // if (!interaction.channel?.isTextBased()) return console.log('Not text based channel!');
 
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
