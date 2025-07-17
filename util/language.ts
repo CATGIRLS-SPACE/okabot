@@ -360,6 +360,7 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
         }
 
         // check if we've already translated this
+        if (!STRING_CACHE[locale]) STRING_CACHE[locale] = {};
         if (STRING_CACHE[locale][item]) {
             console.log('(language.ts) using cached string...');
             return STRING_CACHE[locale][item];
