@@ -102,7 +102,7 @@ const ACHIEVEMENTS: {
     'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun', diff:'t'},
     'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun', diff:'e'},
     'thankokabot': {name:'Nice List',description:'Thank okabot', class:'fun', diff:'e'},
-    'okabotcry': {name:'An Anime Whose First Episode Date was October 21, 2007',description:'Make okabot cry', class:'fun', diff:'e'},
+    'okabotcry': {name:'Naughty List',description:'Make okabot cry', class:'fun', diff:'e'},
     'begenerous': {name:'Generosity',description:'Pay a user some okash', class:'okash', diff:'e'},
     'okashdrop': {name:'What\'s This?',description:'Get lucky and find some okash', class:'fun', diff:'t'},
     'lootboxdrop': {name:'Ow, My Foot!',description:'Get lucky and trip over a lootbox', class:'fun', diff:'t'},
