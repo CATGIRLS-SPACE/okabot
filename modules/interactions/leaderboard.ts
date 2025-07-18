@@ -41,7 +41,7 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction, only_s
 
     // create the embed
     const embed = new EmbedBuilder()
-        .setTitle(interaction.locale==Locale.Japanese?`**${interaction.guild!.name}** okashのランキング`:`okash Leaderboard for **${interaction.guild?.name}**`)
+        .setTitle(interaction.locale==Locale.Japanese?`okashのランキング`:`okash Leaderboard for All Servers`)
         .setAuthor({name:interaction.guild!.name, iconURL:interaction.guild!.iconURL()!})
         .setColor(0x9d60cc);
 

@@ -12,7 +12,7 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
         case 'okash-notification':
             const active = interaction.options.getString('active') == 'on';
             interaction.reply({
-                content: active?`${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! i'll send you notifications every time you receive/transfer okash on your account.`:'${GetEmoji(EMOJI.CAT_SUNGLASSES)} too many notifications? i get that, i\'ll chill out with the notifications',
+                content: active?`${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! i'll try to send you notifications every time you receive/transfer okash on your account.`:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} too many notifications? i get that, i\'ll chill out with the notifications`,
                 flags:[MessageFlags.Ephemeral]
             
             });
@@ -23,8 +23,6 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
         case 'preferred-pronouns':
             if (interaction.locale != Locale.EnglishUS && interaction.locale != Locale.EnglishGB) {
                 let message = 'Sorry, but this feature is not supported on your selected language. Change your Discord language to English to use this feature.';
-                if (interaction.locale == Locale.Japanese) message = '申し訳ありませんが、okawafflesは日本語の代名詞を理解しないため、この機能は日本語ではサポートされていません。この機能を使用するには、Discordの言語を英語に変更してください。';
-                if (interaction.locale == Locale.Russian) message = 'Извините, но эта функция не поддерживается, если выбран русский язык. Чтобы воспользоваться этой функцией, измените язык Discord на английский.';
                 return interaction.reply(message);
             }
             const preferred = interaction.options.getString('pronouns', true);
@@ -39,6 +37,9 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
             break;
 
         case 'okabot-updates':
+            if (interaction.guild?.id != "1019089377705611294") return interaction.reply({
+                content: 'This function is not available in this server.'
+            });
             const guild = interaction.client.guilds.cache.get(interaction.guild!.id)!;
             const member = guild.members.cache.get(interaction.user.id)!;
             const role = guild.roles.cache.find(r => r.name === 'okabot updates')!;

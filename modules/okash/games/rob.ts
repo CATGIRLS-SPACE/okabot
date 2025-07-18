@@ -32,6 +32,11 @@ export function GetCurrentFines(): number {
 }
 
 export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
+    if (interaction.guild?.id != "1019089377705611294") return interaction.reply({
+        content: `:x: Sorry, but robbing isn't available yet, as we're still migrating banks to be individual servers instead of global.`,
+        flags: [MessageFlags.Ephemeral]
+    });
+
     const d = new Date();
     if (COOLDOWNS.has(interaction.user.id) && COOLDOWNS.get(interaction.user.id)! > Math.floor(d.getTime()/1000)) return interaction.reply({
         content: `:hourglass: **${interaction.user.displayName}**, you need to wait a bit before trying to rob! Come back in <t:${COOLDOWNS.get(interaction.user.id)}:R>`,

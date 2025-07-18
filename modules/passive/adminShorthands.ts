@@ -352,9 +352,9 @@ export function RegisterAllShorthands() {
         open_socket(SOCKET, message.channel as TextChannel);
     });
 
-    RegisterShorthand('oka dmdata disconnect', async (message: Message) => {
+    RegisterShorthand('oka dmdata trip', async (message: Message) => {
         (message.channel as TextChannel).send({
-            content: `terminating. okabot will try and reconnect automatically.`
+            content: `tripping connection. okabot will try and reconnect automatically.`
         });
         SOCKET.CloseSocket();
     });
@@ -387,10 +387,15 @@ export function RegisterAllShorthands() {
 export async function CheckForShorthand(message: Message) {
     if (!message.content.startsWith('oka ')) return;
     if (!CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
+        /* temporarily disabled due to applications */
+        // await message.reply({
+        //     content:'https://bot.lilycatgirl.dev/gif/nibuthrow.gif'
+        // });
+        // GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
         await message.reply({
-            content:'https://bot.lilycatgirl.dev/gif/nibuthrow.gif'
+            content: `:crying_cat_face: **${message.author.displayName}**, I've moved on from the "oka" prefix! They're restricted to bot admins to help fix profile issues/moderate users for breaking bot rules. Please use slash commands instead!\nIf they don't appear, you might have to reload/restart Discord!`,
+            flags: [MessageFlags.SuppressNotifications]
         });
-        GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
         return;
     }
 
