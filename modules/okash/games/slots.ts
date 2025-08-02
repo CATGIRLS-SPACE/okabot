@@ -57,6 +57,8 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'AAA':2,    // 3x apple
     'GGG':2,    // 3x grape
     'AAG':1.2,  // 2x apple 1x grape <-- must be in that order!
+    'AEA':1.2,
+    'GEG':1.2,
     'GGA':1.2,  // 2x grape 1x apple
     'AAO':1.5,  // 2x apple 1x okash
     'GGO':1.5,  // 2x grape 1x okash
