@@ -36,6 +36,7 @@ export async function DoLeveling(message: Message) {
 
 export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: number) {
     const profile = GetUserProfile(user_id);
+    if (!profile.accepted_rules) return;
 
     const user = client.users.cache.get(user_id);
     if (!user) throw new Error('Cannot award XP to a nonexistent user');
