@@ -368,6 +368,7 @@ export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACT
         // else
         console.log('(language.ts) string was not cached...');
         try {
+            return item;
             const result = await translateText(item, locale);
             STRING_CACHE[locale][item] = result;
             return result;
@@ -395,5 +396,6 @@ export async function LangGetAutoTranslatedStringRaw(text: string, locale: strin
     for (let i = 0; i < params.length; i++) {
         item = item.replaceAll(`{${i + 1}}`, params[i].toString());
     }
-    return await translateText(item, locale);
+    // return await translateText(item, locale);
+    return item;
 }
