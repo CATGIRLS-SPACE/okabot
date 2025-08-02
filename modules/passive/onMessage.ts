@@ -22,12 +22,12 @@ export async function DoRandomDrops(message: Message, author?: User) {
     if (author) message.author = author;
 
     // usually 1 in 500 chance, boost is 1 in 300 <-- these are old, ignore them
-    const small_roll = boost_active?Math.floor(Math.random() * 150):Math.floor(Math.random() * 250);
+    const small_roll = boost_active?Math.floor(Math.random() * 150):Math.floor(Math.random() * 1000);
     // const small_roll: number = 97; // for testing only
     // usually 1 in 2500, boost is 1 in 1500 <-- these are old, ignore them
-    const large_roll = boost_active?Math.floor(Math.random() * 400):Math.floor(Math.random() * 800);
+    const large_roll = boost_active?Math.floor(Math.random() * 400):Math.floor(Math.random() * 2500);
     // usually 1 in 5000, boost is 1 in 1700 <-- low so that incentive is high <-- these are old, ignore them
-    const ex_roll = boost_active?Math.floor(Math.random() * 700):Math.floor(Math.random() * 2000);
+    const ex_roll = boost_active?Math.floor(Math.random() * 700):Math.floor(Math.random() * 5000);
 
     switch (small_roll) {
         case 127:
