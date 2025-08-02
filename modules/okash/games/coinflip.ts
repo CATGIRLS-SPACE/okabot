@@ -306,7 +306,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // });
 
     // get options and user profile
-    const bet = interaction.options.getNumber('amount', true);
+    const bet = Math.ceil(interaction.options.getNumber('amount', true));
     const side = interaction.options.getString('side') || 'heads';
     let profile = GetUserProfile(interaction.user.id);
     const weighted = profile.flags.includes(FLAG.WEIGHTED_COIN_EQUIPPED);
