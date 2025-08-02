@@ -36,8 +36,8 @@ export async function CheckForFunMessages(message: Message) {
     }
 
     if ((message.content.toLocaleLowerCase().includes('fuck you') ||
-            message.content.toLocaleLowerCase().includes('kys')) ||
-            message.content.toLocaleLowerCase().includes('screw you')
+            message.content.toLocaleLowerCase().includes('kys') ||
+            message.content.toLocaleLowerCase().includes('screw you'))
         &&
         (message.content.toLocaleLowerCase().includes('okabot') ||
             message.content.toLocaleLowerCase().includes('okaboob') ||
