@@ -26,11 +26,11 @@ export async function CheckForFunMessages(message: Message) {
         message.reply({
             content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
         });
-        GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
+        return GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
     }
 
     if (message.content.toLocaleLowerCase().startsWith('thank you okaboob')) {
-        message.reply({
+        return message.reply({
             content:TYOB_RESPONSE[Math.floor(Math.random() * TYOB_RESPONSE.length)]
         });
     }
@@ -46,7 +46,7 @@ export async function CheckForFunMessages(message: Message) {
         await message.reply({
             content: 'https://bot.lilycatgirl.dev/gif/dekocry.gif'
         });
-        GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
+        return GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
     }
 
     if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
@@ -57,7 +57,7 @@ export async function CheckForFunMessages(message: Message) {
         message.content.toLowerCase().includes('killing myself') ||
         message.content.toLowerCase().includes('kms'))
     {
-        message.reply({
+        return message.reply({
             content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
         });
     }
