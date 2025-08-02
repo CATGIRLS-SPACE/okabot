@@ -424,7 +424,7 @@ client.on(Events.GuildCreate, async (guild) => {
     if (!guild.systemChannelId) return;
     const syschannel = await guild.channels.fetch(guild.systemChannelId);
     try {
-        (syschannel as TextChannel).send(`# hi there, thanks for inviting me in!\nplease note, i've just gone public, so some features might not work properly!\nif you find any bugs, please report them at the links found in /help!\ni hope you have fun! ${GetEmoji(EMOJI.NEKOHEART)}`);
+        (syschannel as TextChannel).send(`# hi there, thanks for inviting me in!\nplease note, i've just been made public, so some features might not work properly!\nif you find any bugs, please report them at the links found in /help!\ni hope you have fun! ${GetEmoji(EMOJI.NEKOHEART)}`);
     } catch (err) {
         L.error("unable to send introduction message to system channel");
     }
