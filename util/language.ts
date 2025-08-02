@@ -133,7 +133,7 @@ const LANGUAGE_EN: Language = {
     'interaction.daily.reminder.button': 'Remind Me',
     'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
 
-    'level.levelup': `Congrats, <@{1}>! You're now level **{2}** ({3})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
+    'level.levelup': `Congrats, **{1}**! You're now level **{2}** ({3})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
 
     'games.8ball.affirmative.a':'yup, certainly!',
     'games.8ball.affirmative.b':'decidedly so!',
