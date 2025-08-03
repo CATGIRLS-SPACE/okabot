@@ -149,6 +149,12 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
         case LOOTBOX_REWARD_TYPE.SCRAPS:
             rewardMessage = `some **scraps**!\n`;
             const s = reward.amount;
+            const profile = GetUserProfile(interaction.user.id);
+            profile.inventory_scraps.electrical += s.e;
+            profile.inventory_scraps.metal += s.m;
+            profile.inventory_scraps.plastic += s.p;
+            profile.inventory_scraps.rubber += s.r;
+            profile.inventory_scraps.wood += s.w;
             rewardMessage += `**${GetEmoji(EMOJI.SCRAP_METAL)} x ${s.m}, ${GetEmoji(EMOJI.SCRAP_PLASTIC)} x ${s.p}, ${GetEmoji(EMOJI.SCRAP_WOOD)} x ${s.w}, ${GetEmoji(EMOJI.SCRAP_RUBBER)} x ${s.r}, ${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} x ${s.e}**`;
             break;
 
