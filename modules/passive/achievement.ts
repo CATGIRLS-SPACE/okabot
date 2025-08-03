@@ -203,12 +203,12 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         
         if (profile.achievements.length == 0) return interaction.reply({
             content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
-            flags: [MessageFlags.Ephemeral]
+            flags: []
         });
         
         return interaction.reply({
             content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description}`,
-            flags: [MessageFlags.Ephemeral]
+            flags: []
         });
     }
 
@@ -237,7 +237,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
 
     interaction.reply({
         content: list + `-# ${GetEmoji(EMOJI.DIFF_EASY)} Easy | ${GetEmoji(EMOJI.DIFF_TRICKY)} Tricky | ${GetEmoji(EMOJI.DIFF_HARD)} Hard | ${GetEmoji(EMOJI.DIFF_EXHARD)} Extra Hard`,
-        flags: [MessageFlags.Ephemeral]
+        flags: []
     });
 }
 

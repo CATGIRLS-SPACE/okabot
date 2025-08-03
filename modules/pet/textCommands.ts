@@ -1,4 +1,4 @@
-import {EmbedBuilder, Message, TextChannel} from "discord.js";
+import {Embed, EmbedBuilder, Message, TextChannel} from "discord.js";
 import {ACTIVITY_NAMES, FOOD_NAMES, FOOD_NAMES_TYPED, FOOD_STRING, SPECIAL_STRINGS} from "./strings";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {FOOD_PRICES, FOOD_VALUES, PET_EMOJIS, PET_NAMES} from "./common";
@@ -88,7 +88,7 @@ async function SubcommandShop(message: Message, args: Array<string>) {
          content: ':x: Invalid shop menu. Valid menus are: `' + allowed_shop_type.join(', ') + '`.'
     });
 
-    let embed;
+    let embed: EmbedBuilder;
 
     switch (args[2].toLowerCase()) {
         case 'food1':
