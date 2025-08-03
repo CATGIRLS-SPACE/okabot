@@ -394,14 +394,14 @@ export async function CheckForShorthand(message: Message) {
     if (!message.content.startsWith('oka ')) return;
     if (!CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
         /* temporarily disabled due to applications */
-        // await message.reply({
-        //     content:'https://bot.lilycatgirl.dev/gif/nibuthrow.gif'
-        // });
-        // GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
         await message.reply({
-            content: `:crying_cat_face: **${message.author.displayName}**, I've moved on from the "oka" prefix! They're restricted to bot admins to help fix profile issues/moderate users for breaking bot rules. Please use slash commands instead!\nIf they don't appear, you might have to reload/restart Discord!`,
-            flags: [MessageFlags.SuppressNotifications]
+            content:'https://tenor.com/view/anime-yeet-dekomori-chuunibyou-nibutani-gif-24780597'
         });
+        GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
+        // await message.reply({
+        //     content: `:crying_cat_face: **${message.author.displayName}**, I've moved on from the "oka" prefix! They're restricted to bot admins to help fix profile issues/moderate users for breaking bot rules. Please use slash commands instead!\nIf they don't appear, you might have to reload/restart Discord!`,
+        //     flags: [MessageFlags.SuppressNotifications]
+        // });
         return;
     }
 
@@ -410,12 +410,12 @@ export async function CheckForShorthand(message: Message) {
 
     // if you can use shorthands but aren't the bot master, you aren't permitted to use them on yourself or the bot master
     if (CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
-        if (params[2] == 'me' || params[2] == CONFIG.bot_master) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
+        if (params[2] == 'me' || params[2] == CONFIG.bot_master) return message.reply('https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492');
         if (params[2] == 'them' &&
             message.reference &&
             (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == CONFIG.bot_master ||
             (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == message.author.id
-        ) return message.reply('https://bot.lilycatgirl.dev/gif/yuutahit.gif');
+        ) return message.reply('https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492');
     }
 
     if (params[2] == 'me') params[2] = message.author.id;
