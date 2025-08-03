@@ -890,8 +890,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
 }
 
 async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
-    WinStreak.set(i.user.id, 0);
-    console.log(i.user.id, 'streak now 0');
+
 
     // build embed
     const BlackjackContainer = await BuildBlackjackContainer(game, false, reason, i.user.id);
@@ -911,6 +910,8 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
         // the casino database
         AddCasinoLoss(i.user.id, game.bet, 'blackjack');
         if (GetWallet(i.user.id, true) == 0) GrantAchievement(i.user, Achievements.NO_MONEY, i.channel as TextChannel);
+        WinStreak.set(i.user.id, 0);
+        console.log(i.user.id, 'streak now 0');
     }
 
     DoRandomDrops(await i.fetchReply(), i.user);
