@@ -406,7 +406,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
         AddXP(interaction.user.id, interaction.channel as TextChannel, 10);
 
         const d = new Date();
-        LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
+        LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()));
 
         GamesActive.delete(interaction.user.id);
         SetGambleLock(interaction.user.id, false);
@@ -501,7 +501,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
     const d = new Date();
-    LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()/1000));
+    LastGameFinished.set(interaction.user.id, Math.ceil(d.getTime()));
     
     game.gameActive = false;
     GamesActive.delete(interaction.user.id);
@@ -593,8 +593,8 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // if the locale isn't english or the user prefers to use the classic game display
     // non-english users can choose to force the components v2 version by setting the "classic" option to false
     // const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
-    const use_classic = interaction.options.getBoolean('classic') || false;
-    if (use_classic) return SetupBlackjackMessage(interaction);
+    // const use_classic = interaction.options.getBoolean('classic') || false;
+    // if (use_classic) return SetupBlackjackMessage(interaction);
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content:`A game of Blackjack with fewer than 52 cards would be unfair to someone, wouldn't it, **${interaction.user.displayName}**?\n-# Well, okabot card decks actually only have 44 cards. This is because I was pissed off at the sheer number of value 10 cards. I will not revert this change because I am stubborn.`,
@@ -604,9 +604,9 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // check for cooldowns
     const d = new Date();
     let cooldown = false;
-
-    if (LastGameFinished.get(interaction.user.id) || 0 > (d.getTime() / 1000) + 7_000) cooldown = true;
-    if (PassesActive.get(interaction.user.id) || 0 > d.getTime() / 1000) cooldown = false;
+    const last = LastGameFinished.get(interaction.user.id) || 0;
+    if (d.getTime() - last < 7000) cooldown = true;
+    // if (PassesActive.get(interaction.user.id) || 0 > d.getTime() / 1000) cooldown = false;
 
     // declare the reply up here
     // this is because the reply object
@@ -691,6 +691,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     // activate cooldown if needed
     if (cooldown) {
+        // L.debug(`cooldown is ${LastGameFinished.get(interaction.user.id)! - d.getTime()}ms`) <-- no
         reply = await interaction.reply({
             components: [
                 new ContainerBuilder().addTextDisplayComponents(
@@ -700,7 +701,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
             flags: [MessageFlags.SuppressNotifications, MessageFlags.IsComponentsV2]
         });
 
-        await new Promise((resolve) => setTimeout(resolve, LastGameFinished.get(interaction.user.id)! * 1000 - d.getTime()));
+        await new Promise((resolve) => setTimeout(resolve, LastGameFinished.get(interaction.user.id)! + 7_000 - (new Date()).getTime() ));
     }
 
     // split the creation of the container outside
@@ -831,7 +832,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         SetGambleLock(i.user.id, false);
 
         // cooldown
-        LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
+        LastGameFinished.set(i.user.id, (new Date()).getTime());
 
         // update reply
         return await i.update({
@@ -882,7 +883,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     SetGambleLock(i.user.id, false);
 
     // cooldown
-    LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
+    LastGameFinished.set(i.user.id, (new Date()).getTime());
 }
 
 async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' | 'value') {
@@ -916,7 +917,7 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
     SetGambleLock(i.user.id, false);
 
     // cooldown
-    LastGameFinished.set(i.user.id, (new Date()).getTime()/1000);
+    LastGameFinished.set(i.user.id, (new Date()).getTime());
 }
 
 async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = false, gameover: 'no' | 'bust' | 'value' | 'win' = 'no', user_id?: Snowflake) {
