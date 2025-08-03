@@ -352,10 +352,15 @@ async function ConfirmMultiNumberGame(user_id: string) {
     });
 }
 
-
+const DISABLE_ROULETTE = true;
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
+
+    if (DISABLE_ROULETTE) return interaction.reply({
+        content: 'Sorry, roulette is disabled as it\'s causing a lot of backend issues. Try again later!',
+        flags:[MessageFlags.SuppressNotifications]
+    })
 
     if (CheckGambleLock(interaction.user.id)) {
         return interaction.reply({

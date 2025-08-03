@@ -1,10 +1,17 @@
-import {ChatInputCommandInteraction} from "discord.js";
+import {ChatInputCommandInteraction, MessageFlags} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../../user/prefs";
 import {CreateTrackedItem, VALID_ITEMS_TO_TRACK} from "../../okash/trackedItem";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/items";
 import { RemoveOneFromInventory } from "../../okash/wallet";
 
+const DISABLE_TD = true;
+
 export async function item_tracking_device(interaction: ChatInputCommandInteraction) {
+    if (DISABLE_TD) return interaction.reply({
+        content:'Sorry, tracking devices are disabled due to a bug. Try again later!',
+        flags:[MessageFlags.SuppressNotifications]
+    });
+
     await interaction.deferReply();
 
     let use_on = interaction.options.getString('on', false);
