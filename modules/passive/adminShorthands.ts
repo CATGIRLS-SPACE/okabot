@@ -382,6 +382,12 @@ export function RegisterAllShorthands() {
             content:`locale forced to '${params[3]}'. if the user runs a command, their locale will be changed automatically.`
         });
     });
+
+    RegisterShorthand('oka grant', async (message: Message, params: string[]) => {
+        const user = client.users.cache.get(params[2]);
+        if (!user) throw new Error('user not found');
+        GrantAchievement(user, params[3], message.channel as TextChannel);
+    });
 }
 
 export async function CheckForShorthand(message: Message) {

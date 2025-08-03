@@ -133,15 +133,15 @@ const ACHIEVEMENTS: {
  * @param achievement The achievement to give
  * @param channel The channel to send the announcement to
  */
-export function GrantAchievement(user: User, achievement: Achievements, channel: TextChannel) {
+export function GrantAchievement(user: User, achievement: Achievements | string, channel: TextChannel) {
     const profile = GetUserProfile(user.id);
 
-    if (profile.achievements.indexOf(achievement) != -1) {
+    if (profile.achievements.indexOf(achievement as Achievements) != -1) {
         console.log(`user ${user.username} already has achievement ${achievement}`);
         return;
     }
 
-    profile.achievements.push(achievement);
+    profile.achievements.push(achievement as Achievements);
 
     const a = ACHIEVEMENTS[achievement];
     const diff = {
