@@ -121,7 +121,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     customization: {
         unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT, CUSTOMIZATION_UNLOCKS.DECK_DEFAULT],
         global: {
-            okash_notifications: true,
+            okash_notifications: false,
             pronouns: {
                 subjective: 'they',
                 possessive: 'their',
