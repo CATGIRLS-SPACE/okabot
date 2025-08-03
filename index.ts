@@ -232,6 +232,11 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'catgirl': HandleCommandCatgirl,
     // 'story': HandleCommandStory,
     'craft': HandleCommandCraft,
+    'was-there-an-error':async (interaction: ChatInputCommandInteraction) => {
+        if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
+        // yes
+        interaction.reply({content:`yeah, last error was <t:${last_errors[last_errors.length - 1].time}:R>. reason:\n`+'```' + last_errors[last_errors.length - 1].error + '```'});
+    }
 }
 
 const ALLOWED_COMMANDS_IN_DMS = [
@@ -458,6 +463,8 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
 
 // Error Handlers
 
+const last_errors:Array<{time:number,error:string}> = [];
+
 function logError(error: Error | string) {
     const timestamp = new Date().toISOString();
     const errorMessage = `[${timestamp}] ${error instanceof Error ? error.stack || error.message : error}\n\n`;
@@ -465,26 +472,32 @@ function logError(error: Error | string) {
 }
 
 // Catch uncaught exceptions
-process.on('uncaughtException', async (reason) => {
+process.on('uncaughtException', async (reason: any) => {
     L.fatal('okabot has encountered an uncaught exception!');
+    last_errors.push({
+        time: Math.ceil((new Date()).getTime() / 1000),
+        error: reason.stack || reason
+    });
     console.error('Uncaught Exception:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315") as TextChannel;
-        await channel.send({content:':warning: okabot has encountered an unrecoverable uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
+        await channel.send({content:':warning: okabot has encountered an (possibly unrecoverable) uncaught exception! here\'s the recorded error/stack:\n'+'```'+ (reason.stack || reason) +'```\n-# This report was sent automatically before the bot shut down.\n-# Recurring issue? Open an issue [here](https://github.com/okawaffles/okabot/issues).'});
     } catch(err) {
         L.error('could not send report!!');
         console.log(err);
         console.log(reason);
         logError(reason);
     }
-    process.exit(1); // Exit the process safely
+    // process.exit(1); // Exit the process safely
 });
-
-const uncaughtRejections = new Map<string, Error>();
 
 // Catch unhandled promise rejections
 process.on('unhandledRejection', async (reason: any) => {
     L.error('okabot has encountered an uncaught rejection!');
+    last_errors.push({
+        time: Math.ceil((new Date()).getTime() / 1000),
+        error: reason.stack || reason
+    });
     console.error('Unhandled Rejection:', reason);
     try {
         const channel = client.channels.cache.get(!DEV?"1318329592095703060":"858904835222667315")! as TextChannel;

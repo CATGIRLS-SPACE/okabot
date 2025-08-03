@@ -1,4 +1,4 @@
-import { Routes, SlashCommandBuilder } from "discord.js";
+import { InteractionContextType, Routes, SlashCommandBuilder } from "discord.js";
 import { OkashSlashCommand } from "../interactions/okash";
 import { DailySlashCommand } from "../interactions/daily";
 import { PaySlashCommand } from "../interactions/pay";
@@ -78,6 +78,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         // StorySlashCommand,
         CraftSlashCommand,
         // StockSlashCommand,
+        was_there_an_error
     ].map(command => command.toJSON());
 
     const L = new Logger('deployment');
@@ -100,3 +101,9 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         });
     });
 }
+
+
+const was_there_an_error = new SlashCommandBuilder()
+    .setName('was-there-an-error')
+    .setDescription('check if there was an error recently')
+    .setContexts(InteractionContextType.Guild);
