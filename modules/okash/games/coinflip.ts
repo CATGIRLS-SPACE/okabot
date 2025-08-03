@@ -287,9 +287,9 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
         UIDViolationTracker.set(interaction.user.id, violations);
         
         if (violations == 5) {
-            const d = new Date();
-            const unrestrict_date = new Date(d.getTime()+600000);
-            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
+            // const d = new Date();
+            // const unrestrict_date = new Date(d.getTime()+600000);
+            // RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
             UIDViolationTracker.set(interaction.user.id, 0);
             GrantAchievement(interaction.user, Achievements.COINFLIP_BAN, interaction.channel as TextChannel);
         } 

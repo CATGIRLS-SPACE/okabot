@@ -51,7 +51,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             const d = new Date;
             const hours_until = Math.round((-(result*1000) - d.getTime())/1000) / 3600;
             console.log(`${hours_until} hours until...`);
-            if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta') && hours_until > 6) return i.update({
+            if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta' && i.guildId != '1348652647963561984') && hours_until > 6) return i.update({
                 content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
                 components: []
             });
@@ -188,7 +188,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         let previous_content = i.message;
 
         // requires supporter
-        if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta')) return i.update({
+        if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta' && i.guildId != '1348652647963561984')) return i.update({
             content: `${previous_content}\n\n:crying_cat_face: Sorry, **${interaction.user.displayName}**, but in order to get reminders more than 6 hours later, you must be a supporter!`,
             components: []
         });
