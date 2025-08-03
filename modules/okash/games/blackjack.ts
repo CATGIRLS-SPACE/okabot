@@ -488,7 +488,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
 
         if (game.bet == 12500) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
-        WinStreak.set(interaction.user.id, 0);
+        // WinStreak.set(interaction.user.id, 0);
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
         else AddToWallet(confirmation.user.id, game.bet);
     } else {
@@ -603,11 +603,12 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     // check for cooldowns
     const d = new Date();
-    let cooldown = false;
+    const now = Date.now(); // ms
     const last = LastGameFinished.get(interaction.user.id) || 0;
-    if (d.getTime() - last < 7000) cooldown = true;
-    if ((PassesActive.get(interaction.user.id) || 0) > d.getTime()/1000) cooldown = false;
-    console.log(cooldown)
+    const passExpiresAt = (PassesActive.get(interaction.user.id) || 0) * 1000; // convert to ms
+
+    let cooldown = (now - last < 7000); // less than 7 seconds since last game
+    if (passExpiresAt > now) cooldown = false; // override with active pass
 
     // declare the reply up here
     // this is because the reply object
@@ -961,6 +962,10 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
                 :
                 await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_WIN, game.language!, game.bet*2, streak_text)
             ));
+
+            BlackjackContainer.addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
+            )
     } else if (gameover != 'no') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
@@ -976,6 +981,10 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
                 await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_BUST, game.language!)
             )
         );
+
+        BlackjackContainer.addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
+        )
     }
 
     const is_blackjack = TallyCards(game.user)==21;

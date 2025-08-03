@@ -278,7 +278,7 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
 
     const d = new Date();
 
-    if (PassesActive.has(interaction.user.id) && PassesActive.get(interaction.user.id)! > d.getTime()/1000) return interaction.editReply({
+    if (PassesActive.has(interaction.user.id) && PassesActive.get(interaction.user.id)! > d.getTime()) return interaction.editReply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you've already got a **Casino Pass** active until <t:${PassesActive.get(interaction.user.id)}>`
     });
 
@@ -286,16 +286,16 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
     GrantAchievement(interaction.user, Achievements.CASINO_PASS, interaction.channel as TextChannel);
 
 
-    const expiry_time = Math.round(d.getTime()/1000) + {
-        '10': 10*60,
-        '30': 30*60,
-        '60': 60*60
+    const expiry_time = Math.round(d.getTime()) + {
+        '10': 10*60*1000,
+        '30': 30*60*1000,
+        '60': 60*60*1000
     }[time];
 
     PassesActive.set(interaction.user.id, expiry_time);
 
     interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating ${preferences.customization.global.pronouns.possessive} :credit_card: **Casino Pass**!\n-# Effect expires at <t:${expiry_time}>`
+        content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** wastes no time activating ${preferences.customization.global.pronouns.possessive} :credit_card: **Casino Pass**!\n-# Effect expires at <t:${Math.ceil(expiry_time/1000)}>`
     });
 }
 
