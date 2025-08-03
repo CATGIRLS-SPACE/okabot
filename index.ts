@@ -268,6 +268,8 @@ client.on(Events.InteractionCreate, async interaction => {
         return console.log('Not text based, could not reply.');
     }
 
+    L.info(`Execute command "${interaction.commandName}"`);
+
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
         translateable_locale: interaction.locale
@@ -296,8 +298,6 @@ client.on(Events.InteractionCreate, async interaction => {
     if (TEMPORARILY_DISABLED_COMMANDS.includes(interaction.commandName)) return interaction.reply({
         content:`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to disable this command temporarily. This is probably due to a bug that could be exploited. Please try again later.`
     });
-
-    L.info(`Execute command "${interaction.commandName}"`);
 
     const has_agreed = await CheckRuleAgreement(interaction);
     if (!has_agreed) return L.info('No rule agreement, halting'); // will automatically be replied to if no agreement
