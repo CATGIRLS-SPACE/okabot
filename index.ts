@@ -316,7 +316,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
             {name:'Testing', value:'okawaffles, tacobella03, pampers2, kbgkaden', inline: true},
             {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
-            {name:'Donators', value:'tacobella03', inline: false},
+            {name:'Donators', value:'tacobella03, flyer.', inline: false},
         )
         .setFooter({text: 'read if cute | thanks for using my bot <3'})
         .setThumbnail(client.user!.avatarURL())
