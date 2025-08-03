@@ -3,6 +3,7 @@ import {ParseRelativeTime} from "./relativeTimeParser";
 import { join } from "node:path";
 import { BASE_DIRNAME, client } from "../../..";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { GetUserSupportStatus } from "../../../util/users";
 
 interface Reminder {
     user: Snowflake,
@@ -62,6 +63,11 @@ export function RemindLater(message: Message) {
         flags: [MessageFlags.SuppressNotifications]
     });
 
+    if (parsed_time < 0) return message.reply({
+        content: 'sorry, i can\'t go back in time to remind you earlier... i would if i could...',
+        flags: [MessageFlags.SuppressNotifications]
+    });
+
     if (!message.reference) return message.reply({
         content: `you need to tell me which message to remind you about!`,
         flags: [MessageFlags.SuppressNotifications]
@@ -71,12 +77,12 @@ export function RemindLater(message: Message) {
     for (const reminder of REMINDERS) {
         if (reminder.user == message.author.id) r++;
     }
-    if (r >= 3 && !GetBoostStatus(message.author.id, message.guildId!)) {
+    if (r >= 5 && !GetBoostStatus(message.author.id, '1019089377705611294') && !GetUserSupportStatus(message.author.id)) {
         return message.reply({
-            content: `sorry, but you've already got 3 reminders scheduled.\nboost CATGIRL CENTRAL to get access to up to 10 reminders.`,
+            content: `sorry, but you've already got 5 reminders scheduled.\nboost CATGIRL CENTRAL or support okawaffles to get access to up to 25 reminders.`,
             flags: [MessageFlags.SuppressNotifications]
         });
-    } else if (r >= 10) {
+    } else if (r >= 25) {
         return message.reply({
             content: `sorry, but you've already got 10 reminders scheduled.`,
             flags: [MessageFlags.SuppressNotifications]
@@ -88,7 +94,7 @@ export function RemindLater(message: Message) {
 
     const reminder: Reminder = {
         message: {
-            guild: message.guildId!,
+            guild: '1019089377705611294',
             channel: message.channelId,
             message: message.reference!.messageId!
         },
