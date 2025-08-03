@@ -118,7 +118,7 @@ const ACHIEVEMENTS: {
     'selldrop': {name:'Ungrateful',description:'Get an item from a lootbox and immediately sell it',class:'fun', diff:'h'},
     // 'curious': {name:'Curious',description:'Ask the Magic 8 Ball 100 questions',class:'fun', diff:'e'},
     'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
-    'autobanned': {name:'Slow Down!',description:'Get a temporary ban from okabot for trying to flip too many coins.',class:'gamble', diff:'e'},
+    // 'autobanned': {name:'Slow Down!',description:'Get a temporary ban from okabot for trying to flip too many coins.',class:'gamble', diff:'e'},
     'streak2': {name:'Twice or it\'s Luck',description:'Win a (supported) gambling game twice in a row',class:'gamble',diff:'e'},
     'streak5': {name:'On a Roll',description:'Win a (supported) gambling game five times in a row',class:'gamble',diff:'t'},
     'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row',class:'gamble',diff:'h'},
