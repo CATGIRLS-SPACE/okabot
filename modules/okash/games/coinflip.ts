@@ -367,6 +367,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
     if (win) AddCasinoWin(interaction.user.id, bet*2, 'coinflip'); else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
+    if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
 
     if (win) {
         WinStreaks.set(interaction.user.id, streak + 1);
