@@ -80,7 +80,7 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {SetupPrefs} from "./modules/user/prefs";
+import {GetUserProfile, SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
@@ -275,9 +275,13 @@ client.on(Events.InteractionCreate, async interaction => {
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
     // if a user is super banned, okabot will stop here
-    if (IsUserBanned(interaction.user.id)) return interaction.reply({
-        content: `:x: You are currently **banned** from using okabot. Please contact a bot admin to appeal your ban.`
-    });
+    if (IsUserBanned(interaction.user.id)) {
+        const profile = GetUserProfile(interaction.user.id);
+        await interaction.reply({
+            content: `:x: You are currently **banned** from using okabot until <t:${Math.ceil(profile.restriction.until/1000)}>. Reason: \`${profile.restriction.reason}\`\nPlease contact a bot admin to appeal your ban.`
+        });
+        return;
+    }
 
     // this should never trigger but its a catch just in case it does happen somehow
     if ((!interaction.channel || interaction.channel.isDMBased()) && !ALLOWED_COMMANDS_IN_DMS.includes(interaction.commandName)) return interaction.reply({

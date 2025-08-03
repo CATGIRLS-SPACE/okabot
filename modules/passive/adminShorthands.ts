@@ -388,6 +388,10 @@ export function RegisterAllShorthands() {
         if (!user) throw new Error('user not found');
         GrantAchievement(user, params[3], message.channel as TextChannel);
     });
+
+    // RegisterShorthand('oka ws', async (message: Message, params: string[]) => {
+
+    // });
 }
 
 export async function CheckForShorthand(message: Message) {
