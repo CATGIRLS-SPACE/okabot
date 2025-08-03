@@ -606,7 +606,8 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     let cooldown = false;
     const last = LastGameFinished.get(interaction.user.id) || 0;
     if (d.getTime() - last < 7000) cooldown = true;
-    // if (PassesActive.get(interaction.user.id) || 0 > d.getTime() / 1000) cooldown = false;
+    if ((PassesActive.get(interaction.user.id) || 0) > d.getTime()/1000) cooldown = false;
+    console.log(cooldown)
 
     // declare the reply up here
     // this is because the reply object

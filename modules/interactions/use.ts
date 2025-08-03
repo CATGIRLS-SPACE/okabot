@@ -104,7 +104,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
     // equip the weighted coin
     preferences.flags.push(FLAG.WEIGHTED_COIN_EQUIPPED);
     UpdateUserProfile(interaction.user.id, preferences);
-
+    GrantAchievement(interaction.user, Achievements.WEIGHTED_COINFLIP, interaction.channel as TextChannel)
     RemoveOneFromInventory(interaction.user.id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
     interaction.editReply({
@@ -270,14 +270,15 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :credit_card: **${time}-minute Casino Pass**!`
         });
 
-    RemoveOneFromInventory(interaction.user.id, item);
-    GrantAchievement(interaction.user, Achievements.CASINO_PASS, interaction.channel as TextChannel);
-
     const d = new Date();
 
     if (PassesActive.has(interaction.user.id) && PassesActive.get(interaction.user.id)! > d.getTime()/1000) return interaction.editReply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you've already got a **Casino Pass** active until <t:${PassesActive.get(interaction.user.id)}>`
     });
+
+    RemoveOneFromInventory(interaction.user.id, item);
+    GrantAchievement(interaction.user, Achievements.CASINO_PASS, interaction.channel as TextChannel);
+
 
     const expiry_time = Math.round(d.getTime()/1000) + {
         '10': 10*60,
