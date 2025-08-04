@@ -4,7 +4,7 @@ import {CreateTrackedItem, VALID_ITEMS_TO_TRACK} from "../../okash/trackedItem";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/items";
 import { RemoveOneFromInventory } from "../../okash/wallet";
 
-const DISABLE_TD = true;
+const DISABLE_TD = false;
 
 export async function item_tracking_device(interaction: ChatInputCommandInteraction) {
     if (DISABLE_TD) return interaction.reply({

@@ -48,10 +48,10 @@ export const VALID_ITEMS_TO_TRACK: {[key: string]: number} = {
     'rbc': 17,
     'trans card deck': 13,
     'tcd': 13,
-    'scd': 18,
-    'sakura card deck': 18,
-    'cherry blossom card deck': 18,
-    'cbcd': 18,
+    'scd': 14,
+    'sakura card deck': 14,
+    'cherry blossom card deck': 14,
+    'cbcd': 14,
 }
 
 // --
