@@ -8,7 +8,7 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 import {PassesActive} from "../okash/games/blackjack";
 import {ITEM_NAMES} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {BoostsActive} from "../passive/onMessage";
+import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
@@ -165,7 +165,8 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
 
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds ${rewardMessage}`
-    })
+    });
+    DoPresenceChecks(interaction);
 }
 async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -212,7 +213,8 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     }
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds ${rewardMessage}`
-    })
+    });
+    DoPresenceChecks(interaction);
 }
 
 
@@ -233,6 +235,7 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
     const result = exLootboxReward(interaction.user.id);
 
     await new Promise((r) => setTimeout(r, 3000));
+    DoPresenceChecks(interaction);
 
     switch (result.type) {
         case LOOTBOX_REWARD_TYPE.OKASH:

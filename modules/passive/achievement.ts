@@ -66,6 +66,7 @@ export enum Achievements {
     DANGO = 'dango',
     STORY = 'story',
     STEAL_THEN_DEPOSIT = 'bankdep',
+    BLUE = 'blue',
 }
 
 const ACHIEVEMENTS: {
@@ -123,6 +124,7 @@ const ACHIEVEMENTS: {
     'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail, and <@796201956255334452> needs to spend some money...',class:'gamble',diff:'ex'},
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
     'bankdep':{name:'A Visit From the IRS',description:'Rob the bank, then immediately deposit the earnings into your bank.',class:'fun',diff:'e'},
+    'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'noshow',diff:'t'},
 }
 
 /**
@@ -206,7 +208,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         });
         
         return interaction.reply({
-            content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${ACHIEVEMENTS[profile.achievements.at(-1)!].name}** - ${ACHIEVEMENTS[profile.achievements.at(-1)!].description}`,
+            content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
             flags: []
         });
     }

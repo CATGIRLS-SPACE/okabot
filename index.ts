@@ -79,7 +79,7 @@ import {DoLeveling} from "./modules/levels/onMessage";
 import {CheckForAgreementMessage, CheckRuleAgreement} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
-import {DoRandomDrops} from "./modules/passive/onMessage";
+import {DoPresenceChecks, DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
 import {GetUserProfile, SetupPrefs} from "./modules/user/prefs";
@@ -111,6 +111,7 @@ export const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildPresences,
     ],
     partials: [
         Partials.Message,
