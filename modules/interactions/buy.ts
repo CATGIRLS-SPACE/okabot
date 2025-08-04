@@ -53,9 +53,9 @@ const SHORTHANDS: {[key: string]: string} = {
     'rbc': 'rainbow coin',
     'db15': 'drop boost 15 minute',
     'db30': 'drop boost 30 minute',
-    'cp10': 'casino pass 10 minute',
-    'cp30': 'casino pass 30 minute',
-    'cp60': 'casino pass 60 minute',
+    'cas10': 'casino pass 10 minute',
+    'cas30': 'casino pass 30 minute',
+    'cas60': 'casino pass 60 minute',
     'tcd': 'trans card deck',
     'cbcd':'cherry blossom card deck',
 }

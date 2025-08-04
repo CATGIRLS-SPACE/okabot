@@ -33,15 +33,15 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_ex_lootbox(interaction);
             break;
 
-        case 'cp10':
+        case 'cas10':
             item_casino_pass(interaction, '10');
             break;
 
-        case 'cp30':
+        case 'cas30':
             item_casino_pass(interaction, '30');
             break;
 
-        case 'cp60':
+        case 'cas60':
             item_casino_pass(interaction, '60');
             break;
 

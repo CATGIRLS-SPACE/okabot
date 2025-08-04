@@ -18,7 +18,7 @@ const agreement = new EmbedBuilder()
     .setDescription('You must read and agree to these rules before using okabot')
     .setFields(
         {name:'1. No Exploiting',value:'Any abuse of bugs or manipulation will cause your account to be irreversibly **reset without warning**. Alongside, you may potentially be banned from using okabot entirely.'},
-        {name:'2. No Macros',value:'Effortless gambling isn\'t fair to others. Don\'t use macros/scripts.'},
+        {name:'2. No Macros!!!!!!!',value:'Effortless gambling isn\'t fair to others. Don\'t use macros/scripts.'},
         {name:'3. No multiaccounting',value:'You are allowed one account and one account only for okabot.'},
         {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot. Trading okash to trade items is OK.'},
     );
@@ -35,7 +35,7 @@ const agreement_jp = new EmbedBuilder()
     );
 
 const AcceptButton = new ButtonBuilder()
-    .setLabel('Accept / 分かる')
+    .setLabel('Accept')
     .setCustomId('accept')
     .setStyle(ButtonStyle.Success)
     .setEmoji('✅')
