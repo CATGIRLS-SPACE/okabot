@@ -80,7 +80,6 @@ const ACHIEVEMENTS: {
     'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
     'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
     'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
-    // 'level_beyond': {name:'BEYOND',description:'Get past level 100 to BEYOND', class:'noshow', diff:'na'},
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
     'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
     'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},
@@ -98,7 +97,7 @@ const ACHIEVEMENTS: {
     'daily2month': {name:'Unforgetful',description:'Get your daily reward for two months straight', class:'okabot', diff:'t'},
     'daily100': {name:'One Hundred',description:'Get your daily reward for 100 days straight', class:'okabot', diff:'h'},
     'dailyyear': {name:'I Can\'t Stop!',description:'Get your daily reward for one year. Congrats!', class:'okabot', diff:'h'},
-    'restorestreak': {name:'Oops, I Forgot',description:'Restore your daily streak with a streak restore', class:'okabot', diff:'e'},
+    'restorestreak': {name:'Deciduous Arborist',description:'Restore your daily streak with a streak restore', class:'okabot', diff:'e'},
     'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun', diff:'t'},
     'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun', diff:'e'},
     'thankokabot': {name:'Nice List',description:'Thank okabot', class:'fun', diff:'e'},
@@ -116,15 +115,12 @@ const ACHIEVEMENTS: {
     'casinopass': {name:'No Time To Waste',description:'Use a Casino Pass to bypass the blackjack cooldown',class:'fun', diff:'e'},
     'dropboost': {name:'Drop Please',description:'Use a Drop Chance Booster to increase your chances at gaining a lootbox',class:'fun', diff:'e'},
     'selldrop': {name:'Ungrateful',description:'Get an item from a lootbox and immediately sell it',class:'fun', diff:'h'},
-    // 'curious': {name:'Curious',description:'Ask the Magic 8 Ball 100 questions',class:'fun', diff:'e'},
     'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
-    // 'autobanned': {name:'Slow Down!',description:'Get a temporary ban from okabot for trying to flip too many coins.',class:'gamble', diff:'e'},
     'streak2': {name:'Twice or it\'s Luck',description:'Win a (supported) gambling game twice in a row',class:'gamble',diff:'e'},
     'streak5': {name:'On a Roll',description:'Win a (supported) gambling game five times in a row',class:'gamble',diff:'t'},
     'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row',class:'gamble',diff:'h'},
-    'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail',class:'gamble',diff:'ex'},
+    'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail, and <@796201956255334452> needs to spend some money...',class:'gamble',diff:'ex'},
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
-    // 'story':{name:'Lore?!',description:'Unlock an okabot lorebook story',class:'okabot',diff:'e'}
 }
 
 /**
@@ -197,6 +193,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
 
     const profile = GetUserProfile(interaction.user.id);
     const sub = interaction.options.getString('page', true);
+    const spoil = interaction.options.getBoolean('show-all', false) || false;
 
     if (sub == 'bar') {
         const bar = CreateProgressBar(profile);
@@ -230,7 +227,12 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     for (const i in selected_achievements) {
         const locked = profile.achievements.indexOf(<Achievements> selected_achievements[i].key) == -1;
         let line = difficulty[selected_achievements[i].a.diff] + (locked?'🔒 ':'🔓 ');
-        line += locked?`${selected_achievements[i].a.name} - ???`:`**${selected_achievements[i].a.name}** - ${selected_achievements[i].a.description}`
+    
+        if (spoil) {
+            line += (locked?selected_achievements[i].a.name:`**${selected_achievements[i].a.name}**`) + ` - ${selected_achievements[i].a.description}`; 
+        } else {
+            line += locked?`${selected_achievements[i].a.name} - ???`:`**${selected_achievements[i].a.name}** - ${selected_achievements[i].a.description}`;
+        }
         
         list += `${line}\n`;
     }
@@ -258,4 +260,9 @@ export const AchievementsSlashCommand = new SlashCommandBuilder()
             {name:'okash', value:'okash'},
         )
         .setRequired(true)
+    )
+    .addBooleanOption(option => option
+        .setName('show-all')
+        .setDescription('Show all achievement descriptions, even if locked')
+        .setRequired(false)
     );
