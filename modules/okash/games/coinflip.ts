@@ -357,6 +357,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     let streak = WinStreaks.get(interaction.user.id) || 0;
     if (win) streak++;
+    console.log(`Coinflip winstreak is now ${streak}.`);
 
     const streak_msg = streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':'';
 

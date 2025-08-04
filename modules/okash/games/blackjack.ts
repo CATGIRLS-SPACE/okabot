@@ -485,6 +485,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
         }
 
         WinStreak.set(interaction.user.id, streak);
+        console.log(`Blackjack winstreak is now ${streak}.`);
 
         if (game.bet == 12500) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
     } else if (tie) {
@@ -815,6 +816,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         // yes, so user wins
         const streak = WinStreak.get(i.user.id) || 0;
         WinStreak.set(i.user.id, streak + 1);
+        console.log(`Blackjack winstreak is now ${streak+1}.`);
 
         if (streak+1 == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
         if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
@@ -855,6 +857,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // must do streak before container
     const streak = WinStreak.get(i.user.id) || 0;
     WinStreak.set(i.user.id, streak + 1);
+    console.log(`Blackjack winstreak is now ${streak+1}.`);
 
     if (streak+1 == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
     if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);

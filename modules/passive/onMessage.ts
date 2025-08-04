@@ -1,4 +1,4 @@
-import {Message, Snowflake, TextChannel, User} from "discord.js";
+import {ChatInputCommandInteraction, Message, Snowflake, TextChannel, User} from "discord.js";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {ITEMS} from "../okash/items";
 import {Logger} from "okayulogger";
@@ -88,4 +88,21 @@ export async function DoRandomDrops(message: Message, author?: User) {
         GrantAchievement(message.author, Achievements.LOOTBOX_DROP, message.channel as TextChannel);
         AddOneToInventory(message.author.id, ITEMS.LOOTBOX_EX);
     }
+}
+
+// only used for the blue achievement but might expand to more later
+export async function DoPresenceChecks(interaction: ChatInputCommandInteraction) {
+    if (interaction.channel?.isDMBased()) return;
+
+    const member = await interaction.guild!.members.fetch(interaction.user);
+    if (!member) return L.debug('member is undefined');
+    
+    const presences = member.presence?.activities;
+    if (!presences) return;
+    
+    // console.log(presences);
+
+    presences?.forEach(presence => {
+        if (presence.name == 'Blue Archive') GrantAchievement(interaction.user, Achievements.BLUE, interaction.channel as TextChannel);
+    });
 }
