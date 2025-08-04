@@ -65,6 +65,7 @@ export enum Achievements {
     STREAK_25 = 'streak25',
     DANGO = 'dango',
     STORY = 'story',
+    STEAL_THEN_DEPOSIT = 'bankdep',
 }
 
 const ACHIEVEMENTS: {
@@ -121,6 +122,7 @@ const ACHIEVEMENTS: {
     'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row',class:'gamble',diff:'h'},
     'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail, and <@796201956255334452> needs to spend some money...',class:'gamble',diff:'ex'},
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
+    'bankdep':{name:'A Visit From the IRS',description:'Rob the bank, then immediately deposit the earnings into your bank.',class:'fun',diff:'e'},
 }
 
 /**
@@ -149,7 +151,7 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     };
 
     channel.send({
-        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# Use "/achievements Progress Bar" to see what this achievement is!`
+        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# ${a.description}`
     });
 
     UpdateUserProfile(user.id, profile);

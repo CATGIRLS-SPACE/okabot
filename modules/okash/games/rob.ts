@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
 import {AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet} from "../wallet";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
@@ -23,6 +23,7 @@ const BANK_MESSAGES = [
 ];
 
 const COOLDOWNS = new Map<string, number>();
+export const BANK_ROBS = new Map<Snowflake, {when:number,amount:number}>();
 let BANK_LAST_ROBBED = 0;
 
 export function GetCurrentFines(): number {
@@ -52,14 +53,14 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
             flags: [MessageFlags.Ephemeral]
         });
 
-        BANK_LAST_ROBBED = d.getTime();
-
         const bank_fine_balance = JSON.parse(readFileSync(ROB_DB_LOCATION, 'utf-8')).fined;
 
         if (bank_fine_balance == 0) return interaction.reply({
             content:`:crying_cat_face: There's no collected fines right now! Come back later!`,
             flags: [MessageFlags.Ephemeral] 
         });
+
+        BANK_LAST_ROBBED = d.getTime();
 
         COOLDOWNS.set(interaction.user.id, Math.floor(d.getTime() / 1000) + 3600);
 
@@ -70,6 +71,8 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         AddToWallet(interaction.user.id, robbed_amount);
 
         writeFileSync(ROB_DB_LOCATION, `{"fined":${bank_fine_balance - robbed_amount}}`);
+
+        BANK_ROBS.set(interaction.user.id, {when:Math.ceil(d.getTime()/1000),amount:robbed_amount});
 
         interaction.reply({
             content: BANK_MESSAGES[Math.floor(Math.random() * BANK_MESSAGES.length)]

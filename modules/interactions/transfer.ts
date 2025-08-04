@@ -1,6 +1,8 @@
-import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel } from "discord.js";
 import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { BANK_ROBS } from "../okash/games/rob";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 
 export async function HandleCommandTransfer(interaction: ChatInputCommandInteraction) {
@@ -30,6 +32,11 @@ export async function HandleCommandTransfer(interaction: ChatInputCommandInterac
 
             RemoveFromWallet(interaction.user.id, amount);
             AddToBank(interaction.user.id, amount);
+            if (BANK_ROBS.has(interaction.user.id)) {
+                const time = (new Date()).getTime()/1000;
+                const robbery = BANK_ROBS.get(interaction.user.id)!;
+                if (robbery.when + 60 > time) GrantAchievement(interaction.user, Achievements.STEAL_THEN_DEPOSIT, interaction.channel as TextChannel);
+            }
             break;
 
         case 'bank':
