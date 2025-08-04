@@ -124,7 +124,7 @@ const ACHIEVEMENTS: {
     'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail, and <@796201956255334452> needs to spend some money...',class:'gamble',diff:'ex'},
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
     'bankdep':{name:'A Visit From the IRS',description:'Rob the bank, then immediately deposit the earnings into your bank.',class:'fun',diff:'e'},
-    'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'noshow',diff:'t'},
+    'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'fun',diff:'t'},
 }
 
 /**
