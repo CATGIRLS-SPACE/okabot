@@ -342,7 +342,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const reply_as_message = await reply.fetch();
 
     // immediately determine whether its a win or not
-    const roll = Math.random();
+    // const roll = Math.random();
+    const roll = 0.3311351516712282;
     const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
 
     // wait 3 seconds
@@ -357,7 +358,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const streak = WinStreaks.get(interaction.user.id) || 0;
 
     interaction.editReply({
-        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${roll>=0.5?'heads':'tails'}**, ${final}${streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':''}\n-# ${roll}${nfm}`
+        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${!weighted?(roll>=0.5?'heads':'tails'):(roll>=0.3?'heads':'tails')}**, ${final}${streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':''}\n-# ${roll}${nfm}`
     });
 
     // reload their profile so we don't cause any desync issues and give reward
