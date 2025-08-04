@@ -759,7 +759,7 @@ async function GameIdleCheckV2(user_id: Snowflake, reply: any) {
         reply.edit({
             components: [
                 new ContainerBuilder().addTextDisplayComponents(
-                    new TextDisplayBuilder().setContent(`⌛ This inactive blackjack game has expired.\nThe bet of ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}** was refunded.`)
+                    new TextDisplayBuilder().setContent(`⌛ This inactive blackjack game has expired.\nThe bet of ${GetEmoji(EMOJI.OKASH)} OKA**${game.bet}** was refunded. Your streak has been reset to prevent abuse.`)
                 )
             ],
             flags: [MessageFlags.IsComponentsV2]
@@ -768,6 +768,7 @@ async function GameIdleCheckV2(user_id: Snowflake, reply: any) {
         AddToWallet(user_id, game.bet);
         GamesActive.delete(user_id);
         SetGambleLock(user_id, false);
+        WinStreak.set(user_id, 0); // idling and expiring a game could potentially be abused to get high winstreaks
     } else {
         // add another 10 seconds before checking for expired games
         // if the game was still active when checked
