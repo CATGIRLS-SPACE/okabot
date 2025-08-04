@@ -12,7 +12,9 @@ import {
     Partials,
     Snowflake,
     TextChannel,
-    ActivityType, User
+    ActivityType, User,
+    PermissionsBitField,
+    PermissionFlagsBits
 } from "discord.js";
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
@@ -257,6 +259,32 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
     LAST_USER_LOCALE.set(user_id, locale);
 }
 
+async function CheckRequiredPermissions(interaction: ChatInputCommandInteraction): Promise<boolean> {
+    if (interaction.channel?.isDMBased()) return true;    
+
+    const guild = await interaction.client.guilds.fetch(interaction.guildId!);
+    if (!guild) return false;
+    const me = guild.roles.botRoleFor(interaction.client.user);
+    if (!me) return false;
+
+    let has_perms = true;
+    
+    has_perms = me.permissions.has(PermissionFlagsBits.ReadMessageHistory);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.AddReactions);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.AttachFiles);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.EmbedLinks);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.ManageMessages);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.SendMessages);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.SendMessagesInThreads);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseApplicationCommands);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseExternalApps);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseExternalEmojis);
+    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.ViewChannel);
+    // has_perms = has_perms && me.permissions.has(PermissionFlagsBits.);
+
+    return has_perms;
+}
+
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
     if (!interaction.channel?.isTextBased()) try {
@@ -269,6 +297,17 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 
     L.info(`Execute command "${interaction.commandName}"`);
+
+    if (!(await CheckRequiredPermissions(interaction))) {
+        try {
+            interaction.reply({
+                content:':crying_cat_face: I don\'t have the right permissions to function! Please update my permissions! I require:\nread message history, add reactions, attach files, embed links, manage messages, send messages (+in threads), use application commands, use external apps, use external emojis, view channel.\n\nAlternatively, you could just check Administrator. Only do this if you absolutely trust me!'
+            });
+        } catch (err) {
+            L.error('failed to send wrong perms message');
+        }
+        return;
+    }
 
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
