@@ -342,8 +342,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const reply_as_message = await reply.fetch();
 
     // immediately determine whether its a win or not
-    // const roll = Math.random();
-    const roll = 0.3311351516712282;
+    const roll = Math.random();
+    // const roll = 1;
     const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
 
     // wait 3 seconds
@@ -355,10 +355,13 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // check if we need to show a new float message
     const nfm = CheckFloatRecords(roll, interaction);
 
-    const streak = WinStreaks.get(interaction.user.id) || 0;
+    let streak = WinStreaks.get(interaction.user.id) || 0;
+    if (win) streak++;
+
+    const streak_msg = streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':'';
 
     interaction.editReply({
-        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${!weighted?(roll>=0.5?'heads':'tails'):(roll>=0.3?'heads':'tails')}**, ${final}${streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':''}\n-# ${roll}${nfm}`
+        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${!weighted?(roll>=0.5?'heads':'tails'):(roll>=0.3?'heads':'tails')}**, ${final}${streak_msg}\n-# ${roll}${nfm}`
     });
 
     // reload their profile so we don't cause any desync issues and give reward
@@ -371,11 +374,11 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
 
     if (win) {
-        WinStreaks.set(interaction.user.id, streak + 1);
-        if (streak+1 == 2) GrantAchievement(interaction.user, Achievements.STREAK_2, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
-        if (streak+1 == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
-        if (streak+1 == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
-        if (streak+1 == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        WinStreaks.set(interaction.user.id, streak);
+        if (streak == 2) GrantAchievement(interaction.user, Achievements.STREAK_2, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+        if (streak == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
     } else WinStreaks.set(interaction.user.id, 0);
 
     if (profile.okash.wallet + profile.okash.bank == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
