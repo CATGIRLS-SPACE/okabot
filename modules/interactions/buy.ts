@@ -44,6 +44,7 @@ const PRICES: {
 
 const SHORTHANDS: {[key: string]: string} = {
     'sr': 'streak restore',
+    'xpl': 'xp level up',
     'dgc': 'dark green coin',
     'dbc': 'dark blue coin',
     'rc': 'red coin',
