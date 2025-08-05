@@ -100,9 +100,9 @@ export async function DoPresenceChecks(interaction: ChatInputCommandInteraction)
     const presences = member.presence?.activities;
     if (!presences) return;
     
-    // console.log(presences);
+    console.log(presences);
 
     presences?.forEach(presence => {
-        if (presence.name == 'Blue Archive') GrantAchievement(interaction.user, Achievements.BLUE, interaction.channel as TextChannel);
+        if (presence.name == 'Blue Archive' || (presence.name == 'Custom Status' && presence.state == 'Playing Blue Archive')) GrantAchievement(interaction.user, Achievements.BLUE, interaction.channel as TextChannel);
     });
 }
