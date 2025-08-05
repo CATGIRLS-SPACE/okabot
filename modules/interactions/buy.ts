@@ -118,15 +118,15 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
             AddOneToInventory(interaction.user.id, ITEMS.STREAK_RESTORE);
             break;
 
-        case 'casino pass 10 minute': case 'cp10':
+        case 'casino pass 10 minute': case 'cas10':
             AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_10_MIN);
             break;
 
-        case 'casino pass 30 minute': case 'cp30':
+        case 'casino pass 30 minute': case 'cas30':
             AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_30_MIN);
             break;
 
-        case 'casino pass 60 minute': case 'cp60':
+        case 'casino pass 60 minute': case 'cas60':
             AddOneToInventory(interaction.user.id, ITEMS.CASINO_PASS_1_HOUR);
             break;
 
