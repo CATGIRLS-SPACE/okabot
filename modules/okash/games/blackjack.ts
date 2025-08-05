@@ -822,7 +822,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         if (streak+1 == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
         if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
         if (streak+1 == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
-        if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
+        // if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
         
         const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);
         
@@ -863,7 +863,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     if (streak+1 == 2) GrantAchievement(i.user, Achievements.STREAK_2, i.client.channels.cache.get(i.channelId) as TextChannel);
     if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
     if (streak+1 == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
-    if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
+    // if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
 
     // build new embed
     const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);
@@ -918,6 +918,7 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
         console.log(i.user.id, 'streak now 0');
     }
 
+    AddXP(i.user.id, i.channel as TextChannel, 10);
     DoRandomDrops(await i.fetchReply(), i.user);
 
     // delete their game
