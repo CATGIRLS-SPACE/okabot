@@ -219,14 +219,14 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
             stats.coinflip.high.value = rolled;
             stats.coinflip.high.user_id = interaction.user.id;
             AddToWallet(interaction.user.id, Math.abs(Math.floor(rolled * REWARD)));
-            GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+            // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
         }
         if (stats.coinflip.low.value > rolled) {
             new_float += `\n**NEW LOWEST ROLL:** \`${rolled}\` is the lowest float someone has rolled on okabot! ${GetEmoji('okash')} You have earned OKA**${Math.abs(Math.floor(REWARD - (rolled*REWARD)))}**!`;
             stats.coinflip.low.value = rolled;
             stats.coinflip.low.user_id = interaction.user.id;
             AddToWallet(interaction.user.id, Math.abs(Math.floor(REWARD - (rolled*REWARD))));
-            GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+            // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
         }
         
         // daily rolls
@@ -403,12 +403,12 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     // daily
     if (float > stats.coinflip.daily!.high.value) {
         stats.coinflip.daily!.high = {value:float,user_id:interaction.user.id};
-        message += `\n**New Weekly Highest:** \`${float}\` is the highest float someone has rolled this week!`
+        message += `\n**New Weekly Highest:** \`${float}\` is the highest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
     }
     if (float < stats.coinflip.daily!.low.value) {
         stats.coinflip.daily!.low = {value:float,user_id:interaction.user.id};
-        message += `\n**New Weekly Lowest:** \`${float}\` is the lowest float someone has rolled this week!`
+        message += `\n**New Weekly Lowest:** \`${float}\` is the lowest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
     }
 
@@ -416,12 +416,12 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     if (float > stats.coinflip.high.value) {
         stats.coinflip.high = {value:float,user_id:interaction.user.id};
         message += `\n**New All-Time Highest:** \`${float}\` is the highest float someone has rolled on okabot!`
-        GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+        // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
     }
     if (float < stats.coinflip.low.value) {
         stats.coinflip.low = {value:float,user_id:interaction.user.id};
         message += `\n**New All-Time Lowest:** \`${float}\` is the lowest float someone has rolled on okabot!`
-        GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
+        // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
     }
 
     writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');

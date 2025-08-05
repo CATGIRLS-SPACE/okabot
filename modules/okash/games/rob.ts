@@ -65,7 +65,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         COOLDOWNS.set(interaction.user.id, Math.floor(d.getTime() / 1000) + 3600);
 
         const robbed_amount = Math.floor(Math.random() * bank_fine_balance) + 1; // min of 1 okash, max of all collected fines
-        if (robbed_amount >= 50_000) GrantAchievement(interaction.user, Achievements.ROB_BANK_HIGH, interaction.channel as TextChannel);
+        if (robbed_amount >= 10_000) GrantAchievement(interaction.user, Achievements.ROB_BANK_HIGH, interaction.channel as TextChannel);
         if (robbed_amount <= bank_fine_balance*0.05) GrantAchievement(interaction.user, Achievements.ROB_BANK_PUNY, interaction.channel as TextChannel);
 
         AddToWallet(interaction.user.id, robbed_amount);
