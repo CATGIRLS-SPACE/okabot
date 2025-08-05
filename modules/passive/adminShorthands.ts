@@ -27,6 +27,7 @@ import {PassesActive, ReleaseBlackjackUser} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
 import {BoostsActive} from "./onMessage";
 import {SOCKET, open_socket} from "../earthquakes/earthquakes";
+import { SetGambleLock } from "../okash/games/_lock";
 
 
 interface ShorthandList {
@@ -333,6 +334,7 @@ export function RegisterAllShorthands() {
         ReleaseUserGame(params[2]);
         ManualRelease(params[2]);
         ReleaseBlackjackUser(params[2]);
+        SetGambleLock(params[2], false);
     });
 
     // debugging
