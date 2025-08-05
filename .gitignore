@@ -6,7 +6,8 @@ config.json
 /util/*.js
 index.js
 old_index.js
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.oka
 **/*.js.map
 ERROR.LOG

@@ -352,7 +352,7 @@ async function ConfirmMultiNumberGame(user_id: string) {
     });
 }
 
-const DISABLE_ROULETTE = true;
+const DISABLE_ROULETTE = false;
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
@@ -395,7 +395,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     });
 
     const response = await interaction.reply({
-        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\nRoulette is experimental: you may lose your okash if not played properly!\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
         components: [InitialTypeRow],
         flags: [MessageFlags.SuppressNotifications]
     });
