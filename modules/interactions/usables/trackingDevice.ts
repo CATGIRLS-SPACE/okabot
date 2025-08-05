@@ -1,7 +1,7 @@
 import {ChatInputCommandInteraction, MessageFlags} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../../user/prefs";
 import {CreateTrackedItem, VALID_ITEMS_TO_TRACK} from "../../okash/trackedItem";
-import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS} from "../../okash/items";
+import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEMS, TRACKABLE_ID_NAMES} from "../../okash/items";
 import { RemoveOneFromInventory } from "../../okash/wallet";
 
 const DISABLE_TD = false;
@@ -30,7 +30,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
         content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but that's not a valid item you can make a Tracked:tm:!`
     });
 
-    if (!profile.customization.unlocked.includes(VALID_ITEMS_TO_TRACK[use_on])) return interaction.editReply({
+    if (!profile.customization.unlocked.includes(TRACKABLE_ID_NAMES[use_on])) return interaction.editReply({
         content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, but it looks like you don't have that item!`
     });
 
@@ -53,7 +53,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
         18: 'deck',
     }
 
-    const serial = await CreateTrackedItem(item_types[VALID_ITEMS_TO_TRACK[use_on]], VALID_ITEMS_TO_TRACK[use_on], interaction.user.id);
+    const serial = await CreateTrackedItem(item_types[VALID_ITEMS_TO_TRACK[use_on]], TRACKABLE_ID_NAMES[use_on], interaction.user.id);
     RemoveOneFromInventory(interaction.user.id, ITEMS.TRACKED_CONVERTER);
     
     await new Promise((resolve) => setTimeout(resolve, 3000));

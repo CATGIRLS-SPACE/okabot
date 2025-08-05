@@ -76,6 +76,28 @@ export const CUSTOMIZTAION_ID_NAMES: {[key: number]: string} = {
     17:'Rainbow Coin',
     18:'Cherry Blossom Card Deck'
 }
+export const TRACKABLE_ID_NAMES: {[key: string]: number} = {
+    'red coin': 1,
+    'rc': 1,
+    'dark blue coin': 2,
+    'dbc': 2,
+    'light blue coin': 3,
+    'lbc': 3,
+    'pink coin': 4,
+    'pc': 4,
+    'purple coin': 5,
+    'ppc': 5,
+    'dark green coin': 16,
+    'dgc': 16,
+    'rainbow coin': 17,
+    'rbc': 17,
+    'trans card deck': 13,
+    'tcd': 13,
+    'scd': 14,
+    'sakura card deck': 14,
+    'cherry blossom card deck': 14,
+    'cbcd': 14,
+}
 
 export enum ITEM_TYPE {
     ITEM,

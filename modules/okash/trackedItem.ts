@@ -48,10 +48,10 @@ export const VALID_ITEMS_TO_TRACK: {[key: string]: number} = {
     'rbc': 17,
     'trans card deck': 13,
     'tcd': 13,
-    'scd': 14,
-    'sakura card deck': 14,
-    'cherry blossom card deck': 14,
-    'cbcd': 14,
+    'scd': 18,
+    'sakura card deck': 18,
+    'cherry blossom card deck': 18,
+    'cbcd': 18,
 }
 
 // --
@@ -103,8 +103,25 @@ export function UpdateTrackedItem(serial: string, data: {property:'name',value:s
     SaveSerialDB();
 }
 
+function generateUUID() {
+  const chars = '0123456789abcdef';
+  let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8); // Fix for variant digit, see explanation below
+    return chars[v];
+  });
+  return uuid;
+}
+
 export async function CreateTrackedItem(type: 'coin' | 'deck', item: CUSTOMIZATION_UNLOCKS, user_id: Snowflake): Promise<string> {
-    const serial = crypto.randomUUID();
+    let serial;
+
+    try {
+        serial = crypto.randomUUID();
+    } catch (err) {
+        console.error(err);
+        serial = generateUUID();
+    }
 
     SerialedItems[serial] = {
         serial,
