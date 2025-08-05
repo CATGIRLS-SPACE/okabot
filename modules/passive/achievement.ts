@@ -11,16 +11,16 @@ interface Achievement {
 }
 
 export enum Achievements {
-    LEVEL_10 = 'level10', //
-    LEVEL_20 = 'level20', //
-    LEVEL_30 = 'level30', //
-    LEVEL_40 = 'level40', //
-    LEVEL_50 = 'level50', //
-    LEVEL_60 = 'level60', //
-    LEVEL_70 = 'level70', //
-    LEVEL_80 = 'level80', //
-    LEVEL_90 = 'level90', //
-    LEVEL_100 = 'level100', //
+    // LEVEL_10 = 'level10', //
+    // LEVEL_20 = 'level20', //
+    // LEVEL_30 = 'level30', //
+    // LEVEL_40 = 'level40', //
+    // LEVEL_50 = 'level50', //
+    // LEVEL_60 = 'level60', //
+    // LEVEL_70 = 'level70', //
+    // LEVEL_80 = 'level80', //
+    // LEVEL_90 = 'level90', //
+    // LEVEL_100 = 'level100', //
     // LEVEL_BEYOND = 'level_beyond', //
     LOW_COINFLIP = 'lowcf', //
     HIGH_COINFLIP = 'highcf', //
@@ -72,16 +72,16 @@ export enum Achievements {
 const ACHIEVEMENTS: {
     [key: string]: Achievement
 } = {
-    'level10': {name:'Level 10',description:'Get to level 10', class:'noshow', diff:'na'},
-    'level20': {name:'Level 20',description:'Get to level 20', class:'noshow', diff:'na'},
-    'level30': {name:'Level 30',description:'Get to level 30', class:'noshow', diff:'na'},
-    'level40': {name:'Level 40',description:'Get to level 40', class:'noshow', diff:'na'},
-    'level50': {name:'Level 50',description:'Get to level 50', class:'noshow', diff:'na'},
-    'level60': {name:'Level 60',description:'Get to level 60', class:'noshow', diff:'na'},
-    'level70': {name:'Level 70',description:'Get to level 70', class:'noshow', diff:'na'},
-    'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
-    'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
-    'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
+    // 'level10': {name:'Level 10',description:'Get to level 10', class:'noshow', diff:'na'},
+    // 'level20': {name:'Level 20',description:'Get to level 20', class:'noshow', diff:'na'},
+    // 'level30': {name:'Level 30',description:'Get to level 30', class:'noshow', diff:'na'},
+    // 'level40': {name:'Level 40',description:'Get to level 40', class:'noshow', diff:'na'},
+    // 'level50': {name:'Level 50',description:'Get to level 50', class:'noshow', diff:'na'},
+    // 'level60': {name:'Level 60',description:'Get to level 60', class:'noshow', diff:'na'},
+    // 'level70': {name:'Level 70',description:'Get to level 70', class:'noshow', diff:'na'},
+    // 'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
+    // 'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
+    // 'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
     'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
     'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},

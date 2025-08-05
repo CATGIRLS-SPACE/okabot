@@ -82,16 +82,16 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         UpdateUserProfile(user_id, profile);
 
         // achievements
-        if (profile.leveling.level >= 10) GrantAchievement(user, Achievements.LEVEL_10, channel);
-        if (profile.leveling.level >= 20) GrantAchievement(user, Achievements.LEVEL_20, channel);
-        if (profile.leveling.level >= 30) GrantAchievement(user, Achievements.LEVEL_30, channel);
-        if (profile.leveling.level >= 40) GrantAchievement(user, Achievements.LEVEL_40, channel);
-        if (profile.leveling.level >= 50) GrantAchievement(user, Achievements.LEVEL_50, channel);
-        if (profile.leveling.level >= 60) GrantAchievement(user, Achievements.LEVEL_60, channel);
-        if (profile.leveling.level >= 70) GrantAchievement(user, Achievements.LEVEL_70, channel);
-        if (profile.leveling.level >= 80) GrantAchievement(user, Achievements.LEVEL_80, channel);
-        if (profile.leveling.level >= 90) GrantAchievement(user, Achievements.LEVEL_90, channel);
-        if (profile.leveling.level >= 100) GrantAchievement(user, Achievements.LEVEL_100, channel);
+        // if (profile.leveling.level >= 10) GrantAchievement(user, Achievements.LEVEL_10, channel);
+        // if (profile.leveling.level >= 20) GrantAchievement(user, Achievements.LEVEL_20, channel);
+        // if (profile.leveling.level >= 30) GrantAchievement(user, Achievements.LEVEL_30, channel);
+        // if (profile.leveling.level >= 40) GrantAchievement(user, Achievements.LEVEL_40, channel);
+        // if (profile.leveling.level >= 50) GrantAchievement(user, Achievements.LEVEL_50, channel);
+        // if (profile.leveling.level >= 60) GrantAchievement(user, Achievements.LEVEL_60, channel);
+        // if (profile.leveling.level >= 70) GrantAchievement(user, Achievements.LEVEL_70, channel);
+        // if (profile.leveling.level >= 80) GrantAchievement(user, Achievements.LEVEL_80, channel);
+        // if (profile.leveling.level >= 90) GrantAchievement(user, Achievements.LEVEL_90, channel);
+        // if (profile.leveling.level >= 100) GrantAchievement(user, Achievements.LEVEL_100, channel);
         // if (profile.leveling.level >= 101) GrantAchievement(user, Achievements.LEVEL_BEYOND, channel);
         return;
     }
