@@ -1,10 +1,14 @@
 import {GoogleGenAI} from '@google/genai';
 import {BASE_DIRNAME, CONFIG, DEV, GetLastLocale} from "../../index";
 import {Message, Snowflake, TextChannel} from "discord.js";
-import * as repl from "node:repl";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
+const groundingTool = {
+    googleSearch:{
+
+    }
+}
 
 const ConversationChains: {
     [key: string]: {
@@ -49,7 +53,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
     const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
 
-    console.log(prompt_data, prompt_extra);
+    // console.log(prompt_data, prompt_extra);
 
     let extra = '';
     if (message.reference) {
@@ -58,7 +62,9 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
         extra = prompt_extra.replaceAll('$REPLYNAME', reference.author.displayName).replaceAll('$REPLY', reference.content);
     }
 
-    const prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', '').replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+    const prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+
+    // console.log(prompt);
 
     await channel.sendTyping();
 
@@ -69,8 +75,9 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
             thinkingConfig: {
                 thinkingBudget: 1024,
                 includeThoughts: true
-            }
-        }
+            },
+            tools:[{googleSearch:{}}]
+        },
     });
 
     if (response.text == undefined) return await message.reply('*(something went wrong and i didn\'t get a response... try again?)*')
@@ -151,7 +158,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
 
-    const prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', '').replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
+    const prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
     const response = await ai.models.generateContent({
         model:'gemini-2.5-pro-preview-03-25',
@@ -160,7 +167,8 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             thinkingConfig: {
                 thinkingBudget: 1024,
                 includeThoughts: true,
-            }
+            },
+            tools:[{googleSearch:{}}]
         }
     });
 
@@ -195,7 +203,8 @@ export async function GetWackWordDefinitions(message: Message) {
             thinkingConfig: {
                 thinkingBudget: 1024,
                 includeThoughts: true,
-            }
+            },
+            tools:[{googleSearch:{}}]
         }
     });
 
