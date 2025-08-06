@@ -66,6 +66,35 @@ function setNestedProperty(obj: any, path: string, value: any): void {
 
     current[lastKey] = value;
 }
+function formatUserProfileAsText(obj: USER_PROFILE, prefix = ''): string {
+  let result = '';
+
+  for (const key in obj) {
+    if (!Object.hasOwnProperty.call(obj, key)) continue;
+
+    const value = (obj as any)[key];
+    const fullKey = prefix ? `${prefix}.${key}` : key;
+
+    if (
+      value !== null &&
+      typeof value === 'object' &&
+      !Array.isArray(value)
+    ) {
+      result += formatUserProfileAsText(value, fullKey);
+    } else {
+      const formattedValue =
+        typeof value === 'string'
+          ? `"${value}"`
+          : Array.isArray(value)
+          ? JSON.stringify(value)
+          : value;
+      result += `${fullKey}: ${formattedValue}\n`;
+    }
+  }
+
+  return result;
+}
+
 
 // --
 
@@ -391,9 +420,20 @@ export function RegisterAllShorthands() {
         GrantAchievement(user, params[3], message.channel as TextChannel);
     });
 
-    // RegisterShorthand('oka ws', async (message: Message, params: string[]) => {
-
-    // });
+    RegisterShorthand('oka peek', async (message: Message, params: string[]) => {
+        if (params.length < 4) return message.reply('not enough params: format: \`oka peek <them | me | Snowflake> <query>\`\n-# query results cannot be over 2000 characters!');
+        const user = GetUserProfile(params[2]);
+        let formatted = formatUserProfileAsText(user);
+        let results = formatted
+            .replaceAll('customization', 'c')
+            .replaceAll('leveling', 'l')
+            .replaceAll('daily', 'd')
+            .replaceAll('restriction', 'r')
+            .replaceAll('inventory', 'inv')
+            .replaceAll('trackedInventory', 'tr_inv')
+            .replaceAll('scraps', 's');
+        message.reply(`\`\`\`${results}\`\`\``);
+    });
 }
 
 export async function CheckForShorthand(message: Message) {

@@ -28,7 +28,6 @@ import {ToggleSlashCommand} from "../interactions/toggle";
 import {TradeSlashCommand} from "../interactions/trade";
 import {FortuneBallSlashCommand} from "../interactions/8ball";
 import {CatgirlSlashCommand} from "../interactions/catgirl";
-import { StorySlashCommand } from "../interactions/story";
 import {CraftSlashCommand} from "../interactions/craft";
 
 
@@ -75,7 +74,6 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         // CasinoSlashCommand, // <-- not ready yet!
         FortuneBallSlashCommand,
         CatgirlSlashCommand,
-        // StorySlashCommand,
         CraftSlashCommand,
         // StockSlashCommand,
         was_there_an_error

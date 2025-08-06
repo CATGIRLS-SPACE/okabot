@@ -107,7 +107,6 @@ export interface USER_PROFILE {
     },
     achievements: Array<Achievements>,
     trackedInventory: Array<string>,
-    story_unlocks: Array<number>,
     pet_data: {
         pets: Array<UserPet>,
         inventory: Array<number>,
@@ -170,7 +169,6 @@ const DEFAULT_DATA: USER_PROFILE = {
     },
     achievements: [],
     trackedInventory: [],
-    story_unlocks: [],
     pet_data: {
         pets: [],
         inventory: [],
@@ -223,7 +221,6 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.games.equipped_trackable_coin) data.customization.games.equipped_trackable_coin = 'none';
     if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
     if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
-    if (!data.story_unlocks) data.story_unlocks = [];
     if (!data.inventory_scraps) data.inventory_scraps = {metal: 0, plastic: 0, wood: 0, rubber: 0, electrical: 0 };
     if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
 

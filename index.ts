@@ -95,8 +95,6 @@ import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
-import { GrantStoryAccess, ReadChapterData } from "./modules/story/lorebook";
-import { HandleCommandStory } from "./modules/interactions/story";
 import {HandleCommandCraft} from "./modules/interactions/craft";
 import { SetupStocks } from "./modules/okash/stock";
 import {PetParseTextCommand} from "./modules/pet/textCommands";

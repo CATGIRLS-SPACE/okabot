@@ -3,7 +3,6 @@ import {GetBank, GetWallet} from "../okash/wallet";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
 import {GetCurrentFines} from "../okash/games/rob";
-import { GrantStoryAccess } from "../story/lorebook";
 
 
 export async function HandleCommandOkash(interaction: ChatInputCommandInteraction) {
@@ -12,7 +11,6 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     const bank = GetBank(interaction.user.id);
     const wallet = GetWallet(interaction.user.id);
 
-    if (wallet+bank >= 10_000) GrantStoryAccess(interaction.user, 2, interaction.channel as TextChannel);
     if (bank >= 1_000_000) GrantAchievement(interaction.user, Achievements.CAPITALISM, interaction.channel as TextChannel);
 
     await interaction.reply({
