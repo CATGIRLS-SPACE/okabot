@@ -76,7 +76,7 @@ import {CreateSharedMedia, StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
 import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
-import {CheckForAgreementMessage, CheckRuleAgreement} from "./modules/user/rules";
+import {CheckForAgreementMessage, CheckForRulesSimple, CheckRuleAgreement} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {DoPresenceChecks, DoRandomDrops} from "./modules/passive/onMessage";
@@ -372,6 +372,8 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
+    
+    if (await CheckForRulesSimple(message.author.id)) return; // don't listen to non-rule-agreeing users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 

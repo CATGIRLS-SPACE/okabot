@@ -6,6 +6,7 @@ import {
     EmbedBuilder,
     Message,
     MessageFlags,
+    Snowflake,
     TextChannel
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
@@ -23,16 +24,6 @@ const agreement = new EmbedBuilder()
         {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot. Trading okash to trade items is OK.'},
     );
 
-const agreement_jp = new EmbedBuilder()
-    .setAuthor({name:'okabot'})
-    .setTitle('okabotのルール')
-    .setDescription('okabotを使用する前に、これらの規則を読み、同意する必要があります')
-    .setFields(
-        {name:'1. 搾取しない',value:'バグや操作の悪用があった場合、あなたのアカウントは警告なしに不可逆的に**リセット**されます。併せて、okabotの使用を完全に禁止される可能性もあります。'},
-        {name:'2. マクロなし',value:'楽なギャンブルは他の人に公平ではありません。マクロやスクリプトを使わない。'},
-        {name:'3. 何時までも唯一のアカウント',value:'okabotのアカウントは1つだけです。'},
-        {name:'4. 違法なokash行為の禁止',value:'okash/アイテムを現実世界の通貨や他のbotのアイテムと交換することは禁止されています。okashとアイテムの交換は可能です。'},
-    );
 
 const AcceptButton = new ButtonBuilder()
     .setLabel('Accept')
@@ -69,7 +60,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     }
 
     const reply = await interaction.reply({
-        embeds: [interaction.okabot.locale=='ja'?agreement_jp:agreement],
+        embeds: [agreement],
         flags: [MessageFlags.Ephemeral],
         components: [AgreementComponentBar as any]
     });
@@ -116,4 +107,18 @@ export async function CheckForAgreementMessage(message: Message) {
             reply.delete();
         }, 5000);
     }
+}
+
+export async function CheckForRulesSimple(user_id: Snowflake): Promise<boolean> {
+    // helps to eliminate disk-read slowdowns
+    if (KNOWN_AGREED_USER_IDS.indexOf(user_id) != -1) return true; 
+
+    const profile = GetUserProfile(user_id);
+    if (profile.accepted_rules) {
+        KNOWN_AGREED_USER_IDS.push(user_id);
+        return true;
+    }
+
+    // hasn't agreed to rules
+    return false;
 }

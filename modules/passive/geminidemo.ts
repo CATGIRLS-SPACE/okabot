@@ -1,6 +1,6 @@
 import {GoogleGenAI} from '@google/genai';
 import {BASE_DIRNAME, CONFIG, DEV, GetLastLocale} from "../../index";
-import {Message, Snowflake, TextChannel} from "discord.js";
+import {Message, MessageFlags, Snowflake, TextChannel} from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -133,7 +133,8 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
 
     if (!supporter) return message.reply({
-        content: `:crying_cat_face: Please server boost CATGIRL CENTRAL or have supporter to gain access to conversation chains.\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`
+        content: `:crying_cat_face: You can't use conversation chains without having a supporter status!\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`,
+        flags:[MessageFlags.SuppressNotifications]
     });
 
     message.react('✨');
