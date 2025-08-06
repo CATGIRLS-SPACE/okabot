@@ -138,5 +138,5 @@ export const PaySlashCommand =
             option.setName('amount').setNameLocalization('ja', '高')
             .setDescription('The amount to pay them').setDescriptionLocalization('ja', 'okashの分量を払う')
             .setRequired(true)
-            .setMaxValue(50_000)
+            .setMaxValue(1_000_000)
         );

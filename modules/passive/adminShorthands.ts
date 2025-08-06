@@ -421,7 +421,7 @@ export function RegisterAllShorthands() {
     });
 
     RegisterShorthand('oka peek', async (message: Message, params: string[]) => {
-        if (params.length < 4) return message.reply('not enough params: format: \`oka peek <them | me | Snowflake> <query>\`\n-# query results cannot be over 2000 characters!');
+        // if (params.length < 4) return message.reply('not enough params: format: \`oka peek <them | me | Snowflake> <query>\`\n-# query results cannot be over 2000 characters!');
         const user = GetUserProfile(params[2]);
         let formatted = formatUserProfileAsText(user);
         let results = formatted
