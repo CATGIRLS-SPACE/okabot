@@ -373,7 +373,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
     
-    if (await CheckForRulesSimple(message.author.id)) return; // don't listen to non-rule-agreeing users
+    if (!(await CheckForRulesSimple(message.author.id))) return; // don't listen to non-rule-agreeing users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
