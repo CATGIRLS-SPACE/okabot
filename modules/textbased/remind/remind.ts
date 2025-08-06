@@ -57,7 +57,7 @@ function GetBoostStatus(user_id: string, guild_id: Snowflake): boolean {
 }
 
 export function RemindLater(message: Message) {
-    const parsed_time = ParseRelativeTime(message.content.split('o.remind ')[1]);
+    const parsed_time = ParseRelativeTime(message.content.split(' ')[1]);
     if (isNaN(parsed_time)) return message.reply({
         content: `please tell me when, like "o.remind 3h" for 3 hours from now! supported suffixes are \`s, m, h, d, w, mo, y\`.`,
         flags: [MessageFlags.SuppressNotifications]
