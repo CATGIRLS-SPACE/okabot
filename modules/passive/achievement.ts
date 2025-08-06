@@ -159,14 +159,14 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     UpdateUserProfile(user.id, profile);
 }
 
-function CreateProgressBar(profile: USER_PROFILE): string {
+function CreateProgressBar(real_achievement_count: number): string {
     const CHAR_UNFILLED = '░';
     const CHAR_FILLED   = '█';
     const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
     let bar = '**[**';
     const needed_xp = Object.keys(ACHIEVEMENTS).length;
     const target_chars = 20;
-    const progress_ratio = profile.achievements.length / needed_xp;
+    const progress_ratio = real_achievement_count / needed_xp;
     const total_filled_chars = progress_ratio * target_chars;
     const filled_full = Math.floor(total_filled_chars); // Full blocks
     const partial_fill = Math.round((total_filled_chars - filled_full) * 8); // Partial fill (0-8)
@@ -199,23 +199,28 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     const sub = interaction.options.getString('page', true);
     const spoil = interaction.options.getBoolean('show-all', false) || false;
 
+    // make sure that there aren't any lingering removed achievements
+    const keys = Object.keys(ACHIEVEMENTS);
+    let real_achievement_count = 0; // REALLY hacky way, do as i say not as i do
+    for (const ach of profile.achievements) 
+        if (keys.includes(ach)) real_achievement_count++;
+
     if (sub == 'bar') {
-        const bar = CreateProgressBar(profile);
+        const bar = CreateProgressBar(real_achievement_count);
         
-        if (profile.achievements.length == 0) return interaction.reply({
+        if (real_achievement_count == 0) return interaction.reply({
             content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
             flags: []
         });
         
         return interaction.reply({
-            content:`**${interaction.user.displayName}**, you've got ${profile.achievements.length} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
+            content:`**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
             flags: []
         });
     }
 
     let list = `## Achievements\n`;
     let selected_achievements = [];
-    const keys = Object.keys(ACHIEVEMENTS);
     const difficulty = {
         'e': GetEmoji(EMOJI.DIFF_EASY),
         't': GetEmoji(EMOJI.DIFF_TRICKY),
