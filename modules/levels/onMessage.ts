@@ -44,7 +44,8 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
     let target_xp = CalculateTargetXP(profile.leveling.level, 0);
 
-    if (profile.leveling.current_xp >= target_xp) {
+    const leveled_up = profile.leveling.current_xp >= target_xp;
+    while (profile.leveling.current_xp >= target_xp) {
         profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP
         profile.leveling.level++;
 
@@ -93,10 +94,11 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         // if (profile.leveling.level >= 90) GrantAchievement(user, Achievements.LEVEL_90, channel);
         // if (profile.leveling.level >= 100) GrantAchievement(user, Achievements.LEVEL_100, channel);
         // if (profile.leveling.level >= 101) GrantAchievement(user, Achievements.LEVEL_BEYOND, channel);
-        return;
     }
+
+    if (leveled_up) return;
 
     UpdateUserProfile(user_id, profile);
 
-    RecordMonitorEvent(EventType.GAIN_XP, {user_id, xp:profile.leveling.current_xp}, `${user_id} now has ${profile.leveling.current_xp} XP`);
+    // RecordMonitorEvent(EventType.GAIN_XP, {user_id, xp:profile.leveling.current_xp}, `${user_id} now has ${profile.leveling.current_xp} XP`);
 }
