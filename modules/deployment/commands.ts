@@ -71,7 +71,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         SlotsSlashCommand,
         ToggleSlashCommand,
         TradeSlashCommand,
-        // CasinoSlashCommand, // <-- not ready yet!
+        CasinoSlashCommand, // <-- not ready yet!
         FortuneBallSlashCommand,
         CatgirlSlashCommand,
         CraftSlashCommand,
