@@ -392,15 +392,15 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
-    // if (message.content.toLowerCase().startsWith('okabot, ')) {
-    //     if (!CONFIG.gemini.enable) return;
-    //     GeminiDemoRespondToInquiry(message);
-    // }
-    //
-    // if (message.reference) {
-    //     let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
-    //     if (reference.content.includes('-# GenAI')) GeminiDemoReplyToConversationChain(message);
-    // }
+    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984')) {
+        if (!CONFIG.gemini.enable) return;
+        GeminiDemoRespondToInquiry(message);
+    }
+    
+    if (message.reference) {
+        let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+        if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984')) GeminiDemoReplyToConversationChain(message);
+    }
 
     // minecraft server
     if (message.channel.id == "1321639990383476797" || message.channel.id == '858904835222667315') { // #mc-live-chat

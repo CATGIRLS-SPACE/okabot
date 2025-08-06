@@ -2,6 +2,7 @@ import {GoogleGenAI} from '@google/genai';
 import {CONFIG, DEV, GetLastLocale} from "../../index";
 import {Message, Snowflake, TextChannel} from "discord.js";
 import * as repl from "node:repl";
+import { GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
 
@@ -109,11 +110,10 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const user = guild.members.cache.get(message.author.id);
     if (!user) throw new Error('no user');
 
-    const booster_role = !DEV?guild.roles.premiumSubscriberRole:guild.roles.cache.find(role => role.name == 'fake booster role');
-    const user_is_booster = booster_role?guild.members.cache.get(message.author.id)!.roles.cache.some(role => role.id === booster_role.id):false;
+    const supporter = GetUserSupportStatus(message.author.id) != 'none';
 
-    if (!user_is_booster) return message.reply({
-        content: `:crying_cat_face: Please server boost CATGIRL CENTRAL to gain access to conversation chains.\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`
+    if (!supporter) return message.reply({
+        content: `:crying_cat_face: Please server boost CATGIRL CENTRAL or have supporter to gain access to conversation chains.\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`
     });
 
     message.react('✨');
