@@ -223,6 +223,10 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
     if (!data.inventory_scraps) data.inventory_scraps = {metal: 0, plastic: 0, wood: 0, rubber: 0, electrical: 0 };
     if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
+    data.okash = {
+        bank: Math.ceil(data.okash.bank),
+        wallet: Math.ceil(data.okash.wallet)
+    }
 
     ProfileCache.set(user_id, data);
 
