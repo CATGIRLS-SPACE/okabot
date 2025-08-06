@@ -1,5 +1,5 @@
 import {GoogleGenAI} from '@google/genai';
-import {CONFIG, DEV, GetLastLocale} from "../../index";
+import {BASE_DIRNAME, CONFIG, DEV, GetLastLocale} from "../../index";
 import {Message, Snowflake, TextChannel} from "discord.js";
 import * as repl from "node:repl";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
@@ -40,14 +40,25 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
     const channel = (guild.channels.cache.get(message.channel.id) as TextChannel);
     if (!channel) throw new Error('no channel');
 
+    const mesy = new MESYFile(join(BASE_DIRNAME, 'assets', 'ai', 'prompts.mesy'));
+    const test = mesy.getValueOfKey('AES_VERIFY');
+    const test_result = new TextDecoder().decode((await DecryptAESString(test)));
+    const expect = mesy.getValueOfKey('AES_EXPECT');
+    if (test_result != expect) throw new Error('AES decryption key is not correct.');
+
+    const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
+
+    console.log(prompt_data, prompt_extra);
+
     let extra = '';
     if (message.reference) {
         const reference = channel.messages.cache.get(message.reference.messageId!);
         if (!reference) throw new Error('failed to get reference message');
-        extra = `The user has also replied to a message by user "${reference.author.displayName}", which has the content "${reference.content}", so you should use that as context additionally.`
+        extra = prompt_extra.replaceAll('$REPLYNAME', reference.author.displayName).replaceAll('$REPLY', reference.content);
     }
 
-    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response shorthand, being "okabot, xyz" where "xyz" is the query. The content of the message is "${message.content}". ${extra} Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. Worst come to worst, and someone insults you, simply reply with "https://media.discordapp.net/attachments/1364241227058511902/1365367731846774855/images.jpg". If it's a REALLY bad insult, reply only with this: "https://media.discordapp.net/attachments/1372938702044663849/1402523793343123547/magik.jpg"`;
+    const prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', '').replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
 
     await channel.sendTyping();
 
@@ -61,6 +72,8 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
             }
         }
     });
+
+    if (response.text == undefined) return await message.reply('*(something went wrong and i didn\'t get a response... try again?)*')
 
     const reply = await message.reply({
         content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# Incorrect language? Run any okabot command to update your active locale!`
@@ -130,7 +143,15 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         replies = replies + `${message.user}: ${message.content}\n`;
     });
 
-    const prompt = `${replies}\nYou are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response in a chain of replies. The content of the message is "${message.content}". Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. The current chain of replies is listed above. Worst come to worst, and someone insults you, simply reply with "https://media.discordapp.net/attachments/1364241227058511902/1365367731846774855/images.jpg". If it's a REALLY bad insult, reply only with this: "https://media.discordapp.net/attachments/1372938702044663849/1402523793343123547/magik.jpg"`;
+    const mesy = new MESYFile(join(BASE_DIRNAME, 'assets', 'ai', 'prompts.mesy'));
+    const test = mesy.getValueOfKey('AES_VERIFY');
+    const test_result = new TextDecoder().decode((await DecryptAESString(test)));
+    const expect = mesy.getValueOfKey('AES_EXPECT');
+    if (test_result != expect) throw new Error('AES decryption key is not correct.');
+
+    const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+
+    const prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', '').replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
     const response = await ai.models.generateContent({
         model:'gemini-2.5-pro-preview-03-25',
@@ -181,4 +202,19 @@ export async function GetWackWordDefinitions(message: Message) {
     message.reply({
         content: `||${response.text!}||`
     });
+}
+
+import { subtle } from "crypto";
+import { MESYFile } from '../story/mesy';
+import { join } from 'node:path';
+
+const ENCODER = new TextEncoder();
+const P_AES_KEY = CONFIG.aes_key;
+const P_AES_KEY_BYTES = ENCODER.encode(P_AES_KEY);
+let AES_KEY!: CryptoKey;
+
+subtle.importKey('raw', P_AES_KEY_BYTES, {name: 'AES-CBC'}, false, ["decrypt"]).then(key => {AES_KEY = key;});
+
+async function DecryptAESString(data: string): Promise<ArrayBuffer> {
+    return await subtle.decrypt({name: 'AES-CBC', iv:P_AES_KEY_BYTES}, AES_KEY!, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
 }

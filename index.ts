@@ -37,7 +37,7 @@ export const CONFIG: {
         enable: boolean,
         api_key: string,
     },
-    story_key: string,
+    aes_key: string,
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
     minecraft_relay_key: string,
@@ -392,14 +392,14 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
-    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984')) {
+    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         if (!CONFIG.gemini.enable) return;
         GeminiDemoRespondToInquiry(message);
     }
     
     if (message.reference) {
         let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
-        if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984')) GeminiDemoReplyToConversationChain(message);
+        if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
     }
 
     // minecraft server
