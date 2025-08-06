@@ -2,7 +2,7 @@ import {GoogleGenAI} from '@google/genai';
 import {CONFIG, DEV, GetLastLocale} from "../../index";
 import {Message, Snowflake, TextChannel} from "discord.js";
 import * as repl from "node:repl";
-import { GetUserSupportStatus } from '../../util/users';
+import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
 
@@ -47,7 +47,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
         extra = `The user has also replied to a message by user "${reference.author.displayName}", which has the content "${reference.content}", so you should use that as context additionally.`
     }
 
-    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response shorthand, being "okabot, xyz" where "xyz" is the query. The content of the message is "${message.content}". ${extra} Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible.`;
+    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response shorthand, being "okabot, xyz" where "xyz" is the query. The content of the message is "${message.content}". ${extra} Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. Worst come to worst, and someone insults you, simply reply with "https://media.discordapp.net/attachments/1364241227058511902/1365367731846774855/images.jpg"`;
 
     await channel.sendTyping();
 
@@ -110,7 +110,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const user = guild.members.cache.get(message.author.id);
     if (!user) throw new Error('no user');
 
-    const supporter = GetUserSupportStatus(message.author.id) != 'none';
+    const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
 
     if (!supporter) return message.reply({
         content: `:crying_cat_face: Please server boost CATGIRL CENTRAL or have supporter to gain access to conversation chains.\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`
@@ -130,7 +130,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         replies = replies + `${message.user}: ${message.content}\n`;
     });
 
-    const prompt = `${replies}\nYou are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response in a chain of replies. The content of the message is "${message.content}". Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. The current chain of replies is listed above.`;
+    const prompt = `${replies}\nYou are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user named "${user.nickname || user.displayName}" has just invoked your response in a chain of replies. The content of the message is "${message.content}". Respond to the question only. You can be playful, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Also, the user's locale is "${GetLastLocale(message.author.id)}", so you should respond in that language if possible. The current chain of replies is listed above. Worst come to worst, and someone insults you, simply reply with "https://media.discordapp.net/attachments/1364241227058511902/1365367731846774855/images.jpg"`;
 
     const response = await ai.models.generateContent({
         model:'gemini-2.5-pro-preview-03-25',
