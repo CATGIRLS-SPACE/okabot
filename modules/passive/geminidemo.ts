@@ -14,6 +14,7 @@ const ConversationChains: {
     [key: string]: {
         author: Snowflake,
         orignal_message: Snowflake,
+        disable_search: boolean,
         messages: Array<{
             user: 'okabot' | 'system' | string,
             content: string,
@@ -31,7 +32,7 @@ const ConversationChainReplyPointers: {
  * @param message The message object passed by discord.js
  * @param send_to_minecraft Send the response to Minecraft?
  */
-export async function GeminiDemoRespondToInquiry(message: Message, send_to_minecraft: boolean = false) {
+export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
 
@@ -79,7 +80,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
                     thinkingBudget: 1024,
                     includeThoughts: true
                 },
-                tools: [{ googleSearch: {} }]
+                tools: disable_search?[]:[{ googleSearch: {} }]
             },
         });
     } catch (err) {
@@ -92,7 +93,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
 
     try {
         const reply = await message.reply({
-            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# Incorrect language? Run any okabot command to update your active locale!`
+            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + disable_search?'-# Search was disabled by using ",,".':''
         });
 
         // if (send_to_minecraft) {
@@ -111,6 +112,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, send_to_minec
         ConversationChains[reply.id] = {
             author: message.author.id,
             orignal_message: reply.id,
+            disable_search,
             messages: [
                 {
                     user: reply.author.displayName,
@@ -184,7 +186,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
                     thinkingBudget: 1024,
                     includeThoughts: true,
                 },
-                tools: [{ googleSearch: {} }]
+                tools: chain.disable_search?[]:[{ googleSearch: {} }]
             }
         });
     } catch (err) {

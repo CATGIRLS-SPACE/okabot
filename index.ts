@@ -398,6 +398,11 @@ client.on(Events.MessageCreate, async message => {
         if (!CONFIG.gemini.enable) return;
         GeminiDemoRespondToInquiry(message);
     }
+
+    if (message.content.toLowerCase().startsWith('okabot,, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
+        if (!CONFIG.gemini.enable) return;
+        GeminiDemoRespondToInquiry(message, true);
+    }
     
     if (message.reference) {
         let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
