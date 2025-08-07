@@ -369,7 +369,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
         });
     }
 
-    const bet = interaction.options.getNumber('bet', true);
+    const bet = Math.ceil(interaction.options.getNumber('bet', true));
 
     if (GetWallet(interaction.user.id) < bet) {
         return interaction.reply({

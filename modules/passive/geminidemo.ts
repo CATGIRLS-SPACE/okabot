@@ -46,13 +46,19 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (!channel) throw new Error('no channel');
 
     const mesy = new MESYFile(join(BASE_DIRNAME, 'assets', 'ai', 'prompts.mesy'));
-    const test = mesy.getValueOfKey('AES_VERIFY');
-    const test_result = new TextDecoder().decode((await DecryptAESString(test)));
-    const expect = mesy.getValueOfKey('AES_EXPECT');
-    if (test_result != expect) throw new Error('AES decryption key is not correct.');
-
-    const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
-    const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
+    try {
+        const test = mesy.getValueOfKey('AES_VERIFY');
+        const test_result = new TextDecoder().decode((await DecryptAESString(test)));
+        const expect = mesy.getValueOfKey('AES_EXPECT');
+        if (test_result != expect) throw new Error('AES decryption key is not correct.');
+    } catch (err) {
+        message.reply({
+            content:err+'\n(is the AES key correct?)'
+        });
+    }
+        
+        const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+        const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
 
     // console.log(prompt_data, prompt_extra);
 
