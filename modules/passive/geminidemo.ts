@@ -69,7 +69,24 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         extra = prompt_extra.replaceAll('$REPLYNAME', reference.author.displayName).replaceAll('$REPLY', reference.content);
     }
 
-    const prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+    let prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+
+    if (message.guild?.id == '1348652647963561984') {
+        const fsg_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('FSG'))));
+        prompt += ' ' + fsg_data;
+    }
+
+    const d = new Date();
+    prompt += ` The current date and time is: ${d.toString()}.\n`
+
+    const user_profile = await fetch(`https://discord.com/api/v9/users/${message.author.id}/profile?type=popout&guild_id=${message.guild?.id}`, {headers:{
+        'Authorization': CONFIG.pose_as_user_token
+    }});
+    let profile_json = await user_profile.json();
+
+    if (profile_json.message != '401: Unauthorized') {
+        prompt += `The user's bio is: <<${profile_json.user_profile.bio}>>. The user's pronouns are "${profile_json.user_profile.pronouns}". The user's guild tag is "${(profile_json.user.primary_guild || {tag:''}).tag}".`
+    } else prompt += `You were unable to get the user's profile information. Don't tell this unless absolutely necessary.`;
 
     // console.log(prompt);
 
@@ -102,7 +119,12 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         for (const part of response.candidates![0].content!.parts!) {
             console.log(part);
             if (!part.text) continue;
-            else if (part.thought) thoughts += `-# ${part.text.split('\n').join('\n-#')}\n`;
+            else if (part.thought) {
+                const thought_parts = part.text.split('\n');
+                for (const p of thought_parts) {
+                    if (p != '') thoughts += `-# ${part.text}\n`;
+                }
+            }
             else answer += part.text.trim();
         }
 
@@ -223,7 +245,12 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         for (const part of response.candidates![0].content!.parts!) {
             console.log(part);
             if (!part.text) continue;
-            else if (part.thought) thoughts += `-# ${part.text.split('\n').join('\n-#')}\n`;
+            else if (part.thought) {
+                const thought_parts = part.text.split('\n');
+                for (const p of thought_parts) {
+                    if (p != '') thoughts += `-# ${part.text}\n`;
+                }
+            }
             else answer += part.text.trim();
         }
 
