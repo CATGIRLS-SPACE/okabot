@@ -35,7 +35,7 @@ export interface CasinoDB extends WinLossInfo {
 let LoadedCasinoDB: CasinoDB;
 
 export function LoadCasinoDB() {
-    if (existsSync(join(BASE_DIRNAME, 'db'))) mkdirSync(join(BASE_DIRNAME, 'db'));
+    if (!existsSync(join(BASE_DIRNAME, 'db'))) mkdirSync(join(BASE_DIRNAME, 'db'));
     if (!existsSync(join(BASE_DIRNAME, 'db', 'casino.oka'))) {
         LoadedCasinoDB = {
             wins: 0,
