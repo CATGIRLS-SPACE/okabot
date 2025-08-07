@@ -1,5 +1,5 @@
 import {ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, Snowflake} from "discord.js";
-import {existsSync, readFileSync, writeFileSync} from "fs";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
 import {BASE_DIRNAME} from "../../index";
 import {join} from "path";
 import { Logger } from "okayulogger";
@@ -35,6 +35,7 @@ export interface CasinoDB extends WinLossInfo {
 let LoadedCasinoDB: CasinoDB;
 
 export function LoadCasinoDB() {
+    if (existsSync(join(BASE_DIRNAME, 'db'))) mkdirSync(join(BASE_DIRNAME, 'db'));
     if (!existsSync(join(BASE_DIRNAME, 'db', 'casino.oka'))) {
         LoadedCasinoDB = {
             wins: 0,

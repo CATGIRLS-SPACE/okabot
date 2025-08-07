@@ -20,7 +20,35 @@ import {
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
 const L = new Logger('main');
 
-if (!existsSync(join(__dirname, 'config.json'))) { L.fatal('No configuration file found!'); process.exit(-1) }
+if (!existsSync(join(__dirname, 'config.json'))) { 
+    L.fatal('No configuration file found!');
+    writeFileSync(join(__dirname, 'config.json'), JSON.stringify({
+        token: "<required>",
+        devtoken: "<not required>",
+        clientId: "<required>",
+        devclientId: "<not required>",
+        status: {
+            type: 0,
+            activity: 'Custom Instance',
+        },
+        extra: ['disable jma fetching'],
+        dmdata_api_key: "<optional>",
+        translate_api_key: "<not required, unused>",
+        gemini: {
+            enable: false,
+            api_key: "<not required unless enabled>",
+        },
+        aes_key: "<required to use prompts.mesy when gemini is enabled>",
+        bot_master: "<not required, but recommended>",
+        permitted_to_use_shorthands: [
+            "<not required, but recommended: your user id here>"
+        ],
+        minecraft_relay_key: "<not required>",
+        pose_as_user_token: "<not required, only used when gemini enabled to get user profile info>",
+    }));
+    L.fatal('A template configuration file has been created. Please modify it with your bot information before launching again.');
+    process.exit(-1);
+}
 export const CONFIG: {
     token: string,
     devtoken: string,
@@ -41,6 +69,7 @@ export const CONFIG: {
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
     minecraft_relay_key: string,
+    pose_as_user_token: string,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
