@@ -3,7 +3,7 @@ import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
     client, CONFIG,
-    LISTENING, SetLastLocale,
+    LISTENING, SetActivity, SetLastLocale,
     SetListening, ToggleDisableOfCommand
 } from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
@@ -433,6 +433,12 @@ export function RegisterAllShorthands() {
             .replaceAll('trackedInventory', 'tr_inv')
             .replaceAll('scraps', 's');
         message.reply(`\`\`\`${results}\`\`\``);
+    });
+
+    RegisterShorthand('oka status', (message: Message, params: string[]) => {
+        const type = parseInt(params[2]);
+        const activity = params[3];
+        SetActivity(activity, type);
     });
 }
 

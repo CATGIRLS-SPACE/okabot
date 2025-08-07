@@ -190,6 +190,12 @@ async function RunPostStartupTasks() {
     });
 }
 
+export function SetActivity(name: string, type: number) {
+    client.user!.setActivity({
+        name,
+        type
+    });
+}
 
 // Command and message handlers
 
