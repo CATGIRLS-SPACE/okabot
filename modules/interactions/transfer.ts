@@ -3,9 +3,14 @@ import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromW
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BANK_ROBS } from "../okash/games/rob";
 import { Achievements, GrantAchievement } from "../passive/achievement";
+import { CheckGambleLock } from "../okash/games/_lock";
 
 
 export async function HandleCommandTransfer(interaction: ChatInputCommandInteraction) {
+    if (CheckGambleLock(interaction.user.id)) return interaction.reply({
+        content: 'nah.'
+    });
+
     const amount = interaction.options.getNumber('amount', true);
     const source = interaction.options.getString('source', true);
 
