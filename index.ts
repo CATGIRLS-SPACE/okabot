@@ -440,7 +440,9 @@ client.on(Events.MessageCreate, async message => {
     }
     
     if (message.reference) {
-        let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+        // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);
+        let reference = await (message.channel as TextChannel).messages.fetch(message.reference!.messageId!);
+        if (!reference) return message.reply(':x: Could not fetch the replied message.');
         if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
     }
 
