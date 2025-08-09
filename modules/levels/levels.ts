@@ -246,6 +246,20 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
         ctx.fillText('DONATOR', offset_width + 26, 68);
         offset_width += 83-5;
     }
+    if (supporter == 'granted') {
+        ctx.fillStyle = '#9dfab4ff';
+        ctx.beginPath();
+        ctx.roundRect(offset_width + 20, 52, 64, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2a422cff';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#2a422cff';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('SPECIAL', offset_width + 26, 68);
+        offset_width += 74-5;
+    }
     if (user_is_booster) {
         ctx.fillStyle = '#fa9de4';
         ctx.beginPath();

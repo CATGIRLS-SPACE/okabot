@@ -5,12 +5,12 @@ import {existsSync, readFileSync} from "fs";
 import {DEV} from "../index";
 
 
-const SUPPORTERS = new Map<Snowflake, 'ko-fi' | 'booster'>();
+const SUPPORTERS = new Map<Snowflake, 'ko-fi' | 'booster' | 'granted'>();
 const TESTERS = new Map<Snowflake, 'cgc-beta' | 'public'>();
 const DEVELOPERS = new Map<Snowflake, 'developer' | 'contributor'>();
 
 interface UsersFile {
-    supporters: Array<{name: string, id: Snowflake, type:'ko-fi'|'booster'}>,
+    supporters: Array<{name: string, id: Snowflake, type:'ko-fi'|'booster'|'granted'}>,
     developers: Array<{name: string, id: Snowflake, type:'developer'|'contributor'}>,
     testers: Array<{name: string, id: Snowflake, type:'cgc-beta'|'public'}>,
 }
@@ -33,7 +33,7 @@ export function LoadSpecialUsers(dirname: string) {
     });
 }
 
-export function GetUserSupportStatus(user_id: Snowflake): 'none' | 'ko-fi' | 'booster' {
+export function GetUserSupportStatus(user_id: Snowflake): 'none' | 'ko-fi' | 'booster' | 'granted' {
     if (!SUPPORTERS.has(user_id)) return 'none';
     return SUPPORTERS.get(user_id)!;
 }
