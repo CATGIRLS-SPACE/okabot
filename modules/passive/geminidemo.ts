@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { BASE_DIRNAME, CONFIG, DEV, GetLastLocale } from "../../index";
+import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
 import { Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
@@ -128,12 +128,22 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             else answer += part.text.trim();
         }
 
+        if (answer.startsWith('@react')) {
+            const reaction = answer.split('@react=')[1];
+            return message.react(reaction);
+        }
+
         reply = await message.reply({
             content: thoughts + '\n' + `${answer}\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
     }
 
     try {
+        if (response.text?.startsWith('@react=')) {
+            const reaction = response.text?.split('@react=')[1];
+            return message.react(reaction);
+        }
+
         if (!reply) reply = await message.reply({
             content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
@@ -254,12 +264,22 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             else answer += part.text.trim();
         }
 
+        if (answer.startsWith('@react=')) {
+            const reaction = answer.split('@react=')[1];
+            return message.react(reaction);
+        }
+
         reply = await message.reply({
             content: thoughts + '\n' + `${answer}\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
         });
     }
 
     try {
+        if (response.text?.startsWith('@react=')) {
+            const reaction = response.text?.split('@react=')[1];
+            return message.react(reaction);
+        }
+        
         if (!reply) reply = await message.reply({
             content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
         });
