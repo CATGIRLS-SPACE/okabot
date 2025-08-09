@@ -128,6 +128,8 @@ import {HandleCommandCraft} from "./modules/interactions/craft";
 import { SetupStocks } from "./modules/okash/stock";
 import {PetParseTextCommand} from "./modules/pet/textCommands";
 import {LoadSpecialUsers} from "./util/users";
+import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
+import { InstallHook } from "./modules/ac/installer";
 
 
 export const client = new Client({
@@ -174,6 +176,11 @@ export function ToggleDisableOfCommand(command: string): boolean {
  */
 async function StartBot() {
     await RunPreStartupTasks();
+
+    if (!existsSync(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))) 
+        await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
+    
+    ACLoadHookModule('millieguard.js', '0.1.0');
 
     client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
@@ -365,6 +372,8 @@ client.on(Events.InteractionCreate, async interaction => {
     });
 
     if (!HANDLERS[interaction.commandName]) return interaction.reply('No registered handler for this command. This is a bug.');
+
+    if (!(await AC_OnCommand(interaction))) return;
 
     // emergency killswitch for commands and bugs
     if (!LISTENING) return interaction.reply(`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to not respond to commands for now!\n-# this is likely due to updates, hold on a few minutes and try again!`);
