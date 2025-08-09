@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
-import { Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
+import { EmojiResolvable, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -140,8 +140,15 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     try {
         if (response.text?.startsWith('@react=')) {
-            const reaction = response.text?.split('@react=')[1];
-            return message.react(reaction);
+            try {
+                const reaction = response.text?.split('@react=')[1];
+                message.react(reaction);
+                message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable)?.remove();
+            } catch (err) {
+                message.reply('you broked it');
+            }
+
+            return;
         }
 
         if (!reply) reply = await message.reply({
@@ -276,8 +283,15 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     try {
         if (response.text?.startsWith('@react=')) {
-            const reaction = response.text?.split('@react=')[1];
-            return message.react(reaction);
+            try {
+                const reaction = response.text?.split('@react=')[1];
+                message.react(reaction);
+                message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable)?.remove();
+            } catch (err) {
+                message.reply('you broked it');
+            }
+
+            return;
         }
         
         if (!reply) reply = await message.reply({
