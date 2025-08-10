@@ -36,10 +36,17 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
 
-    if (message.guild?.id == '1348652647963561984' && message.channel.id != '1372938702044663849') return message.reply({
-        content:'Not available in this guild.',
-        flags:[MessageFlags.SuppressEmbeds]
-    });
+    if (!message.thread) {
+        if (message.guild?.id == '1348652647963561984' && message.channel.id != '1372938702044663849') return message.reply({
+            content:'Not available here, go to <#1372938702044663849>.',
+            flags:[MessageFlags.SuppressEmbeds]
+        });
+    } else {
+        if (message.thread.parentId != '1372938702044663849') return message.reply({
+            content:'Not available here, go to <#1372938702044663849>.',
+            flags:[MessageFlags.SuppressEmbeds]
+        });
+    }
 
     message.react('✨');
 
