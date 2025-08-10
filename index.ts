@@ -417,7 +417,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
 
-    if (message.flags.any("IsCrosspost")) return; // forwarded messages break shit
+    if (message.flags.any("IsCrosspost") || message.flags.any("HasThread")) return; // forwarded messages break shit
     
     if (!(await CheckForRulesSimple(message.author.id))) return; // don't listen to non-rule-agreeing users
 

@@ -42,8 +42,8 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             flags:[MessageFlags.SuppressEmbeds]
         });
     } else {
-        console.log('this query is in a thread')
-        if (message.guild?.id == '1348652647963561984' && message.thread?.parentId != '1372938702044663849') return message.reply({
+        // console.log('this query is in a thread', message.channel.parent)
+        if (message.guild?.id == '1348652647963561984' && message.channel!.parent!.id != '1372938702044663849') return message.reply({
             content:'Not available here, go to <#1372938702044663849>.',
             flags:[MessageFlags.SuppressEmbeds]
         });
