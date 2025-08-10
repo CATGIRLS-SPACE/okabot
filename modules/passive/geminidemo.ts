@@ -36,6 +36,11 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
 
+    if (message.guild?.id == '1348652647963561984') return message.reply({
+        content:'Not available in this guild.',
+        flags:[MessageFlags.SuppressEmbeds]
+    });
+
     message.react('✨');
 
     const guild = message.client.guilds.cache.get(message.guild!.id);
@@ -143,6 +148,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             try {
                 const reaction = response.text?.split('@react=')[1];
                 message.react(reaction);
+                console.log(message.reactions, message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable));
                 message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable)?.remove();
             } catch (err) {
                 message.reply('you broked it');
