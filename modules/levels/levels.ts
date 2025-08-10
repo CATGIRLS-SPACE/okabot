@@ -7,7 +7,7 @@ import {
     Snowflake, User
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import {BASE_DIRNAME, DEV} from "../../index";
+import {BASE_DIRNAME, CONFIG, DEV} from "../../index";
 import { join, resolve } from "path";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
@@ -189,10 +189,24 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fill();
     // labels
     let offset_width = 0; // so that we can display the booster tag no matter what
+    if (CONFIG.permitted_to_use_shorthands.includes(interaction.user.id)) {
+        ctx.fillStyle = '#f56e6eff';
+        ctx.beginPath();
+        ctx.roundRect(20, 52, 90, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffffff';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#ffffffff';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('MODERATOR', offset_width + 26, 68);
+        offset_width += 97;
+    }
     if (dev_status != 'none') {
         ctx.fillStyle = dev_status=='contributor'?'#6eeaf5':'#6ef5b6';
         ctx.beginPath();
-        ctx.roundRect(20, 52, 88, 23, 6);
+        ctx.roundRect(offset_width + 20, 52, 88, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b3b2c';
