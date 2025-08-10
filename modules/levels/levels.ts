@@ -157,7 +157,8 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillRect(0, 0, width, height);
 
     // why do we have to force fetch the user? idk, it's dumb
-    const banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    if (!override_user_with && profile.customization.level_bg_override != '') banner_url = profile.customization.level_bg_override;
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);

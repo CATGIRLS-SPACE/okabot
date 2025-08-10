@@ -75,7 +75,8 @@ export interface USER_PROFILE {
             hex_bg:  string,
             hex_fg:  string,
             hex_num: string,
-        }
+        },
+        level_bg_override: string,
     },
     leveling: {
         level: number,
@@ -137,7 +138,8 @@ const DEFAULT_DATA: USER_PROFILE = {
             hex_bg:  '#f00',
             hex_fg:  '#0f0',
             hex_num: '#00f',
-        }
+        },
+        level_bg_override: '',
     },
     leveling: {
         level: 1,
@@ -227,6 +229,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
         bank: Math.ceil(data.okash.bank),
         wallet: Math.ceil(data.okash.wallet)
     }
+    if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
 
     ProfileCache.set(user_id, data);
 

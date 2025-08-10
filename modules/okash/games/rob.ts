@@ -1,11 +1,13 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
+import {AttachmentBuilder, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel} from "discord.js";
 import {AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet} from "../wallet";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {join} from "node:path";
 import {BASE_DIRNAME} from "../../../index";
-import {existsSync, readFileSync, writeFileSync} from "node:fs";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
+import { createCanvas, loadImage } from "canvas";
+import axios from "axios";
 
 
 const MESSAGES = [
@@ -37,6 +39,8 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     //     content: `:x: Sorry, but robbing isn't available yet, as we're still migrating banks to be individual servers instead of global.`,
     //     flags: [MessageFlags.Ephemeral]
     // });
+
+    // return DrawWantedPoster(interaction);
 
     const d = new Date();
     if (COOLDOWNS.has(interaction.user.id) && COOLDOWNS.get(interaction.user.id)! > Math.floor(d.getTime()/1000)) return interaction.reply({
@@ -165,6 +169,48 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     interaction.reply({
         content: `:bangbang: ${msg}`
     });
+}
+
+
+async function DrawWantedPoster(interaction: ChatInputCommandInteraction) {
+    if (!interaction.deferred) await interaction.deferReply();
+
+    const width = 600;
+    const height = 800;
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = '#1f1d1bff'
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = '80px azuki_font';
+    ctx.fillText('have you seen?', width/2, 10);
+    ctx.font = '40px azuki_font';
+    ctx.fillText(interaction.user.displayName, width/2, 95);
+
+    const pfp_url = interaction.user.avatarURL({extension:'png', size:512})!;
+    const pfp_buffer = await fetchImage(pfp_url);
+    const pfp_img = await loadImage(pfp_buffer);
+
+    ctx.drawImage(pfp_img, 44, 150, 512, 512);
+
+    // Save the image
+    const buffer = canvas.toBuffer('image/png');
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+    writeFileSync(join(BASE_DIRNAME, 'temp', 'wanted.png'), buffer);
+
+    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'wanted.png'));
+    interaction.editReply({
+        files: [image]
+    });
+}
+
+async function fetchImage(url: string) {
+    const response = await axios.get(url, {responseType: 'arraybuffer'});
+    return Buffer.from(response.data, 'binary');   
 }
 
 
