@@ -1,6 +1,6 @@
 {
   "name": "okabot",
-  "version": "4.11.2",
+  "version": "4.11.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
     "discord.js": "^14.19.2",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "gifuct-js": "^2.1.2",
     "json": "^11.0.0",
     "lily-dmdata": "^0.1.6-beta",
     "node-schedule": "^2.1.1",

@@ -158,7 +158,10 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     // why do we have to force fetch the user? idk, it's dumb
     let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
-    if (!override_user_with && profile.customization.level_bg_override != '') banner_url = profile.customization.level_bg_override;
+    if (!override_user_with && profile.customization.level_bg_override != '') {
+        banner_url = profile.customization.level_bg_override;
+        console.log(`profile banner override is selected: ${banner_url}`)
+    }
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
@@ -349,8 +352,22 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
 export async function HandleCommandLevel(interaction: ChatInputCommandInteraction) {
     const user_to_get = interaction.options.getUser('user') || interaction.user;
-
     const profile = GetUserProfile(user_to_get.id);
+
+    if (interaction.options.getSubcommand(true) == 'background') {
+        if (!profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) return interaction.reply({
+            content:':crying_cat_face: Sorry, but you need to buy the User Banner Level Background customization before you can use this!',
+            flags: [MessageFlags.SuppressNotifications]
+        });
+
+        profile.customization.level_bg_override = interaction.options.getString('link') || '';
+        UpdateUserProfile(interaction.user.id, profile);
+
+        return interaction.reply({
+            content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} Updated your profile accordingly!`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
 
     if (!profile.leveling) {
         profile.leveling = {
@@ -394,6 +411,7 @@ import axios from 'axios';
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
 import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
+import { EMOJI, GetEmoji } from "../../util/emoji";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
@@ -404,9 +422,22 @@ async function fetchImage(url: string) {
 
 
 export const LevelSlashCommand = new SlashCommandBuilder()
-    .setName('profile').setNameLocalization('ja', 'プロフィール')
-    .setDescription('Show your okabot profile banner').setDescriptionLocalization('ja', 'プロフィールを見て')
-    .addUserOption(option => option
-        .setName('user').setNameLocalization('ja', 'ユーザ')
-        .setDescription('Get another user\'s profile info').setDescriptionLocalization('ja', '誰のプロフィールを見て')
-        .setRequired(false))
+    .setName('profile')
+    .setDescription('Commands related to your profile')
+    .addSubcommand(sc => sc
+        .setName('level')
+        .setDescription('Show your okabot profile banner')
+        .addUserOption(option => option
+            .setName('user')
+            .setDescription('Get another user\'s profile info')
+            .setRequired(false))
+        )
+    .addSubcommand(sc => sc
+        .setName('background')
+        .setDescription('Set an alternative background for the User Banner Level Background unlock.')
+        .addStringOption(option => option
+            .setName('link')
+            .setDescription('The link to the image, preferrably 1024x361. Leave blank to disable.')
+            .setRequired(false)
+        )
+    );
