@@ -116,6 +116,7 @@ export function RegisterAllShorthands() {
     });
 
     RegisterShorthand('oka depall ', async (message: Message, params: string[]) => {
+        if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can use depall.');
         // Deposit okash into all registered accounts
         // e.g. "oka depa <amount>
         const amount = parseInt(params[2]);
@@ -322,10 +323,12 @@ export function RegisterAllShorthands() {
     });
 
     RegisterShorthand('oka kill', async (message: Message, params: string[]) => {
+        if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can kill okabot.');
         process.exit();
     });
 
     RegisterShorthand('oka update', async (message: Message, params: string[]) => {
+        if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can initiate an update.');
         // check if anyone has an active casino pass
         const time = new Date().getTime()/1000;
         const passes: {[key: string]: number} = {};
@@ -367,7 +370,8 @@ export function RegisterAllShorthands() {
     });
 
     // debugging
-    RegisterShorthand('oka induce rejection crash', async () => {
+    RegisterShorthand('oka induce rejection crash', async (message: Message) => {
+        if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can induce a rejection crash.');
         await new Promise((resolve, reject) => {
             setTimeout(() => {
                 reject('!debug rejection');
