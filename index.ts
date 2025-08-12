@@ -179,15 +179,17 @@ async function StartBot() {
 
     if (!existsSync(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))) 
         await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
+
+    const mg_ver = '0.2.1';
     
-    const is_updated = await ACLoadHookModule('millieguard.js', '0.2.0');
+    const is_updated = await ACLoadHookModule('millieguard.js', mg_ver);
     if (!is_updated) {
         L.warn('millieguard version mismatch!')
         // update millieguard if not up-to-date
         await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
         // then try loading again
         delete require.cache[require.resolve(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))];
-        await ACLoadHookModule('millieguard.js', '0.2.0');
+        await ACLoadHookModule('millieguard.js', mg_ver);
     }
 
     client.once(Events.ClientReady, () => {
