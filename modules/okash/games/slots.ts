@@ -54,36 +54,54 @@ const ROLL_TABLE = [
 
 // A = apple, G = grape, O = okash, E = gem
 const PAYOUT_TABLE: {[key: string]: number} = {
-    'AAA':2,    // 3x apple
-    'GGG':2,    // 3x grape
-    'AAG':1.2,  // 2x apple 1x grape <-- must be in that order!
-    'AEA':1.2,
-    'GEG':1.2,
-    'GGA':1.2,  // 2x grape 1x apple
-    'AAO':1.5,  // 2x apple 1x okash
-    'GGO':1.5,  // 2x grape 1x okash
-    'AAE':2.5,
-    'GGE':2.5,
-    'OOA':5,    // 2x okash 1x apple
-    'OOG':5,    // 2x okash 1x grape
-    'AOO':5,    // 1x apple 2x okash
-    'GOO':5,    // 1x grape 2x okash
-    'OAO':5,    // you get the point
-    'OGO':5,
-    'OOE':5,
-    'OEO':5,
-    'EOO':5,
-    'OOO':10,   // 3x okash
-    'EEA':15,   // 2x gem 1x any other
-    'EEG':15,
-    'EEO':15,
-    'EAE':15,
-    'EGE':15,
-    'EOE':15,
-    'AEE':15,
-    'GEE':15,
-    'OEE':15,
-    'EEE':50,   // 3x gem
+    // 2x fruit + fruit
+    'AAG': 1.2,
+    'AGA': 1.2,
+    'GAA': 1.2,
+    'GGA': 1.2,
+    'GAG': 1.2,
+    'AGG': 1.2,
+    // 2x fruit + okash
+    'AAO': 1.5,
+    'AOA': 1.5,
+    'OAA': 1.5,
+    'GGO': 1.5,
+    'GOG': 1.5,
+    'OGG': 1.5,
+    // 2x fruit + gem
+    'AAE': 2,
+    'AEA': 2,
+    'EAA': 2,
+    'GGE': 2,
+    'GEG': 2,
+    'EGG': 2,
+    // 3x fruit
+    'AAA': 2.5,
+    'GGG': 2.5,
+    // 2x okash + fruit
+    'OOA': 5,
+    'OAO': 5,
+    'AOO': 5,
+    'OOG': 5,
+    'OGO': 5,
+    'GOO': 5,
+    // 2x okash + gem
+    'OOE': 10,
+    'OEO': 10,
+    'EOO': 10,
+    // 2x gem + fruit
+    'EEA': 15,
+    'EAE': 15,
+    'AEE': 15,
+    'EEG': 15,
+    'EGE': 15,
+    'GEE': 15,
+    // 2x gem + okash
+    'EEO': 25,
+    'EOE': 25,
+    'OEE': 25,
+    // and of course, the lovely shiny!
+    'EEE': 50
 }
 
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
@@ -159,6 +177,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         5: 30,
         10: 50,
         15: 100,
+        25: 150,
         50: 250
     }[multiplier]!;
 
