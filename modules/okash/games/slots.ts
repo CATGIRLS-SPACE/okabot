@@ -101,6 +101,8 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'OOE': 5,
     'OEO': 5,
     'EOO': 5,
+    // 3x okash
+    'OOO': 10,
     // 2x gem + fruit
     'EEA': 8,
     'EAE': 8,

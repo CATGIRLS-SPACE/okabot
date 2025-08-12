@@ -7,6 +7,7 @@ import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 import {Wallet} from "../okash/wallet";
 import {UserPet} from "../pet/pet";
+import { BannerSticker } from "../levels/levels"
 
 const L = new Logger('profiles');
 
@@ -77,6 +78,7 @@ export interface USER_PROFILE {
             hex_num: string,
         },
         level_bg_override: string,
+        stickers: Array<BannerSticker>
     },
     leveling: {
         level: number,
@@ -140,6 +142,7 @@ const DEFAULT_DATA: USER_PROFILE = {
             hex_num: '#00f',
         },
         level_bg_override: '',
+        stickers: []
     },
     leveling: {
         level: 1,
@@ -230,6 +233,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
         wallet: Math.ceil(data.okash.wallet)
     }
     if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
+    if (!data.customization.stickers) data.customization.stickers = [];
 
     ProfileCache.set(user_id, data);
 

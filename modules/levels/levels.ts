@@ -101,6 +101,17 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 
 // -- new things --
 
+export enum STICKER {
+
+}
+
+export interface BannerSticker {
+    sticker: STICKER,
+    position_x: number,
+    position_y: number,
+    other_data?: string
+}
+
 const COOLDOWNS = new Map<Snowflake, number>();
 
 async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User): Promise<boolean | undefined> {
