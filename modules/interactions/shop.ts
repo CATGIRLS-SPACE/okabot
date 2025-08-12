@@ -30,6 +30,7 @@ const AVAILABLE_CUSTOMIZATIONS_PROFILE = new EmbedBuilder()
         {name:`Pink Level Bar - ${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**10,000**`,value:`One time change of your level banner's bar color to pink`},
         {name:`Custom Level Bar - ${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**15,000**`,value:`One time change of your level banner's bar color to any color you want (hex color code)`},
         {name:`Reset Level Bar - Free`,value:`Resets your level bar to the default colors.`},
+        {name:`Sticker Kit ${GetEmoji('okash')} OKA**250,000**`,value:`A base kit to put a sticker on your profile banner. Additional purchase for sticker choice is required.`},
     )
 
 const AVAILABLE_CUSTOMIZATIONS_DECK = new EmbedBuilder()

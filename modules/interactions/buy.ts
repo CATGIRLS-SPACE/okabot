@@ -39,7 +39,8 @@ const PRICES: {
     'casino pass 30 minute':60_000,
     'casino pass 60 minute':100_000,
     'trans card deck': 25_000,
-    'cherry blossom card deck':50_000
+    'cherry blossom card deck':50_000,
+    'sticker': 250_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -191,6 +192,10 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'reset level bar':
             return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, price);
+
+        case 'sticker':
+            AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
+            break;
     }
 
     // this will only execute if it's a '/use'able item

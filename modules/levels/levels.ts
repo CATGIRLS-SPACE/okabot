@@ -102,7 +102,24 @@ function CreateLevelBar(profile: USER_PROFILE): string {
 // -- new things --
 
 export enum STICKER {
-
+    CHERRY_BLOSSOM,
+    OKASH,
+    TRANS_FLAG,
+    APPLE,
+    GRAPE,
+    GEM,
+    CAT_MONEY_EYES,
+    CAT_RAISED,
+    CAT_SUNGLASSES,
+    SHOP_VOUCHER,
+    COIN,
+    COIN_BLUE,
+    COIN_DBLUE,
+    COIN_DGREEN,
+    COIN_WEIGHTED,
+    COIN_PINK,
+    COIN_PURPLE,
+    COIN_RED,
 }
 
 export interface BannerSticker {
@@ -114,9 +131,9 @@ export interface BannerSticker {
 
 const COOLDOWNS = new Map<Snowflake, number>();
 
-async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User): Promise<boolean | undefined> {
+async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
     const d = new Date();
-    if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0)) {
+    if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV) {
         interaction.reply({
             content: `:hourglass: Slow down, **${interaction.user.displayName}**! You *just* ran this command!`
         });
@@ -348,6 +365,36 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
     ctx.fillText(`${CalculateTargetXP(profile.leveling.level, 0)} XP`, barWidth + 10, barY + 19);
+
+    const stickers = [
+        "cherry-blossom.png",
+        "okash.png",
+        "transgender-flag.png",
+        "apple.png",
+        "grapes.png",
+        "gem.png",
+        "cat_money_eyes.png",
+        "cat_raised.png",
+        "emoji-mashup.png",
+        "Shop voucher.png",
+        "cff.png",
+        "cff_blue.gif",
+        "cff_dblue.gif",
+        "cff_dgreen.gif",
+        "cff_green.gif",
+        "cff_pink.gif",
+        "cff_purple.gif",
+        "cff_red.gif",
+    ];
+
+    for (const sticker of profile.customization.stickers) {
+        const sticker_img = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', stickers[sticker.sticker])));
+        ctx.drawImage(sticker_img, sticker.position_x, sticker.position_y, 50, 50);
+    }
+    if (preview_sticker) {
+        const sticker_img = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', stickers[preview_sticker.sticker])));
+        ctx.drawImage(sticker_img, preview_sticker.position_x, preview_sticker.position_y, 50, 50);
+    }
 
     // sticker demo
     // const sticker = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', 'okash.png')));

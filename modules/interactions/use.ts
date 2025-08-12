@@ -1,15 +1,16 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {APITextInputComponent, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
 import {RestoreLastDailyStreak} from "../okash/daily";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
 import {FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
 import {exLootboxReward, LOOTBOX_REWARD_TYPE, lootboxRewardCommon, rareLootboxReward} from "../okash/lootboxes";
-import {EMOJI, GetEmoji} from "../../util/emoji";
+import {EMOJI, GetEmoji, GetEmojiID} from "../../util/emoji";
 import {PassesActive} from "../okash/games/blackjack";
 import {ITEM_NAMES} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
+import { ActionRowBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder } from "@discordjs/builders";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -55,6 +56,10 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
 
         case 'tracking device': case 'td':
             item_tracking_device(interaction);
+            break;
+
+        case 'sticker': case 'sticker kit': case 'sk':
+            item_sticker(interaction);
             break;
 
         default:
@@ -333,6 +338,123 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
 
     interaction.editReply({
         content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** feels ${preferences.customization.global.pronouns.possessive} luck while activating ${preferences.customization.global.pronouns.possessive} **Drop Boost**!\n-# Effect expires at <t:${expiry}>`
+    });
+}
+
+
+const valid_stickers = new StringSelectMenuBuilder()
+    .setCustomId('sticker-pick')
+    .setPlaceholder('Select your sticker')
+    .addOptions(
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({name:'🌸'})
+            .setLabel('Cherry Blossom')
+            .setValue('0')
+            .setDescription('Costs 50,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({id:GetEmojiID(EMOJI.OKASH)})
+            .setLabel('okash')
+            .setValue('1')
+            .setDescription('Costs 50,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({name:'🏳️‍⚧️'})
+            .setLabel('Trans Flag')
+            .setValue('2')
+            .setDescription('Costs zero okash!'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({name:'🍎'})
+            .setLabel('Apple')
+            .setValue('3')
+            .setDescription('Costs 50,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({name:'🍇'})
+            .setLabel('Grapes')
+            .setValue('4')
+            .setDescription('Costs 50,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({name:'💎'})
+            .setLabel('Gem')
+            .setValue('5')
+            .setDescription('Flex the fact you broke the economy. Costs 500,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({id:GetEmojiID(EMOJI.CAT_MONEY_EYES)})
+            .setLabel('Money Cat')
+            .setValue('6')
+            .setDescription('Costs 100,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({id:GetEmojiID(EMOJI.CAT_RAISED_EYEBROWS)})
+            .setLabel('Confused Cat')
+            .setValue('7')
+            .setDescription('Huh? Costs 100,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({id:GetEmojiID(EMOJI.CAT_SUNGLASSES)})
+            .setLabel('Sunglasses Cat')
+            .setValue('8')
+            .setDescription('Costs 150,000 okash'),
+
+        new StringSelectMenuOptionBuilder()
+            .setEmoji({id:GetEmojiID(EMOJI.SHOP_VOUCHER)})
+            .setLabel('Shop Voucher')
+            .setValue('9')
+            .setDescription('Costs 50,000 okash. If you want to display it for whatever reason.'),
+    );
+
+const sticker_costs = [
+    50_000,
+    50_000,
+    0,
+    50_000,
+    50_000,
+    500_000,
+    100_000,
+    100_000,
+    150_000,
+    50_000
+];
+
+const sm_x_input = new TextInputBuilder()
+    .setCustomId('x-pos')
+    .setLabel('Enter Sticker X (left/right) Position')
+    .setStyle(TextInputStyle.Short);
+
+const sm_y_input = new TextInputBuilder()
+    .setCustomId('x-pos')
+    .setLabel('Enter Sticker Y (up/down) Position')
+    .setStyle(TextInputStyle.Short);
+
+const sticker_modal = new ModalBuilder()
+    .setCustomId('xy-modal')
+    .setTitle('Pick X and Y position (top left is 0/0; sticker anchor is top left)')
+    .addComponents(
+        sm_x_input as any,
+        sm_y_input
+    )
+
+async function item_sticker(interaction: ChatInputCommandInteraction) {
+    const response = await interaction.reply({
+        content: `Step 1: Pick a sticker.`,
+        components: [new ActionRowBuilder().addComponents(valid_stickers) as any]
+    });
+
+    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});
+
+    collector.on('collect', async i => {
+        const sticker_chosen = parseInt(i.values[0]);
+        const cost = sticker_costs[sticker_chosen];
+        
+        i.update({
+            content: 'Step 2: Pick the sticker position.'
+        });
+        i.showModal(sticker_modal)
     });
 }
 
