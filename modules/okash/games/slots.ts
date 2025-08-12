@@ -59,8 +59,6 @@ const ROLL_TABLE = [
     ROLLS.OKASH,
     ROLLS.OKASH,
     ROLLS.OKASH,
-    ROLLS.OKASH,
-    ROLLS.OKASH,
     ROLLS.GEM
 ];
 
@@ -90,10 +88,10 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'OOG': 3,
     'GOO': 3,
     // 2x okash + gem
-    'OOE': 5,
-    'EOO': 5,
+    'OOE': 4,
+    'EOO': 4,
     // 3x okash
-    'OOO': 10,
+    'OOO': 5,
     // 2x gem + fruit
     'EEA': 8,
     'AEE': 8,
@@ -113,9 +111,9 @@ const WIN_STREAKS = new Map<Snowflake, number>();
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
-    if (!DEV) return interaction.reply({
-        content: ':crying_cat_face: Slots is currently disabled, sorry...' 
-    });
+    // if (!DEV) return interaction.reply({
+    //     content: ':crying_cat_face: Slots is currently disabled, sorry...' 
+    // });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
@@ -138,7 +136,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         USER_GAMES_TICK.set(interaction.user.id, 0);
         show_consider = true;
     } else {
-        const current_tick = USER_GAMES_TICK.has(interaction.user.id)?USER_GAMES_TICK.get(interaction.user.id)!:49;
+        const current_tick = USER_GAMES_TICK.has(interaction.user.id)?USER_GAMES_TICK.get(interaction.user.id)!:0;
         USER_GAMES_TICK.set(interaction.user.id, current_tick + 1);
     }
 
@@ -176,7 +174,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const earned_okash = Math.floor(bet * multiplier);
     const earned_xp = {
         0: 5,
-        1.1: 10,
+        0.25: 10,
         1.2: 15,
         2: 20,
         3: 25,
