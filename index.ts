@@ -111,7 +111,7 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoPresenceChecks, DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {GetUserProfile, SetupPrefs} from "./modules/user/prefs";
+import {CheckUserIdOkashRestriction, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
@@ -434,6 +434,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     if (!(await CheckForRulesSimple(message.author.id))) return; // don't listen to non-rule-agreeing users
+    if (!CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 

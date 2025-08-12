@@ -53,7 +53,7 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
                 .setColor(0x9d60cc)
                 .setFields(
                     {name:`${GetEmoji('g00')} Streak Restore (\`sr\`)`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**15,000**`},
-                    {name:`XP Level Up (\`xpl\`)`, value:`${GetEmoji('okash')} OKA**${10000 + (profile.leveling.level * 500)}**`},
+                    {name:`XP Level Up (\`xpl\`)`, value:`${GetEmoji('okash')} OKA**${10000+(profile.leveling.level * 25000)}**`},
                     {name:`:credit_card: Casino Pass - 10 Minutes (\`cas10\`)`, value:`${GetEmoji(EMOJI.SHOP_VOUCHER)} ${GetEmoji('okash')} OKA**25,000**`},
                     {name:`:credit_card: Casino Pass - 30 Minutes (\`cas30\`)`, value:`${GetEmoji('okash')} OKA**60,000**`},
                     {name:`:credit_card: Casino Pass - 60 Minutes (\`cas60\`)`, value:`${GetEmoji('okash')} OKA**100,000**`},
