@@ -5,13 +5,15 @@ loads hooks for private ac modules
 
 */
 
-import { ChatInputCommandInteraction } from "discord.js";
+import { ChatInputCommandInteraction, Snowflake } from "discord.js";
 import { existsSync } from "fs";
 import { Logger } from "okayulogger";
 import { join } from "path";
-import { LISTENING } from "../..";
+import { client, LISTENING } from "../..";
+import { RestrictUser } from "../user/prefs";
 
 const L = new Logger('ac');
+const LOADED_HOOKS: Array<string> = [];
 const HOOKS_AC_COMMAND: Array<CallableFunction> = [];
 
 /**
@@ -44,13 +46,23 @@ export async function ACLoadHookModule(name: string, expected_version: string): 
         }
         HOOKS_AC_COMMAND.push(hookModule.okabot_ac_hook_onCommand);
 
+
         L.info(`anticheat module ${name} load success!`);
+        LOADED_HOOKS.push(name);
+
+        if (typeof hookModule.okabot_ac_ptr_ban == 'function') hookModule.okabot_ac_ptr_ban(ACPtrBanUser);
+
         return true;
     } catch (err) {
         console.error(err);
         L.error(`could not load ${name} (hook test failure)`);
         return false;
     }
+}
+
+async function ACPtrBanUser(user_id: Snowflake, reason: string, until: Date) {
+    L.info(`Restriction issued by hook for user ${user_id}`);
+    RestrictUser(client, user_id, until.toDateString(), reason);
 }
 
 /**

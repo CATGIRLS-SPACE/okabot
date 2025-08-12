@@ -180,7 +180,15 @@ async function StartBot() {
     if (!existsSync(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))) 
         await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
     
-    ACLoadHookModule('millieguard.js', '0.1.0');
+    const is_updated = await ACLoadHookModule('millieguard.js', '0.2.0');
+    if (!is_updated) {
+        L.warn('millieguard version mismatch!')
+        // update millieguard if not up-to-date
+        await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
+        // then try loading again
+        delete require.cache[require.resolve(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))];
+        await ACLoadHookModule('millieguard.js', '0.2.0');
+    }
 
     client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
@@ -440,15 +448,15 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
-    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
-        if (!CONFIG.gemini.enable) return;
-        GeminiDemoRespondToInquiry(message);
-    }
+    // if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
+    //     if (!CONFIG.gemini.enable) return;
+    //     GeminiDemoRespondToInquiry(message);
+    // }
 
-    if (message.content.toLowerCase().startsWith('okabot,, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
-        if (!CONFIG.gemini.enable) return;
-        GeminiDemoRespondToInquiry(message, true);
-    }
+    // if (message.content.toLowerCase().startsWith('okabot,, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
+    //     if (!CONFIG.gemini.enable) return;
+    //     GeminiDemoRespondToInquiry(message, true);
+    // }
     
     if (message.reference) {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);
