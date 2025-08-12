@@ -30,7 +30,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
             // profile.daily.streak.double_claimed = false;
 
             UpdateUserProfile(user_id, profile);
-            ModifyOkashAmount(user_id, 'wallet', 750);
+            ModifyOkashAmount(user_id, 'wallet', 1500);
 
             AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
 
