@@ -67,52 +67,40 @@ const ROLL_TABLE = [
 // A = apple, G = grape, O = okash, E = gem
 const PAYOUT_TABLE: {[key: string]: number} = {
     // 2x fruit + fruit
-    'AAG': 1.1,
-    'AGA': 1.1,
-    'GAA': 1.1,
-    'GGA': 1.1,
-    'GAG': 1.1,
-    'AGG': 1.1,
+    'AAG': 0.25,
+    'GAA': 0.25,
+    'GGA': 0.25,
+    'AGG': 0.25,
     // 2x fruit + okash
     'AAO': 1.2,
-    'AOA': 1.2,
     'OAA': 1.2,
     'GGO': 1.2,
-    'GOG': 1.2,
     'OGG': 1.2,
     // 2x fruit + gem
     'AAE': 2,
-    'AEA': 2,
     'EAA': 2,
     'GGE': 2,
-    'GEG': 2,
     'EGG': 2,
     // 3x fruit
     'AAA': 2,
     'GGG': 2,
     // 2x okash + fruit
     'OOA': 3,
-    'OAO': 3,
     'AOO': 3,
     'OOG': 3,
-    'OGO': 3,
     'GOO': 3,
     // 2x okash + gem
     'OOE': 5,
-    'OEO': 5,
     'EOO': 5,
     // 3x okash
     'OOO': 10,
     // 2x gem + fruit
     'EEA': 8,
-    'EAE': 8,
     'AEE': 8,
     'EEG': 8,
-    'EGE': 8,
     'GEE': 8,
     // 2x gem + okash
     'EEO': 10,
-    'EOE': 10,
     'OEE': 10,
     // and of course, the lovely shiny!
     'EEE': 50
@@ -125,6 +113,10 @@ const WIN_STREAKS = new Map<Snowflake, number>();
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
+    if (!DEV) return interaction.reply({
+        content: ':crying_cat_face: Slots is currently disabled, sorry...' 
+    });
+
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });
@@ -259,5 +251,5 @@ export const SlotsSlashCommand = new SlashCommandBuilder()
         .setDescription("how much okash to bet")
         .setRequired(true)
         .setMinValue(1)
-        .setMaxValue(25_000)
+        .setMaxValue(5_000)
     );
