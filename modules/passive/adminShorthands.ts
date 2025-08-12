@@ -3,7 +3,7 @@ import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
     client, CONFIG,
-    LISTENING, SetActivity, SetLastLocale,
+    LISTENING, ReloadConfig, SetActivity, SetLastLocale,
     SetListening, ToggleDisableOfCommand
 } from "../../index";
 import {Achievements, GrantAchievement} from "./achievement";
@@ -17,7 +17,7 @@ import {
     UpdateUserProfile,
     USER_PROFILE
 } from "../user/prefs";
-import {SelfUpdate} from "../../util/updater";
+import {OnlyPull, SelfUpdate} from "../../util/updater";
 import {ReleaseUserGame} from "../okash/games/roulette";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -327,6 +327,10 @@ export function RegisterAllShorthands() {
         process.exit();
     });
 
+    RegisterShorthand('oka reload-config', () => {
+        ReloadConfig();
+    });
+
     RegisterShorthand('oka update', async (message: Message, params: string[]) => {
         if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can initiate an update.');
         // check if anyone has an active casino pass
@@ -344,7 +348,7 @@ export function RegisterAllShorthands() {
 
             let msg = ':warning: There are casino passes/drop boosts active! If you restart, the passes will be deleted!\n';
             Object.keys(passes).forEach(key => {
-                msg += `**${key}** - Expires <t:${passes[key]}:R>\n`
+                msg += `**${key}** - Expires <t:${Math.floor(passes[key]/1000)}:R>\n`
             });
             msg += '\nYou can forcibly update with `oka update force`.'
 
@@ -353,6 +357,9 @@ export function RegisterAllShorthands() {
         }
 
         SelfUpdate(message);
+    });
+    RegisterShorthand('oka pull', async (message: Message) => {
+        OnlyPull(message);
     });
 
     RegisterShorthand('oka rollback ', async (message: Message, params: string[]) => {

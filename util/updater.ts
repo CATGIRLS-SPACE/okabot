@@ -82,6 +82,12 @@ export async function SelfUpdate(message: Message, commit?: string) {
     process.exit();
 }
 
+export async function OnlyPull(message: Message) {
+    const reply = await message.reply('Pulling...');
+    await pull_changes();
+    reply.edit('Pulling... done!');
+}
+
 async function pull_changes(commit?: string): Promise<void> {
     return new Promise((resolve) => {
         exec('git reset --hard', () => {

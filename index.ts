@@ -49,7 +49,7 @@ if (!existsSync(join(__dirname, 'config.json'))) {
     L.fatal('A template configuration file has been created. Please modify it with your bot information before launching again.');
     process.exit(-1);
 }
-export const CONFIG: {
+export let CONFIG: {
     token: string,
     devtoken: string,
     clientId: Snowflake,
@@ -169,6 +169,10 @@ export function ToggleDisableOfCommand(command: string): boolean {
     else TEMPORARILY_DISABLED_COMMANDS.push(command);
 
     return TEMPORARILY_DISABLED_COMMANDS.includes(command);
+}
+
+export function ReloadConfig() {
+    CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 }
 
 /**
@@ -427,7 +431,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
 
-    if (message.flags.any("IsCrosspost") || message.flags.any("HasThread")) return; // forwarded messages break shit
+    if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     if (!(await CheckForRulesSimple(message.author.id))) return; // don't listen to non-rule-agreeing users
 
