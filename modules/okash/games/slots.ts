@@ -166,10 +166,10 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     const earned_okash = Math.floor(bet * multiplier);
     const earned_xp = {
         0: 5,
-        0.25: 10,
         1.2: 15,
+        1.5: 20,
         2: 20,
-        3: 25,
+        2.5: 25,
         5: 30,
         10: 50,
         15: 100,
