@@ -133,7 +133,7 @@ const COOLDOWNS = new Map<Snowflake, number>();
 
 export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
     const d = new Date();
-    if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV) {
+    if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV && !preview_sticker) {
         interaction.reply({
             content: `:hourglass: Slow down, **${interaction.user.displayName}**! You *just* ran this command!`
         });
