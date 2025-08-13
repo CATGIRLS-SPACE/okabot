@@ -289,6 +289,11 @@ export function RegisterAllShorthands() {
 
         const profile = GetUserProfile(params[2]);
         if (!profile.restriction) throw new Error(`no restriction exists in profile data for user ${params[2]}`);
+
+        if (profile.restriction.reason.startsWith('master-only:') && message.author.id != CONFIG.bot_master) return message.reply({
+            content: ':x: This restriction can only be lifted by the bot master.'
+        });
+
         profile.restriction.active = false;
 
         UpdateUserProfile(params[2], profile);
