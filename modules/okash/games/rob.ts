@@ -169,6 +169,10 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     interaction.reply({
         content: `:bangbang: ${msg}`
     });
+
+    if (BANK_ROBS.has(robbed_user.id)) {
+        if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(interaction.user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);
+    }
 }
 
 

@@ -688,6 +688,11 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     game.dealer.push(game.deck.shift()!, game.deck.shift()!);
     game.user.push(game.deck.shift()!, game.deck.shift()!);
     if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:4});
+    if (
+        game.user.length === 2 &&
+        game.user[0].value === 1 && game.user[0].name === 'ca' &&
+        game.user[1].value === 1 && game.user[1].name === 'ca'
+    ) GrantAchievement(interaction.user, Achievements.TWO_ACES, interaction.channel as TextChannel);
 
     // save game
     GamesActive.set(interaction.user.id, game);

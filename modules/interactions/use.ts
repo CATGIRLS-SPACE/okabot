@@ -487,6 +487,7 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
                     attachments: [],
                     components: []
                 });
+                GrantAchievement(i2.user, Achievements.STICKER, i2.channel as TextChannel);
             } else {
                 i2.update({
                     content: `:cat: Got it! No sticker was placed.`,
