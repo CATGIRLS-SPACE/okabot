@@ -171,7 +171,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
     });
 
     if (BANK_ROBS.has(robbed_user.id)) {
-        if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(interaction.user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);
+        if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(robbed_user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);
     }
 }
 
