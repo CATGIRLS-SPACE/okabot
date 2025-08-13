@@ -67,26 +67,18 @@ export enum Achievements {
     STORY = 'story',
     STEAL_THEN_DEPOSIT = 'bankdep',
     BLUE = 'blue',
+    ROBBED_CHAIN = 'robchain',
+    STICKER = 'sticker',
+    TWO_ACES = 'pocketaces'
 }
 
 const ACHIEVEMENTS: {
     [key: string]: Achievement
 } = {
-    // 'level10': {name:'Level 10',description:'Get to level 10', class:'noshow', diff:'na'},
-    // 'level20': {name:'Level 20',description:'Get to level 20', class:'noshow', diff:'na'},
-    // 'level30': {name:'Level 30',description:'Get to level 30', class:'noshow', diff:'na'},
-    // 'level40': {name:'Level 40',description:'Get to level 40', class:'noshow', diff:'na'},
-    // 'level50': {name:'Level 50',description:'Get to level 50', class:'noshow', diff:'na'},
-    // 'level60': {name:'Level 60',description:'Get to level 60', class:'noshow', diff:'na'},
-    // 'level70': {name:'Level 70',description:'Get to level 70', class:'noshow', diff:'na'},
-    // 'level80': {name:'Level 80',description:'Get to level 80', class:'noshow', diff:'na'},
-    // 'level90': {name:'Level 90',description:'Get to level 90', class:'noshow', diff:'na'},
-    // 'level100': {name:'Level 100',description:'Get to level 100', class:'noshow', diff:'na'},
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
     'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
     'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},
     'get21': {name:'Blackjack!',description:'Win a game of blackjack by getting 21', class:'gamble', diff:'t'},
-    // 'newcf_alltime': {name:'Making History',description:'Get a new highest/lowest coinflip float of all time', class:'gamble', diff:'ex'},
     'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble', diff:'h'},
     'land36': {name:'I Just Knew',description:'Bet on a single number in roulette and win', class:'gamble', diff:'ex'},
     'landmulti': {name:'Lottery',description:'Bet on 2-7 numbers in roulette and win', class:'gamble', diff:'h'},
@@ -95,10 +87,6 @@ const ACHIEVEMENTS: {
     'maxbetwin': {name:'High Risk, High Reward',description:'Win a gambling game that you bet the max allowed amount of okash on', class:'gamble', diff:'t'},
     'getdaily': {name:'The Beginning',description:'Get your daily reward for the first time', class:'okabot', diff:'e'},
     'dailyweek': {name:'New Habit',description:'Get your daily reward for a week straight', class:'okabot', diff:'e'},
-    'dailymonth': {name:'Committed',description:'Get your daily reward for a month straight', class:'okabot', diff:'t'},
-    // 'daily2month': {name:'Unforgetful',description:'Get your daily reward for two months straight', class:'okabot', diff:'t'},
-    // 'daily100': {name:'One Hundred',description:'Get your daily reward for 100 days straight', class:'okabot', diff:'h'},
-    // 'dailyyear': {name:'I Can\'t Stop!',description:'Get your daily reward for one year. Congrats!', class:'okabot', diff:'h'},
     'restorestreak': {name:'Deciduous Arborist',description:'Restore your daily streak with a streak restore', class:'okabot', diff:'e'},
     'robmin25000': {name:'Wallet Weight Loss',description:'Rob someone of at least 25000 okash', class:'fun', diff:'t'},
     'robfined': {name:'Uhhh... Oops?',description:'Get caught robbing someone and get fined', class:'fun', diff:'e'},
@@ -125,6 +113,9 @@ const ACHIEVEMENTS: {
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
     'bankdep':{name:'A Visit From the IRS',description:'Rob the bank, then immediately deposit the earnings into your bank.',class:'fun',diff:'e'},
     'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'fun',diff:'t'},
+    'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
+    'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
+    'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'t'},
 }
 
 /**

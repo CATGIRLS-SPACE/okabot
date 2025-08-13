@@ -241,5 +241,5 @@ export const SlotsSlashCommand = new SlashCommandBuilder()
         .setDescription("how much okash to bet")
         .setRequired(true)
         .setMinValue(1)
-        .setMaxValue(5_000)
+        .setMaxValue(15_000)
     );
