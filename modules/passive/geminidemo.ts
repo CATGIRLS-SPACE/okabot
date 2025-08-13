@@ -109,7 +109,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro-preview-05-06',
+            model: 'gemini-2.5-flash-lite',
             contents: prompt,
             config: {
                 thinkingConfig: {
@@ -214,7 +214,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro-preview-03-25',
+            model: 'gemini-2.5-flash-lite',
             contents: prompt,
             config: {
                 thinkingConfig: {
