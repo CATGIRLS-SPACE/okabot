@@ -140,7 +140,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
             AddOneToInventory(interaction.user.id, ITEMS.LOOTBOX_INCREASE_30_MIN);
             break;
 
-        case 'sticker': case 'sk':
+        case 'sticker kit': case 'sk':
             AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
             break;
 

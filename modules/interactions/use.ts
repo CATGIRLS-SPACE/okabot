@@ -481,6 +481,7 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
                 profile.customization.stickers.push({sticker:sticker_chosen,position_x:x,position_y:y});
                 UpdateUserProfile(i2.user.id, profile);
                 RemoveFromWallet(i2.user.id, cost, true);
+                RemoveOneFromInventory(i2.user.id, ITEMS.STICKER_NOT_APPLIED);
                 i2.update({
                     content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} I stuck that sticker onto your level banner for ${GetEmoji(EMOJI.OKASH)} OKA**${cost}**!`,
                     attachments: [],
