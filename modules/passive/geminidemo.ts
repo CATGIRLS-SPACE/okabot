@@ -113,7 +113,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             contents: prompt,
             config: {
                 thinkingConfig: {
-                    includeThoughts: true
+                    includeThoughts: false
                 },
                 tools: disable_search?[]:[{ googleSearch: {} }]
             },
@@ -256,7 +256,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             contents: prompt,
             config: {
                 thinkingConfig: {
-                    includeThoughts: true,
+                    includeThoughts: false,
                 },
                 tools: chain.disable_search?[]:[{ googleSearch: {} }]
             }
