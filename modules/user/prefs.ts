@@ -204,6 +204,16 @@ export function ReloadProfile(user_id: Snowflake) {
     GetUserProfile(user_id);
 }
 
+export function CheckForProfile(user_id: string): boolean {
+    if (!PROFILES_DIR) PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
+    const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
+
+    // check if it exists
+    if (!existsSync(profile_path)) return false;
+
+    const profile = GetUserProfile(user_id);
+    return !profile.restriction.active;
+}
 
 export function GetUserProfile(user_id: string): USER_PROFILE {
     // only should trigger if you use the --wipe flag

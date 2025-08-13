@@ -22,6 +22,7 @@ export const ITEM_NAMES: {
     10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas10".'},
     11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas30".'},
     12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas60".'},
+    18: {name:`:crystal_ball: Sticker Kit`,desc:'A kit to apply a sticker for your level banner.'},
 }
 
 const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
@@ -37,7 +38,8 @@ const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
     9: LANG_ITEMS.DROP_BOOST_30,
     10: LANG_ITEMS.CASINO_PASS_10,
     11: LANG_ITEMS.CASINO_PASS_30,
-    12: LANG_ITEMS.CASINO_PASS_60
+    12: LANG_ITEMS.CASINO_PASS_60,
+    18: LANG_ITEMS.STICKER_NOT_APPLIED
 }
 
 const UNLOCK_NAMES: {
@@ -74,6 +76,7 @@ export function GetProperItemName(shop_id: string, locale: 'en' | 'ja' = 'en'): 
         'casino pass 10 minute': 10,
         'casino pass 30 minute': 11,
         'casino pass 60 minute': 12,
+        'sticker kit': 18
     }
 
     return LangGetFormattedString(LOCALIZED_ITEM_NAME_IDS[keys[shop_id]] as LANG_ITEMS, locale);

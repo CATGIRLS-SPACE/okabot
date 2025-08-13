@@ -40,7 +40,7 @@ const PRICES: {
     'casino pass 60 minute':100_000,
     'trans card deck': 25_000,
     'cherry blossom card deck':50_000,
-    'sticker': 250_000
+    'sticker kit': 250_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -60,6 +60,7 @@ const SHORTHANDS: {[key: string]: string} = {
     'cas60': 'casino pass 60 minute',
     'tcd': 'trans card deck',
     'cbcd':'cherry blossom card deck',
+    'sk': 'sticker kit'
 }
 
 const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
@@ -139,6 +140,10 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
             AddOneToInventory(interaction.user.id, ITEMS.LOOTBOX_INCREASE_30_MIN);
             break;
 
+        case 'sticker': case 'sk':
+            AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
+            break;
+
         // coin customizations
         // must return on these because we need to check if the user already has the unlock
         // if they do, don't subtract the price and tell them that they already have it
@@ -192,10 +197,6 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'reset level bar':
             return UnlockOneTimeCustomization(interaction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, price);
-
-        case 'sticker':
-            AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
-            break;
     }
 
     // this will only execute if it's a '/use'able item

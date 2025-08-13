@@ -107,6 +107,7 @@ export enum LANG_ITEMS {
     CASINO_PASS_10 = 'item.casino_pass.small',
     CASINO_PASS_30 = 'item.casino_pass.large',
     CASINO_PASS_60 = 'item.casino_pass.largest',
+    STICKER_NOT_APPLIED = 'item.sticker'
 }
 
 interface Language {
@@ -217,6 +218,7 @@ const LANGUAGE_EN: Language = {
     'item.casino_pass.small':':credit_card: Casino Pass (10 min)',
     'item.casino_pass.large':':credit_card: Casino Pass (30 min)',
     'item.casino_pass.largest':':credit_card: Casino Pass (60 min)',
+    'item.sticker': ':crystal_ball: Sticker Kit'
 };
 
 const LANGUAGE_JA: Language = {
@@ -320,6 +322,8 @@ const LANGUAGE_JA: Language = {
     'item.casino_pass.small':':credit_card: ブラックジャックパス（10分）',
     'item.casino_pass.large':':credit_card: ブラックジャックパス（30分）',
     'item.casino_pass.largest':':credit_card: ブラックジャックパス（60分）',
+    'item.sticker': ':crystal_ball: スティカーキット'
+    
 }
 
 const LANGUAGE_BR: Language = {

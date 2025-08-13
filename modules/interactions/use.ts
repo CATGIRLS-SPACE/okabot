@@ -1,7 +1,7 @@
-import {APITextInputComponent, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
+import {ActionRow, APITextInputComponent, AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
 import {RestoreLastDailyStreak} from "../okash/daily";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
-import {AddOneToInventory, AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
+import {AddOneToInventory, AddToWallet, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
 import {FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
 import {exLootboxReward, LOOTBOX_REWARD_TYPE, lootboxRewardCommon, rareLootboxReward} from "../okash/lootboxes";
 import {EMOJI, GetEmoji, GetEmojiID} from "../../util/emoji";
@@ -10,7 +10,11 @@ import {ITEM_NAMES} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
-import { ActionRowBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder } from "@discordjs/builders";
+import { ActionRowBuilder, ButtonBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder } from "@discordjs/builders";
+import { generateLevelBanner } from "../levels/levels";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { BASE_DIRNAME } from "../..";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -58,9 +62,9 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_tracking_device(interaction);
             break;
 
-        case 'sticker': case 'sticker kit': case 'sk':
-            item_sticker(interaction);
-            break;
+        // case 'sticker': case 'sticker kit': case 'sk':
+        //     item_sticker(interaction);
+        //     break;
 
         default:
             interaction.reply({
@@ -420,27 +424,27 @@ const sticker_costs = [
     50_000
 ];
 
-const sm_x_input = new TextInputBuilder()
-    .setCustomId('x-pos')
-    .setLabel('Enter Sticker X (left/right) Position')
-    .setStyle(TextInputStyle.Short);
+const button_yes = new ButtonBuilder()
+    .setCustomId('yes')
+    .setLabel('Stick it!')
+    .setStyle(ButtonStyle.Success);
 
-const sm_y_input = new TextInputBuilder()
-    .setCustomId('x-pos')
-    .setLabel('Enter Sticker Y (up/down) Position')
-    .setStyle(TextInputStyle.Short);
+const button_no = new ButtonBuilder()
+    .setCustomId('no')
+    .setLabel('Nevermind!')
+    .setStyle(ButtonStyle.Danger);
 
-const sticker_modal = new ModalBuilder()
-    .setCustomId('xy-modal')
-    .setTitle('Pick X and Y position (top left is 0/0; sticker anchor is top left)')
-    .addComponents(
-        sm_x_input as any,
-        sm_y_input
-    )
+export async function item_sticker(interaction: ChatInputCommandInteraction) {
+    let profile = GetUserProfile(interaction.user.id);
+    if (!profile.inventory.includes(ITEMS.STICKER_NOT_APPLIED)) return interaction.reply({
+        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **Sticker Kit**!`
+    });
 
-async function item_sticker(interaction: ChatInputCommandInteraction) {
+    const x = interaction.options.getNumber('x-pos', true);
+    const y = interaction.options.getNumber('y-pos', true);
+
     const response = await interaction.reply({
-        content: `Step 1: Pick a sticker.`,
+        content: `Pick a sticker to place at X=${x} Y=${y}.`,
         components: [new ActionRowBuilder().addComponents(valid_stickers) as any]
     });
 
@@ -451,10 +455,45 @@ async function item_sticker(interaction: ChatInputCommandInteraction) {
         const sticker_chosen = parseInt(i.values[0]);
         const cost = sticker_costs[sticker_chosen];
         
-        i.update({
-            content: 'Step 2: Pick the sticker position.'
+        await i.update({
+            content: 'Generating preview, one second...',
+            components: []
         });
-        i.showModal(sticker_modal)
+
+        await generateLevelBanner(interaction, GetUserProfile(interaction.user.id), undefined, {sticker:sticker_chosen,position_x:x,position_y:y});
+
+        await i.editReply({
+            content: `Place this sticker? It will cost you ${GetEmoji(EMOJI.OKASH)} OKA**${cost}**. You will not be able to move it once placed.\n-# Sticker removal is not implemented yet, but will be implemented in the future.`,
+            files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', 'level-banner.png')))],
+            components: [new ActionRowBuilder().addComponents(button_yes,button_no) as any]
+        });
+
+        const collector_button = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
+
+        collector_button.on('collect', async i2 => {
+            if (i2.customId == 'yes') {
+                if (GetWallet(i2.user.id, true) < cost) return i2.update({
+                    content: `:crying_cat_face: Sorry, **${i2.user.displayName}**, but you don't have enough okash to buy this sticker!`,
+                    attachments: [],
+                    components: []
+                });
+                profile = GetUserProfile(i2.user.id);
+                profile.customization.stickers.push({sticker:sticker_chosen,position_x:x,position_y:y});
+                UpdateUserProfile(i2.user.id, profile);
+                RemoveFromWallet(i2.user.id, cost, true);
+                i2.update({
+                    content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} I stuck that sticker onto your level banner for ${GetEmoji(EMOJI.OKASH)} OKA**${cost}**!`,
+                    attachments: [],
+                    components: []
+                });
+            } else {
+                i2.update({
+                    content: `:cat: Got it! No sticker was placed.`,
+                    attachments: [],
+                    components: []
+                });
+            }
+        });
     });
 }
 

@@ -6,7 +6,7 @@ import {
     SlashCommandBuilder,
     Snowflake, User
 } from "discord.js";
-import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
+import { CheckForProfile, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import {BASE_DIRNAME, CONFIG, DEV} from "../../index";
 import { join, resolve } from "path";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
@@ -131,7 +131,7 @@ export interface BannerSticker {
 
 const COOLDOWNS = new Map<Snowflake, number>();
 
-async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
+export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
     const d = new Date();
     if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV) {
         interaction.reply({
@@ -142,7 +142,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
     COOLDOWNS.set(interaction.user.id, Math.round(d.getTime()/1000) + 30);
 
-    await interaction.deferReply();
+    if (!interaction.replied) await interaction.deferReply();
     if (override_user_with) interaction.user = override_user_with;
 
     const supporter = GetUserSupportStatus(interaction.user.id);
@@ -369,7 +369,7 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
     const stickers = [
         "cherry-blossom.png",
         "okash.png",
-        "transgender-flag.png",
+        "transgender_flag.png",
         "apple.png",
         "grapes.png",
         "gem.png",
@@ -410,6 +410,11 @@ async function generateLevelBanner(interaction: ChatInputCommandInteraction, pro
 
 export async function HandleCommandLevel(interaction: ChatInputCommandInteraction) {
     const user_to_get = interaction.options.getUser('user') || interaction.user;
+
+    if (!CheckForProfile(user_to_get.id)) return interaction.reply({
+        content:':x: That user doesn\'t exist.'
+    });
+
     const profile = GetUserProfile(user_to_get.id);
 
     if (interaction.options.getSubcommand(true) == 'background') {
@@ -426,6 +431,8 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
             flags: [MessageFlags.SuppressNotifications]
         });
     }
+
+    if (interaction.options.getSubcommand(true) == 'sticker') return item_sticker(interaction);
 
     if (!profile.leveling) {
         profile.leveling = {
@@ -470,6 +477,7 @@ import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
 import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { item_sticker } from "../interactions/use";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
@@ -497,5 +505,20 @@ export const LevelSlashCommand = new SlashCommandBuilder()
             .setName('link')
             .setDescription('The link to the image, preferrably 1024x361. Leave blank to disable.')
             .setRequired(false)
+        )
+    ).addSubcommand(sc => sc
+        .setName('sticker')
+        .setDescription('Add a sticker to your level banner.')
+        .addNumberOption(option => option
+            .setName('x-pos')
+            .setDescription('How many pixels right to put the sticker.')
+            .setRequired(true)
+            .setMinValue(0).setMaxValue(600)
+        )
+        .addNumberOption(option => option
+            .setName('y-pos')
+            .setDescription('How many pixels down to put the sticker.')
+            .setRequired(true)
+            .setMinValue(0).setMaxValue(150)
         )
     );
