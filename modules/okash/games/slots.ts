@@ -64,46 +64,6 @@ const ROLL_TABLE = [
 
 // A = apple, G = grape, O = okash, E = gem
 const PAYOUT_TABLE: {[key: string]: number} = {
-<<<<<<< HEAD
-    // 2x fruit + fruit
-    'AAG': 0.25,
-    'GAA': 0.25,
-    'GGA': 0.25,
-    'AGG': 0.25,
-    // 2x fruit + okash
-    'AAO': 1.2,
-    'OAA': 1.2,
-    'GGO': 1.2,
-    'OGG': 1.2,
-    // 2x fruit + gem
-    'AAE': 2,
-    'EAA': 2,
-    'GGE': 2,
-    'EGG': 2,
-    // 3x fruit
-    'AAA': 2,
-    'GGG': 2,
-    // 2x okash + fruit
-    'OOA': 3,
-    'AOO': 3,
-    'OOG': 3,
-    'GOO': 3,
-    // 2x okash + gem
-    'OOE': 4,
-    'EOO': 4,
-    // 3x okash
-    'OOO': 5,
-    // 2x gem + fruit
-    'EEA': 8,
-    'AEE': 8,
-    'EEG': 8,
-    'GEE': 8,
-    // 2x gem + okash
-    'EEO': 10,
-    'OEE': 10,
-    // and of course, the lovely shiny!
-    'EEE': 50
-=======
     'AAA':2,    // 3x apple
     'GGG':2,    // 3x grape
     'AAG':1.2,  // 2x apple 1x grape <-- must be in that order!
@@ -134,7 +94,6 @@ const PAYOUT_TABLE: {[key: string]: number} = {
     'GEE':15,
     'OEE':15,
     'EEE':50,   // 3x gem
->>>>>>> parent of 9f664d6 (change slots rolls, close #26)
 }
 
 const ACTIVE_GAMES = new Map<Snowflake, boolean>();
@@ -212,13 +171,8 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         2: 20,
         3: 25,
         5: 30,
-<<<<<<< HEAD
-        8: 50,
-        10: 100,
-=======
         10: 50,
         15: 100,
->>>>>>> parent of 9f664d6 (change slots rolls, close #26)
         50: 250
     }[multiplier]!;
 
