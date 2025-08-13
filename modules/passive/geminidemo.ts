@@ -127,6 +127,11 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (response.text == undefined) return await message.reply('*(something went wrong and i didn\'t get a response... try again?)*');
 
     try {
+        if (response.text.startsWith('@react=')) {
+            const reaction = response.text.split('@react=')[1];
+            return message.react(reaction);
+        }
+
         const reply = await message.reply({
             content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
