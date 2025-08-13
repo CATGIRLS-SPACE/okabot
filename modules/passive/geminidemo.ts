@@ -109,7 +109,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
+            model: 'gemini-2.5-pro-preview-05-06',
             contents: prompt,
             config: {
                 thinkingConfig: {
@@ -120,52 +120,14 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     } catch (err) {
         return message.reply({
-            content: `${err}`.includes('Internal Server Error')?'I am being censored by the government.':`:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
+            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
         });
     }
 
-    let reply;
-    let thoughts = '';
-    let answer = '';
-
-    if (response.text == undefined) {
-        for (const part of response.candidates![0].content!.parts!) {
-            console.log(part);
-            if (!part.text) continue;
-            else if (part.thought) {
-                const thought_parts = part.text.split('\n');
-                for (const p of thought_parts) {
-                    if (p != '') thoughts += `-# ${part.text}\n`;
-                }
-            }
-            else answer += part.text.trim();
-        }
-
-        if (answer.startsWith('@react')) {
-            const reaction = answer.split('@react=')[1];
-            return message.react(reaction);
-        }
-
-        reply = await message.reply({
-            content: thoughts + '\n' + `${answer}\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
-        });
-    }
+    if (response.text == undefined) return await message.reply('*(something went wrong and i didn\'t get a response... try again?)*');
 
     try {
-        if (response.text?.startsWith('@react=')) {
-            try {
-                const reaction = response.text?.split('@react=')[1];
-                message.react(reaction);
-                console.log(message.reactions, message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable));
-                message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable)?.remove();
-            } catch (err) {
-                message.reply('you broked it');
-            }
-
-            return;
-        }
-
-        if (!reply) reply = await message.reply({
+        const reply = await message.reply({
             content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
@@ -197,7 +159,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                 },
                 {
                     user: 'okabot',
-                    content: response.text || answer
+                    content: response.text!
                 }
             ]
         }
@@ -252,7 +214,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
+            model: 'gemini-2.5-pro-preview-03-25',
             contents: prompt,
             config: {
                 thinkingConfig: {
@@ -263,7 +225,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         });
     } catch (err) {
         message.reply({
-            content: `${err}`.includes('Internal Server Error')?'I am being censored by the government.':`:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
+            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
         });
         return;
     }
@@ -296,19 +258,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     }
 
     try {
-        if (response.text?.startsWith('@react=')) {
-            try {
-                const reaction = response.text?.split('@react=')[1];
-                message.react(reaction);
-                message.reactions.cache.find((reaction) => reaction.emoji == '🌟' as EmojiResolvable)?.remove();
-            } catch (err) {
-                message.reply('you broked it');
-            }
-
-            return;
-        }
-        
-        if (!reply) reply = await message.reply({
+        const reply = await message.reply({
             content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
         });
 
@@ -317,7 +267,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             content: message.content
         }, {
             user: 'okabot',
-            content: response.text || answer
+            content: response.text!
         });
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
@@ -336,7 +286,7 @@ export async function GetWackWordDefinitions(message: Message) {
     const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user has just submitted their "wack words of the day", which are Wordle words which are unconventional/uncommon and sound funny. The content of the message is "${message.content}". Define the words only, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Make it something funny, examples: "Millie, what even is that word...?" or "Millie, there's no way those are real words!!" An example of a defined word message would be: "1. BURNT - definition goes here\n2. CHARK - definition goes here".`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
+        model: 'gemini-2.5-pro-preview-03-25',
         contents: prompt,
         config: {
             thinkingConfig: {

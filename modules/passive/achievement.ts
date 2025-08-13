@@ -11,17 +11,6 @@ interface Achievement {
 }
 
 export enum Achievements {
-    // LEVEL_10 = 'level10', //
-    // LEVEL_20 = 'level20', //
-    // LEVEL_30 = 'level30', //
-    // LEVEL_40 = 'level40', //
-    // LEVEL_50 = 'level50', //
-    // LEVEL_60 = 'level60', //
-    // LEVEL_70 = 'level70', //
-    // LEVEL_80 = 'level80', //
-    // LEVEL_90 = 'level90', //
-    // LEVEL_100 = 'level100', //
-    // LEVEL_BEYOND = 'level_beyond', //
     LOW_COINFLIP = 'lowcf', //
     HIGH_COINFLIP = 'highcf', //
     WEIGHTED_COINFLIP = 'usewc', //
@@ -115,7 +104,7 @@ const ACHIEVEMENTS: {
     'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'fun',diff:'t'},
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
-    'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'t'},
+    'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
 }
 
 /**
