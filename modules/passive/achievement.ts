@@ -6,7 +6,7 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 interface Achievement {
     name: string,
     description: string,
-    class: 'okabot' | 'gamble' | 'fun' | 'okash' | 'noshow',
+    class: 'okabot' | 'gamble' | 'fun' | 'fun2' | 'okash' | 'noshow',
     diff: 'e' | 't' | 'h' | 'ex' | 'na' // easy, tricky, hard, extra hard, not applicable (eg. levels)
 }
 
@@ -107,8 +107,8 @@ const ACHIEVEMENTS: {
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
-    'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun',diff:'e'},
-    'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun',diff:'e'},
+    'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun2',diff:'e'},
+    'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
 }
 
 /**
@@ -251,7 +251,8 @@ export const AchievementsSlashCommand = new SlashCommandBuilder()
             // specific categories
             {name:'okabot', value:'okabot'},
             {name:'Gambling', value:'gamble'},
-            {name:'Fun', value:'fun'},
+            {name:'Fun (1/2)', value:'fun'},
+            {name:'Fun (2/2)', value:'fun2'},
             {name:'okash', value:'okash'},
         )
         .setRequired(true)
