@@ -3,6 +3,7 @@ import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
     client, CONFIG,
+    DEV,
     LISTENING, ReloadConfig, SetActivity, SetLastLocale,
     SetListening, ToggleDisableOfCommand
 } from "../../index";
@@ -360,6 +361,8 @@ export function RegisterAllShorthands() {
             await message.reply(msg);
             if (!message.content.includes('force')) throw new Error('WARN'); // prevents the ':x:' reaction
         }
+
+        SetListening(false);
 
         SelfUpdate(message);
     });

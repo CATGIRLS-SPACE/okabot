@@ -58,7 +58,8 @@ export enum Achievements {
     BLUE = 'blue',
     ROBBED_CHAIN = 'robchain',
     STICKER = 'sticker',
-    TWO_ACES = 'pocketaces'
+    TWO_ACES = 'pocketaces',
+    LEVELBAR = 'levelbar'
 }
 
 const ACHIEVEMENTS: {
@@ -105,6 +106,7 @@ const ACHIEVEMENTS: {
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
+    // 'levelbar':{name:'Useless Exchange',description:'',class:'fun',diff:'e'},
 }
 
 /**
