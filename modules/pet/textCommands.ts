@@ -31,7 +31,7 @@ const allowed_buy_type: Array<string> = ['food','pet'];
 
 
 export async function PetParseTextCommand(message: Message) {
-    if (!DEV) return message.reply({content:':hourglass: That feature isn\'t ready quite yet!'});
+    // if (!DEV) return message.reply({content:':hourglass: That feature isn\'t ready quite yet!'});
 
     const args = message.content.split(' ');
     if (!args[1] || !allowed_subcommands.includes(args[1].toLowerCase()) && !DEV) return message.reply({
@@ -114,11 +114,11 @@ async function SubcommandShop(message: Message, args: Array<string>) {
 
         case 'pets':
             embed = new EmbedBuilder().setAuthor({name:message.author.displayName}).setTitle('Pet Shop').setColor(0x9d60cc).addFields(
-                {name: '🐈 Cat', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
-                {name: '🐕 Dog', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
-                {name: '🦊 Fox', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
-                {name: '🐺 Wolf', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
-                {name: `${GetEmoji(EMOJI.BOOST)}☕ 🐇 Bunny`, value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**100,000**`},
+                {name: '🐈 Cat', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**250,000**`},
+                {name: '🐕 Dog', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**250,000**`},
+                {name: '🦊 Fox', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**250,000**`},
+                {name: '🐺 Wolf', value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**250,000**`},
+                {name: `${GetEmoji(EMOJI.BOOST)}☕ 🐇 Bunny`, value: `Adopt price: ${GetEmoji(EMOJI.OKASH)} OKA**250,000**`},
             );
             break;
     }
@@ -181,7 +181,7 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
         case 'pet':
             if (!args[3]) return message.reply({content: ':x: Please tell me what pet you want to adopt!'});
             if (!['cat','dog','fox','wolf','bunny'].includes(args[3].toLowerCase())) return message.reply({content:':x: Not a valid pet! Valid pets are `cat, dog, fox, wolf, bunny`.'});
-            if (profile.okash.wallet < 100_000) return message.reply({content:':crying_cat_face: You don\'t have enough okash to adopt that pet!'});
+            if (profile.okash.wallet < 250_000) return message.reply({content:':crying_cat_face: You don\'t have enough okash to adopt that pet!'});
 
             if (args[3].toLowerCase() == 'bunny') {
                 // ensure the user is a booster/donator
@@ -204,7 +204,7 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
             if (has_neglectable_pet) return message.reply({content: ':crying_cat_face: Sorry, but you have a pet under level 25. Please level up your pet to level 25 to adopt another!'});
             
             // create the pet
-            profile.okash.wallet -= 100_000;
+            profile.okash.wallet -= 250_000;
             const d = new Date();
             const randomness_seed = Math.floor(Math.random() * 1000000);
 
