@@ -479,7 +479,7 @@ import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../..
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
 
-async function fetchImage(url: string) {
+export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
     return Buffer.from(response.data, 'binary');   
 }

@@ -1,6 +1,12 @@
-import { ApplicationIntegrationType, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
+import { ApplicationIntegrationType, Attachment, AttachmentBuilder, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
 import { EMOJI, GetEmoji } from "../../util/emoji";
+import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
+import { BASE_DIRNAME, client } from "../..";
+import { fetchImage } from "../levels/levels";
+import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 
 
 interface Achievement {
@@ -190,19 +196,27 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         if (keys.includes(ach)) real_achievement_count++;
 
     if (sub == 'bar') {
-        const bar = CreateProgressBar(real_achievement_count);
-        
-        if (real_achievement_count == 0) return interaction.reply({
-            content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
-            flags: []
+        await interaction.deferReply();
+
+        await GenerateAchievementsBanner(interaction.user.id, real_achievement_count);
+
+        return await interaction.editReply({
+            files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', 'achievement-banner.png')))]
         });
 
-        const extra = (real_achievement_count == Object.keys(ACHIEVEMENTS).length)?'**You have unlocked all achievements! Congratulations!**\n\n':'';
+        // const bar = CreateProgressBar(real_achievement_count);
         
-        return interaction.reply({
-            content:`${extra}**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
-            flags: []
-        });
+        // if (real_achievement_count == 0) return interaction.reply({
+        //     content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
+        //     flags: []
+        // });
+
+        // const extra = (real_achievement_count == Object.keys(ACHIEVEMENTS).length)?'**You have unlocked all achievements! Congratulations!**\n\n':'';
+        
+        // return interaction.reply({
+        //     content:`${extra}**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
+        //     flags: []
+        // });
     }
 
     let list = `## Achievements\n`;
@@ -236,6 +250,137 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         content: list + `-# ${GetEmoji(EMOJI.DIFF_EASY)} Easy | ${GetEmoji(EMOJI.DIFF_TRICKY)} Tricky | ${GetEmoji(EMOJI.DIFF_HARD)} Hard | ${GetEmoji(EMOJI.DIFF_EXHARD)} Extra Hard`,
         flags: []
     });
+}
+
+
+async function GenerateAchievementsBanner(user_id: Snowflake, achievement_count: number) {
+    const width = 600, height = 150;
+    const canvas = createCanvas(width, height);
+    const ctx    = canvas.getContext('2d');
+
+    const profile = GetUserProfile(user_id);
+    const bar_color = {bg:'#44384d',fg:'#9d60cc'};
+
+    // Background color
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, '#271e2e');
+    gradient.addColorStop(1, '#3c3245');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // why do we have to force fetch the user? idk, it's dumb
+    let banner_url = await client.users.fetch(user_id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    if (profile.customization.level_bg_override != '') {
+        banner_url = profile.customization.level_bg_override;
+        console.log(`profile banner override is selected: ${banner_url}`)
+    }
+    // if the user has a banner + unlocked the user banner ability
+    if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
+        const banner_buffer = await fetchImage(banner_url);
+        const banner_img = await loadImage(banner_buffer);
+        // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+        console.log('before:', banner_img.width, banner_img.height);
+        let new_width = 600;
+        let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+        console.log('after:', new_width, new_height);
+        ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+        // darken with a slightly-transparent rectangle
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.fillRect(0, 0, width, height);
+    }
+
+    // pfp
+    const pfp_url = client.users.cache.get(user_id)?.avatarURL({extension:'png', size:128})!;
+    const pfp_buffer = await fetchImage(pfp_url);
+    const pfp_img = await loadImage(pfp_buffer);
+    ctx.save();
+    ctx.beginPath();
+    // level bar ends at x=580
+    ctx.roundRect(580-90, 15, 90, 90, 12);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(pfp_img, 580-90, 15, 90, 90);
+    ctx.restore();
+    ctx.fillStyle = '#ffffff00';
+    ctx.fill();
+
+    // XP Bar Background
+    const barX = 20;
+    const barY = 110;
+    const barWidth = 560;
+    const barHeight = 25;
+    ctx.fillStyle = bar_color.bg;
+    ctx.beginPath();
+    ctx.roundRect(barX, barY, barWidth, barHeight, 8);
+    ctx.fill();
+
+    const last_achivement = profile.achievements.at(-1)!=undefined?ACHIEVEMENTS[profile.achievements.at(-1)!]:<Achievement>{name:'None yet',description:'You haven\'t unlocked any achievements yet!'};
+
+    // name
+    ctx.font = "28px azuki_font, Arial, 'Segoe UI Emoji'";
+    // background
+    ctx.fillStyle = '#3d3d3d';
+    ctx.fillText(last_achivement.name, 23, 43);
+    // foreground
+    ctx.fillStyle = '#edf2f4';
+    ctx.fillText(last_achivement.name, 21, 40);
+
+    // desc
+    ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
+    const offset = last_achivement.diff != undefined?'   ':'';
+    // bg
+    ctx.fillStyle = '#3d3d3d';
+    ctx.fillText(offset+getLines(ctx, last_achivement.description, 440).join('\n'), 23, 68);
+    // fg
+    ctx.fillStyle = '#f0c4ff';
+    ctx.fillText(offset+getLines(ctx, last_achivement.description, 440).join('\n'), 21, 65);
+
+    if (last_achivement.diff) {
+        const diff = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', `ad${last_achivement.diff}.png`)));
+        ctx.drawImage(diff, 21, 48, 20, 20);
+    }
+
+    // XP Bar Progress
+    const progressRatio = achievement_count / Object.keys(ACHIEVEMENTS).length;
+    if (progressRatio * barWidth > 16) {
+        ctx.fillStyle = bar_color.fg;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barWidth * progressRatio, barHeight, 8);
+        ctx.fill();
+    }
+
+    // XP Text
+    ctx.font = '16px azuki_font, bold Arial';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${achievement_count} unlocked`, barX + 10, barY + 19);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${Object.keys(ACHIEVEMENTS).length} total`, barWidth + 10, barY + 19);
+
+    // save
+    const buffer = canvas.toBuffer('image/png');
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
+    writeFileSync(join(BASE_DIRNAME, 'temp', 'achievement-banner.png'), buffer);
+}
+
+// for word wrapping
+function getLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
+    var words = text.split(" ");
+    var lines = [];
+    var currentLine = words[0];
+
+    for (var i = 1; i < words.length; i++) {
+        var word = words[i];
+        var width = ctx.measureText(currentLine + " " + word).width;
+        if (width < maxWidth) {
+            currentLine += " " + word;
+        } else {
+            lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    lines.push(currentLine);
+    return lines;
 }
 
 
