@@ -173,6 +173,7 @@ export function ToggleDisableOfCommand(command: string): boolean {
 
 export function ReloadConfig() {
     CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
+    LoadSpecialUsers(__dirname);
 }
 
 /**

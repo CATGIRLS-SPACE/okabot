@@ -59,7 +59,8 @@ export enum Achievements {
     ROBBED_CHAIN = 'robchain',
     STICKER = 'sticker',
     TWO_ACES = 'pocketaces',
-    LEVELBAR = 'levelbar'
+    LEVELBAR = 'levelbar',
+    USELESS_ROB = 'uselessrobbery'
 }
 
 const ACHIEVEMENTS: {
@@ -95,7 +96,7 @@ const ACHIEVEMENTS: {
     'casinopass': {name:'No Time To Waste',description:'Use a Casino Pass to bypass the blackjack cooldown',class:'fun', diff:'e'},
     'dropboost': {name:'Drop Please',description:'Use a Drop Chance Booster to increase your chances at gaining a lootbox',class:'fun', diff:'e'},
     'selldrop': {name:'Ungrateful',description:'Get an item from a lootbox and immediately sell it',class:'fun', diff:'h'},
-    'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
+    // 'achievement': {name:'Achievement',description:'It\'s an achievement',class:'fun', diff:'ex'},
     'streak2': {name:'Twice or it\'s Luck',description:'Win a (supported) gambling game twice in a row',class:'gamble',diff:'e'},
     'streak5': {name:'On a Roll',description:'Win a (supported) gambling game five times in a row',class:'gamble',diff:'t'},
     'streak10': {name:'Suspiciously Lucky',description:'Win a (supported) gambling game ten times in a row... then go to jail',class:'gamble',diff:'ex'},
@@ -106,7 +107,8 @@ const ACHIEVEMENTS: {
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
-    // 'levelbar':{name:'Useless Exchange',description:'',class:'fun',diff:'e'},
+    'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun',diff:'e'},
+    'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun',diff:'e'},
 }
 
 /**
@@ -194,9 +196,11 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
             content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
             flags: []
         });
+
+        const extra = (real_achievement_count == Object.keys(ACHIEVEMENTS).length)?'**You have unlocked all achievements! Congratulations!**\n\n':'';
         
         return interaction.reply({
-            content:`**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
+            content:`${extra}**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
             flags: []
         });
     }

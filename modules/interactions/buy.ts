@@ -88,13 +88,13 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
     
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     
-    if (wanted_item == 'achievement') {
-        interaction.reply({
-            content:':smirk_cat:',
-            flags: [MessageFlags.Ephemeral]
-        });
-        return GrantAchievement(interaction.user, Achievements.ACHIEVEMENT, interaction.channel as TextChannel);
-    }
+    // if (wanted_item == 'achievement') {
+    //     interaction.reply({
+    //         content:':smirk_cat:',
+    //         flags: [MessageFlags.Ephemeral]
+    //     });
+    //     return GrantAchievement(interaction.user, Achievements.ACHIEVEMENT, interaction.channel as TextChannel);
+    // }
 
     await interaction.deferReply();
 
@@ -257,9 +257,19 @@ function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, un
         content:`:bangbang: **${interaction.user.displayName}**, you've already got a pending custom bar! Use /customize to change your colors!`
     });
 
-    if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) interaction.editReply({
-        content: `:cat: Kaaaay **${interaction.user.displayName}**! I've reset your level bar to the default colors!`
-    });
+    if (unlock == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) {
+        if (
+            !profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM) &&
+            !profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED) &&
+            !profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN) &&
+            !profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE) &&
+            !profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK)
+        ) GrantAchievement(interaction.user, Achievements.LEVELBAR, interaction.channel as TextChannel);
+
+        interaction.editReply({
+            content: `:cat: Kaaaay **${interaction.user.displayName}**! I've reset your level bar to the default colors!`
+        });
+    }
 
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     const wallet = GetWallet(interaction.user.id, true);

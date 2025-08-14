@@ -26,6 +26,7 @@ const BANK_MESSAGES = [
 
 const COOLDOWNS = new Map<string, number>();
 export const BANK_ROBS = new Map<Snowflake, {when:number,amount:number}>();
+export const RECENT_ROBS = new Map<Snowflake, {when:number,amount:number}>();
 let BANK_LAST_ROBBED = 0;
 
 export function GetCurrentFines(): number {
@@ -77,6 +78,7 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         writeFileSync(ROB_DB_LOCATION, `{"fined":${bank_fine_balance - robbed_amount}}`);
 
         BANK_ROBS.set(interaction.user.id, {when:Math.ceil(d.getTime()/1000),amount:robbed_amount});
+        RECENT_ROBS.set(interaction.user.id, {when:Math.ceil(d.getTime()/1000),amount:robbed_amount});
 
         interaction.reply({
             content: BANK_MESSAGES[Math.floor(Math.random() * BANK_MESSAGES.length)]
@@ -159,6 +161,8 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     RemoveFromWallet(robbed_user.id, robbed_amount);
     AddToWallet(interaction.user.id, robbed_amount);
+
+    RECENT_ROBS.set(interaction.user.id, {when:Math.ceil((new Date()).getTime()/1000),amount:robbed_amount});
 
     const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
         .replace('#USER1', interaction.user.displayName)

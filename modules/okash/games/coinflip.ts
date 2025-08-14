@@ -30,6 +30,7 @@ import {CoinFloats} from "../../tasks/cfResetBonus";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {CheckGambleLock} from "./_lock";
 import {BASE_DIRNAME} from "../../../index";
+import { RECENT_ROBS } from "./rob";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -386,6 +387,11 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     if (roll <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
     if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+
+    if (!win && RECENT_ROBS.has(interaction.user.id)) {
+        if (RECENT_ROBS.get(interaction.user.id)?.amount == bet && RECENT_ROBS.get(interaction.user.id)?.when! + 300 > (new Date()).getTime()/1000) 
+            GrantAchievement(interaction.user, Achievements.USELESS_ROB, interaction.channel as TextChannel);
+    }
 
     DoRandomDrops(reply_as_message, interaction.user);
 
