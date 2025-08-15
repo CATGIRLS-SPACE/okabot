@@ -31,29 +31,6 @@ export interface LootboxRewardsScraps {
 export const LootboxRecentlyDropped = new Map<Snowflake, {item:ITEMS,time:number}>();
 
 // Function that calculates Lootbox Rewards
-/**
- * @deprecated Code is written with ChatGPT and does not award scraps. Use `lootboxCommonReward()` instead. It will be removed soon.
- */
-export function commonLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TYPE, value: number } {
-    const roll = Math.floor(Math.random() * 100);  // Roll between 0 and 99
-    // console.log(`Reward Roll: ${roll}`);
-    const time = Math.round(new Date().getTime() / 1000);
-    
-    if (roll > 15) { // if the roll is greater than 15, give Okash (85% chance to get okash)
-        const moneyAmount = Math.floor(Math.random() * 400) + 100;  // Random between 100-500
-        return { 
-            type: LOOTBOX_REWARD_TYPE.OKASH, 
-            value: moneyAmount 
-        };
-    } else { // get a weighted coin if the value is LOWER than 15
-        LootboxRecentlyDropped.set(user_id, {item:ITEMS.WEIGHTED_COIN_ONE_USE, time});
-        return { 
-            type: LOOTBOX_REWARD_TYPE.ITEM,
-            value: ITEMS.WEIGHTED_COIN_ONE_USE 
-        };
-    }
-}
-
 export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | LootboxRewardsItem | LootboxRewardsScraps {
     const roll = Math.floor(Math.random() * 3) + 1; // roll 1-3
 
@@ -63,7 +40,7 @@ export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | L
             return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward};
 
         case 2:
-            const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.STREAK_RESTORE;
+            const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.CASINO_PASS_10_MIN;
             LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
             return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item};
 
@@ -99,17 +76,17 @@ export function rareLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TY
             value: moneyAmount 
         };
     } else if (roll<=149 && roll>=20) {
-        const drop = (Math.random()>0.5)?ITEMS.STREAK_RESTORE:ITEMS.WEIGHTED_COIN_ONE_USE;
+        const drop = (Math.random()>0.5)?ITEMS.SHOP_VOUCHER:ITEMS.WEIGHTED_COIN_ONE_USE;
         LootboxRecentlyDropped.set(user_id, {item:drop, time});
         return { 
             type: LOOTBOX_REWARD_TYPE.ITEM, 
             value: drop 
         };
     } else {
-        LootboxRecentlyDropped.set(user_id, {item:ITEMS.SHOP_VOUCHER, time});
+        LootboxRecentlyDropped.set(user_id, {item:Math.random()>0.3?ITEMS.LOT_SCRATCH:ITEMS.TRACKED_CONVERTER, time});
         return {
             type: LOOTBOX_REWARD_TYPE.ITEM,
-            value: ITEMS.SHOP_VOUCHER
+            value: ITEMS.LOT_SCRATCH
         };
     } 
 }
@@ -125,12 +102,12 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
     }
 
     if (roll >= 500 && roll < 900) {
-        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.SHOP_VOUCHER][Math.round(Math.random())];
+        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.STICKER_NOT_APPLIED][Math.round(Math.random())];
         LootboxRecentlyDropped.set(user_id, {item, time})
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item}
     }
 
-    if (roll >= 900 && roll != 999) {
+    if (roll >= 900 && roll < 950) {
         const item = [
             ITEMS.CASINO_PASS_10_MIN,
             ITEMS.CASINO_PASS_30_MIN,
@@ -138,13 +115,14 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
             ITEMS.LOOTBOX_INCREASE_15_MIN,
             ITEMS.LOOTBOX_INCREASE_30_MIN,
             ITEMS.TRACKED_CONVERTER,
-        ][Math.round(Math.random() * 5)]; // get a random item
+            ITEMS.STICKER_NOT_APPLIED
+        ][Math.round(Math.random() * 6)]; // get a random item
 
         LootboxRecentlyDropped.set(user_id, {item, time});
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};
     }
 
-    if (roll == 999) {
+    if (roll >= 950) {
         return {type: LOOTBOX_REWARD_TYPE.CUSTOMIZATION, value: CUSTOMIZATION_UNLOCKS.COIN_RAINBOW};
     }
 
