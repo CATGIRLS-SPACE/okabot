@@ -110,7 +110,8 @@ interface BlackjackGame {
         stand_blackjack: ButtonBuilder,
         dd: ButtonBuilder,
     },
-    language?: string
+    language?: string,
+    doubled_down?: boolean,
 }
 
 // user_id and game
@@ -253,7 +254,8 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
             stand_blackjack: standButtonWin,
             stand: standButton,
             dd: doubleDownButton
-        }
+        },
+        doubled_down: false
     }
 
     // set up deck
@@ -615,7 +617,6 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // this is because the reply object
     // will be kinda weird if there is
     // a cooldown
-    // @ts-ignore
     let reply;
 
     // start setup of blackjack game
@@ -788,6 +789,8 @@ async function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteract
     if (double_down) {
         RemoveFromWallet(interaction.user.id, game.bet);
         game.bet = game.bet * 2;
+        game.doubled_down = true;
+        GamesActive.set(interaction.user.id, game);
     }
 
     // chose to hit, so deal a card to the user
@@ -1009,7 +1012,7 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
         BlackjackContainer.addActionRowComponents(row => row.addComponents(
-            is_blackjack?[game.buttons.stand_blackjack]:default_buttons
+            is_blackjack?[game.buttons.stand_blackjack]:(game.doubled_down?[game.buttons.stand]:default_buttons)
         ));
     }
 
