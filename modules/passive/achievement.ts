@@ -66,7 +66,8 @@ export enum Achievements {
     STICKER = 'sticker',
     TWO_ACES = 'pocketaces',
     LEVELBAR = 'levelbar',
-    USELESS_ROB = 'uselessrobbery'
+    USELESS_ROB = 'uselessrobbery',
+    SHARED_21 = 'dealt21both'
 }
 
 const ACHIEVEMENTS: {
@@ -113,6 +114,7 @@ const ACHIEVEMENTS: {
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
+    'dealt21both':{name:'Competitive Teamwork',description:'End a game of Blackjack with a combined total value of 21.',class:'gamble',diff:'h'},
     'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun2',diff:'e'},
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
 }

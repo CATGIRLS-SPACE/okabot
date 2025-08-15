@@ -883,6 +883,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // achievement for max bet (remember max can be 25_000 due to dd)
     if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
     if (user_total == 21) GrantAchievement(i.user, Achievements.BLACKJACK, i.channel as TextChannel);
+    if (TallyCards(game.user) + TallyCards(game.dealer) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
 
     // give the reward money!
     AddToWallet(i.user.id, game.bet * ((user_total == 21)?3:2));
@@ -920,8 +921,10 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
         AddCasinoLoss(i.user.id, game.bet, 'blackjack');
         if (GetWallet(i.user.id, true) == 0) GrantAchievement(i.user, Achievements.NO_MONEY, i.channel as TextChannel);
         WinStreak.set(i.user.id, 0);
-        console.log(i.user.id, 'streak now 0');
+        // console.log(i.user.id, 'streak now 0');
     }
+
+    if (TallyCards(game.user) + TallyCards(game.dealer) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
 
     AddXP(i.user.id, i.channel as TextChannel, 10);
     DoRandomDrops(await i.fetchReply(), i.user);
