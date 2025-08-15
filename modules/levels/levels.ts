@@ -318,6 +318,20 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('BOOSTER', offset_width + 26, 68);
+        offset_width += 63-5;
+    }
+    if (DEV || CheckCompletionist(interaction.user.id)) {
+        ctx.fillStyle = '#82cf93ff';
+        ctx.beginPath();
+        ctx.roundRect(offset_width + 20, 52, 79, 23, 6);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2a422fff';
+        ctx.stroke();
+        ctx.closePath();
+        ctx.fillStyle = '#253829ff';
+        ctx.font = 'bold italic 12px Arial'
+        ctx.fillText('COMPLETE', offset_width + 26, 68);
     }
     
 
@@ -478,6 +492,7 @@ import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../..
 import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
+import { CheckCompletionist } from "../passive/achievement";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

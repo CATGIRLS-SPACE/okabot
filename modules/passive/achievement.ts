@@ -182,6 +182,15 @@ function CreateProgressBar(real_achievement_count: number): string {
     return bar;
 }
 
+export function CheckCompletionist(user_id: Snowflake) {
+    const keys = Object.keys(ACHIEVEMENTS);
+    let real_achievement_count = 0; // REALLY hacky way, do as i say not as i do
+    for (const ach of GetUserProfile(user_id).achievements) 
+        if (keys.includes(ach)) real_achievement_count++;
+
+    return real_achievement_count == Object.keys(ACHIEVEMENTS).length;
+}
+
 export async function HandleCommandAchievements(interaction: ChatInputCommandInteraction) {
     // await interaction.deferReply();
 
