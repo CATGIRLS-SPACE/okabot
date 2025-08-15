@@ -886,7 +886,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // achievement for max bet (remember max can be 25_000 due to dd)
     if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
     if (user_total == 21) GrantAchievement(i.user, Achievements.BLACKJACK, i.channel as TextChannel);
-    if (TallyCards(game.user) + TallyCards(game.dealer) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
+    if (TallyCards([game.user[0],game.user[1]]) + TallyCards([game.dealer[0],game.dealer[1]]) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
 
     // give the reward money!
     AddToWallet(i.user.id, game.bet * ((user_total == 21)?3:2));
