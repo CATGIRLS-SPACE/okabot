@@ -59,6 +59,8 @@ const ROLL_TABLE = [
     ROLLS.OKASH,
     ROLLS.OKASH,
     ROLLS.OKASH,
+    ROLLS.OKASH,
+    ROLLS.OKASH,
     ROLLS.GEM
 ];
 
@@ -103,9 +105,9 @@ const WIN_STREAKS = new Map<Snowflake, number>();
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
-    // if (!DEV) return interaction.reply({
-    //     content: ':crying_cat_face: Slots is currently disabled, sorry...' 
-    // });
+    if (!DEV) return interaction.reply({
+        content: ':crying_cat_face: Slots is currently disabled, sorry...' 
+    });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
@@ -128,7 +130,7 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
         USER_GAMES_TICK.set(interaction.user.id, 0);
         show_consider = true;
     } else {
-        const current_tick = USER_GAMES_TICK.has(interaction.user.id)?USER_GAMES_TICK.get(interaction.user.id)!:0;
+        const current_tick = USER_GAMES_TICK.has(interaction.user.id)?USER_GAMES_TICK.get(interaction.user.id)!:49;
         USER_GAMES_TICK.set(interaction.user.id, current_tick + 1);
     }
 
