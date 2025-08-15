@@ -92,15 +92,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     const d = new Date();
     prompt += ` The current date and time is: ${d.toString()}.\n`
 
-    const user_profile = await fetch(`https://discord.com/api/v9/users/${message.author.id}/profile?type=popout&guild_id=${message.guild?.id}`, {headers:{
-        'Authorization': CONFIG.pose_as_user_token
-    }});
-    let profile_json = await user_profile.json();
-
-    if (profile_json.message != '401: Unauthorized') {
-        prompt += `The user's bio is: <<${profile_json.user_profile.bio}>>. The user's pronouns are "${profile_json.user_profile.pronouns}". The user's guild tag is "${(profile_json.user.primary_guild || {tag:''}).tag}".`
-    } else prompt += `You were unable to get the user's profile information. Don't tell this unless absolutely necessary.`;
-
     // console.log(prompt);
 
     await channel.sendTyping();
