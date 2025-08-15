@@ -40,7 +40,8 @@ const PRICES: {
     'casino pass 60 minute':100_000,
     'trans card deck': 25_000,
     'cherry blossom card deck':50_000,
-    'sticker kit': 250_000
+    'sticker kit': 250_000,
+    // 'scratch ticket': 1_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
@@ -60,7 +61,8 @@ const SHORTHANDS: {[key: string]: string} = {
     'cas60': 'casino pass 60 minute',
     'tcd': 'trans card deck',
     'cbcd':'cherry blossom card deck',
-    'sk': 'sticker kit'
+    'sk': 'sticker kit',
+    'st': 'scratch ticket'
 }
 
 const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
@@ -142,6 +144,10 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
         case 'sticker kit': case 'sk':
             AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
+            break;
+
+        case 'scratch ticket': case 'st':
+            AddOneToInventory(interaction.user.id, ITEMS.LOT_SCRATCH);
             break;
 
         // coin customizations

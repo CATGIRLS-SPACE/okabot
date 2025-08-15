@@ -1,7 +1,9 @@
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {Message, TextChannel} from "discord.js";
+import {AttachmentBuilder, Message, TextChannel} from "discord.js";
 import {Achievements, GrantAchievement} from "./achievement";
-import {client} from "../../index";
+import {BASE_DIRNAME, client} from "../../index";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const TYO_RESPONSE: Array<string> = [
     'of course!',
@@ -61,4 +63,10 @@ export async function CheckForFunMessages(message: Message) {
             content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
         });
     }
+
+
+    if (message.content.toLowerCase().includes('hot cockolate')) message.reply({
+        content:'',
+        files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'var', 'koharu.webp')))]
+    });
 }

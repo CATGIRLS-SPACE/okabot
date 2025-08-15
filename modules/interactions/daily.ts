@@ -34,10 +34,12 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
                 localizedRemindButton
             );
 
+        const profile = GetUserProfile(interaction.user.id);
+
         // must wait
         console.log(result);
         response = await interaction.editReply({
-            content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.translateable_locale, interaction.user.displayName, -result),
+            content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.translateable_locale, interaction.user.displayName, -result) + `\nYour current daily streak: ${profile.daily.streak} day(s)`,
             components: [earlyBar]
         });
 

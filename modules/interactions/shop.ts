@@ -60,6 +60,7 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
                     {name:`:credit_card: Casino Pass - 60 Minutes (\`cas60\`)`, value:`${GetEmoji('okash')} OKA**100,000**`},
                     {name:`Drop Boost - 15 Minutes (\`db15\`)`, value:`${GetEmoji('okash')} OKA**15,000**`},
                     {name:`Drop Boost - 30 Minutes (\`db30\`)`, value:`${GetEmoji('okash')} OKA**50,000**`},
+                    // {name:`Scratch Ticket`, value:`${GetEmoji('okash')} OKA**1,000**`},
                 );
 
             
