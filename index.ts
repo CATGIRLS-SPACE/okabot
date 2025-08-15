@@ -152,6 +152,7 @@ export const client = new Client({
 
 // some constants
 export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
+export const COMMIT = require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7);
 export const BASE_DIRNAME = __dirname;
 export let LISTENING = true;
 // non-exported
@@ -256,7 +257,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION}\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}`,
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
