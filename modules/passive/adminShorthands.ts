@@ -350,16 +350,18 @@ export function RegisterAllShorthands() {
         }
 
         if (Object.keys(passes).length != 0) {
-            await message.react('⚠️');
-
             let msg = ':warning: There are casino passes/drop boosts active! If you restart, the passes will be deleted!\n';
             Object.keys(passes).forEach(key => {
-                msg += `**${key}** - Expires <t:${Math.floor(passes[key]/1000)}:R>\n`
+                if ((new Date()).getTime()/1000 < Math.floor(passes[key]/1000))
+                    msg += `**${key}** - Expires <t:${Math.floor(passes[key]/1000)}:R>\n`
             });
-            msg += '\nYou can forcibly update with `oka update force`.'
 
-            await message.reply(msg);
-            if (!message.content.includes('force')) throw new Error('WARN'); // prevents the ':x:' reaction
+            if (msg == ':warning: There are casino passes/drop boosts active! If you restart, the passes will be deleted!\n') {
+                msg += '\nYou can forcibly update with `oka update force`.'
+                await message.react('⚠️');
+                await message.reply(msg);
+                if (!message.content.includes('force')) throw new Error('WARN'); // prevents the ':x:' reaction
+            }
         }
 
         SetListening(false);

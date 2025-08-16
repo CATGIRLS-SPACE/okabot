@@ -1,7 +1,9 @@
 import { exec } from "child_process";
 import { Message } from "discord.js";
 import { Logger } from "okayulogger";
-import {DEV} from "../index";
+import {BASE_DIRNAME, COMMIT, DEV} from "../index";
+import { stat, writeFileSync } from "fs";
+import { join } from "path";
 
 const PL = new Logger('child process');
 
@@ -25,6 +27,8 @@ export async function SelfUpdate(message: Message, commit?: string) {
 :hourglass: Restart
         `
     });
+
+    writeFileSync(join(BASE_DIRNAME, 'update_id'), `${status.channel.id},${status.id}`);
 
     await pull_changes(commit);
     L.info('pull ok');
@@ -74,7 +78,7 @@ export async function SelfUpdate(message: Message, commit?: string) {
 :ballot_box_with_check: Installed npm packages\n
 :ballot_box_with_check: Re-compiled\n
 :ballot_box_with_check: Deployed commands\n
-:radio_button: Restarting...
+:arrow_right: Restarting...
         `
     });
 
@@ -85,7 +89,7 @@ export async function SelfUpdate(message: Message, commit?: string) {
 export async function OnlyPull(message: Message) {
     const reply = await message.reply('Pulling...');
     await pull_changes();
-    reply.edit('Pulling... done!');
+    reply.edit(`Pulling... done! Directory contents are now up-to-date with \`${require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7)}\`. okabot is still running \`${COMMIT}\`.`);
 }
 
 async function pull_changes(commit?: string): Promise<void> {

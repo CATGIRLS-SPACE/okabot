@@ -1,5 +1,5 @@
 import {Logger} from "okayulogger";
-import {existsSync, readFileSync, writeFileSync} from "fs";
+import {existsSync, readFileSync, rmSync, writeFileSync} from "fs";
 import {join} from "path";
 import {
     ChatInputCommandInteraction,
@@ -242,6 +242,13 @@ async function RunPostStartupTasks() {
         name: CONFIG.status.activity,
         type: CONFIG.status.type
     });
+
+    if (existsSync(join(__dirname, 'update_id'))) {
+        const ids = readFileSync(join(__dirname, 'update_id'), 'utf-8').split(',');
+        const message = await (<TextChannel> await client.channels.fetch(ids[0]))?.messages.fetch(ids[1]);
+        message.edit({content:`Update to commit ${COMMIT} completed successfully.`});
+        rmSync(join(__dirname, 'update_id'));
+    }
 }
 
 export function SetActivity(name: string, type: number) {

@@ -617,6 +617,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // this is because the reply object
     // will be kinda weird if there is
     // a cooldown
+    //@ts-ignore
     let reply;
 
     // start setup of blackjack game
