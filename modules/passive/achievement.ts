@@ -2,7 +2,7 @@ import { ApplicationIntegrationType, Attachment, AttachmentBuilder, ChatInputCom
 import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
-import { BASE_DIRNAME, client } from "../..";
+import { BASE_DIRNAME, client } from "../../index";
 import { fetchImage } from "../levels/levels";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";

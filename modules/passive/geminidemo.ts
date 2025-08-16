@@ -315,5 +315,5 @@ let P_AES_KEY_BYTES: Uint8Array;
 let AES_KEY!: CryptoKey;
 
 async function DecryptAESString(data: string): Promise<ArrayBuffer> {
-    return await subtle.decrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY!, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
+    return await subtle.decrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
 }

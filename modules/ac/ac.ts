@@ -9,7 +9,7 @@ import { ChatInputCommandInteraction, Snowflake } from "discord.js";
 import { existsSync } from "fs";
 import { Logger } from "okayulogger";
 import { join } from "path";
-import { client, LISTENING } from "../..";
+import { client, LISTENING } from "../../index";
 import { RestrictUser } from "../user/prefs";
 
 const L = new Logger('ac');

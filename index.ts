@@ -1,3 +1,5 @@
+const START_TIME_MS = (new Date()).getTime();
+
 import {Logger} from "okayulogger";
 import {existsSync, readFileSync, rmSync, writeFileSync} from "fs";
 import {join} from "path";
@@ -125,10 +127,10 @@ import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
 // import language after dev check (emojis)
-import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
+// import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
-import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry} from "./modules/passive/geminidemo";
+import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGeminiDemo} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
@@ -178,9 +180,6 @@ export function ReloadConfig() {
     CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
     LoadSpecialUsers(__dirname);
 }
-
-// don't start twice
-let STARTED = false;
 
 /**
  * Start the bot and log in
@@ -232,6 +231,7 @@ async function RunPreStartupTasks() {
     if (DEV) SetupStocks(__dirname);
     SetupGoodluckle();
     SetupTranslate();
+    SetupGeminiDemo();
 }
 
 /**
@@ -254,6 +254,8 @@ async function RunPostStartupTasks() {
         message.edit({content:`Update to commit ${COMMIT} completed successfully.`});
         rmSync(join(__dirname, 'update_id'));
     }
+
+    L.info(`Startup finished in ${(new Date()).getTime() - START_TIME_MS}ms!`);
 }
 
 export function SetActivity(name: string, type: number) {
@@ -271,7 +273,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
             flags:[MessageFlags.Ephemeral]
         });
     },

@@ -1,6 +1,6 @@
 import {EmbedBuilder, Guild, Message, Snowflake, TextChannel, User} from "discord.js";
 import {Logger} from "okayulogger";
-import { client } from "../..";
+import { client } from "../../index";
 
 const L = new Logger('automod');
 const URL_REGEX = new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&\/=]*$/);

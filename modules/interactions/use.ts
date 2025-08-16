@@ -14,7 +14,7 @@ import { ActionRowBuilder, ButtonBuilder, ModalBuilder, StringSelectMenuBuilder,
 import { generateLevelBanner } from "../levels/levels";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME } from "../../index";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {

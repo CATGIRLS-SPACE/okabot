@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { Logger } from "okayulogger";
 import { join } from "path";
-import { client, DEV } from "../..";
+import { client, DEV } from "../../index";
 import { Client, TextChannel } from "discord.js";
 // import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 

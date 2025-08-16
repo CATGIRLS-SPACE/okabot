@@ -1,4 +1,4 @@
-import {BotIsDevMode, DEV} from ".."
+import {BotIsDevMode} from "../index"
 import {warn} from "okayulogger";
 
 export enum EMOJI {

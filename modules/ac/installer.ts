@@ -1,7 +1,7 @@
 import { subtle } from "crypto";
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { BASE_DIRNAME } from "../..";
+import { BASE_DIRNAME } from "../../index";
 
 
 export async function InstallHook(path: string, name: string, aes_key: string) {
