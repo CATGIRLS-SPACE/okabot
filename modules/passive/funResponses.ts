@@ -51,18 +51,18 @@ export async function CheckForFunMessages(message: Message) {
         return GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
     }
 
-    if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
-        content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
-    });
+    // if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
+    //     content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
+    // });
 
-    if (message.content.toLowerCase().includes('kill myself') ||
-        message.content.toLowerCase().includes('killing myself') ||
-        message.content.toLowerCase().includes('kms'))
-    {
-        return message.reply({
-            content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
-        });
-    }
+    // if (message.content.toLowerCase().includes('kill myself') ||
+    //     message.content.toLowerCase().includes('killing myself') ||
+    //     message.content.toLowerCase().includes('kms'))
+    // {
+    //     return message.reply({
+    //         content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
+    //     });
+    // }
 
 
     if (message.content.toLowerCase().includes('hot cockolate')) message.reply({
