@@ -130,6 +130,7 @@ import {PetParseTextCommand} from "./modules/pet/textCommands";
 import {LoadSpecialUsers} from "./util/users";
 import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
 import { InstallHook } from "./modules/ac/installer";
+import { SetupGoodluckle } from "./modules/http/goodluckle";
 
 
 export const client = new Client({
@@ -225,6 +226,7 @@ async function RunPreStartupTasks() {
     LoadWarnings(); // load all user warnings from moderation database
     LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
     if (DEV) SetupStocks(__dirname);
+    SetupGoodluckle();
 }
 
 /**
