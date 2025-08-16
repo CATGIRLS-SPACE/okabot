@@ -1,7 +1,7 @@
 import {Message, MessageFlags, Snowflake, TextChannel} from "discord.js";
 import {ParseRelativeTime} from "./relativeTimeParser";
 import { join } from "node:path";
-import { BASE_DIRNAME, client } from "../../..";
+import { BASE_DIRNAME, client } from "../../../index";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { GetUserSupportStatus } from "../../../util/users";
 

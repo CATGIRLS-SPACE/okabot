@@ -198,6 +198,7 @@ const SERVER = createServer(server);
 const wss = new Server({server: SERVER});
 
 export function StartHTTPServer(c: Client) {
+    L.debug('Starting HTTP server...');
     channel = c.channels.cache.get(channelId)! as TextChannel;
 
     SERVER.listen(9256).on('listening', () => {

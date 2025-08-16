@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { BASE_DIRNAME, client, DEV } from "../..";
+import { BASE_DIRNAME, client, DEV } from "../../index";
 import { join } from "path";
 import { ButtonStyle, Snowflake, TextChannel } from "discord.js";
 import { Request, Response } from "express";

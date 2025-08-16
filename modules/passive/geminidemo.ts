@@ -302,12 +302,17 @@ import { subtle } from "crypto";
 import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 
-const ENCODER = new TextEncoder();
-const P_AES_KEY = CONFIG.aes_key;
-const P_AES_KEY_BYTES = ENCODER.encode(P_AES_KEY);
-let AES_KEY!: CryptoKey;
+let ENCODER = new TextEncoder();
 
-subtle.importKey('raw', P_AES_KEY_BYTES, { name: 'AES-CBC' }, false, ["decrypt"]).then(key => { AES_KEY = key; });
+export async function SetupGeminiDemo() {
+    P_AES_KEY = CONFIG.aes_key;
+    P_AES_KEY_BYTES = ENCODER.encode(P_AES_KEY);
+    subtle.importKey('raw', P_AES_KEY_BYTES, { name: 'AES-CBC' }, false, ["decrypt"]).then(key => { AES_KEY = key; });
+}
+
+let P_AES_KEY;
+let P_AES_KEY_BYTES: Uint8Array;
+let AES_KEY!: CryptoKey;
 
 async function DecryptAESString(data: string): Promise<ArrayBuffer> {
     return await subtle.decrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY!, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));

@@ -1,9 +1,13 @@
 import {CONFIG} from "../index";
 import {Translate} from "@google-cloud/translate/build/src/v2";
 
-const translationClient = new Translate({apiKey:CONFIG.translate_api_key,key:CONFIG.translate_api_key});
+let translationClient: Translate;
 
 let translation_id = 0;
+
+export function SetupTranslate() {
+    translationClient = new Translate({apiKey:CONFIG.translate_api_key,key:CONFIG.translate_api_key});
+}
 
 export async function translateText(text_to_translate: string, target_language: string): Promise<string> {
     if (target_language == 'en' || target_language == 'en-US' || target_language == 'en-GB') return text_to_translate;

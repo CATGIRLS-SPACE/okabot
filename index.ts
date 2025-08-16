@@ -19,6 +19,8 @@ import {
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
 const L = new Logger('main');
+export const BASE_DIRNAME = __dirname;
+L.debug(`__dirname is ${__dirname}`);
 
 if (!existsSync(join(__dirname, 'config.json'))) { 
     L.fatal('No configuration file found!');
@@ -73,6 +75,13 @@ export let CONFIG: {
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
+// some constants
+export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
+export const COMMIT = require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7);
+export let LISTENING = true;
+// non-exported
+const NO_LAUNCH = process.argv.includes('--no-launch');
+const DEPLOY_COMMANDS = process.argv.includes('--deploy');
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -131,6 +140,7 @@ import {LoadSpecialUsers} from "./util/users";
 import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
 import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
+import { SetupTranslate } from "./util/translate";
 
 
 export const client = new Client({
@@ -151,15 +161,6 @@ export const client = new Client({
     ]
 });
 
-// some constants
-export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
-export const COMMIT = require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7);
-export const BASE_DIRNAME = __dirname;
-export let LISTENING = true;
-// non-exported
-const NO_LAUNCH = process.argv.includes('--no-launch');
-const DEPLOY_COMMANDS = process.argv.includes('--deploy');
-
 /**
  * Toggle whether okabot should listen to commands or not.
  * @param active Whether it should be listening to commands or not
@@ -177,6 +178,9 @@ export function ReloadConfig() {
     CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
     LoadSpecialUsers(__dirname);
 }
+
+// don't start twice
+let STARTED = false;
 
 /**
  * Start the bot and log in
@@ -227,6 +231,7 @@ async function RunPreStartupTasks() {
     LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
     if (DEV) SetupStocks(__dirname);
     SetupGoodluckle();
+    SetupTranslate();
 }
 
 /**
@@ -266,7 +271,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}`,
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\n${LangGetFormattedString(LANG_DEBUG.HELLO_WORLD, interaction.okabot.locale, interaction.okabot.translateable_locale)}\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
@@ -655,5 +660,11 @@ export async function ManuallySendErrorReport(reason: string, silent: boolean) {
 
 
 // Execution Starts here
-
-StartBot();
+declare global {
+  // augment global This so TS stops complaining
+  var __okabot_started: boolean | undefined;
+}
+if (!globalThis.__okabot_started) {
+    globalThis.__okabot_started = true;
+    StartBot();
+}

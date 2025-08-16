@@ -12,7 +12,7 @@ import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN, LEVEL_NAMES_JA
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 import { Achievements, GrantAchievement } from "../passive/achievement";
-import {client, DEV, GetLastLocale} from "../..";
+import {client, DEV, GetLastLocale} from "../../index";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
@@ -38,7 +38,8 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     const profile = GetUserProfile(user_id);
     if (!profile.accepted_rules) return;
 
-    const user = client.users.cache.get(user_id);
+    let user = client.users.cache.get(user_id);
+    if (!user) user = await client.users.fetch(user_id);
     if (!user) throw new Error('Cannot award XP to a nonexistent user');
 
     profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
