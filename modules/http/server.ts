@@ -9,6 +9,7 @@ import { Logger } from 'okayulogger';
 import { Server } from 'ws';
 import {PrivilegedConnections, SendLoginRequest} from "./pairing";
 import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
+import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
 const server = express();
 
 let channelId = "1321639990383476797";
@@ -181,6 +182,17 @@ server.get('/asset/:item', (req: Request, res: Response) => {
 server.get('/management', (req: Request, res: Response) => {
     res.render('admin.ejs');
 });
+
+// @ts-ignore
+server.get('/authorize', (req: Request, res: Response) => {
+    if (req.query.app == 'goodluckle') return AuthorizeUser(req, res);
+
+    return res.status(404).send('Not Found').end();
+});
+// @ts-ignore
+server.get('/gll/setup', (req: Request, res: Response) => StartAddLink(req, res));
+// @ts-ignore
+server.get('/gll/start', (req: Request, res: Response) => PostToNyt(req, res));
 
 const SERVER = createServer(server);
 const wss = new Server({server: SERVER});
