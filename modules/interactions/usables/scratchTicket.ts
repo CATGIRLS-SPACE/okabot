@@ -62,7 +62,7 @@ export async function scratch_ticket(interaction: ChatInputCommandInteraction) {
     const reward_value = <SUB_REWARD> (Math.floor((Math.random() * 3) - 1) + 1);
 
     const reply = await interaction.reply({
-        content:`:grey_question: **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**...`,
+        content:`:grey_question: **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**...`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -70,26 +70,26 @@ export async function scratch_ticket(interaction: ChatInputCommandInteraction) {
 
     switch (reward_tier) {
         case MAIN_REWARD.LOSS:
-            reply.edit(`:crying_cat_face: **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**... and nothing good comes of it...`);
+            reply.edit(`:crying_cat_face: **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**... and nothing good comes of it...`);
             break;
 
         case MAIN_REWARD.SMALL:
-            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**... and gets a small payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.SMALL[reward_value]}**!`);
+            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**... and gets a small payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.SMALL[reward_value]}**!`);
             AddToWallet(interaction.user.id, PAYOUTS.SMALL[reward_value]);
             break;
 
         case MAIN_REWARD.MEDIUM:
-            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**... and gets a decent payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.MEDIUM[reward_value]}**!`);
+            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**... and gets a decent payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.MEDIUM[reward_value]}**!`);
             AddToWallet(interaction.user.id, PAYOUTS.MEDIUM[reward_value]);
             break;
 
         case MAIN_REWARD.LARGE:
-            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**... and gets a big payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.LARGE[reward_value]}**!`);
+            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**... and gets a big payout of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.LARGE[reward_value]}**!`);
             AddToWallet(interaction.user.id, PAYOUTS.LARGE[reward_value]);
             break;
 
         case MAIN_REWARD.JACKPOT:
-            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches their :ticket: **Scratch Ticket**... and gets a **jackpot** of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.JACKPOT[reward_value]}**!`);
+            reply.edit(`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}** scratches ${profile.customization.global.pronouns.possessive} :ticket: **Scratch Ticket**... and gets a **jackpot** of ${GetEmoji(EMOJI.OKASH)} OKA**${PAYOUTS.JACKPOT[reward_value]}**!`);
             AddToWallet(interaction.user.id, PAYOUTS.JACKPOT[reward_value]);
             break;
     }
