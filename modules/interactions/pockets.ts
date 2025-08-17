@@ -71,12 +71,13 @@ export function GetProperItemName(shop_id: string, locale: 'en' | 'ja' = 'en'): 
     const keys: {[key: string]: number} = {
         'streak restore': 4,
         'tracking device': 5,
+        'scratch ticket': 7,
         'drop boost 15 minute': 8,
         'drop boost 30 minute': 9,
         'casino pass 10 minute': 10,
         'casino pass 30 minute': 11,
         'casino pass 60 minute': 12,
-        'sticker kit': 18
+        'sticker kit': 18,
     }
 
     return LangGetFormattedString(LOCALIZED_ITEM_NAME_IDS[keys[shop_id]] as LANG_ITEMS, locale);

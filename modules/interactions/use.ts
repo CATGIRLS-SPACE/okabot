@@ -15,6 +15,7 @@ import { generateLevelBanner } from "../levels/levels";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME } from "../../index";
+import { scratch_ticket } from "./usables/scratchTicket";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -62,9 +63,13 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_tracking_device(interaction);
             break;
 
-        // case 'sticker': case 'sticker kit': case 'sk':
-        //     item_sticker(interaction);
-        //     break;
+        case 'sticker': case 'sticker kit': case 'sk':
+            item_sticker(interaction);
+            break;
+
+        case 'scratch ticket': case 'st':
+            scratch_ticket(interaction);
+            break;
 
         default:
             interaction.reply({

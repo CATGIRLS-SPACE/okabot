@@ -41,7 +41,7 @@ const PRICES: {
     'trans card deck': 25_000,
     'cherry blossom card deck':50_000,
     'sticker kit': 250_000,
-    // 'scratch ticket': 1_000
+    'scratch ticket': 10_000
 }
 
 const SHORTHANDS: {[key: string]: string} = {
