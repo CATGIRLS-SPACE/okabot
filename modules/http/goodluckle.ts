@@ -93,7 +93,7 @@ export async function StartAddLink(req: Request, res: Response) {
     // is user part of cgc?
     if (!cgc?.members.cache.has(user_id)) return res.status(403).json({success:false,reason:'Not part of CATGIRL CENTRAL.'});
     LINKS[token] = user_id;
-    writeFileSync(join(BASE_DIRNAME, 'db', 'gll.oka'), JSON.stringify(LINKS));
+    writeFileSync(join(BASE_DIRNAME, 'db', 'gll.oka'), JSON.stringify({links:LINKS}));
     res.status(200).json({success:true});
 }
 
