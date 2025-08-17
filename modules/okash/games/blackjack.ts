@@ -797,6 +797,7 @@ async function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteract
     // chose to hit, so deal a card to the user
     game.user.push(game.deck.shift()!);
     if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1});
+    if (double_down && game.user.at(-1)!.value == 4) GrantAchievement(interaction.user, Achievements.TWO_BY_FOUR, interaction.channel as TextChannel);
 
     // check if the user has bust
     if (TallyCards(game.user) > 21) return LoseV2(i, game, 'bust');

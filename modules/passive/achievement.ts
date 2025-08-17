@@ -67,7 +67,8 @@ export enum Achievements {
     TWO_ACES = 'pocketaces',
     LEVELBAR = 'levelbar',
     USELESS_ROB = 'uselessrobbery',
-    SHARED_21 = 'dealt21both'
+    SHARED_21 = 'dealt21both',
+    TWO_BY_FOUR = '2x4'
 }
 
 const ACHIEVEMENTS: {
@@ -117,6 +118,7 @@ const ACHIEVEMENTS: {
     'dealt21both':{name:'Competitive Teamwork',description:'Get dealt Blackjack cards with a combined total value of 21.',class:'gamble',diff:'ex'},
     'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun2',diff:'e'},
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
+    '2x4':{name:'The House is Structurally Sound Now',description:'In Blackjack, double down and get dealt a 4.',class:'gamble',diff:'h'},
 }
 
 /**
