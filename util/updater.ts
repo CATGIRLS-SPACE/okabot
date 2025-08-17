@@ -56,8 +56,8 @@ export async function SelfUpdate(message: Message, commit?: string) {
         `
     });
 
-    await recompile();
-    L.info('tsc ok');
+    // await recompile();
+    // L.info('tsc ok');
 
     await status.edit({
         content: `
@@ -128,7 +128,7 @@ async function recompile(): Promise<void> {
 
 async function deploycmds(): Promise<void> {
     return new Promise((resolve) => {
-        exec('node . --no-launch --deploy', () => {
+        exec('bun run . --no-launch --deploy', () => {
             resolve();
         }).on('message', (m: string) => {
             PL.warn(m);
