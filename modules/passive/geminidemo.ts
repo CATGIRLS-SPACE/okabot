@@ -115,7 +115,18 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    if (response.text == undefined) return await message.reply('*(something went wrong and i didn\'t get a response... try again?)*');
+    if (response.text == undefined) {
+        console.log(response);
+        if (response.promptFeedback?.blockReason) {
+            await message.react('❌')
+            return message.reply({
+                content:`:x: Prompt was blocked with reason "${response.promptFeedback.blockReason}" (${response.promptFeedback.blockReasonMessage})`
+            });
+        }
+        return message.reply({
+            content:`:x: No response was received from Google. Try again?`
+        });;
+    }
 
     try {
         if (response.text.startsWith('@react=')) {
@@ -231,6 +242,13 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     let answer = '';
 
     if (response.text == undefined) {
+        console.log(response);
+        if (response.promptFeedback?.blockReason) {
+            message.react('❌')
+            return message.reply({
+                content:`:x: Prompt was blocked with reason "${response.promptFeedback.blockReason}" (${response.promptFeedback.blockReasonMessage})`
+            });
+        }
         for (const part of response.candidates![0].content!.parts!) {
             console.log(part);
             if (!part.text) continue;
