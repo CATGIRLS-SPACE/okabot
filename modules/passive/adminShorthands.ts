@@ -29,6 +29,7 @@ import { ITEM_NAMES } from "../interactions/pockets";
 import {BoostsActive} from "./onMessage";
 import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 import { SetGambleLock } from "../okash/games/_lock";
+import { DumpConversationChain } from "./geminidemo";
 
 
 interface ShorthandList {
@@ -335,6 +336,10 @@ export function RegisterAllShorthands() {
 
     RegisterShorthand('oka reload-config', () => {
         ReloadConfig();
+    });
+
+    RegisterShorthand('oka dump-chain', (message: Message, params: string[]) => {
+        DumpConversationChain(message, params[2]);
     });
 
     RegisterShorthand('oka update', async (message: Message, params: string[]) => {

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
-import { EmojiResolvable, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
+import { AttachmentBuilder, EmojiResolvable, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -319,13 +319,14 @@ export async function GetWackWordDefinitions(message: Message) {
 import { subtle } from "crypto";
 import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 let ENCODER = new TextEncoder();
 
 export async function SetupGeminiDemo() {
     P_AES_KEY = CONFIG.aes_key;
     P_AES_KEY_BYTES = ENCODER.encode(P_AES_KEY);
-    subtle.importKey('raw', P_AES_KEY_BYTES, { name: 'AES-CBC' }, false, ["decrypt"]).then(key => { AES_KEY = key; });
+    subtle.importKey('raw', P_AES_KEY_BYTES, { name: 'AES-CBC' }, false, ["decrypt", "encrypt"]).then(key => { AES_KEY = key; });
 }
 
 let P_AES_KEY;
@@ -334,4 +335,24 @@ let AES_KEY!: CryptoKey;
 
 async function DecryptAESString(data: string): Promise<ArrayBuffer> {
     return await subtle.decrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
+}
+
+function bufToHex(buffer: ArrayBuffer) {
+  return [...new Uint8Array(buffer)]
+    .map(x => x.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export async function DumpConversationChain(message: Message, id: string) {
+    const chain = ConversationChains[id];
+    if (!chain) return message.reply(':x: Not found');
+    const content = JSON.stringify(chain);
+    const encrypted = await subtle.encrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY, (new TextEncoder()).encode(content));
+    const hexed = bufToHex(encrypted);
+    writeFileSync(join(BASE_DIRNAME, 'temp', `${id}.aes`), hexed);
+    message.reply({
+        files:[
+            new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', `${id}.aes`)), {name:`${id}.aes`})
+        ]
+    });
 }
