@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply Sticker | okabot</title>
+</head>
+<body>
+    <canvas id="banner" width="600" height="150"></canvas>
+</body>
+
+<script>
+    const width = 600, height = 150;
+    const canvas = document.getElementById('banner');
+    const ctx = canvas.getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, height, 0, 0);
+    gradient.addColorStop(0, '#271e2e');
+    gradient.addColorStop(1, '#3c3245');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+</script>
+</html>

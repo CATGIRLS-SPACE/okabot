@@ -439,11 +439,31 @@ const button_no = new ButtonBuilder()
     .setLabel('Nevermind!')
     .setStyle(ButtonStyle.Danger);
 
+const USE_V2 = false;
+
 export async function item_sticker(interaction: ChatInputCommandInteraction) {
     let profile = GetUserProfile(interaction.user.id);
     if (!profile.inventory.includes(ITEMS.STICKER_NOT_APPLIED)) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **Sticker Kit**!`
     });
+
+    // const modal = new ModalBuilder()
+    //     .setTitle('Use a Sticker Kit')
+    //     .setCustomId('sticker-applicator');
+
+    // modal.addComponents(
+    //     <any> new TextInputBuilder()
+    //         .setCustomId('x-pos')
+    //         .setLabel('X Position'),
+
+    //     <any> new TextInputBuilder()
+    //         .setCustomId('y-pos')
+    //         .setLabel('Y Position'),
+
+    //     <any> new 
+    // )
+
+    if (USE_V2) return;
 
     const x = interaction.options.getNumber('x-pos', true);
     const y = interaction.options.getNumber('y-pos', true);

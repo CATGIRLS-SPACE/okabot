@@ -271,3 +271,10 @@ export function DenyLogin(session: string, user_id: Snowflake) {
         ws.send(`SESSION ${session} DENY`);
     });
 }
+
+// 
+
+server.get('/sticker', (req, res) => {
+    if (DEV) res.render('sticker');
+    else res.status(501).end();
+});

@@ -409,12 +409,12 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     // daily
     if (float > stats.coinflip.daily!.high.value) {
         stats.coinflip.daily!.high = {value:float,user_id:interaction.user.id};
-        message += `\n**New Weekly Highest:** \`${float}\` is the highest float someone has rolled today!`
+        message += `\n**New Daily Highest:** \`${float}\` is the highest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
     }
     if (float < stats.coinflip.daily!.low.value) {
         stats.coinflip.daily!.low = {value:float,user_id:interaction.user.id};
-        message += `\n**New Weekly Lowest:** \`${float}\` is the lowest float someone has rolled today!`
+        message += `\n**New Daily Lowest:** \`${float}\` is the lowest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
     }
 
