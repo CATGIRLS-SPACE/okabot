@@ -26,6 +26,7 @@
     "lily-dmdata": "^0.1.6-beta",
     "node-schedule": "^2.1.1",
     "okayulogger": "^3.0.0",
+    "openai": "^5.12.2",
     "ws": "^8.18.1",
     "xml-js": "^1.6.11"
   },

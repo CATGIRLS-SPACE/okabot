@@ -73,7 +73,7 @@ export let CONFIG: {
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
     minecraft_relay_key: string,
-    pose_as_user_token: string,
+    OPENAI_API_KEY: string,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
@@ -666,7 +666,9 @@ declare global {
   // augment global This so TS stops complaining
   var __okabot_started: boolean | undefined;
 }
+// @ts-ignore
 if (!globalThis.__okabot_started) {
+    // @ts-ignore
     globalThis.__okabot_started = true;
     StartBot();
 }

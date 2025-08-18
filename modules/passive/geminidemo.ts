@@ -1,14 +1,10 @@
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
 import { AttachmentBuilder, EmojiResolvable, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
-const groundingTool = {
-    googleSearch: {
-
-    }
-}
+// let openai: OpenAI;
 
 const ConversationChains: {
     [key: string]: {
@@ -35,6 +31,7 @@ const ConversationChainReplyPointers: {
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
+    const openai = new OpenAI({apiKey: CONFIG.OPENAI_API_KEY});
 
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1372938702044663849') return message.reply({
@@ -48,6 +45,33 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             flags:[MessageFlags.SuppressEmbeds]
         });
     }
+
+    // let moderation;
+
+    // console.log('moderating...');
+    // try {
+    //     moderation = await openai.moderations.create({
+    //         model:'omni-moderation-latest',
+    //         input: message.content + ''
+    //     });
+    // } catch (err) {
+    //     console.error(err);
+    //     return message.reply({
+    //         content: `(okabot internal/openai) -- ` + (err as Error).message
+    //     });
+    // }
+
+    // if (moderation.results[0] && moderation.results[0].flagged) {
+    //     message.react('❗');
+    //     let reasons = [];
+    //     for (const key of Object.keys(moderation.results[0].categories)) {
+    //         // @ts-ignore
+    //         if (moderation.results[0].categories[key]) reasons.push(key);
+    //     }
+    //     return message.reply({
+    //         content:`:exclamation: Request was filtered with reason(s): \`${reasons.join(', ')}\``
+    //     });
+    // }
 
     message.react('✨');
 
@@ -70,8 +94,10 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
         
-        const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
-        const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
+    const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
+    // const prompt_data = '$NAME: $CONTENT';
+    // const prompt_extra = '';
 
     // console.log(prompt_data, prompt_extra);
 
@@ -106,7 +132,13 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                 thinkingConfig: {
                     includeThoughts: false,
                 },
-                tools: disable_search?[]:[{ googleSearch: {} }]
+                tools: disable_search?[]:[{ googleSearch: {} }],
+                safetySettings: [
+                    {
+                        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                        threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+                    },
+                ]
             },
         });
     } catch (err) {
@@ -320,6 +352,7 @@ import { subtle } from "crypto";
 import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
+import OpenAI from 'openai';
 
 let ENCODER = new TextEncoder();
 
