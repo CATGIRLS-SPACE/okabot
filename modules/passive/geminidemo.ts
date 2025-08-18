@@ -133,12 +133,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                     includeThoughts: false,
                 },
                 tools: disable_search?[]:[{ googleSearch: {} }],
-                safetySettings: [
-                    {
-                        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                        threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-                    },
-                ]
+                temperature: 2.0
             },
         });
     } catch (err) {
@@ -259,7 +254,8 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
                 thinkingConfig: {
                     includeThoughts: false,
                 },
-                tools: chain.disable_search?[]:[{ googleSearch: {} }]
+                tools: chain.disable_search?[]:[{ googleSearch: {} }],
+                temperature: 2.0
             }
         });
     } catch (err) {
