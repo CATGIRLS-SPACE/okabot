@@ -73,6 +73,23 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     //     });
     // }
 
+    let inline_data = {};
+    let has_data = false;
+
+    message.attachments.forEach(async attachment => {
+        if (!has_data && attachment.name.endsWith('.png') || attachment.name.endsWith('.jpg') || attachment.name.endsWith('.jpeg') || attachment.name.endsWith('.webp')) {
+            console.log(attachment);
+            const response = await fetch(attachment.url);
+            const imageArrayBuffer = await response.arrayBuffer();
+            const b64 = Buffer.from(imageArrayBuffer).toString('base64');
+            inline_data = {
+                mimeType: attachment.contentType,
+                data: b64
+            };
+            has_data = true;
+        }
+    });
+
     message.react('✨');
 
     const guild = message.client.guilds.cache.get(message.guild!.id);
@@ -126,8 +143,11 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
+            model: has_data?'gemini-2.5-pro':'gemini-2.5-flash',
+            contents: has_data?[
+                {inlineData:inline_data},
+                {text:prompt}
+            ]:prompt,
             config: {
                 thinkingConfig: {
                     includeThoughts: false,
@@ -349,6 +369,7 @@ import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 import OpenAI from 'openai';
+import axios from 'axios';
 
 let ENCODER = new TextEncoder();
 
@@ -384,4 +405,15 @@ export async function DumpConversationChain(message: Message, id: string) {
             new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', `${id}.aes`)), {name:`${id}.aes`})
         ]
     });
+}
+
+async function downloadFileAsBase64Axios(url: string) {
+  try {
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const buffer = Buffer.from(response.data);
+    const base64String = buffer.toString('base64');
+    return base64String;
+  } catch (error) {
+    throw error;
+  }
 }
