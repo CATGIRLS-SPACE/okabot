@@ -403,11 +403,11 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
 
     for (const sticker of profile.customization.stickers) {
         const sticker_img = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', stickers[sticker.sticker])));
-        ctx.drawImage(sticker_img, sticker.position_x, sticker.position_y, 50, 50);
+        ctx.drawImage(sticker_img, sticker.position_x, sticker.position_y, 50, sticker.sticker==9?26:50);
     }
     if (preview_sticker) {
         const sticker_img = await loadImage(readFileSync(join(BASE_DIRNAME, 'assets', 'art', stickers[preview_sticker.sticker])));
-        ctx.drawImage(sticker_img, preview_sticker.position_x, preview_sticker.position_y, 50, 50);
+        ctx.drawImage(sticker_img, preview_sticker.position_x, preview_sticker.position_y, 50, preview_sticker.sticker==9?26:50);
     }
 
     // sticker demo
