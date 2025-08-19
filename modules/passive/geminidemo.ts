@@ -73,22 +73,27 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     //     });
     // }
 
-    let inline_data = {};
-    let has_data = false;
+    let inline_data = [];
+    let has_images = false;
 
-    message.attachments.forEach(async attachment => {
-        if (!has_data && attachment.name.endsWith('.png') || attachment.name.endsWith('.jpg') || attachment.name.endsWith('.jpeg') || attachment.name.endsWith('.webp')) {
+    for (const attachment of message.attachments.values()) {
+        if (
+            attachment.name.endsWith('.png') ||
+            attachment.name.endsWith('.jpg') ||
+            attachment.name.endsWith('.jpeg') ||
+            attachment.name.endsWith('.webp')
+        ) {
+            has_images = true;
             console.log(attachment);
             const response = await fetch(attachment.url);
             const imageArrayBuffer = await response.arrayBuffer();
             const b64 = Buffer.from(imageArrayBuffer).toString('base64');
-            inline_data = {
+            inline_data.push({
                 mimeType: attachment.contentType,
-                data: b64
-            };
-            has_data = true;
+                data: b64,
+            });
         }
-    });
+    }
 
     message.react('✨');
 
@@ -141,13 +146,22 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     let response;
 
+    let contents: any[] = [ {text:prompt} ];
+    if (has_images) {
+        inline_data.forEach(item => {
+            contents.push({
+                inlineData: {
+                    mimeType: item.mimeType,
+                    data: item.data
+                }
+            });
+        });
+    }
+
     try {
         response = await ai.models.generateContent({
-            model: has_data?'gemini-2.5-pro':'gemini-2.5-flash',
-            contents: has_data?[
-                {inlineData:inline_data},
-                {text:prompt}
-            ]:prompt,
+            model: has_images?'gemini-2.5-pro':'gemini-2.5-flash',
+            contents,
             config: {
                 thinkingConfig: {
                     includeThoughts: false,
@@ -262,7 +276,9 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
 
-    const prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
+    let prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
+
+    if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
 
     let response;
 
