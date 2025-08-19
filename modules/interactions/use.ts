@@ -465,16 +465,8 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
 
     if (USE_V2) return;
 
-    let x, y;
-
-    try {
-        x = interaction.options.getNumber('x-pos', true);
-        y = interaction.options.getNumber('y-pos', true);
-    } catch {
-        return interaction.reply({
-            content:'Please supply x and y position.'
-        });
-    }
+    const x = interaction.options.getNumber('x-pos', true);
+    const y = interaction.options.getNumber('y-pos', true);
 
     const response = await interaction.reply({
         content: `Pick a sticker to place at X=${x} Y=${y}.`,
