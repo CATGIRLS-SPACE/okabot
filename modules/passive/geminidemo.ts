@@ -34,14 +34,14 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     const openai = new OpenAI({apiKey: CONFIG.OPENAI_API_KEY});
 
     if (!message.channel.isThread()) {
-        if (message.guild?.id == '1348652647963561984' && message.channel.id != '1372938702044663849') return message.reply({
-            content:'Not available here, go to <#1372938702044663849>.',
+        if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
+            content:'Not available here, go to <#1407602200586485800>.',
             flags:[MessageFlags.SuppressEmbeds]
         });
     } else {
         // console.log('this query is in a thread', message.channel.parent)
-        if (message.guild?.id == '1348652647963561984' && message.channel!.parent!.id != '1372938702044663849') return message.reply({
-            content:'Not available here, go to <#1372938702044663849>.',
+        if (message.guild?.id == '1348652647963561984' && message.channel!.parent!.id != '1407602200586485800') return message.reply({
+            content:'Not available here, go to <#1407602200586485800>.',
             flags:[MessageFlags.SuppressEmbeds]
         });
     }
