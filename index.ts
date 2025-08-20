@@ -144,6 +144,7 @@ import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
+import { GeminiV2RespondTo } from "./modules/passive/ai/GeminiV2";
 
 
 export const client = new Client({
@@ -487,6 +488,8 @@ client.on(Events.MessageCreate, async message => {
         if (!CONFIG.gemini.enable) return;
         GeminiDemoRespondToInquiry(message, true);
     }
+
+    if (message.content.startsWith(`<@${client.user!.id}> `) && CONFIG.gemini.enable && DEV) GeminiV2RespondTo(message);
     
     if (message.reference) {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);

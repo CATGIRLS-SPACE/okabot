@@ -75,6 +75,7 @@ export enum EMOJI {
     SCRAP_ELECTRICAL = 'sce',
     // etc
     BOOST = 'boost',
+    SQUISHY = 'squishy'
 }
 
 const EMOJI_KEYS: {
@@ -182,6 +183,7 @@ const EMOJI_KEYS: {
     'sce':{prod:'1385422104777986069',dev:'1385396976593670234'},
     // etc
     'boost':{prod:'',dev:'1386506534426775552'},
+    'squishy':{prod:'1407581263145205841',dev:'1407581263145205841', animated:true}
 }
 
 export function GetEmoji(name: string): string {
