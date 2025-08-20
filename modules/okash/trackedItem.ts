@@ -1,10 +1,11 @@
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "./items";
-import {Message, MessageFlags, Snowflake} from "discord.js";
+import {Channel, Message, MessageFlags, Snowflake, TextChannel} from "discord.js";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 import {BASE_DIRNAME, client} from "../../index";
 import {GetEmoji} from "../../util/emoji";
 import {COIN_EMOJIS_DONE} from "./games/coinflip";
+import { Achievements, GrantAchievement } from "../passive/achievement";
 
 export interface TrackableItem {
     type: 'coin' | 'deck',
@@ -78,11 +79,13 @@ export function GetItemFromSerial(serial: string): TrackableItem | undefined {
     return SerialedItems[serial];
 }
 
-export function UpdateTrackedItem(serial: string, data: {property:'name',value:string} | {property:'flips',amount:number} | {property:'dealt_cards',amount:number}) {
+export function UpdateTrackedItem(serial: string, data: {property:'name',value:string} | {property:'flips',amount:number} | {property:'dealt_cards',amount:number}, channel: Channel | TextChannel) {
     const item = SerialedItems[serial];
 
     // if we get an undefined item, it doesn't exist, so just return
     if (!item) return;
+
+    let grant_achievement = false;
 
     switch (data.property) {
         case 'name':
@@ -91,16 +94,27 @@ export function UpdateTrackedItem(serial: string, data: {property:'name',value:s
 
         case 'flips':
             (item.data as TrackableCoin).flips += data.amount;
+            if ((item.data as TrackableCoin).flips >= 100) grant_achievement = true;
             break;
 
         case 'dealt_cards':
             (item.data as TrackableCardDeck).dealt_cards += data.amount;
+            if ((item.data as TrackableCardDeck).dealt_cards >= 100) grant_achievement = true;
             break;
     }
 
     SerialedItems[serial] = item;
-
     SaveSerialDB();
+
+    if (grant_achievement) {
+        try {   
+            const user = client.users.cache.get(SerialedItems[serial].original_owner);
+            if (!user) return;
+            GrantAchievement(user, Achievements.TRACKED, channel as TextChannel);
+        } catch (err) {
+            return console.error(err);
+        }
+    }
 }
 
 function generateUUID() {

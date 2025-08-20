@@ -274,7 +274,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         game.deck.shift()!
     );
 
-    if (game.trackable_serial) UpdateTrackedItem(trackable, {property:'dealt_cards', amount:4});
+    if (game.trackable_serial) UpdateTrackedItem(trackable, {property:'dealt_cards', amount:4}, interaction.channel as TextChannel);
 
     GamesActive.set(interaction.user.id, game);
     SetGambleLock(interaction.user.id, true);
@@ -383,7 +383,7 @@ async function Hit(interaction: ChatInputCommandInteraction, confirmation: any, 
 
     // deal a card to the user
     game.user.push(game.deck.shift()!);
-    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:1});
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:1}, interaction.channel as TextChannel);
 
     const player_busted = TallyCards(game.user) > 21;
     const player_blackjack = TallyCards(game.user) == 21;
@@ -440,7 +440,7 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
         dealt++;
         game.okabot_has_hit = true;
     }
-    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:dealt});
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:'dealt_cards', amount:dealt}, interaction.channel as TextChannel);
 
     const dealer_bust: boolean = TallyCards(game.dealer) > 21;
     const win = dealer_bust || TallyCards(game.user) > TallyCards(game.dealer);
@@ -689,7 +689,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // deal two cards to okabot and user
     game.dealer.push(game.deck.shift()!, game.deck.shift()!);
     game.user.push(game.deck.shift()!, game.deck.shift()!);
-    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:4});
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:4}, interaction.channel as TextChannel);
     if (
         game.user.length === 2 &&
         game.user[0].value === 1 && game.user[0].name === 'ca' &&
@@ -796,7 +796,7 @@ async function HitV2(interaction: ChatInputCommandInteraction, i: ButtonInteract
 
     // chose to hit, so deal a card to the user
     game.user.push(game.deck.shift()!);
-    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1});
+    if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1}, interaction.channel as TextChannel);
     if (double_down && game.user.at(-1)!.value == 4) GrantAchievement(interaction.user, Achievements.TWO_BY_FOUR, interaction.channel as TextChannel);
 
     // check if the user has bust
@@ -819,7 +819,7 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // deal until okabot is at or above 17
     while (TallyCards(game.dealer) < 17) {
         game.dealer.push(game.deck.shift()!);
-        if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1});
+        if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1}, interaction.channel as TextChannel);
     }
 
     // did okabot bust?

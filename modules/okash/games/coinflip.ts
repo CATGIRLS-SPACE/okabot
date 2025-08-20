@@ -328,7 +328,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     ActiveFlips.push(interaction.user.id);
 
     if (profile.customization.games.equipped_trackable_coin != 'none') {
-        UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1});
+        UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1}, interaction.channel as TextChannel);
     }
 
     // initial reply

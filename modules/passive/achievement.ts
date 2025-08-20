@@ -120,7 +120,7 @@ const ACHIEVEMENTS: {
     'levelbar':{name:'Useless Exchange',description:'Buy "Reset Level Bar" when your bar is already set to the default color.',class:'fun2',diff:'e'},
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
     '2x4':{name:'The House is Structurally Sound Now',description:'In Blackjack, double down and get dealt a 4.',class:'gamble',diff:'h'},
-    // 'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
+    'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
 }
 
 /**
