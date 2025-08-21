@@ -490,7 +490,7 @@ client.on(Events.MessageCreate, async message => {
         GeminiDemoRespondToInquiry(message, true);
     }
 
-    if (message.content.startsWith(`<@${client.user!.id}> `) && CONFIG.gemini.enable && DEV) GeminiV2RespondTo(message);
+    if (message.content.startsWith(`<@${client.user!.id}> `) && CONFIG.gemini.enable) GeminiV2RespondTo(message);
     
     if (message.reference) {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);

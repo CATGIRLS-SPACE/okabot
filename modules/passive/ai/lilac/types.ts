@@ -40,3 +40,13 @@ export enum SERVERS {
     FULL_STREAK_GANG = '1348652647963561984',
     OKABOT_DEV = '748284249487966282'
 }
+
+export enum TOOLS {
+    NONE = -1,
+    DOWNLOAD_LINK = 0,
+    GET_PROFILE = 1,
+    GET_OSU = 2,
+    GLOBAL_MEM = 3,
+    USER_GLOBAL_MEM = 4,
+    SEARCH_GIFS = 5,
+}
