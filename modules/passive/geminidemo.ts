@@ -77,13 +77,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     let has_images = false;
 
     for (const attachment of message.attachments.values()) {
-        if (
-            attachment.name.endsWith('.png') ||
-            attachment.name.endsWith('.jpg') ||
-            attachment.name.endsWith('.jpeg') ||
-            attachment.name.endsWith('.webp') ||
-            attachment.name.endsWith('.mp4')
-        ) {
+        if (attachment.contentType?.startsWith('image/')) {
             has_images = true;
             console.log(attachment);
             const response = await fetch(attachment.url);
