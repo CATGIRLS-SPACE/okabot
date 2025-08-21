@@ -1,4 +1,4 @@
-import {BotIsDevMode} from "../index"
+import {BotIsDevMode, DEV} from "../index"
 import {warn} from "okayulogger";
 
 export enum EMOJI {
@@ -183,12 +183,13 @@ const EMOJI_KEYS: {
     'sce':{prod:'1385422104777986069',dev:'1385396976593670234'},
     // etc
     'boost':{prod:'',dev:'1386506534426775552'},
-    'squishy':{prod:'1407581263145205841',dev:'1407581263145205841', animated:true}
+    'squishy':{prod:'1407581263145205841',dev:'1407582163297243276', animated:true}
 }
 
 export function GetEmoji(name: string): string {
     if (!EMOJI_KEYS[name]) return `[:question:]`;
-    return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][BotIsDevMode()?'dev':'prod']}>`;
+    // console.log(EMOJI_KEYS[name]);
+    return `<${EMOJI_KEYS[name].animated?'a':''}:${name}:${EMOJI_KEYS[name][DEV?'dev':'prod']}>`;
 }
 export function GetEmojiID(name: string): string {
     return EMOJI_KEYS[name][BotIsDevMode()?'dev':'prod'];

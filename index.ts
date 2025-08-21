@@ -144,7 +144,7 @@ import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
-import { GeminiV2RespondTo } from "./modules/passive/ai/GeminiV2";
+import { GeminiV2RespondTo, SetupCryptoKeys } from "./modules/passive/ai/lilac/lilac";
 
 
 export const client = new Client({
@@ -234,6 +234,7 @@ async function RunPreStartupTasks() {
     SetupGoodluckle();
     SetupTranslate();
     SetupGeminiDemo();
+    SetupCryptoKeys();
 }
 
 /**
