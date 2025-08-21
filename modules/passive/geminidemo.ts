@@ -191,7 +191,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'' + '\nNEW! Lilac has begun rolling out for supporter-enabled users!')
+            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
         // if (send_to_minecraft) {
