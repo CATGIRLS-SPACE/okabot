@@ -50,3 +50,20 @@ export enum TOOLS {
     USER_GLOBAL_MEM = 4,
     SEARCH_GIFS = 5,
 }
+
+export interface LilacOsuPlay {
+    beatmap: {
+        name: string,
+        artist: string,
+        bpm: string,
+        diff: {
+            name: string,
+            stars: string
+        }
+    },
+    score: string,
+    rank: string,
+    maxcombo: string,
+    countmiss: string,
+    when: string,
+}

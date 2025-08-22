@@ -13,7 +13,7 @@ export function GetChainFromReply(id: Snowflake): ConversationChainV2 {
 }
 
 
-export function CreateChain(properties: {author: User, advanced: boolean, id: Snowflake, initial_content:{user: string, okabot: string}}) {
+export function CreateChain(properties: {author: User, advanced: boolean, id: Snowflake, initial_content:{user: string, okabot: string, system: string}}) {
     ConversationChains.set(properties.id, {
         author: properties.author.id,
         config: {
@@ -29,6 +29,10 @@ export function CreateChain(properties: {author: User, advanced: boolean, id: Sn
         },
         messages:[
             {
+                role: 'system',
+                content: properties.initial_content.system
+            },
+            {
                 role: properties.author.displayName,
                 content: properties.initial_content.user
             },
@@ -42,7 +46,8 @@ export function CreateChain(properties: {author: User, advanced: boolean, id: Sn
 }
 
 
-export function UpdateChain(id: Snowflake, added_content: {role: string, content: string}) {
+export function UpdateChain(id: Snowflake, added_content: {role: string, content: string}, reply_id?: Snowflake) {
+    if (reply_id) CCReplyPointers.set(reply_id, id);
     const chain = ConversationChains.get(id);
     if (!chain) return;
     chain.messages.push(added_content);

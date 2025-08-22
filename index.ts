@@ -70,6 +70,10 @@ export let CONFIG: {
         api_key: string,
     },
     aes_key: string,
+    lilac: {
+        aes_key: string,
+        osu_key: string,
+    }
     bot_master: Snowflake,
     permitted_to_use_shorthands: Array<Snowflake>,
     minecraft_relay_key: string,
@@ -144,7 +148,7 @@ import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
-import { GeminiV2RespondTo, SetupCryptoKeys } from "./modules/passive/ai/lilac/lilac";
+import { GeminiV2RespondTo, LilacHandleChainReply, SetupCryptoKeys } from "./modules/passive/ai/lilac/lilac";
 
 
 export const client = new Client({
@@ -485,18 +489,14 @@ client.on(Events.MessageCreate, async message => {
         GeminiDemoRespondToInquiry(message);
     }
 
-    if (message.content.toLowerCase().startsWith('okabot,, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
-        if (!CONFIG.gemini.enable) return;
-        GeminiDemoRespondToInquiry(message, true);
-    }
-
     if (message.content.startsWith(`<@${client.user!.id}> `) && CONFIG.gemini.enable) GeminiV2RespondTo(message);
     
     if (message.reference) {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);
         let reference = await (message.channel as TextChannel).messages.fetch(message.reference!.messageId!);
-        if (!reference) return message.reply(':x: Could not fetch the replied message.');
+        if (!reference) return;
         if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
+        if (reference.content.includes('-# :hyacinth:Lilac') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) LilacHandleChainReply(message);
     }
 
     // minecraft server
