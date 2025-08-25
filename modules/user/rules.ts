@@ -116,7 +116,7 @@ export async function CheckForRulesSimple(user_id: Snowflake): Promise<boolean> 
     if (KNOWN_AGREED_USER_IDS.indexOf(user_id) != -1) return true; 
 
     const profile = GetUserProfile(user_id);
-    if (profile.accepted_rules) {
+    if (profile.accepted_rules && profile.consents_to_statistics) {
         KNOWN_AGREED_USER_IDS.push(user_id);
         return true;
     }
