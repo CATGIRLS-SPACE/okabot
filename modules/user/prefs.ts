@@ -55,6 +55,7 @@ export interface LEGACY_USER_PROFILE {
 export interface USER_PROFILE {
     version: number,
     accepted_rules: boolean,
+    consents_to_statistics: boolean,
     flags: Array<FLAG>,
     customization: {
         unlocked: Array<CUSTOMIZATION_UNLOCKS>,
@@ -119,6 +120,7 @@ export interface USER_PROFILE {
 const DEFAULT_DATA: USER_PROFILE = {
     version: 3,
     accepted_rules: false,
+    consents_to_statistics: true,
     flags: [],
     customization: {
         unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT, CUSTOMIZATION_UNLOCKS.DECK_DEFAULT],
@@ -244,6 +246,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     }
     if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
     if (!data.customization.stickers) data.customization.stickers = [];
+    if (!data.consents_to_statistics) data.consents_to_statistics = false;
 
     ProfileCache.set(user_id, data);
 

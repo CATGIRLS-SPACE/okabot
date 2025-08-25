@@ -458,7 +458,23 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
-    if (!(await CheckForRulesSimple(message.author.id))) return; // don't listen to non-rule-agreeing users
+    const rules = await CheckForRulesSimple(message.author.id);
+    if (message.content.startsWith('okabot, ') && !rules) {
+        const reply = await message.reply({
+            content: 'You appear to be trying to use okabot\'s Gemini features. You must agree to the okabot rules before doing so. Please run any okabot command before trying again.',
+            flags: [MessageFlags.SuppressNotifications]
+        });
+        setTimeout(() => {
+            try {
+                if (reply.deletable) reply.delete();
+            } catch {
+                return;
+            }
+        }, 3000);
+        return;
+    }
+
+    if (!rules) return; // don't listen to non-rule-agreeing users
     if (CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds

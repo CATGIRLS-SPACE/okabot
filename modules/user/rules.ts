@@ -16,12 +16,13 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 const agreement = new EmbedBuilder()
     .setAuthor({name:'okabot'})
     .setTitle('okabot Rules')
-    .setDescription('You must read and agree to these rules before using okabot')
+    .setDescription('You must read and agree to these rules before using okabot (updated 2025-08-24)')
     .setFields(
         {name:'1. No Exploiting',value:'Any abuse of bugs or manipulation will cause your account to be irreversibly **reset without warning**. Alongside, you may potentially be banned from using okabot entirely.'},
         {name:'2. No Macros!!!!!!!',value:'Effortless gambling isn\'t fair to others. Don\'t use macros/scripts.'},
         {name:'3. No multiaccounting',value:'You are allowed one account and one account only for okabot.'},
         {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot. Trading okash to trade items is OK.'},
+        {name:'Disclaimer',value:'By using okabot, you consent to the anonymous collection of statistics, including but not limited to: command usage, passive feature usage, and active feature usage.'},
     );
 
 
@@ -44,7 +45,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     if (KNOWN_AGREED_USER_IDS.indexOf(interaction.user.id) != -1) return true; 
 
     const profile = GetUserProfile(interaction.user.id);
-    if (profile.accepted_rules) {
+    if (profile.accepted_rules && profile.consents_to_statistics) {
         KNOWN_AGREED_USER_IDS.push(interaction.user.id);
         return true;
     }
@@ -72,6 +73,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
         if (i.customId == 'accept') {
             const profile = GetUserProfile(interaction.user.id);
             profile.accepted_rules = true;
+            profile.consents_to_statistics = true;
             UpdateUserProfile(interaction.user.id, profile);
 
             i.update({
