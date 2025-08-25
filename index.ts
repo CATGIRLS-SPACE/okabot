@@ -470,7 +470,7 @@ client.on(Events.MessageCreate, async message => {
             } catch {
                 return;
             }
-        }, 3000);
+        }, 7_000);
         return;
     }
 
