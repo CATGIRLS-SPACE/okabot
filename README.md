@@ -1,8 +1,6 @@
 # thanks to the donators/boosters! <3 you guys
 - **tacobella03** (Ko-Fi donator)
 - **ItzMeFlyer** (Ko-Fi donator)
-- KBGKaden (booster)
-- JadyLan (booster)
 
 # style guide (sorta)! :3
 
