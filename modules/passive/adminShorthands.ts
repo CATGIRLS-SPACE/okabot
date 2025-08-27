@@ -30,6 +30,7 @@ import {BoostsActive} from "./onMessage";
 import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
+import { GetMemory } from "./ai/lilac/tools";
 
 
 interface ShorthandList {
@@ -465,6 +466,13 @@ export function RegisterAllShorthands() {
         const type = parseInt(params[2]);
         const activity = params[3];
         SetActivity(activity, type);
+    });
+
+    RegisterShorthand('oka lilac-pm', (message: Message, params: string[]) => {
+        let memory = GetMemory('global');
+        if (params[2]) memory = GetMemory('user', params[2]);
+
+        message.reply({content: memory!=''?memory:'(no memory)'});
     });
 }
 
