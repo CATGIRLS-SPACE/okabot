@@ -242,12 +242,12 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const user = guild.members.cache.get(message.author.id);
     if (!user) throw new Error('no user');
 
-    // const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
+    const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
 
-    // if (!supporter) return message.reply({
-    //     content: `:crying_cat_face: You can't use conversation chains without having a supporter status!\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`,
-    //     flags: [MessageFlags.SuppressNotifications]
-    // });
+    if (!supporter) return message.reply({
+        content: `:crying_cat_face: You can't use conversation chains without having a supporter status!\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`,
+        flags: [MessageFlags.SuppressNotifications]
+    });
 
     message.react('✨');
 
