@@ -175,9 +175,9 @@ server.get('/s/:id', (req, res) => {
     res.send(`<style>*{font-family: sans-serif;color:white;background-color:black;text-align:center;} button{background-color:#9d60cc;padding:10px;margin:2px;border:3px solid white;border-radius:.5rem;font-weight:bold;font-size:1.5rem;}button:hover{background-color:#9d60cc66;}</style><h1>Shared Media</h1><h3>Click a button to view the image. Attachment 1 is shown by default. Attachments that are not images cannot be viewed.</h3><hr><div class="links">${linkObjects.join('<br>')}</div><hr><img id='view' src="${SHARED_MEDIA.get(req.params.id)![0]}"/>`);
 });
 
-server.get('/asset/:item', (req: Request, res: Response) => {
-    res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'assets', req.params.item));
-});
+// server.get('/asset/:item', (req: Request, res: Response) => {
+//     res.sendFile(join(BASE_DIRNAME, 'modules', 'http', 'page', 'assets', req.params.item));
+// });
 
 server.get('/management', (req: Request, res: Response) => {
     res.render('admin.ejs');
