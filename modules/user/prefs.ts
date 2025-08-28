@@ -354,7 +354,7 @@ export function RestrictUser(client: Client, user_id: string, until: string, rea
     const embed = new EmbedBuilder()
         .setColor(0xFF0000)
         .setTitle('Important Account Update')
-        .setDescription('Your account has been restricted. You are unable to use some okabot and its features until the restriction is lifted. Until then, okabot will not respond to any of your commands, and you will receive an error stating "The application did not respond."')
+        .setDescription('Your account has been restricted. You are unable to use okabot and its features until the restriction is lifted. Until then, you will not be able to use any okabot features, including but not limited to: interactions, gemini, chat rewards.')
         .addFields(
             {name:'Reason', value:reason},
             {name:'Expires', value:d.toDateString() + ' at ' + d.toLocaleTimeString()}
