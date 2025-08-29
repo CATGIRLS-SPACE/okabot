@@ -617,6 +617,8 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         profile.cookies++;
         COOKIES_STORE[message.id].push(reactor.id);
         UpdateUserProfile(message.author.id, profile);
+        if (profile.cookies >= 250) GrantAchievement(message.author, Achievements.COOKIES_250, channel);
+        GrantAchievement(reactor as User, Achievements.GIVE_COOKIE, channel);
         COOKIES_COOLDOWN.set(reactor.id, new Date().getTime() + 60_000*5);
     }
 });

@@ -71,6 +71,8 @@ export enum Achievements {
     SHARED_21 = 'dealt21both',
     TWO_BY_FOUR = '2x4',
     TRACKED = 'stats',
+    GIVE_COOKIE = 'givecookie',
+    COOKIES_250 = '250cookies'
 }
 
 export const ACHIEVEMENTS: {
@@ -124,7 +126,6 @@ export const ACHIEVEMENTS: {
     'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
     'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
     '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
-
 }
 
 export const TITLES: {
