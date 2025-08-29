@@ -278,7 +278,7 @@ export async function CheckOkashRestriction(interaction: ChatInputCommandInterac
         L.info(`user has a restriction that expires on ${unrestrict_time.toDateString() + ' at ' + unrestrict_time.toLocaleTimeString()}.`);
         L.info(`it is currently: ${d.toDateString() + ' at ' + d.toLocaleTimeString()}`);
 
-        if (d.getTime() > profile.restriction.until) {
+        if (d.getTime() > unrestrict_time.getTime()) {
             profile.restriction.active = false;
             UpdateUserProfile(interaction.user.id, profile)
             return false;
