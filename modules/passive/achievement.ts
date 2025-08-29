@@ -17,6 +17,7 @@ interface Achievement {
 }
 
 export enum Achievements {
+    NONE = 'none', // used for defaults only
     LOW_COINFLIP = 'lowcf', //
     HIGH_COINFLIP = 'highcf', //
     WEIGHTED_COINFLIP = 'usewc', //
@@ -72,7 +73,7 @@ export enum Achievements {
     TRACKED = 'stats',
 }
 
-const ACHIEVEMENTS: {
+export const ACHIEVEMENTS: {
     [key: string]: Achievement
 } = {
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
@@ -121,7 +122,63 @@ const ACHIEVEMENTS: {
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
     '2x4':{name:'The House is Structurally Sound Now',description:'In Blackjack, double down and get dealt a 4.',class:'gamble',diff:'h'},
     'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
+    'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
+    '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
+
 }
+
+export const TITLES: {
+    [key: string]: string,
+} = {
+    'none':'new okabot user',
+    'lowcf':'unlucky but still lucky',
+    'highcf':'undoubtedly lucky',
+    'usewc':'casino cheater',
+    'get21':'perfectionist',
+    'newcf_daily':'first come first served',
+    'land36':'fortune teller',
+    'landmulti':'lucky guesser',
+    'capitalism':'filthy capitalist',
+    'gamble_gobroke':'irresponsible gambler',
+    'maxbetwin':'risk taker',
+    'getdaily':'okabot beginner',
+    'dailyweek':'committed',
+    'restorestreak':'a little forgetful',
+    'robmin25000':'kleptomaniac',
+    'robfined':'convicted criminal',
+    'thankokabot':'loved by okabot',
+    'okabotcry':'hated by okabot',
+    'begenerous':'generous',
+    'okashdrop':'finders keepers',
+    'lootboxdrop':'clumsy',
+    'notadmin':'fake moderator',
+    'voicemin300xp':'talkative',
+    'remindmetwice':'annoying',
+    'quickclaim':'never late',
+    'slots10x':'lucky jeweler',
+    'bankrob50000':'okash hoarder',
+    'bankrob5percent':'all bark no bite',
+    'casinopass':'impatient',
+    'dropboost':'always attentive',
+    'selldrop':'ungrateful',
+    'streak2':'lucky gambler',
+    'streak5':'super lucky gambler',
+    'streak10':'hunted by the casino',
+    'dango':'patissier',
+    'bankdep':'tax evader',
+    'blue':'gacha game addict',
+    'robchain':'black market proxy',
+    'sticker':'customization enjoyer',
+    'pocketaces':'card counter',
+    'dealt21both':'card magician',
+    'levelbar':'experimenter',
+    'uselessrobbery':'too cocky',
+    '2x4':'construction worker',
+    'stats':'statistics major',
+    'givecookie':'just the sweetest',
+    '250cookies':'mega sweet tooth'
+}
+
 
 /**
  * Check if the user has the achievement already, and if not, award it to them.

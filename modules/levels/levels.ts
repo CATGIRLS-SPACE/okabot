@@ -157,6 +157,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     if (!LEVEL_NAMES) LEVEL_NAME = await LangGetAutoTranslatedStringRaw(LEVEL_NAMES_EN[profile.leveling.level - 1], interaction.okabot.translateable_locale);
     else LEVEL_NAME = LEVEL_NAMES[profile.leveling.level - 1];
 
+    const USER_TITLE = TITLES[profile.customization.level_banner.selected_title];
+
     const width = 600; // Banner width
     const height = 150; // Banner height
     const canvas = createCanvas(width, height);
@@ -212,19 +214,20 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.save();
     ctx.beginPath();
     // level bar ends at x=580
-    ctx.roundRect(580-90, 15, 90, 90, 12);
+    ctx.roundRect(20, 15, 90, 90, 12);
     ctx.closePath();
     ctx.clip();
-    ctx.drawImage(pfp_img, 580-90, 15, 90, 90);
+    ctx.drawImage(pfp_img, 20, 15, 90, 90);
     ctx.restore();
     ctx.fillStyle = '#ffffff00';
     ctx.fill();
+    const PFP_OFFSET = 20 + 90;
     // labels
-    let offset_width = 0; // so that we can display the booster tag no matter what
+    let offset_width = PFP_OFFSET + 10; // so that we can display the booster tag no matter what
     if (CONFIG.permitted_to_use_shorthands.includes(interaction.user.id)) {
         ctx.fillStyle = '#f56e6eff';
         ctx.beginPath();
-        ctx.roundRect(20, 52, 90, 23, 6);
+        ctx.roundRect(offset_width, 52, 90, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#ffffffff';
@@ -232,8 +235,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#ffffffff';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('MODERATOR', offset_width + 26, 68);
-        offset_width += 97;
+        ctx.fillText('MODERATOR', offset_width + 6, 68);
+        offset_width += 77;
     }
     if (dev_status != 'none') {
         ctx.fillStyle = dev_status=='contributor'?'#6eeaf5':'#6ef5b6';
@@ -340,25 +343,38 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.font = "28px azuki_font, Arial, 'Segoe UI Emoji'";
     // background
     ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 19, 43);
+    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, PFP_OFFSET + 9, 43);
     // foreground
     ctx.fillStyle = user_is_booster?'#f5a6ff':'#edf2f4';
-    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, 16, 40);
+    ctx.fillText(`✨ ${interaction.user.displayName} ✨`, PFP_OFFSET + 6, 40);
 
     // Level
-    ctx.font = interaction.okabot.translateable_locale=='ru'?"20px Arial, 'Segoe UI Emoji'":"20px azuki_font, Arial, 'Segoe UI Emoji'";
+    ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
     // bg
     ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, 23, 103);
+    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, PFP_OFFSET + 9, 103);
     // fg
     ctx.fillStyle = '#f0c4ff';
-    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, 20, 100);
+    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, PFP_OFFSET + 6, 100);
+
+    // User title
+    ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
+    // bg
+    ctx.fillStyle = '#3d3d3d';
+    ctx.fillText(USER_TITLE, 23 + 3, 132);
+    // fg
+    ctx.fillStyle = '#ffffffff';
+    ctx.fillText(USER_TITLE, 23, 129);
 
     // XP Bar Background
-    const barX = 20;
-    const barY = 110;
-    const barWidth = 560;
-    const barHeight = 25;
+    // const barX = 20;
+    const barX = 0;
+    // const barY = 110;
+    const barY = height-10;
+    // const barWidth = 560;
+    const barWidth = width;
+    // const barHeight = 25;
+    const barHeight = 10;
     ctx.fillStyle = bar_color.bg;
     ctx.beginPath();
     ctx.roundRect(barX, barY, barWidth, barHeight, 8);
@@ -376,10 +392,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     // XP Text
     ctx.font = '16px azuki_font, bold Arial';
     ctx.fillStyle = num_color;
-    ctx.textAlign = 'left';
-    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP`, barX + 10, barY + 19);
     ctx.textAlign = 'right';
-    ctx.fillText(`${CalculateTargetXP(profile.leveling.level, 0)} XP`, barWidth + 10, barY + 19);
+    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXP(profile.leveling.level, 0)} XP`, width - 10, height - 20);
 
     const stickers = [
         "cherry-blossom.png",
@@ -493,7 +507,7 @@ import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../..
 import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
-import { CheckCompletionist } from "../passive/achievement";
+import { CheckCompletionist, TITLES } from "../passive/achievement";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

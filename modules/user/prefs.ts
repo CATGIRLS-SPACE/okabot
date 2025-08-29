@@ -77,6 +77,7 @@ export interface USER_PROFILE {
             hex_bg:  string,
             hex_fg:  string,
             hex_num: string,
+            selected_title: string,
         },
         level_bg_override: string,
         stickers: Array<BannerSticker>
@@ -143,6 +144,7 @@ const DEFAULT_DATA: USER_PROFILE = {
             hex_bg:  '#f00',
             hex_fg:  '#0f0',
             hex_num: '#00f',
+            selected_title: Achievements.NONE,
         },
         level_bg_override: '',
         stickers: []
@@ -250,9 +252,9 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.stickers) data.customization.stickers = [];
     if (!data.consents_to_statistics) data.consents_to_statistics = false;
     if (!data.cookies) data.cookies = 0;
+    if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
 
     if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
-    // console.log(data.restriction.until, );
 
     ProfileCache.set(user_id, data);
 

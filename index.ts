@@ -594,6 +594,7 @@ client.on(Events.GuildCreate, async (guild) => {
 });
 
 const COOKIES_STORE: {[key: string]: Array<Snowflake>} = {};
+const COOKIES_COOLDOWN = new Map<Snowflake, number>();
 
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
     if (reaction.emoji.name == '🍡') {
@@ -607,12 +608,16 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
         const message = await channel.messages.fetch(reaction.message.id);
         if (message.author.id == client.user!.id || message.author.id == reactor.id) return;
+        if ((COOKIES_COOLDOWN.get(reactor.id) || 0) > new Date().getTime()) return channel.send({
+            content:`:bangbang: **${reactor.displayName}**, you can only give a cookie every 5 minutes!`
+        });
         if (!COOKIES_STORE[message.id]) COOKIES_STORE[message.id] = [];
         if (COOKIES_STORE[message.id].includes(reactor.id)) return;
         const profile = GetUserProfile(message.author.id);
         profile.cookies++;
         COOKIES_STORE[message.id].push(reactor.id);
         UpdateUserProfile(message.author.id, profile);
+        COOKIES_COOLDOWN.set(reactor.id, new Date().getTime() + 60_000*5);
     }
 });
 

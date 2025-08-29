@@ -1,8 +1,9 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder} from "discord.js";
 import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
+import { Achievements, ACHIEVEMENTS, TITLES } from "../passive/achievement";
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
@@ -17,6 +18,10 @@ export async function HandleCommandCustomize(interaction: ChatInputCommandIntera
 
         case 'levelbar':
             CustomizeLevelBar(interaction);
+            break;
+
+        case 'title':
+            CustomizeTitle(interaction);
             break;
 
         case 'cards':
@@ -189,7 +194,8 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
     profile.customization.level_banner = {
         hex_bg: bg,
         hex_fg: fg,
-        hex_num: text
+        hex_num: text,
+        selected_title: profile.customization.level_banner.selected_title
     };
     profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING), 1);
     UpdateUserProfile(interaction.user.id, profile);
@@ -197,6 +203,47 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
     interaction.editReply({
         content: `:cat: **${interaction.user.displayName}**, I've updated your custom level bar colors.\nIn order to change them again, you must purchase another Custom Level Bar Color from the shop.`
     });
+}
+
+async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
+    const entry = interaction.options.getString('achievement', true);
+    const profile = GetUserProfile(interaction.user.id);
+
+    if (Object.keys(TITLES).includes(entry)) {
+        if (!profile.achievements.includes(entry as Achievements)) return interaction.editReply({
+            content: `Your don't have the achievement **${ACHIEVEMENTS[entry as Achievements].name}**!`,
+        });
+
+        profile.customization.level_banner.selected_title = entry;
+        UpdateUserProfile(interaction.user.id, profile);
+        interaction.editReply({
+            content: `Your title has been updated to **${TITLES[entry]}**!`,
+        });
+        return;
+    }
+
+    // loop thru
+    for (const key of Object.keys(TITLES)) {
+        console.log(`checking ${key} == ${entry}?`)
+        const achievement = ACHIEVEMENTS[key] || {name:''};
+        if (achievement.name.toLowerCase() == entry.toLowerCase()) {
+            if (!profile.achievements.includes(key as Achievements)) return interaction.editReply({
+                content: `Your don't have the achievement **${ACHIEVEMENTS[key].name}**!`,
+            });
+
+            profile.customization.level_banner.selected_title = entry;
+            UpdateUserProfile(interaction.user.id, profile);
+            interaction.editReply({
+                content: `Your title has been updated to **${TITLES[key]}**!`,
+            });
+            return;
+        }
+    }
+    interaction.editReply({
+        content: `That's not a valid achievement!`,
+    });
+    // not valid
+    
 }
 
 
@@ -223,6 +270,14 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
                 .setDescription('The card deck name (or serial for Tracked™ items) you want to use when playing')
                 .setRequired(true))
     )
+    .addSubcommand(subcommand => subcommand
+            .setName('title')
+            .setDescription('Choose your banner title')
+            .addStringOption(option => option
+                .setName('achievement')
+                .setDescription('The achievement ID to use')
+                .setRequired(true))
+    )
     .addSubcommand(subcommand =>
         subcommand
             .setName('levelbar').setNameLocalization('ja', 'レベルバー')
@@ -242,4 +297,6 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
                     .setName('xptext')
                     .setDescription('The text color of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef').setDescriptionLocalization('en-GB', 'The text colour of the bar (100 XP, 500 XP). Must be a valid hex code, like #abcdef')
                     .setRequired(true))
+
+        
     )
