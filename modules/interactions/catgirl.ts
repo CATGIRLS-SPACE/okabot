@@ -14,13 +14,11 @@ async function fetchImage(url: string) {
 export async function HandleCommandCatgirl(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    const rating = (interaction.options.getBoolean('suggestive') || false) ? 'suggestive' : 'safe';
-
     try {
-        const resp = await (await fetch(`https://api.nekosia.cat/api/v1/images/catgirl?count=1&rating=${rating}`)).json();
+        const resp = await (await fetch(`https://api.nekosia.cat/api/v1/images/catgirl?count=1`)).json();
         const item = resp.image.original.url;
         const image = await fetchImage(item);
-        const attachment = new AttachmentBuilder(image, {name:'okabot-catgirl.png'}).setSpoiler(rating == 'suggestive');
+        const attachment = new AttachmentBuilder(image, {name:'okabot-catgirl.png'});
 
         interaction.editReply({
             content:`**[${resp.rating == 'safe' ? 'G' : 'S'}]** [Source](<${resp.source.url}>)\nby [${resp.attribution.artist.username || '???'}](<${resp.attribution.artist.profile || 'https://nekosia.cat'}>)\n-# ${resp.tags.join(', ')}`,
@@ -37,10 +35,5 @@ export async function HandleCommandCatgirl(interaction: ChatInputCommandInteract
 export const CatgirlSlashCommand = new SlashCommandBuilder()
     .setName('catgirl')
     .setDescription('Get a picture of a catgirl. That\'s it.')
-    .addBooleanOption(option => option
-        .setName('suggestive')
-        .setDescription('do you want a photo of a suggestive catgirl?')
-        .setRequired(false)
-    )
     .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
     .setIntegrationTypes(ApplicationIntegrationType.UserInstall, ApplicationIntegrationType.GuildInstall);
