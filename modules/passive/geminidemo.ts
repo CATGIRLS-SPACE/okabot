@@ -4,7 +4,9 @@ import { AttachmentBuilder, EmojiResolvable, Message, MessageFlags, Snowflake, T
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
-// let openai: OpenAI;
+
+const GlobalMemories: string[] = [];
+const UserMemories: {[key: Snowflake]: Array<string>} = {};
 
 const ConversationChains: {
     [key: string]: {
@@ -26,12 +28,11 @@ const ConversationChainReplyPointers: {
 /**
  * Respond to an "okabot, xyz..." message
  * @param message The message object passed by discord.js
- * @param send_to_minecraft Send the response to Minecraft?
+ * @param disable_search Disable the search grounding tool?
  */
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
-    const openai = new OpenAI({apiKey: CONFIG.OPENAI_API_KEY});
 
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
@@ -45,33 +46,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             flags:[MessageFlags.SuppressEmbeds]
         });
     }
-
-    // let moderation;
-
-    // console.log('moderating...');
-    // try {
-    //     moderation = await openai.moderations.create({
-    //         model:'omni-moderation-latest',
-    //         input: message.content + ''
-    //     });
-    // } catch (err) {
-    //     console.error(err);
-    //     return message.reply({
-    //         content: `(okabot internal/openai) -- ` + (err as Error).message
-    //     });
-    // }
-
-    // if (moderation.results[0] && moderation.results[0].flagged) {
-    //     message.react('❗');
-    //     let reasons = [];
-    //     for (const key of Object.keys(moderation.results[0].categories)) {
-    //         // @ts-ignore
-    //         if (moderation.results[0].categories[key]) reasons.push(key);
-    //     }
-    //     return message.reply({
-    //         content:`:exclamation: Request was filtered with reason(s): \`${reasons.join(', ')}\``
-    //     });
-    // }
 
     let inline_data = [];
     let has_images = false;
@@ -110,13 +84,11 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             content:err+'\n(is the AES key correct?)'
         });
     }
-        
-    const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
-    const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
-    // const prompt_data = '$NAME: $CONTENT';
-    // const prompt_extra = '';
 
-    // console.log(prompt_data, prompt_extra);
+    const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
+        
+    const prompt_data = super_instruction + new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
 
     let extra = '';
     if (message.reference) {
@@ -132,10 +104,9 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         prompt += ' ' + fsg_data;
     }
 
-    const d = new Date();
-    prompt += ` The current date and time is: ${d.toString()}.\n`
-
-    // console.log(prompt);
+    prompt += ` The current date and time is: ${new Date().toString()}.\n`
+    prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
+    prompt += 'Current Memories on User: [\n-' + (UserMemories[message.author.id] || []).join('\n- ') + '\n]';
 
     await channel.sendTyping();
 
@@ -153,23 +124,24 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    try {
-        response = await ai.models.generateContent({
-            model: has_images?'gemini-2.5-pro':'gemini-2.5-flash',
-            contents,
-            config: {
-                thinkingConfig: {
-                    includeThoughts: false,
-                },
-                tools: disable_search?[]:[{ googleSearch: {} }],
-                temperature: 1.0
+    response = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents,
+        config: {
+            thinkingConfig: {
+                includeThoughts: false,
             },
-        });
-    } catch (err) {
-        return message.reply({
+            tools: disable_search?[]:[{ googleSearch: {} }],
+            temperature: 1.0
+        },
+    }).catch(err => {
+        message.reply({
             content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
         });
-    }
+        return null;
+    });
+
+    if (!response) return;
 
     if (response.text == undefined) {
         console.log(response);
@@ -185,26 +157,25 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     }
 
     try {
-        if (response.text.startsWith('@react=')) {
-            const reaction = response.text.split('@react=')[1];
+        const response_data: {tool:string,reply:string} = JSON.parse(response.text);
+
+        if (response_data.tool.startsWith('save2mem')) {
+            if (GlobalMemories.length == 25) GlobalMemories.pop();
+            GlobalMemories.push(response_data.tool.split('save2mem:')[1]);
+        }
+        if (response_data.tool.startsWith('save2user')) {
+            if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
+            UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
+        }
+
+        if (response_data.reply.startsWith('@react=')) {
+            const reaction = response_data.reply.split('@react=')[1];
             return message.react(reaction);
         }
 
         const reply = await message.reply({
-            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking) (Toolstring: "${response_data.tool}")\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
-
-        // if (send_to_minecraft) {
-        //     fetch('https://bot.lilycatgirl.dev/okabot/discord', {
-        //         method: 'POST',
-        //         body: JSON.stringify({
-        //             event: 'message',
-        //             username: 'okabot',
-        //             message: response.text
-        //         })
-        //     });
-        //     return;
-        // }
 
         // create a new conversation chain
         ConversationChains[reply.id] = {
@@ -222,7 +193,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                 },
                 {
                     user: 'okabot',
-                    content: response.text!
+                    content: response_data.reply
                 }
             ]
         }
@@ -243,9 +214,10 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (!user) throw new Error('no user');
 
     const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
+    // const supporter = false;
 
     if (!supporter) return message.reply({
-        content: `:crying_cat_face: You can't use conversation chains without having a supporter status!\n-# You can still use standard "okabot, xyz..." inquiries without boosting.`,
+        content: `:crying_cat_face: Umm, **${message.author.displayName}**... sorry, but you can't use conversation chains without [supporting](https://ko-fi.com/okawaffles)...\nI hear my server costs and AI credits aren't cheap... meow...`,
         flags: [MessageFlags.SuppressNotifications]
     });
 
@@ -270,16 +242,20 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (test_result != expect) throw new Error('AES decryption key is not correct.');
 
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
 
-    let prompt = `${replies}\n` + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
+    let prompt = `${replies}\n` + super_instruction + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
+    prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
+    prompt += 'Current Memories on User: [\n-' + (UserMemories[message.author.id] || []).join('\n- ') + '\n]';
+    
     if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
 
     let response;
 
     try {
         response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-2.5-pro',
             contents: prompt,
             config: {
                 thinkingConfig: {
@@ -326,13 +302,24 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         }
 
         reply = await message.reply({
-            content: thoughts + '\n' + `${answer}\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
+            content: thoughts + '\n' + `${answer}\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
         });
     }
 
     try {
+        const response_data: {tool:string,reply:string} = JSON.parse(response.text || '{"tool":"","reply":":zzz: *silence...*"}');
+
+        if (response_data.tool.startsWith('save2mem')) {
+            if (GlobalMemories.length == 25) GlobalMemories.pop();
+            GlobalMemories.push(response_data.tool.split('save2mem:')[1]);
+        }
+        if (response_data.tool.startsWith('save2user')) {
+            if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
+            UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
+        }
+
         const reply = await message.reply({
-            content: response.text + `\n-# GenAI (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains Beta** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message})`
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
         });
 
         ConversationChains[chain.orignal_message].messages.push({
@@ -340,7 +327,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             content: message.content
         }, {
             user: 'okabot',
-            content: response.text!
+            content: response_data.reply!
         });
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
