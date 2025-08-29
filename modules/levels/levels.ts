@@ -323,7 +323,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     if (DEV || CheckCompletionist(interaction.user.id)) {
         ctx.fillStyle = '#82cf93ff';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 79, 23, 6);
+        ctx.roundRect(offset_width + 20, 52, 59, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#2a422fff';
@@ -331,7 +331,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#253829ff';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('COMPLETE', offset_width + 26, 68);
+        ctx.fillText('CLEAR!', offset_width + 26, 68);
+        offset_width += 49-5;
     }
     
 

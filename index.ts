@@ -126,7 +126,7 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoPresenceChecks, DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {CheckUserIdOkashRestriction, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
+import {CheckUserIdOkashRestriction, GetUserProfile, SetupPrefs, UpdateUserProfile} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
@@ -593,29 +593,26 @@ client.on(Events.GuildCreate, async (guild) => {
     }
 });
 
-
-const DANGO_COUNT = new Map<Snowflake, number>();
+const COOKIES_STORE: {[key: string]: Array<Snowflake>} = {};
 
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
-    // CheckReactionFlag(reaction, reactor as User);
-
-    // L.debug('new reaction ' + reaction.emoji.name);
-
     if (reaction.emoji.name == '🍡') {
         const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
         const message = await channel.messages.fetch(reaction.message.id);
         if (message.author.id != client.user!.id) return;
+        GrantAchievement(message.author, Achievements.DANGO, channel);
+    }
 
-        if (DANGO_COUNT.has(reactor.id)) {
-            DANGO_COUNT.set(reactor.id, DANGO_COUNT.get(reactor.id)! + 1);
-            if (DANGO_COUNT.get(reactor.id)! == 3) {
-                // GrantAchievement(reactor as User, Achievements.STORY, channel);
-                // GrantStoryAccess(reactor as User, 1, channel);
-            }
-        } else {
-            DANGO_COUNT.set(reactor.id, 1);
-            GrantAchievement(reactor as User, Achievements.DANGO, channel);
-        }
+    if (reaction.emoji.name == '🍪') {
+        const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
+        const message = await channel.messages.fetch(reaction.message.id);
+        if (message.author.id == client.user!.id || message.author.id == reactor.id) return;
+        if (!COOKIES_STORE[message.id]) COOKIES_STORE[message.id] = [];
+        if (COOKIES_STORE[message.id].includes(reactor.id)) return;
+        const profile = GetUserProfile(message.author.id);
+        profile.cookies++;
+        COOKIES_STORE[message.id].push(reactor.id);
+        UpdateUserProfile(message.author.id, profile);
     }
 });
 
