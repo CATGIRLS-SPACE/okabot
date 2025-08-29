@@ -115,6 +115,7 @@ export interface USER_PROFILE {
         pets: Array<UserPet>,
         inventory: Array<number>,
     },
+    cookies: number,
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -180,6 +181,7 @@ const DEFAULT_DATA: USER_PROFILE = {
         pets: [],
         inventory: [],
     },
+    cookies: 0
 }
 
 var PROFILES_DIR: string | null = null;
@@ -214,7 +216,7 @@ export function CheckForProfile(user_id: string): boolean {
     if (!existsSync(profile_path)) return false;
 
     const profile = GetUserProfile(user_id);
-    return !profile.restriction.active;
+    return !(profile.restriction.active && profile.restriction.until < new Date().getTime());
 }
 
 export function GetUserProfile(user_id: string): USER_PROFILE {
@@ -247,6 +249,10 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
     if (!data.customization.stickers) data.customization.stickers = [];
     if (!data.consents_to_statistics) data.consents_to_statistics = false;
+    if (!data.cookies) data.cookies = 0;
+
+    if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
+    // console.log(data.restriction.until, );
 
     ProfileCache.set(user_id, data);
 
