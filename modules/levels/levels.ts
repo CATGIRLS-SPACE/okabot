@@ -236,12 +236,12 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.fillStyle = '#ffffffff';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('MODERATOR', offset_width + 6, 68);
-        offset_width += 77;
+        offset_width += 97;
     }
     if (dev_status != 'none') {
         ctx.fillStyle = dev_status=='contributor'?'#6eeaf5':'#6ef5b6';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 88, 23, 6);
+        ctx.roundRect(offset_width, 52, 88, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b3b2c';
@@ -249,14 +249,14 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#1b3b2c';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('DEVELOPER', offset_width + 26, 68);
+        ctx.fillText('DEVELOPER', offset_width + 6, 68);
         offset_width += 95;
     }
     // bugtest
     if (tester_status == 'cgc-beta') {
         ctx.fillStyle = '#876ef5';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 62, 23, 6);
+        ctx.roundRect(offset_width, 52, 62, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b1630';
@@ -264,13 +264,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#1b1630';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('LEGACY', offset_width + 26, 68);
+        ctx.fillText('LEGACY', offset_width + 6, 68);
         offset_width += 72-5;
     }
     if (tester_status == 'public') {
         ctx.fillStyle = '#876ef5';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 62, 23, 6);
+        ctx.roundRect(offset_width, 52, 62, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#1b1630';
@@ -278,13 +278,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#1b1630';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('TESTER', offset_width + 26, 68);
-        offset_width += 72-5;
+        ctx.fillText('TESTER', offset_width + 6, 68);
+        offset_width += 92-5;
     }
     if (supporter == 'ko-fi') {
         ctx.fillStyle = '#fa9de4';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 73, 23, 6);
+        ctx.roundRect(offset_width, 52, 73, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#422a3d';
@@ -292,13 +292,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('DONATOR', offset_width + 26, 68);
-        offset_width += 83-5;
+        ctx.fillText('DONATOR', offset_width + 6, 68);
+        offset_width += 103-5;
     }
     if (supporter == 'granted') {
         ctx.fillStyle = '#9dfab4ff';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 64, 23, 6);
+        ctx.roundRect(offset_width, 52, 64, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#2a422cff';
@@ -306,13 +306,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#2a422cff';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('SPECIAL', offset_width + 26, 68);
-        offset_width += 74-5;
+        ctx.fillText('SPECIAL', offset_width + 6, 68);
+        offset_width += 94-5;
     }
     if (user_is_booster) {
         ctx.fillStyle = '#fa9de4';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 73, 23, 6);
+        ctx.roundRect(offset_width, 52, 73, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#422a3d';
@@ -320,13 +320,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('BOOSTER', offset_width + 26, 68);
-        offset_width += 63-5;
+        ctx.fillText('BOOSTER', offset_width + 6, 68);
+        offset_width += 83-5;
     }
     if (DEV || CheckCompletionist(interaction.user.id)) {
         ctx.fillStyle = '#82cf93ff';
         ctx.beginPath();
-        ctx.roundRect(offset_width + 20, 52, 59, 23, 6);
+        ctx.roundRect(offset_width, 52, 59, 23, 6);
         ctx.fill();
         ctx.lineWidth = 2;
         ctx.strokeStyle = '#2a422fff';
@@ -334,8 +334,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.closePath();
         ctx.fillStyle = '#253829ff';
         ctx.font = 'bold italic 12px Arial'
-        ctx.fillText('CLEAR!', offset_width + 26, 68);
-        offset_width += 49-5;
+        ctx.fillText('CLEAR!', offset_width + 6, 68);
+        offset_width += 69-5;
     }
     
 
