@@ -451,7 +451,10 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 // Message handlers
 
 client.on(Events.MessageCreate, async message => {
-    if (message.author.id == client.user!.id) return; // don't listen to my own messages
+    if (message.author.id == client.user!.id) { 
+        await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
+        return; // don't listen to my own messages
+    }
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
 
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit

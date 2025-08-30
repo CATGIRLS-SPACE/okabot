@@ -99,7 +99,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     let prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
 
-    if (message.guild?.id == '1348652647963561984') {
+    if (message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282') {
         const fsg_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('FSG'))));
         prompt += ' ' + fsg_data;
     }

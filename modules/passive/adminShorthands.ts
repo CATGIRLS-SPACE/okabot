@@ -425,7 +425,7 @@ export function RegisterAllShorthands() {
         });
     });
 
-    RegisterShorthand('oka reload', async (message: Message, params: string[]) => {
+    RegisterShorthand('oka reload ', async (message: Message, params: string[]) => {
         ReloadProfile(params[2]);
         message.reply({
             content:':white_check_mark: Dropped user profile from cache and reloaded from file.',
