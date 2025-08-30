@@ -604,25 +604,25 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         GrantAchievement(message.author, Achievements.DANGO, channel);
     }
 
-    if (reaction.emoji.name == '🍪') {
-        const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
-        const message = await channel.messages.fetch(reaction.message.id);
-        if (message.author.id == client.user!.id || message.author.id == reactor.id) return;
-        if ((COOKIES_COOLDOWN.get(reactor.id) || 0) > new Date().getTime()) return;
-        // return channel.send({
-        //     content:`:bangbang: **${reactor.displayName}**, you can only give a cookie every 60 seconds!`,
-        //     flags: [MessageFlags.SuppressNotifications]
-        // });
-        if (!COOKIES_STORE[message.id]) COOKIES_STORE[message.id] = [];
-        if (COOKIES_STORE[message.id].includes(reactor.id)) return;
-        const profile = GetUserProfile(message.author.id);
-        profile.cookies++;
-        COOKIES_STORE[message.id].push(reactor.id);
-        UpdateUserProfile(message.author.id, profile);
-        if (profile.cookies >= 250) GrantAchievement(message.author, Achievements.COOKIES_250, channel);
-        GrantAchievement(reactor as User, Achievements.GIVE_COOKIE, channel);
-        COOKIES_COOLDOWN.set(reactor.id, new Date().getTime() + 60_000);
-    }
+    // if (reaction.emoji.name == '🍪') {
+    //     const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
+    //     const message = await channel.messages.fetch(reaction.message.id);
+    //     if (message.author.id == client.user!.id || message.author.id == reactor.id) return;
+    //     if ((COOKIES_COOLDOWN.get(reactor.id) || 0) > new Date().getTime()) return;
+    //     // return channel.send({
+    //     //     content:`:bangbang: **${reactor.displayName}**, you can only give a cookie every 60 seconds!`,
+    //     //     flags: [MessageFlags.SuppressNotifications]
+    //     // });
+    //     if (!COOKIES_STORE[message.id]) COOKIES_STORE[message.id] = [];
+    //     if (COOKIES_STORE[message.id].includes(reactor.id)) return;
+    //     const profile = GetUserProfile(message.author.id);
+    //     profile.cookies++;
+    //     COOKIES_STORE[message.id].push(reactor.id);
+    //     UpdateUserProfile(message.author.id, profile);
+    //     if (profile.cookies >= 250) GrantAchievement(message.author, Achievements.COOKIES_250, channel);
+    //     GrantAchievement(reactor as User, Achievements.GIVE_COOKIE, channel);
+    //     COOKIES_COOLDOWN.set(reactor.id, new Date().getTime() + 60_000);
+    // }
 });
 
 // Error Handlers

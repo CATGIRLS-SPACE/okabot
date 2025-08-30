@@ -124,8 +124,8 @@ export const ACHIEVEMENTS: {
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Rob someone/the bank, flip a coin worth the amount you just robbed, and lose.',class:'fun2',diff:'e'},
     '2x4':{name:'The House is Structurally Sound Now',description:'In Blackjack, double down and get dealt a 4.',class:'gamble',diff:'h'},
     'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
-    'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
-    '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
+    // 'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
+    // '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
 }
 
 export const TITLES: {
