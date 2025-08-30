@@ -231,7 +231,7 @@ async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
                 content: `Your don't have the achievement **${ACHIEVEMENTS[key].name}**!`,
             });
 
-            profile.customization.level_banner.selected_title = entry;
+            profile.customization.level_banner.selected_title = key;
             UpdateUserProfile(interaction.user.id, profile);
             interaction.editReply({
                 content: `Your title has been updated to **${TITLES[key]}**!`,
