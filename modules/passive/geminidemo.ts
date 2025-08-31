@@ -145,7 +145,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     response = await openai.chat.completions.create({
         messages: [{role:'user',content:prompt}],
-        model: 'gpt-5' 
+        model: 'chatgpt-4o-latest' 
     });
 
     if (!response) return;
@@ -265,7 +265,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             role: 'user',
             content: prompt
         }],
-        model: 'gpt-5'
+        model: 'chatgpt-4o-latest'
     })
 
     let reply;
