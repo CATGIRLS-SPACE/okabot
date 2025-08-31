@@ -352,3 +352,14 @@ async function SubcommandFeed(message: Message, args: Array<string>) {
     profile.pet_data.pets[parseInt(args[2]) - 1] = pet;
     UpdateUserProfile(message.author.id, profile);
 }
+
+
+async function SubcommandPlay(message: Message, args: Array<string>) {
+    if (!args[2] || isNaN(parseInt(args[2]))) return message.reply({content:':x: Please give me the number of the pet you want to play with! Use `o.pet list` to see.'});
+    
+    const profile = GetUserProfile(message.author.id);
+    if (profile.pet_data.pets.length == 0) message.reply({content:':x: You don\'t have any pets yet!'});
+    if (profile.pet_data.pets.length < parseInt(args[2])) message.reply({content:':x: You don\'t have that many pets!'});
+
+    
+}

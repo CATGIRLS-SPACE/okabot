@@ -4,6 +4,7 @@ import { AttachmentBuilder, EmojiResolvable, Message, MessageFlags, Snowflake, T
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
+let openai: OpenAI;
 
 const GlobalMemories: string[] = [];
 const UserMemories: {[key: Snowflake]: Array<string>} = {};
@@ -33,6 +34,7 @@ const ConversationChainReplyPointers: {
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
+    if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
@@ -124,40 +126,45 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro',
-        contents,
-        config: {
-            thinkingConfig: {
-                includeThoughts: false,
-            },
-            tools: disable_search?[]:[{ googleSearch: {} }],
-            temperature: 1.0
-        },
-    }).catch(err => {
-        message.reply({
-            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
-        });
-        return null;
+    // response = await ai.models.generateContent({
+    //     model: 'gemini-2.5-pro',
+    //     contents,
+    //     config: {
+    //         thinkingConfig: {
+    //             includeThoughts: false,
+    //         },
+    //         tools: disable_search?[]:[{ googleSearch: {} }],
+    //         temperature: 1.0
+    //     },
+    // }).catch(err => {
+    //     message.reply({
+    //         content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
+    //     });
+    //     return null;
+    // });
+
+    response = await openai.chat.completions.create({
+        messages: [{role:'user',content:prompt}],
+        model: 'gpt-5' 
     });
 
     if (!response) return;
 
-    if (response.text == undefined) {
-        console.log(response);
-        if (response.promptFeedback?.blockReason) {
-            await message.react('❌')
-            return message.reply({
-                content:`:x: Prompt was blocked with reason "${response.promptFeedback.blockReason}" (${response.promptFeedback.blockReasonMessage})`
-            });
-        }
-        return message.reply({
-            content:`:x: No response was received from Google. Try again?`
-        });;
-    }
+    // if (response.text == undefined) {
+    //     console.log(response);
+    //     if (response.promptFeedback?.blockReason) {
+    //         await message.react('❌')
+    //         return message.reply({
+    //             content:`:x: Prompt was blocked with reason "${response.promptFeedback.blockReason}" (${response.promptFeedback.blockReasonMessage})`
+    //         });
+    //     }
+    //     return message.reply({
+    //         content:`:x: No response was received from Google. Try again?`
+    //     });;
+    // }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response.text);
+        const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string);
 
         if (response_data.tool.startsWith('save2mem')) {
             if (GlobalMemories.length == 25) GlobalMemories.pop();
@@ -174,7 +181,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking) (Toolstring: "${response_data.tool}")\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
         // create a new conversation chain
@@ -253,61 +260,18 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     let response;
 
-    try {
-        response = await ai.models.generateContent({
-            model: 'gemini-2.5-pro',
-            contents: prompt,
-            config: {
-                thinkingConfig: {
-                    includeThoughts: false,
-                },
-                tools: chain.disable_search?[]:[{ googleSearch: {} }],
-                temperature: 1.0
-            }
-        });
-    } catch (err) {
-        message.reply({
-            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
-        });
-        return;
-    }
+    response = await openai.chat.completions.create({
+        messages: [{
+            role: 'user',
+            content: prompt
+        }],
+        model: 'gpt-5'
+    })
 
     let reply;
-    let thoughts = '';
-    let answer = '';
-
-    if (response.text == undefined) {
-        console.log(response);
-        if (response.promptFeedback?.blockReason) {
-            message.react('❌')
-            return message.reply({
-                content:`:x: Prompt was blocked with reason "${response.promptFeedback.blockReason}" (${response.promptFeedback.blockReasonMessage})`
-            });
-        }
-        for (const part of response.candidates![0].content!.parts!) {
-            console.log(part);
-            if (!part.text) continue;
-            else if (part.thought) {
-                const thought_parts = part.text.split('\n');
-                for (const p of thought_parts) {
-                    if (p != '') thoughts += `-# ${part.text}\n`;
-                }
-            }
-            else answer += part.text.trim();
-        }
-
-        if (answer.startsWith('@react=')) {
-            const reaction = answer.split('@react=')[1];
-            return message.react(reaction);
-        }
-
-        reply = await message.reply({
-            content: thoughts + '\n' + `${answer}\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking)\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
-        });
-    }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response.text || '{"tool":"","reply":":zzz: *silence...*"}');
+        const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string || '{"tool":"","reply":":zzz: *silence...*"}');
 
         if (response_data.tool.startsWith('save2mem')) {
             if (GlobalMemories.length == 25) GlobalMemories.pop();
@@ -319,7 +283,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (used ${response.usageMetadata!.thoughtsTokenCount} tokens in thinking) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
         });
 
         ConversationChains[chain.orignal_message].messages.push({
