@@ -1,6 +1,6 @@
 import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
-import { AttachmentBuilder, EmojiResolvable, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
+import { AttachmentBuilder, EmojiResolvable, GuildMember, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -36,6 +36,13 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
     if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
+    if (message.channel.isDMBased() && (GetUserSupportStatus(message.author.id) == 'none' && GetUserDevStatus(message.author.id) == 'none')) return;
+    if (message.channel.isDMBased() && ConversationChains[message.channel.id]) return GeminiDemoReplyToConversationChain(message);
+
+    if (message.channel.isDMBased() && !DEV) {
+        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**-> ${message.author.id}(${message.author.username})** : ${message.content}`);
+    }
+
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
             content:'Not available here, go to <#1407602200586485800>.',
@@ -68,12 +75,21 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     message.react('✨');
 
-    const guild = message.client.guilds.cache.get(message.guild!.id);
-    if (!guild) throw new Error('no guild');
-    const user = guild.members.cache.get(message.author.id);
-    if (!user) throw new Error('no user');
-    const channel = (guild.channels.cache.get(message.channel.id) as TextChannel);
-    if (!channel) throw new Error('no channel');
+    let user, channel;
+
+    if (!message.channel.isDMBased()) {
+        const guild = message.client.guilds.cache.get(message.guild!.id);
+        if (!guild) throw new Error('no guild');
+        user = guild.members.cache.get(message.author.id);
+        if (!user) throw new Error('no user');
+        channel = (guild.channels.cache.get(message.channel.id) as TextChannel);
+        if (!channel) throw new Error('no channel');
+    } else {
+        user = client.users.cache.get(message.author.id);
+        if (!user) throw new Error('no user');
+        channel = client.channels.cache.get(message.channel.id) as TextChannel;
+        if (!channel) throw new Error('no channel, how did we get here?');
+    } 
 
     const mesy = new MESYFile(join(BASE_DIRNAME, 'assets', 'ai', 'prompts.mesy'));
     try {
@@ -99,7 +115,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         extra = prompt_extra.replaceAll('$REPLYNAME', reference.author.displayName).replaceAll('$REPLY', reference.content);
     }
 
-    let prompt = prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+    let prompt = prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
 
     if (message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282') {
         const fsg_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('FSG'))));
@@ -163,6 +179,10 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     //     });;
     // }
 
+    if (message.channel.isDMBased() && !DEV) {
+        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.choices[0].message.content}`);
+    }
+
     try {
         const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string);
 
@@ -185,7 +205,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
 
         // create a new conversation chain
-        ConversationChains[reply.id] = {
+        ConversationChains[message.channel.isDMBased() ? message.channel.id : reply.id] = {
             author: message.author.id,
             orignal_message: reply.id,
             disable_search,
@@ -195,7 +215,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                     content: reply.content,
                 },
                 {
-                    user: user.nickname || user.displayName,
+                    user: (user as GuildMember).nickname || user.displayName,
                     content: message.content,
                 },
                 {
@@ -205,7 +225,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             ]
         }
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.choices[0].message.content}\`` });
     }
 }
 
@@ -213,12 +233,19 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
-    if (!ConversationChains[message.reference?.messageId!] && !ConversationChainReplyPointers[message.reference?.messageId!]) return;
+    if (!ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference?.messageId!] && !ConversationChainReplyPointers[message.reference?.messageId!]) return message.react('❓');
 
-    const guild = message.client.guilds.cache.get(message.guild!.id);
-    if (!guild) throw new Error('no guild');
-    const user = guild.members.cache.get(message.author.id);
-    if (!user) throw new Error('no user');
+    let user;
+
+    if (!message.channel.isDMBased()) {
+        const guild = message.client.guilds.cache.get(message.guild!.id);
+        if (!guild) throw new Error('no guild');
+        user = guild.members.cache.get(message.author.id);
+        if (!user) throw new Error('no user');
+    } else {
+        user = client.users.cache.get(message.author.id);
+        if (!user) throw new Error('no user');
+    } 
 
     const supporter = (GetUserSupportStatus(message.author.id) != 'none') || (GetUserDevStatus(message.author.id) != 'none');
     // const supporter = false;
@@ -228,13 +255,13 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         flags: [MessageFlags.SuppressNotifications]
     });
 
-    message.react('✨');
+    if (!message.channel.isDMBased()) message.react('✨');
 
     const channel = message.client.channels.cache.get(message.channel.id) as TextChannel;
 
     await channel.sendTyping();
 
-    const chain = ConversationChains[message.reference!.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
+    const chain = ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference?.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
     if (!chain) throw new Error(`conversation chain "${message.reference!.messageId!}" not found`);
 
     let replies: string = '';
@@ -251,7 +278,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
     const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
 
-    let prompt = `${replies}\n` + super_instruction + prompt_data.replace('$NAME', user.nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
+    let prompt = `${replies}\n` + super_instruction + prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
     prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
     prompt += 'Current Memories on User: [\n-' + (UserMemories[message.author.id] || []).join('\n- ') + '\n]';
@@ -266,9 +293,11 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             content: prompt
         }],
         model: 'chatgpt-4o-latest'
-    })
+    });
 
-    let reply;
+    if (message.channel.isDMBased() && !DEV) {
+        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.choices[0].message.content}`);
+    }
 
     try {
         const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string || '{"tool":"","reply":":zzz: *silence...*"}');
@@ -287,7 +316,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         });
 
         ConversationChains[chain.orignal_message].messages.push({
-            user: user.nickname || user.displayName,
+            user: (user as GuildMember).nickname || user.displayName,
             content: message.content
         }, {
             user: 'okabot',
@@ -296,7 +325,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.choices[0].message.content}\`` });
     }
 }
 

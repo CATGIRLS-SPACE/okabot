@@ -159,6 +159,7 @@ export const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildPresences,
+        GatewayIntentBits.DirectMessages,
     ],
     partials: [
         Partials.Message,
@@ -460,7 +461,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     const rules = await CheckForRulesSimple(message.author.id);
-    if (message.content.startsWith('okabot, ') && !rules) {
+    if ((message.content.startsWith('okabot, ') || message.channel.isDMBased()) && !rules) {
         const reply = await message.reply({
             content: 'You appear to be trying to use okabot\'s Gemini features. You must agree to the okabot rules before doing so. Please run any okabot command before trying again.',
             flags: [MessageFlags.SuppressNotifications]
@@ -497,9 +498,13 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
-    // i liked seeing the funny queries. but it does begin to hurt when i see things
-    // saying i ruined shit. i guess this is the only way to not ruin shit.
-    // don't melt the icecaps and kill humanity with your silly joke, i guess.
+    if (message.channel.isDMBased()) {
+        if (!CONFIG.gemini.enable) return;
+        if (message.reference)
+            GeminiDemoReplyToConversationChain(message);
+        else
+            GeminiDemoRespondToInquiry(message);
+    }
 
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         if (!CONFIG.gemini.enable) return;
