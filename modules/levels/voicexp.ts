@@ -56,7 +56,7 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         AddXP(newState.member!.id, <unknown>channel as TextChannel, xp_gained);
 
         channel.send({
-            content:`<@${newState.member!.id}>, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
+            content:`**${newState.member!.displayName}**, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
         });
 
         if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);
