@@ -1,6 +1,6 @@
 import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
-import { AttachmentBuilder, EmojiResolvable, GuildMember, Message, MessageFlags, Snowflake, TextChannel } from "discord.js";
+import { AttachmentBuilder, EmojiResolvable, GuildMember, Message, MessageFlags, Poll, PollAnswer, PollAnswerData, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -37,11 +37,12 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
     if (message.channel.isDMBased() && (GetUserSupportStatus(message.author.id) == 'none' && GetUserDevStatus(message.author.id) == 'none')) return;
-    if (message.channel.isDMBased() && ConversationChains[message.channel.id]) return GeminiDemoReplyToConversationChain(message);
-
+    
     if (message.channel.isDMBased() && !DEV) {
         (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**-> ${message.author.id}(${message.author.username})** : ${message.content}`);
     }
+
+    if (message.channel.isDMBased() && ConversationChains[message.channel.id]) return GeminiDemoReplyToConversationChain(message);
 
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
@@ -103,7 +104,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
+    const super_instruction = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('TOOLS'))));
         
     const prompt_data = super_instruction + new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
     const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
@@ -194,10 +195,22 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
-
-        if (response_data.reply.startsWith('@react=')) {
-            const reaction = response_data.reply.split('@react=')[1];
-            return message.react(reaction);
+        if (response_data.tool.startsWith('react:')) {
+            const reaction = response_data.tool.split('react:')[1];
+            message.react(reaction);
+        }
+        if (response_data.tool.startsWith('pinthis')) {
+            message.pin();
+        }
+        if (response_data.tool.startsWith('poll:')) {
+            channel.send({
+                poll:{
+                    question:{text:"okabot's poll"},
+                    allowMultiselect: false,
+                    answers: (response_data.tool.split('poll:')[1].split(',') || ['a','b']).map(val => ({text:val} as PollAnswerData)),
+                    duration: 1
+                }
+            })
         }
 
         const reply = await message.reply({
@@ -207,7 +220,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         // create a new conversation chain
         ConversationChains[message.channel.isDMBased() ? message.channel.id : reply.id] = {
             author: message.author.id,
-            orignal_message: reply.id,
+            orignal_message: message.channel.isDMBased() ? message.channel.id : reply.id,
             disable_search,
             messages: [
                 {
@@ -276,7 +289,9 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (test_result != expect) throw new Error('AES decryption key is not correct.');
 
     const prompt_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
-    const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
+    // const super_instruction = 'You must reply in this JSON format: {"tool":"<tool>","reply":"your reply here"}. You are not required to use a tool for every response. Valid tools are "save2mem:<memory>" to save to your global memory, "save2user:<memory>" to save to a user\'s memory. Do not format your JSON for Discord.\n'
+
+    const super_instruction = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('TOOLS'))));
 
     let prompt = `${replies}\n` + super_instruction + prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
@@ -310,10 +325,35 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
+        if (response_data.tool.startsWith('react:')) {
+            const reaction = response_data.tool.split('react:')[1];
+            message.react(reaction);
+        }
+        if (response_data.tool.startsWith('pinthis')) {
+            message.pin();
+        }
+        if (response_data.tool.startsWith('poll:')) {
+            channel.send({
+                poll:{
+                    question:{text:"okabot's poll"},
+                    allowMultiselect: false,
+                    answers: (response_data.tool.split('poll:')[1].split(',') || ['a','b']).map(val => ({text:val} as PollAnswerData)),
+                    duration: 1
+                }
+            })
+        }
 
-        const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
-        });
+        let reply;
+        
+        if (message.channel.isDMBased()) {
+            reply = await channel.send({
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
+            });
+        } else {
+            reply = await message.reply({
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+            });
+        }
 
         ConversationChains[chain.orignal_message].messages.push({
             user: (user as GuildMember).nickname || user.displayName,
@@ -336,7 +376,7 @@ export async function GetWackWordDefinitions(message: Message) {
 
     message.react('✨')
 
-    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user has just submitted their "wack words of the day", which are Wordle words which are unconventional/uncommon and sound funny. The content of the message is "${message.content}". Define the words only, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Make it something funny, examples: "Millie, what even is that word...?" or "Millie, there's no way those are real words!!" An example of a defined word message would be: "1. BURNT - definition goes here\n2. CHARK - definition goes here".`;
+    const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user has just submitted their "wack words of the day", which are Wordle words which are unconventional/uncommon and sound funny. The content of the message is "${message.content}". Define the words only, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Make it something funny. An example of a defined word message would be: "1. BURNT - definition goes here\n2. CHARK - definition goes here".`;
 
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro-preview-03-25',
