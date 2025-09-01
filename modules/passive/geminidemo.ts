@@ -197,7 +197,16 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
         if (response_data.tool.startsWith('react:')) {
             const reaction = response_data.tool.split('react:')[1];
-            message.react(reaction);
+            const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+            const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
+            console.log(emojis);
+            for (const e of emojis) {
+                try {
+                    message.react(e);
+                } catch (err) {
+                    console.warn(err);
+                }
+            }
         }
         if (response_data.tool.startsWith('pinthis')) {
             message.pin();
@@ -327,7 +336,16 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         }
         if (response_data.tool.startsWith('react:')) {
             const reaction = response_data.tool.split('react:')[1];
-            message.react(reaction);
+            const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
+            const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
+            console.log(emojis);
+            for (const e of emojis) {
+                try {
+                    message.react(e);
+                } catch (err) {
+                    console.warn(err);
+                }
+            }
         }
         if (response_data.tool.startsWith('pinthis')) {
             message.pin();
