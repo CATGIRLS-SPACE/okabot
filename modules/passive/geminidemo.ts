@@ -116,7 +116,8 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         extra = prompt_extra.replaceAll('$REPLYNAME', reference.author.displayName).replaceAll('$REPLY', reference.content);
     }
 
-    let prompt = prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
+    const has_custom_emojis = (/<a?:[a-zA-Z0-9_]+:\d+>/g).test(message.content);
+    let prompt = prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content.replace(/<a?:[a-zA-Z0-9_]+:\d+>/g, "")).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
 
     if (message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282') {
         const fsg_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('FSG'))));
@@ -202,7 +203,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             let index = 0;
             for (const e of emojis) {
                 index++;
-                if (index >= 6) continue;
+                if (index >= 6) break;
                 try {
                     message.react(e);
                 } catch (err) {
@@ -225,7 +226,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
         // create a new conversation chain
@@ -304,6 +305,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     const super_instruction = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('TOOLS'))));
 
+    const has_custom_emojis = (/<a?:[a-zA-Z0-9_]+:\d+>/g).test(message.content);
     let prompt = `${replies}\n` + super_instruction + prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content).replace('$EXTRA', '').replace('$LOCALE', GetLastLocale(message.author.id)) + '\nThe previous replies are prepended.';
 
     prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
@@ -367,11 +369,11 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         
         if (message.channel.isDMBased()) {
             reply = await channel.send({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
             });
         } else {
             reply = await message.reply({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
             });
         }
 
