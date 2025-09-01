@@ -199,8 +199,10 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             const reaction = response_data.tool.split('react:')[1];
             const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
             const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
-            console.log(emojis);
+            let index = 0;
             for (const e of emojis) {
+                index++;
+                if (index >= 6) continue;
                 try {
                     message.react(e);
                 } catch (err) {
