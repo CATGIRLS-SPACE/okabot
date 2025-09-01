@@ -56,7 +56,8 @@ interface RouletteGame {
     bet: number,
     interaction: ChatInputCommandInteraction,
     response?: InteractionResponse,
-    picked: boolean
+    picked: boolean,
+    reply_id: Snowflake,
 }
 
 const GAMES_ACTIVE = new Map<string, RouletteGame>();
@@ -387,18 +388,22 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
     SetGambleLock(interaction.user.id, true);
+
+    const response = await interaction.reply({
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\nRoulette is experimental: you may lose your okash if not played properly!\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
+        components: [InitialTypeRow],
+        flags: [MessageFlags.SuppressNotifications]
+    });
+
+    const reply_id = (await response.fetch()).id;
+
     GAMES_ACTIVE.set(interaction.user.id, {
         bet,
         game_type: RouletteGameType.NUMBER,
         interaction,
         selection: -1,
         picked: false,
-    });
-
-    const response = await interaction.reply({
-        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\nRoulette is experimental: you may lose your okash if not played properly!\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
-        components: [InitialTypeRow],
-        flags: [MessageFlags.SuppressNotifications]
+        reply_id
     });
 
     const collectorFilter = (i: any) => i.user.id === interaction.user.id;
@@ -417,6 +422,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     selection: 0,
                     interaction: interaction,
                     picked: true,
+                    reply_id
                 });
                 i.update({
                     content:`:one: Please reply to this message with the number you'd like to bet on (1-36).`,
@@ -440,6 +446,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     interaction: interaction,
                     response,
                     picked: true,
+                    reply_id
                 });
                 i.update({
                     content:`:1234: Please reply to this message with the numbers you'd like to bet on (1-36, eg: "3, 6, 9").`,
@@ -551,6 +558,8 @@ export async function ListenForRouletteReply(message: Message) {
     if (!(message.reference && (await message.fetchReference()).author.id == client.user!.id)) return;
 
     const game = GAMES_ACTIVE.get(message.author.id)!;
+    console.log(message.reference.messageId, game.reply_id);
+    if (message.reference.messageId != game.reply_id) return;
 
     if (game.game_type == RouletteGameType.NUMBER) {        
         try {
