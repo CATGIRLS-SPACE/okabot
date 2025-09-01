@@ -226,7 +226,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
         // create a new conversation chain
@@ -369,11 +369,11 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         
         if (message.channel.isDMBased()) {
             reply = await channel.send({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
             });
         } else {
             reply = await message.reply({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-#Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
             });
         }
 
