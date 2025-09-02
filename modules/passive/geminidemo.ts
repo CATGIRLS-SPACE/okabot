@@ -163,7 +163,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     response = await openai.chat.completions.create({
         messages: [{role:'user',content:prompt}],
-        model: 'gpt-5-nano' 
+        model: 'gpt-5-chat-latest' 
     });
 
     if (!response) return;
@@ -320,7 +320,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             role: 'user',
             content: prompt
         }],
-        model: 'gpt-5-nano'
+        model: 'gpt-5-chat-latest'
     });
 
     if (message.channel.isDMBased() && !DEV) {
