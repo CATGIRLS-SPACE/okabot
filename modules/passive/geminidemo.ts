@@ -144,27 +144,27 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    // response = await ai.models.generateContent({
-    //     model: 'gemini-2.5-pro',
-    //     contents,
-    //     config: {
-    //         thinkingConfig: {
-    //             includeThoughts: false,
-    //         },
-    //         tools: disable_search?[]:[{ googleSearch: {} }],
-    //         temperature: 1.0
-    //     },
-    // }).catch(err => {
-    //     message.reply({
-    //         content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
-    //     });
-    //     return null;
-    // });
-
-    response = await openai.chat.completions.create({
-        messages: [{role:'user',content:prompt}],
-        model: 'gpt-5-chat-latest' 
+    response = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents,
+        config: {
+            thinkingConfig: {
+                includeThoughts: false,
+            },
+            tools: disable_search?[]:[{ googleSearch: {} }],
+            temperature: 1.0
+        },
+    }).catch(err => {
+        message.reply({
+            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
+        });
+        return null;
     });
+
+    // response = await openai.chat.completions.create({
+    //     messages: [{role:'user',content:prompt}],
+    //     model: 'gpt-5-chat-latest' 
+    // });
 
     if (!response) return;
 
@@ -182,11 +182,11 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     // }
 
     if (message.channel.isDMBased() && !DEV) {
-        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.choices[0].message.content}`);
+        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.text}`);
     }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string);
+        const response_data: {tool:string,reply:string} = JSON.parse(response.text as string);
         response_data.reply = response_data.reply.replaceAll('@', '');
 
         if (response_data.tool.startsWith('save2mem')) {
@@ -227,7 +227,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
         });
 
         // create a new conversation chain
@@ -251,7 +251,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             ]
         }
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.choices[0].message.content}\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\`` });
     }
 }
 
@@ -316,20 +316,37 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     let response;
 
-    response = await openai.chat.completions.create({
-        messages: [{
-            role: 'user',
-            content: prompt
-        }],
-        model: 'gpt-5-chat-latest'
+    // response = await openai.chat.completions.create({
+    //     messages: [{
+    //         role: 'user',
+    //         content: prompt
+    //     }],
+    //     model: 'gpt-5-chat-latest'
+    // });
+
+    response = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents: {text:prompt},
+        config: {
+            thinkingConfig: {
+                includeThoughts: false,
+            },
+            tools: chain.disable_search?[]:[{ googleSearch: {} }],
+            temperature: 1.0
+        },
+    }).catch(err => {
+        message.reply({
+            content: `:warning: An error occured with your query:\n\`\`\`${err}\`\`\``
+        });
+        return null;
     });
 
     if (message.channel.isDMBased() && !DEV) {
-        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.choices[0].message.content}`);
+        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response!.text}`);
     }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response.choices[0].message.content as string || '{"tool":"","reply":":zzz: *silence...*"}');
+        const response_data: {tool:string,reply:string} = JSON.parse(response!.text || '{"tool":"","reply":":zzz: *silence...*"}');
         response_data.reply = response_data.reply.replaceAll('@', '');
 
         if (response_data.tool.startsWith('save2mem')) {
@@ -371,11 +388,11 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         
         if (message.channel.isDMBased()) {
             reply = await channel.send({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
             });
         } else {
             reply = await message.reply({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response.model}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
             });
         }
 
@@ -389,7 +406,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.choices[0].message.content}\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response!.text}\`` });
     }
 }
 
