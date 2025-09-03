@@ -142,7 +142,7 @@ import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import {HandleCommandCraft} from "./modules/interactions/craft";
 import { SetupStocks } from "./modules/okash/stock";
 import {PetParseTextCommand} from "./modules/pet/textCommands";
-import {LoadSpecialUsers} from "./util/users";
+import {HARD_BAN, LoadSpecialUsers} from "./util/users";
 import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
 import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
@@ -394,6 +394,12 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
+    if (HARD_BAN.includes(interaction.user.id)) {
+        return interaction.reply({
+            content: ':x: Error: Hard Ban. You cannot use okabot.'
+        }); 
+    }
+
     // if a user is super banned, okabot will stop here
     if (IsUserBanned(interaction.user.id)) {
         const profile = GetUserProfile(interaction.user.id);
@@ -457,6 +463,8 @@ client.on(Events.MessageCreate, async message => {
         return; // don't listen to my own messages
     }
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
+
+    if (HARD_BAN.includes(message.author.id)) return;
 
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     

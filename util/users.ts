@@ -8,11 +8,13 @@ import {DEV} from "../index";
 const SUPPORTERS = new Map<Snowflake, 'ko-fi' | 'booster' | 'granted'>();
 const TESTERS = new Map<Snowflake, 'cgc-beta' | 'public'>();
 const DEVELOPERS = new Map<Snowflake, 'developer' | 'contributor'>();
+export const HARD_BAN: Array<Snowflake> = [];
 
 interface UsersFile {
     supporters: Array<{name: string, id: Snowflake, type:'ko-fi'|'booster'|'granted'}>,
     developers: Array<{name: string, id: Snowflake, type:'developer'|'contributor'}>,
     testers: Array<{name: string, id: Snowflake, type:'cgc-beta'|'public'}>,
+    hard_bans: Array<Snowflake>,
 }
 
 export function LoadSpecialUsers(dirname: string) {
@@ -30,6 +32,10 @@ export function LoadSpecialUsers(dirname: string) {
     users_json.testers.forEach(tester => {
         TESTERS.set(tester.id, tester.type);
         if (DEV) debug('users', `${tester.name} is a tester (${tester.type})`);
+    });
+    users_json.hard_bans.forEach(user => {
+        HARD_BAN.push(user);
+        if (DEV) debug('users', `ID ${user} is banned from ai`);
     });
 }
 

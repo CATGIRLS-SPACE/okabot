@@ -186,7 +186,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response.text as string);
+        const response_data: {tool:string,reply:string} = JSON.parse((response.text as string).replaceAll('@',''));
         response_data.reply = response_data.reply.replaceAll('@', '');
 
         if (response_data.tool.startsWith('save2mem')) {
@@ -346,7 +346,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     }
 
     try {
-        const response_data: {tool:string,reply:string} = JSON.parse(response!.text || '{"tool":"","reply":":zzz: *silence...*"}');
+        const response_data: {tool:string,reply:string} = JSON.parse((response?.text as string).replaceAll('@','') || '{"tool":"","reply":":zzz: *silence...*"}');
         response_data.reply = response_data.reply.replaceAll('@', '');
 
         if (response_data.tool.startsWith('save2mem')) {
