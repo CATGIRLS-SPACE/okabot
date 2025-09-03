@@ -453,7 +453,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 
 client.on(Events.MessageCreate, async message => {
     if (message.author.id == client.user!.id) { 
-        await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
+        // await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
         return; // don't listen to my own messages
     }
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
