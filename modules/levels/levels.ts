@@ -179,6 +179,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         num_color = profile.customization.level_banner.hex_num;
     }
 
+    let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+
     // Background color
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
     gradient.addColorStop(0, '#271e2e');
@@ -187,7 +189,6 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.fillRect(0, 0, width, height);
 
     // why do we have to force fetch the user? idk, it's dumb
-    let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
     if (!override_user_with && profile.customization.level_bg_override != '') {
         banner_url = profile.customization.level_bg_override;
         console.log(`profile banner override is selected: ${banner_url}`)
@@ -195,6 +196,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
+        writeFileSync(join(BASE_DIRNAME, 'temp', 'banner.gif'), banner_buffer);
         const banner_img = await loadImage(banner_buffer);
         // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
         console.log('before:', banner_img.width, banner_img.height);

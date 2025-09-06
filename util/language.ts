@@ -221,6 +221,22 @@ const LANGUAGE_EN: Language = {
     'item.sticker': ':crystal_ball: Sticker Kit'
 };
 
+const LANGUAGE_ES: Language = {
+    'interaction.okash': `${GetEmoji('okash')} **{1}**, tú tienes OKA**{2}** en tú billetero y OKA**{3}** en tú banco!\nHay multas ${GetEmoji(EMOJI.OKASH)} OKA**{4}** en el banco.`,
+
+    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: ¡Heck sí! ¡Tu tienes una racha de {1} día! ¡Tú recibir un bono ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
+    'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
+    'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
+    'interaction.daily.needtowait': ':crying_cat_face: It\'s too early, **{1}**! Come back <t:{2}:R> to claim your daily reward!',
+    'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}! Your daily reward is ready to claim!`,
+    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} Okaaay, I'll ping you in this channel when your daily is ready!`,
+    'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
+    'interaction.daily.reminder.button': 'Remind Me',
+    'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
+};
+
 const LANGUAGE_JA: Language = {
     'debug.helloworld': '世界こんにちは！あなたのロカールは{1}',
 
@@ -338,7 +354,7 @@ const LANGUAGE_BR: Language = {
 
 export function LangGetFormattedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // try to get ID, fallback to english if it doesn't exist, and finally fallback to failure string
-    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
+    let item = ({en:LANGUAGE_EN[id],ja:LANGUAGE_JA[id],br:LANGUAGE_BR[id],es:LANGUAGE_ES[id]}[locale]) || LANGUAGE_EN[id] || `[unknown language string \`${id}\`]`;
 
     for (let i = 0; i < params.length; i++) {
         // console.log(`{${i + 1}} replace with`, params[i]);
@@ -357,7 +373,7 @@ const STRING_CACHE: {[key: string]: {[key: string]: string}} = {
 
 export async function LangGetAutoTranslatedString(id: LANG_DEBUG | LANG_INTERACTION | LANG_RENDER | LANG_GAMES | LANG_ITEMS, locale: string, ...params: (string | number)[]) {
     // if it's not a supported locale then we use auto-translate
-    if (locale != 'en' && locale != 'en-US' && locale != 'en-GB' && locale != 'ja') {
+    if (locale != 'en' && locale != 'en-US' && locale != 'en-GB' && locale != 'ja' && !locale.startsWith('es')) {
         let item = LANGUAGE_EN[id] || `[translation error: string \`${id}\` does not exist]`;
         for (let i = 0; i < params.length; i++) {
             item = item.replaceAll(`{${i + 1}}`, params[i].toString());

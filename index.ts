@@ -9,13 +9,10 @@ import {
     EmbedBuilder,
     Events,
     GatewayIntentBits,
-    Locale,
     MessageFlags,
     Partials,
     Snowflake,
     TextChannel,
-    ActivityType, User,
-    PermissionsBitField,
     PermissionFlagsBits
 } from "discord.js";
 
@@ -92,7 +89,7 @@ const DEPLOY_COMMANDS = process.argv.includes('--deploy');
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
 import {HandleCommandCoinflipV2} from "./modules/okash/games/coinflip";
-import {CheckBlackjackSilly, HandleCommandBlackjackV2, SetupBlackjackMessage} from "./modules/okash/games/blackjack";
+import {CheckBlackjackSilly, HandleCommandBlackjackV2} from "./modules/okash/games/blackjack";
 import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
@@ -104,7 +101,7 @@ import {HandleCommandPockets} from "./modules/interactions/pockets";
 import {HandleCommandCustomize} from "./modules/interactions/customize";
 import {HandleCommandToggle} from "./modules/interactions/toggle";
 import {HandleCommandLevel} from "./modules/levels/levels";
-import {GenerateCoinflipDataDisplay, HandleCommandRender} from "./modules/extra/datarenderer";
+import {HandleCommandRender} from "./modules/extra/datarenderer";
 import {HandleCommandStock} from "./modules/interactions/stock";
 import {HandleCommandHelp} from "./modules/interactions/help";
 import {HandleCommandTransfer} from "./modules/interactions/transfer";
@@ -123,17 +120,17 @@ import {DoLeveling} from "./modules/levels/onMessage";
 import {CheckForAgreementMessage, CheckForRulesSimple, CheckRuleAgreement} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
-import {DoPresenceChecks, DoRandomDrops} from "./modules/passive/onMessage";
+import {DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {CheckUserIdOkashRestriction, GetUserProfile, SetupPrefs, UpdateUserProfile} from "./modules/user/prefs";
+import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs, UpdateUserProfile} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
 // import language after dev check (emojis)
 // import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
-import {CheckModerationShorthands, CheckReactionFlag, LoadWarnings} from "./modules/moderation/moderation";
+import {LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGeminiDemo} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import {AutomodAccountCreationDate} from "./modules/moderation/automod";
@@ -175,6 +172,11 @@ export const client = new Client({
  */
 export function SetListening(active: boolean) {LISTENING = active}
 
+/**
+ * Toggle a specific command listening.
+ * @param command The command to toggle
+ * @returns false if the command is now enabled, true if it is now disabled
+ */
 export function ToggleDisableOfCommand(command: string): boolean {
     if (TEMPORARILY_DISABLED_COMMANDS.includes(command)) TEMPORARILY_DISABLED_COMMANDS.splice(TEMPORARILY_DISABLED_COMMANDS.indexOf(command), 1);
     else TEMPORARILY_DISABLED_COMMANDS.push(command);
@@ -182,9 +184,13 @@ export function ToggleDisableOfCommand(command: string): boolean {
     return TEMPORARILY_DISABLED_COMMANDS.includes(command);
 }
 
+/**
+ * Reload the config file, special users, profile cache. 
+ */
 export function ReloadConfig() {
     CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
     LoadSpecialUsers(__dirname);
+    DumpProfileCache();
 }
 
 /**
@@ -234,7 +240,6 @@ async function RunPreStartupTasks() {
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
     LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
-    if (DEV) SetupStocks(__dirname);
     SetupGoodluckle();
     SetupTranslate();
     SetupGeminiDemo();
@@ -311,7 +316,6 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
-    // 'story': HandleCommandStory,
     'craft': HandleCommandCraft,
     'was-there-an-error':async (interaction: ChatInputCommandInteraction) => {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
