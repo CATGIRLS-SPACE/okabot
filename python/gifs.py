@@ -1,12 +1,20 @@
 from PIL import Image
 import imageio
 import sys
+import os
 
 new_width = 600
 
 banner = Image.open(sys.argv[1])
 overlay = Image.open(sys.argv[2])
 frames = []
+
+print(banner, overlay)
+
+if not hasattr(banner, 'n_frames'):
+    print('banner has no n_frames attr')
+    imageio.save(sys.argv(3), [banner.copy()])
+    exit()
 
 for frame in range(banner.n_frames if hasattr(banner, 'n_frames') else 1):
     banner.seek(frame)
@@ -29,4 +37,4 @@ for frame in range(banner.n_frames if hasattr(banner, 'n_frames') else 1):
     canvas.paste(overlay, (0,0), overlay)
     frames.append(canvas)
 
-imageio.mimsave('generated.gif', frames, loop=0)
+imageio.mimsave(sys.argv[3], frames, loop=0)

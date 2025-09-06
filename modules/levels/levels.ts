@@ -131,7 +131,9 @@ export interface BannerSticker {
 
 const COOLDOWNS = new Map<Snowflake, number>();
 
-export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
+const RENDER_QUEUE = [];
+
+export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {    
     const d = new Date();
     if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV && !preview_sticker) {
         interaction.reply({
@@ -139,6 +141,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         });
         return true;
     }
+
+    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
 
     COOLDOWNS.set(interaction.user.id, Math.round(d.getTime()/1000) + 30);
 
@@ -186,7 +190,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     gradient.addColorStop(0, '#271e2e');
     gradient.addColorStop(1, '#3c3245');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+
+    let IS_GIF_BANNER = false;
 
     // why do we have to force fetch the user? idk, it's dumb
     if (!override_user_with && profile.customization.level_bg_override != '') {
@@ -196,18 +201,23 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
-        writeFileSync(join(BASE_DIRNAME, 'temp', 'banner.gif'), banner_buffer);
-        const banner_img = await loadImage(banner_buffer);
+        // const banner_img = await loadImage(banner_buffer);
         // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
-        console.log('before:', banner_img.width, banner_img.height);
-        let new_width = 600;
-        let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
-        console.log('after:', new_width, new_height);
-        ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+        // console.log('before:', banner_img.width, banner_img.height);
+        // let new_width = 600;
+        // let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+        // console.log('after:', new_width, new_height);
+        // ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+        
+        // don't draw anymore and rather we will save it and invoke the python script
+        writeFileSync(join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`), banner_buffer);
+        IS_GIF_BANNER = true;
+
         // darken with a slightly-transparent rectangle
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
         ctx.fillRect(0, 0, width, height);
     }
+    else ctx.fillRect(0, 0, width, height);
 
     // User profile photo because we're gangsta like that
     const pfp_url = interaction.user.avatarURL({extension:'png', size:128})!;
@@ -433,9 +443,22 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     
 
     // Save the image
-    const buffer = canvas.toBuffer('image/png');
-    if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
-    writeFileSync(join(BASE_DIRNAME, 'temp', 'level-banner.png'), buffer);
+    if (IS_GIF_BANNER) {
+        const buffer = canvas.toBuffer('image/png');
+        writeFileSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`), buffer);
+        await new Promise(resolve => {
+            const child = spawn('python3', [
+                join(BASE_DIRNAME, 'python', 'gifs.py'), 
+                join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`),
+                join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`),
+                join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`)
+            ]);
+            child.on('close', resolve);
+        });
+    } else {
+        const buffer = canvas.toBuffer('image/png');
+        writeFileSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`), buffer);
+    }
 }
 
 
@@ -475,7 +498,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 
     const return_out = await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
     if (return_out) return;
-    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'level-banner.png'));
+    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`));
     interaction.editReply({
         content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
         files: [image]
@@ -510,6 +533,7 @@ import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../..
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
 import { CheckCompletionist, TITLES } from "../passive/achievement";
+import { spawn } from "child_process";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
