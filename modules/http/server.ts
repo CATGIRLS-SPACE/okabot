@@ -10,7 +10,7 @@ import { Server } from 'ws';
 import {PrivilegedConnections, SendLoginRequest} from "./pairing";
 import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
-const server = express();
+export const server = express();
 
 let channelId = "1321639990383476797";
 let channel: TextChannel;
