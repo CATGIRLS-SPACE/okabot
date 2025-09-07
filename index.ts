@@ -117,7 +117,7 @@ import {CreateSharedMedia, StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
 import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
-import {CheckForAgreementMessage, CheckForRulesSimple, CheckRuleAgreement} from "./modules/user/rules";
+import {CheckForAgreementMessage, CheckForRuleReact, CheckForRulesSimple, CheckRuleAgreement, TextBasedRules} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {DoRandomDrops} from "./modules/passive/onMessage";
@@ -488,6 +488,8 @@ client.on(Events.MessageCreate, async message => {
         return;
     }
 
+    if (message.content.startsWith('o.rules')) TextBasedRules(message);
+
     if (!rules) return; // don't listen to non-rule-agreeing users
     if (CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
 
@@ -617,6 +619,7 @@ const COOKIES_STORE: {[key: string]: Array<Snowflake>} = {};
 const COOKIES_COOLDOWN = new Map<Snowflake, number>();
 
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
+    if (reaction.emoji.name == '🆗') return CheckForRuleReact(await reaction.fetch(), await reactor.fetch());
     if (reaction.emoji.name == '🍡') {
         const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
         const message = await channel.messages.fetch(reaction.message.id);

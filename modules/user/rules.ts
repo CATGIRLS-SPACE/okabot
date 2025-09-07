@@ -6,11 +6,14 @@ import {
     EmbedBuilder,
     Message,
     MessageFlags,
+    MessageReaction,
     Snowflake,
-    TextChannel
+    TextChannel,
+    User
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
+import { client } from "../..";
 
 
 const agreement = new EmbedBuilder()
@@ -123,4 +126,29 @@ export async function CheckForRulesSimple(user_id: Snowflake): Promise<boolean> 
 
     // hasn't agreed to rules
     return false;
+}
+
+const rule_messages = new Map<Snowflake, Snowflake>();
+
+export async function TextBasedRules(message: Message) {
+    if (await CheckForRulesSimple(message.author.id)) return message.reply({content:'You\'ve already agreed to the rules!',embeds:[agreement]});
+
+    const reply = await message.reply({embeds:[agreement]});
+    reply.react('🆗');
+
+    rule_messages.set(message.author.id, reply.id);
+}
+
+export async function CheckForRuleReact(reaction: MessageReaction, reactor: User) {
+    if (rule_messages.get(reactor.id) == reaction.message.id) {
+        const profile = GetUserProfile(reactor.id);
+        profile.accepted_rules = true;
+        profile.consents_to_statistics = true;
+        UpdateUserProfile(reactor.id, profile);
+        (await reaction.message.fetch()).edit({
+            content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${reactor.displayName}**, you've agreed to the rules! Have fun with okabot!\nYou can run this command again at any time to see the rules.`,
+            embeds:[]
+        });
+        rule_messages.delete(reactor.id);
+    }
 }
