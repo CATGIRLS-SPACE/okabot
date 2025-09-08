@@ -22,7 +22,7 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
 
         case 'preferred-pronouns':
             if (interaction.locale != Locale.EnglishUS && interaction.locale != Locale.EnglishGB) {
-                let message = 'Sorry, but this feature is not supported on your selected language. Change your Discord language to English to use this feature.';
+                const message = 'Sorry, but this feature is not supported on your selected language. Change your Discord language to English to use this feature.';
                 return interaction.reply(message);
             }
             const preferred = interaction.options.getString('pronouns', true);

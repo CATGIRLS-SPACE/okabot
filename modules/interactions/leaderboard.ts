@@ -47,7 +47,7 @@ async function OkashLeaderboard(interaction: ChatInputCommandInteraction, only_s
 
     
     let i = 0;
-    let fields: Array<APIEmbedField> = [];
+    const fields: Array<APIEmbedField> = [];
 
     for (const balance of balances) {
         if (i == 5) break;
@@ -98,7 +98,7 @@ async function LevelsLeaderboard(interaction: ChatInputCommandInteraction, only_
 
     
     let i = 0;
-    let fields: Array<APIEmbedField> = [];
+    const fields: Array<APIEmbedField> = [];
 
     for (const entry of levels) {
         if (i == 5) break;

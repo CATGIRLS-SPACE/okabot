@@ -92,7 +92,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1) {
-        let violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
+        const violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
 
         console.log(`violations: ${violations}`);
 
@@ -156,7 +156,7 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         picked_side = win?'tails':'heads';
     }
         
-    let first_message = format(STRINGS['flipping'][locale], 
+    const first_message = format(STRINGS['flipping'][locale], 
         interaction.user.displayName, 
         `${GetEmoji(EMOJI.OKASH)} OKA**${bet}**`, 
         STRINGS[side || 'heads'][locale]);
@@ -281,7 +281,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // interaction.deferReply();
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1 || CheckGambleLock(interaction.user.id)) {
-        let violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
+        const violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
 
         console.log(`violations: ${violations}`);
 

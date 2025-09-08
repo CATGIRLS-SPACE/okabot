@@ -14,10 +14,10 @@ export async function WordleCheck(message: Message) {
             });
         }
 
-        let d = new Date();
+        const d = new Date();
         const month = d.getMonth()+1<10?`0${d.getMonth()+1}`:d.getMonth()+1;
         const day = d.getDate()<10?`0${d.getDate()}`:d.getDate();
-        let date = `${d.getFullYear()}-${month}-${day}`; // format date to match the wordle api
+        const date = `${d.getFullYear()}-${month}-${day}`; // format date to match the wordle api
 
         let data, json, word;
 

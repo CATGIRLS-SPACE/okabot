@@ -161,7 +161,7 @@ async function SubcommandBuy(message: Message, args: Array<string>) {
         content: ':x: Invalid buy option. Valid options are `' + allowed_buy_type.join(', ') + '`'
     });
 
-    let profile = GetUserProfile(message.author.id);
+    const profile = GetUserProfile(message.author.id);
     const okash = GetWallet(message.author.id);
 
     switch (args[2]) {

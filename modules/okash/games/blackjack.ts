@@ -209,7 +209,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
 
     BetRecovery.set(interaction.user.id, bet);
 
-    let this_deck = CloneArray(DECK);
+    const this_deck = CloneArray(DECK);
     ShuffleCards(this_deck);
     const card_theme = GetUserProfile(interaction.user.id).customization.games.card_deck_theme;
     const trackable = GetUserProfile(interaction.user.id).customization.games.equipped_trackable_deck;
@@ -518,7 +518,7 @@ function ShuffleCards(array: Array<HandCard>) {
     while (currentIndex != 0) {
 
         // Pick a remaining element...
-        let randomIndex = Math.floor(Math.random() * currentIndex);
+        const randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
 
         // And swap it with the current element.

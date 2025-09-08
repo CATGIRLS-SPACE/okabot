@@ -55,7 +55,7 @@ const tradable_items: {[key: string]: {type:'item'|'cust', id: ITEMS | CUSTOMIZA
 
 export async function HandleCommandTrade(interaction: ChatInputCommandInteraction) {
     const item = interaction.options.getString('item', true).toLowerCase();
-    let sender_profile = GetUserProfile(interaction.user.id);
+    const sender_profile = GetUserProfile(interaction.user.id);
     const receiver = interaction.options.getUser('to', true);
 
     if (receiver.bot) return interaction.reply({

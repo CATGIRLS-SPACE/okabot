@@ -37,7 +37,7 @@ export async function ACLoadHookModule(name: string, expected_version: string): 
             throw new Error('okabot_ac_hook_test is not a function');
         }
 
-        let hook_version = hookModule.okabot_ac_hook_test();
+        const hook_version = hookModule.okabot_ac_hook_test();
         if (hook_version !== expected_version) 
             throw new Error('hook version does not match expected version');
         

@@ -18,7 +18,7 @@ import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
 import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
 
-let XPCooldown: Map<string, number> = new Map<string, number>();
+const XPCooldown: Map<string, number> = new Map<string, number>();
 
 export async function DoLeveling(message: Message) {
     // no spamming for levels allowed

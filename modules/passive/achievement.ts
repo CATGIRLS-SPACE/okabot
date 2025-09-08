@@ -293,7 +293,7 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     }
 
     let list = `## Achievements\n`;
-    let selected_achievements = [];
+    const selected_achievements = [];
     const difficulty = {
         'e': GetEmoji(EMOJI.DIFF_EASY),
         't': GetEmoji(EMOJI.DIFF_TRICKY),
@@ -353,8 +353,8 @@ async function GenerateAchievementsBanner(user_id: Snowflake, achievement_count:
         const banner_img = await loadImage(banner_buffer);
         // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
         console.log('before:', banner_img.width, banner_img.height);
-        let new_width = 600;
-        let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+        const new_width = 600;
+        const new_height = banner_img.height * (600/banner_img.width); // i cant anymore
         console.log('after:', new_width, new_height);
         ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
         // darken with a slightly-transparent rectangle
@@ -438,13 +438,13 @@ async function GenerateAchievementsBanner(user_id: Snowflake, achievement_count:
 
 // for word wrapping
 function getLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number) {
-    var words = text.split(" ");
-    var lines = [];
-    var currentLine = words[0];
+    const words = text.split(" ");
+    const lines = [];
+    let currentLine = words[0];
 
-    for (var i = 1; i < words.length; i++) {
-        var word = words[i];
-        var width = ctx.measureText(currentLine + " " + word).width;
+    for (let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = ctx.measureText(currentLine + " " + word).width;
         if (width < maxWidth) {
             currentLine += " " + word;
         } else {

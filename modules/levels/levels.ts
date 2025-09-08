@@ -156,7 +156,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
 
     // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
 
-    let LEVEL_NAMES = {'en-US':LEVEL_NAMES_EN,'en-GB':LEVEL_NAMES_EN,'ja':LEVEL_NAMES_JA}[interaction.okabot.translateable_locale];
+    const LEVEL_NAMES = {'en-US':LEVEL_NAMES_EN,'en-GB':LEVEL_NAMES_EN,'ja':LEVEL_NAMES_JA}[interaction.okabot.translateable_locale];
     let LEVEL_NAME;
     if (!LEVEL_NAMES) LEVEL_NAME = await LangGetAutoTranslatedStringRaw(LEVEL_NAMES_EN[profile.leveling.level - 1], interaction.okabot.translateable_locale);
     else LEVEL_NAME = LEVEL_NAMES[profile.leveling.level - 1];

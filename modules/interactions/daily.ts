@@ -102,9 +102,9 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             'electrical':`**${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical**`,
         };
         const profile = GetUserProfile(interaction.user.id);
-        let scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
+        const scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
         shuffle(scrap_types);
-        let scrap_message_parts = [];
+        const scrap_message_parts = [];
         for (let i = 0; i < 3; i++) {
             const amount_given = 5 + Math.floor(Math.random() * 10);
             profile.inventory_scraps[scrap_types[i]] += amount_given;
@@ -126,7 +126,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             const ready = d.getTime() + (24*60*60*1000);
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
 
-            let previous_content = i.message;
+            const previous_content = i.message;
         
             i.update({
                 content: `${previous_content}\n\n` + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale),
@@ -158,9 +158,9 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         'electrical':`**${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical**`,
     };
     const profile = GetUserProfile(interaction.user.id);
-    let scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
+    const scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
     shuffle(scrap_types);
-    let scrap_message_parts = [];
+    const scrap_message_parts = [];
     for (let i = 0; i < 3; i++) {
         const amount_given = 5 + Math.floor(Math.random() * 10);
         profile.inventory_scraps[scrap_types[i]] += amount_given;
@@ -187,7 +187,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
     collector.on('collect', async i => {
         // remind me button
-        let previous_content = i.message;
+        const previous_content = i.message;
 
         // requires supporter
         if ((GetUserSupportStatus(i.user.id) != 'ko-fi' && GetUserTesterStatus(i.user.id) != 'cgc-beta' && i.guildId != '1348652647963561984')) return i.update({
@@ -214,7 +214,7 @@ function shuffle(array: Array<string>) {
     while (currentIndex != 0) {
 
         // Pick a remaining element...
-        let randomIndex = Math.floor(Math.random() * currentIndex);
+        const randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
 
         // And swap it with the current element.

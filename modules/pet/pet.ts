@@ -113,8 +113,8 @@ export function PetGetLikedFoodValue(seed: number, food: PetFood, favorite: PetF
     // will always return favorite for predetermined favorite food
     if (food == favorite) return PetLikeValue.FAVORITE;
 
-    let values = [0,1,2,3];
-    let picked = values[((1664525 * (seed + (food*3%5)) * (1013904223)) % (2 ** 32)) % 3];
+    const values = [0,1,2,3];
+    const picked = values[((1664525 * (seed + (food*3%5)) * (1013904223)) % (2 ** 32)) % 3];
     if (picked != 3) return picked; else return 2; // can't return 3 because that's favorite
 }
 
@@ -125,7 +125,7 @@ export function PetGetLikedActivityValue(seed: number, activity: PetActivity, fa
     // will always return favorite for predetermined favorite activity
     if (activity == favorite) return PetLikeValue.FAVORITE;
 
-    let values = [0,1,2,3];
-    let picked = values[((1664525 * (seed + (activity*3%5)) * (1013904223)) % (2 ** 32)) % 3];
+    const values = [0,1,2,3];
+    const picked = values[((1664525 * (seed + (activity*3%5)) * (1013904223)) % (2 ** 32)) % 3];
     if (picked != 3) return picked; else return 2; // can't return 3 because that's favorite
 }

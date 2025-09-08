@@ -12,7 +12,7 @@ import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
 export const server = express();
 
-let channelId = "1321639990383476797";
+const channelId = "1321639990383476797";
 let channel: TextChannel;
 
 const L = new Logger('http');

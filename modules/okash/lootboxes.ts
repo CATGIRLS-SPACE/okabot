@@ -67,8 +67,8 @@ export function rareLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TY
     const time = Math.round(new Date().getTime() / 1000);
     
     if (roll >= 150) { // if the roll is greater than 150, give Okash (85% chance to get okash)
-        let max = 2500;
-        let min = 500;
+        const max = 2500;
+        const min = 500;
         const moneyAmount = Math.floor(Math.random() * (max-min)) + min;  // Random between 500-2500
 
         return { 

@@ -186,7 +186,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     cookies: 0
 }
 
-var PROFILES_DIR: string | null = null;
+let PROFILES_DIR: string | null = null;
 
 const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
@@ -337,7 +337,7 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
     const profiles = readdirSync(GetProfilesDir());
     
     profiles.forEach(profile => {
-        let user_id = profile.split('.')[0];
+        const user_id = profile.split('.')[0];
         const p = GetUserProfile(user_id);
         all.push({user_id, level: p.leveling || {level: 0, current_xp: 0}});
     });

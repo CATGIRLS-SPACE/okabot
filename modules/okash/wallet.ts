@@ -86,7 +86,7 @@ export function GetBank(user_id: string): number {
 }
 
 export function GetAllWallets(): Array<{user_id: string, amount: number}> {
-    let wallets: Array<{user_id: string, amount: number}> = [];
+    const wallets: Array<{user_id: string, amount: number}> = [];
 
     readdirSync(join(BASE_DIRNAME, 'profiles')).forEach(file => {
         const user_id: string = file.split('.oka')[0];

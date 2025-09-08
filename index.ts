@@ -1,31 +1,4 @@
 const START_TIME_MS = (new Date()).getTime();
-const STARTUP_LOG: Array<string> = [];
-
-function captureStdout() {
-    const oldWrite = process.stdout.write; // keep raw reference
-
-    // our replacement
-    function newWrite(
-        chunk: any,
-        encoding?: BufferEncoding | ((err?: Error | null) => void),
-        callback?: (err?: Error | null) => void
-    ): boolean {
-        // normalize chunk to string
-        const str = Buffer.isBuffer(chunk) ? chunk.toString() : String(chunk);
-        STARTUP_LOG.push(str);
-
-        // call the original write with correct `this`
-        return (oldWrite as any).call(process.stdout, chunk, encoding, callback);
-    }
-
-    process.stdout.write = newWrite as typeof process.stdout.write;
-
-    return () => {
-        process.stdout.write = oldWrite; // restore
-    };
-}
-
-const endCapture = captureStdout();
 
 import {Logger} from "okayulogger";
 import {existsSync, readFileSync, rmSync, writeFileSync} from "fs";
@@ -103,11 +76,11 @@ export let CONFIG: {
     minecraft_relay_key: string,
     OPENAI_API_KEY: string,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-export var DEV: boolean = CONFIG.extra.includes('use dev token');
+export const DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
 // some constants
 export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
-export const COMMIT = require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7);
+export const COMMIT = execSync('git rev-parse HEAD').toString().trim().slice(0, 7);
 export let LISTENING = true;
 // non-exported
 const NO_LAUNCH = process.argv.includes('--no-launch');
@@ -150,12 +123,10 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoRandomDrops} from "./modules/passive/onMessage";
 import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs, UpdateUserProfile} from "./modules/user/prefs";
+import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
-// import language after dev check (emojis)
-// import {LANG_DEBUG, LangGetFormattedString} from "./util/language";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGeminiDemo} from "./modules/passive/geminidemo";
@@ -164,7 +135,6 @@ import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import {HandleCommandCraft} from "./modules/interactions/craft";
-import { SetupStocks } from "./modules/okash/stock";
 import {PetParseTextCommand} from "./modules/pet/textCommands";
 import {HARD_BAN, LoadSpecialUsers} from "./util/users";
 import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
@@ -172,6 +142,7 @@ import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
+import { execSync } from "child_process";
 
 
 export const client = new Client({
@@ -294,7 +265,6 @@ async function RunPostStartupTasks() {
     }
 
     L.info(`Startup finished in ${(new Date()).getTime() - START_TIME_MS}ms!`);
-    endCapture();
 }
 
 export function SetActivity(name: string, type: number) {
@@ -555,7 +525,7 @@ client.on(Events.MessageCreate, async message => {
     
     if (message.reference) {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);
-        let reference = await (message.channel as TextChannel).messages.fetch(message.reference!.messageId!);
+        const reference = await (message.channel as TextChannel).messages.fetch(message.reference!.messageId!);
         if (!reference) return;
         if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
     }
@@ -565,7 +535,7 @@ client.on(Events.MessageCreate, async message => {
         let final_message = message.content;
 
         if (message.reference) {
-            let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
+            const reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!;
             final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
         }
 

@@ -458,7 +458,7 @@ function DoEventCheck(c: Client): boolean {
     if (Math.floor(Math.random() * 50) != 5) return false;
 
     L.info('event is happening!');
-    let BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
+    const BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 
 
     // yes, what event?
     LastEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];

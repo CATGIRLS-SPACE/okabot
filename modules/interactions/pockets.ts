@@ -99,9 +99,9 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         }
     } else if (page == 'items') {
         const inventory = GetInventory(interaction.user.id);
-        let counts: any = {};
+        const counts: any = {};
 
-        for (let item in inventory) {
+        for (const item in inventory) {
             if (counts[inventory[item]]) counts[inventory[item]]++;
             else counts[inventory[item]] = 1;
         }

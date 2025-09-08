@@ -323,7 +323,7 @@ export async function RenderCasinoDB(interaction: ChatInputCommandInteraction) {
     // first bar, winloss all
     let bar_start_x = 25;
     let bar_start_y = 50;
-    let bar_width = 500;
+    const bar_width = 500;
     let bar_height = 25;
 
     ctx.fillStyle = '#fff';

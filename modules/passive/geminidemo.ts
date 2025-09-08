@@ -57,7 +57,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    let inline_data = [];
+    const inline_data = [];
     let has_images = false;
 
     for (const attachment of message.attachments.values()) {
@@ -132,7 +132,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     let response;
 
-    let contents: any[] = [ {text:prompt} ];
+    const contents: any[] = [ {text:prompt} ];
     if (has_images) {
         inline_data.forEach(item => {
             contents.push({
@@ -443,7 +443,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import OpenAI from 'openai';
 import axios from 'axios';
 
-let ENCODER = new TextEncoder();
+const ENCODER = new TextEncoder();
 
 export async function SetupGeminiDemo() {
     P_AES_KEY = CONFIG.aes_key;

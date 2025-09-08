@@ -8,7 +8,7 @@ import { Achievements, GrantAchievement } from "../passive/achievement";
 
 const L = new Logger('voice xp');
 
-let VoiceData: Map<string, number> = new Map<string, number>();
+const VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
     const d = new Date();
@@ -45,7 +45,7 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         
         // calculate amount of XP to award
         let xp_gained = 0;
-        let minutes_elapsed = Math.floor((event_time - VoiceData.get(newState.member!.id)!) / 60);
+        const minutes_elapsed = Math.floor((event_time - VoiceData.get(newState.member!.id)!) / 60);
         if (minutes_elapsed == 0) return;
         for (let i = 0; i <= minutes_elapsed; i++) xp_gained += Math.floor(Math.random() * 7) + 3;
         
@@ -65,7 +65,7 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
     }
 
     // update voice DB
-    let writeable: {[key: string]: number} = {};
+    const writeable: {[key: string]: number} = {};
 
     VoiceData.forEach((val, key) => {
         writeable[key] = val;

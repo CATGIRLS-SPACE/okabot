@@ -43,13 +43,13 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         });
     }
 
-    let sender_bank_amount = GetWallet(sender_id);
-    let receiver_bank_amount = GetWallet(receiver_id);
+    const sender_bank_amount = GetWallet(sender_id);
+    const receiver_bank_amount = GetWallet(receiver_id);
     
     const sender_prefs = GetUserProfile(interaction.user.id);
     const receiver_prefs = GetUserProfile(receiver_id);
 
-    let pay_amount = Math.floor(interaction.options.getNumber('amount')!);
+    const pay_amount = Math.floor(interaction.options.getNumber('amount')!);
 
     if (pay_amount < 0) {
         return interaction.editReply({

@@ -41,7 +41,7 @@ export class MESYFile {
     }
 
     public getAllKeysAndValues(): {[key: string]: string} {
-        let p: {[key: string]: string} = {};
+        const p: {[key: string]: string} = {};
         for (const key of this.pairs.keys()) p[key] = this.pairs.get(key)!;
         return p;
     }

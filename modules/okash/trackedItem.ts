@@ -119,7 +119,7 @@ export function UpdateTrackedItem(serial: string, data: {property:'name',value:s
 
 function generateUUID() {
   const chars = '0123456789abcdef';
-  let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8); // Fix for variant digit, see explanation below
     return chars[v];

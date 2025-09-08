@@ -169,7 +169,7 @@ export function RegisterAllShorthands() {
 
             switch (types[params[4]]) {
                 case 'number':
-                    let value = parseInt(params[5]);
+                    const value = parseInt(params[5]);
                     if (Number.isNaN(value)) throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
                     daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
                     break;
@@ -214,7 +214,7 @@ export function RegisterAllShorthands() {
 
                 switch(types[params[4]]) {
                     case 'number':
-                        let value = parseInt(params[6]);
+                        const value = parseInt(params[6]);
                         if (Number.isNaN(value)) throw new Error(`invalid value '${params[6]}' for type '${types[params[4]]}'`);
                         if (params[5] == 'add') {
                             if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]].push(value);
@@ -347,10 +347,10 @@ export function RegisterAllShorthands() {
         // check if anyone has an active casino pass
         const time = new Date().getTime()/1000;
         const passes: {[key: string]: number} = {};
-        for (let entry of PassesActive.entries()) {
+        for (const entry of PassesActive.entries()) {
             if (entry[1] > time) passes[entry[0]] = entry[1];
         }
-        for (let entry of BoostsActive.entries()) {
+        for (const entry of BoostsActive.entries()) {
             if (!passes[entry[0]] && entry[1] > time) passes[entry[0]] = entry[1];
         }
 
@@ -449,8 +449,8 @@ export function RegisterAllShorthands() {
     RegisterShorthand('oka peek', async (message: Message, params: string[]) => {
         // if (params.length < 4) return message.reply('not enough params: format: \`oka peek <them | me | Snowflake> <query>\`\n-# query results cannot be over 2000 characters!');
         const user = GetUserProfile(params[2]);
-        let formatted = formatUserProfileAsText(user);
-        let results = formatted
+        const formatted = formatUserProfileAsText(user);
+        const results = formatted
             .replaceAll('customization', 'c')
             .replaceAll('leveling', 'l')
             .replaceAll('daily', 'd')
