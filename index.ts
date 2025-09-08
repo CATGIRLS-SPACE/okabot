@@ -1,4 +1,31 @@
 const START_TIME_MS = (new Date()).getTime();
+const STARTUP_LOG: Array<string> = [];
+
+function captureStdout() {
+    const oldWrite = process.stdout.write; // keep raw reference
+
+    // our replacement
+    function newWrite(
+        chunk: any,
+        encoding?: BufferEncoding | ((err?: Error | null) => void),
+        callback?: (err?: Error | null) => void
+    ): boolean {
+        // normalize chunk to string
+        const str = Buffer.isBuffer(chunk) ? chunk.toString() : String(chunk);
+        STARTUP_LOG.push(str);
+
+        // call the original write with correct `this`
+        return (oldWrite as any).call(process.stdout, chunk, encoding, callback);
+    }
+
+    process.stdout.write = newWrite as typeof process.stdout.write;
+
+    return () => {
+        process.stdout.write = oldWrite; // restore
+    };
+}
+
+const endCapture = captureStdout();
 
 import {Logger} from "okayulogger";
 import {existsSync, readFileSync, rmSync, writeFileSync} from "fs";
@@ -267,6 +294,7 @@ async function RunPostStartupTasks() {
     }
 
     L.info(`Startup finished in ${(new Date()).getTime() - START_TIME_MS}ms!`);
+    endCapture();
 }
 
 export function SetActivity(name: string, type: number) {
@@ -284,7 +312,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}` + "\n```"+ STARTUP_LOG.join('\n') +"```",
             flags:[MessageFlags.Ephemeral]
         });
     },
