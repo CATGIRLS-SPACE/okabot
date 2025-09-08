@@ -1,3 +1,6 @@
+![Build](https://github.com/okawaffles/okabot/actions/workflows/build.yml/badge.svg)
+![Code Quality](https://github.com/okawaffles/okabot/actions/workflows/eslint.yml/badge.svg)
+
 # thanks to the donators/boosters! <3 you guys
 - **tacobella03** (Ko-Fi donator)
 - **ItzMeFlyer** (Ko-Fi donator)
