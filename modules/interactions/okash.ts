@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, Message, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetBank, GetWallet} from "../okash/wallet";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {GetCurrentFines} from "../okash/games/rob";
@@ -22,6 +22,24 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
             GetCurrentFines().toString()
         )
     });
+}
+
+
+export async function TextBasedOkash(message: Message) {
+    const bank = GetBank(message.author.id);
+    const wallet = GetWallet(message.author.id);
+
+    if (bank >= 1e6) GrantAchievement(message.author, Achievements.CAPITALISM, message.channel as TextChannel)
+
+    await message.reply({
+        content: LangV2GetFormatted(LANGV2_INTERACTION.OKASH,
+            'en',
+            message.author.displayName,
+            wallet.toString(),
+            bank.toString(),
+            GetCurrentFines().toString()
+        )
+    })
 }
 
 

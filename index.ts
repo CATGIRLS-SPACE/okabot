@@ -2,6 +2,7 @@ const START_TIME_MS = (new Date()).getTime();
 
 import {Logger} from "okayulogger";
 import {existsSync, readFileSync, rmSync, writeFileSync} from "fs";
+import { execSync } from "child_process";
 import {join} from "path";
 import {
     ChatInputCommandInteraction,
@@ -76,7 +77,8 @@ export let CONFIG: {
     minecraft_relay_key: string,
     OPENAI_API_KEY: string,
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-export const DEV: boolean = CONFIG.extra.includes('use dev token');
+// eslint-disable-next-line no-var
+export var DEV: boolean = CONFIG.extra.includes('use dev token');
 export function BotIsDevMode(): boolean { return DEV }
 // some constants
 export const VERSION = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8')).version;
@@ -142,7 +144,7 @@ import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
-import { execSync } from "child_process";
+import { CheckForTextCommands } from "./util/textCommandMappings";
 
 
 export const client = new Client({
@@ -282,7 +284,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}` + "\n```"+ STARTUP_LOG.join('\n') +"```",
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
@@ -373,7 +375,7 @@ client.on(Events.InteractionCreate, async interaction => {
             content: 'Sorry, there\'s currently an issue with commands in guilds that don\'t have okabot!',
             flags: [MessageFlags.SuppressNotifications]
         });
-    } catch (err) {
+    } catch {
         return console.log('Not text based, could not reply.');
     }
 
@@ -384,7 +386,7 @@ client.on(Events.InteractionCreate, async interaction => {
             interaction.reply({
                 content:':crying_cat_face: I don\'t have the right permissions to function! Please update my permissions! I require:\nread message history, add reactions, attach files, embed links, manage messages, send messages (+in threads), use application commands, use external apps, use external emojis, view channel.\n\nAlternatively, you could just check Administrator. Only do this if you absolutely trust me!'
             });
-        } catch (err) {
+        } catch {
             L.error('failed to send wrong perms message');
         }
         return;
@@ -510,6 +512,8 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
 
+    if (message.content.startsWith('o.')) CheckForTextCommands(message);
+
     if (message.channel.isDMBased()) {
         if (!CONFIG.gemini.enable) return;
         if (message.reference)
@@ -582,7 +586,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
     const is_pre_banned = RunAutoBanCheck(member.user.id);
     if (is_pre_banned) {
         const guild = client.guilds.cache.get('1019089377705611294');
-        const full_member = guild?.members.cache.get(member.user.id)!;
+        const full_member = guild!.members.cache.get(member.user.id)!;
         full_member?.ban({
             reason: 'Automatic ban by okabot (autoban list).'
         });
@@ -608,13 +612,10 @@ client.on(Events.GuildCreate, async (guild) => {
     const syschannel = await guild.channels.fetch(guild.systemChannelId);
     try {
         (syschannel as TextChannel).send(`# hi there, thanks for inviting me in!\nplease note, i've just been made public, so some features might not work properly!\nif you find any bugs, please report them at the links found in /help!\ni hope you have fun! ${GetEmoji(EMOJI.NEKOHEART)}`);
-    } catch (err) {
+    } catch {
         L.error("unable to send introduction message to system channel");
     }
 });
-
-const COOKIES_STORE: {[key: string]: Array<Snowflake>} = {};
-const COOKIES_COOLDOWN = new Map<Snowflake, number>();
 
 client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
     if (reaction.emoji.name == '🆗') return CheckForRuleReact(await reaction.fetch(), await reactor.fetch());
@@ -624,26 +625,6 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         if (message.author.id != client.user!.id) return;
         GrantAchievement(message.author, Achievements.DANGO, channel);
     }
-
-    // if (reaction.emoji.name == '🍪') {
-    //     const channel = await client.channels.fetch(reaction.message.channel.id) as TextChannel;
-    //     const message = await channel.messages.fetch(reaction.message.id);
-    //     if (message.author.id == client.user!.id || message.author.id == reactor.id) return;
-    //     if ((COOKIES_COOLDOWN.get(reactor.id) || 0) > new Date().getTime()) return;
-    //     // return channel.send({
-    //     //     content:`:bangbang: **${reactor.displayName}**, you can only give a cookie every 60 seconds!`,
-    //     //     flags: [MessageFlags.SuppressNotifications]
-    //     // });
-    //     if (!COOKIES_STORE[message.id]) COOKIES_STORE[message.id] = [];
-    //     if (COOKIES_STORE[message.id].includes(reactor.id)) return;
-    //     const profile = GetUserProfile(message.author.id);
-    //     profile.cookies++;
-    //     COOKIES_STORE[message.id].push(reactor.id);
-    //     UpdateUserProfile(message.author.id, profile);
-    //     if (profile.cookies >= 250) GrantAchievement(message.author, Achievements.COOKIES_250, channel);
-    //     GrantAchievement(reactor as User, Achievements.GIVE_COOKIE, channel);
-    //     COOKIES_COOLDOWN.set(reactor.id, new Date().getTime() + 60_000);
-    // }
 });
 
 // Error Handlers
@@ -657,11 +638,11 @@ function logError(error: Error | string) {
 }
 
 // Catch uncaught exceptions
-process.on('uncaughtException', async (reason: any) => {
+process.on('uncaughtException', async (reason: Error) => {
     L.fatal('okabot has encountered an uncaught exception!');
     last_errors.push({
         time: Math.ceil((new Date()).getTime() / 1000),
-        error: reason.stack || reason
+        error: reason.stack || '?'
     });
     console.error('Uncaught Exception:', reason);
     try {
@@ -677,11 +658,11 @@ process.on('uncaughtException', async (reason: any) => {
 });
 
 // Catch unhandled promise rejections
-process.on('unhandledRejection', async (reason: any) => {
+process.on('unhandledRejection', async (reason: Error) => {
     L.error('okabot has encountered an uncaught rejection!');
     last_errors.push({
         time: Math.ceil((new Date()).getTime() / 1000),
-        error: reason.stack || reason
+        error: reason.stack || '?'
     });
     console.error('Unhandled Rejection:', reason);
     try {
@@ -717,9 +698,7 @@ declare global {
   // augment global This so TS stops complaining
   var __okabot_started: boolean | undefined;
 }
-// @ts-ignore
 if (!globalThis.__okabot_started) {
-    // @ts-ignore
     globalThis.__okabot_started = true;
     StartBot();
 }

@@ -249,7 +249,7 @@ const LANGUAGE_JA: Language = {
     'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
     'interaction.daily.needtowait': ':crying_cat_face: **{1}**さん、あまりに早いです！ <t:{2}:R>に戻ってくります！',
     'interaction.daily.reminder': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} {1}さん！あなたの日次報酬は整うです！`,
-    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)}　は～い！日次報酬は整うとメンションしましょう！`,
+    'interaction.daily.reminder.scheduled': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} は～い！日次報酬は整うとメンションしましょう！`,
     'interaction.daily.reminder.angry': ':pouting_cat: **{1}**さん！もうあなたでメンションを言いています！',
     'interaction.daily.reminder.button': '整うとメンション',
     'interaction.daily.reminder.button_claim': 'また整うとメンション',

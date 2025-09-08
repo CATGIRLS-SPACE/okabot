@@ -3,7 +3,8 @@ import {
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
-    Locale,
+    Interaction,
+    Message,
     SlashCommandBuilder,
     TextChannel
 } from "discord.js";
@@ -14,6 +15,7 @@ import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../u
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
+import { GetLastLocale } from "../..";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
@@ -22,8 +24,6 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     const result: number = ClaimDaily(interaction.user.id, false, interaction.channel as TextChannel);
 
     if (result < 0) {
-        let response;
-
         const localizedRemindButton = new ButtonBuilder()
             .setCustomId('remindme')
             .setStyle(ButtonStyle.Primary)
@@ -38,12 +38,12 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         // must wait
         console.log(result);
-        response = await interaction.editReply({
+        const response = await interaction.editReply({
             content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_TOO_EARLY, interaction.okabot.translateable_locale, interaction.user.displayName, -result) + `\nYour current daily streak: ${profile.daily.streak} day(s)`,
             components: [earlyBar]
         });
 
-        const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+        const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
 
         const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
 
@@ -89,7 +89,6 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-        let response;
         let reply_content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale));
 
         // new! scraps!
@@ -114,12 +113,12 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         reply_content += '\nGot Scraps: ' + scrap_message_parts.join(', ') + '!';
 
-        response = await interaction.editReply({
+        const response = await interaction.editReply({
             content: reply_content,
             components: [onClaimBar]
         });
 
-        const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+        const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
         const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
         collector.on('collect', async i => {
             const d = new Date();
@@ -173,17 +172,15 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-    let response;
-
     let content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
     content += '\nGot Scraps: ' + scrap_message_parts.join(', ') + '!';
 
-    response = await interaction.editReply({
+    const response = await interaction.editReply({
         content,
         components: [onClaimBar]
     });
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
     collector.on('collect', async i => {
         // remind me button
@@ -205,6 +202,19 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         });
     });
 }
+
+
+export async function TextBasedDaily(message: Message) {
+    // const d = new Date();
+    const result = ClaimDaily(message.author.id, false, message.channel as TextChannel);
+
+    const profile = GetUserProfile(message.author.id);
+
+    if (result < 0) return message.reply({
+        content: await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_TOO_EARLY, GetLastLocale(message.author.id), message.author.displayName, -result) + `\nYour current daily streak: ${profile.daily.streak} day(s)\n-# You can't schedule reminders with text-based commands. Run /daily instead to do so!`
+    });
+}
+
 
 // from https://stackoverflow.com/questions/2450954
 function shuffle(array: Array<string>) {

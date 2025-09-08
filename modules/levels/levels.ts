@@ -1,16 +1,15 @@
 import {
     AttachmentBuilder,
     ChatInputCommandInteraction,
-    Locale,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake, User
 } from "discord.js";
 import { CheckForProfile, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import {BASE_DIRNAME, CONFIG, DEV} from "../../index";
-import { join, resolve } from "path";
-import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
-import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
+import { join } from "path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import { createCanvas, loadImage } from "canvas";
 
 
 const BAR_COLORS: {
@@ -56,47 +55,9 @@ LEVEL_DICTIONARY.forEach(item => {
     for (let i = 1; i <= item.levels; i++) LEVEL_NAMES_JA.push(`${item.name.ja} ${ROMAN_NUMERALS[i-1]}`);
 });
 
-
-// for legacy bar
-
-const CHAR_UNFILLED = '░';
-const CHAR_FILLED   = '█';
-const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
-
-export function CalculateTargetXP(level: number, prestige: number = 0): number {
-    const base = prestige * 3600;
+export function CalculateTargetXP(level: number): number {
     const amount = Math.floor(100+(35*(level-1)));
     return amount<100?100:amount; // start at 100
-}
-
-function CreateLevelBar(profile: USER_PROFILE): string {
-    let bar = '**[**';
-    const needed_xp = CalculateTargetXP(profile.leveling.level, 0);
-    const target_chars = 20;
-    const progress_ratio = profile.leveling.current_xp / needed_xp;
-    const total_filled_chars = progress_ratio * target_chars;
-    const filled_full = Math.floor(total_filled_chars); // Full blocks
-    const partial_fill = Math.round((total_filled_chars - filled_full) * 8); // Partial fill (0-8)
-    const unfilled_chars = target_chars - filled_full - 1;
-
-    // Add full blocks
-    for (let i = 0; i < filled_full; i++) {
-        bar += CHAR_FILLED;
-    }
-
-    // Add a partial block if applicable
-    if (partial_fill > 0) {
-        bar += PARTIAL_BLOCKS[partial_fill];
-    }
-
-    // Add unfilled blocks
-    for (let i = 0; i < unfilled_chars; i++) {
-        bar += CHAR_UNFILLED;
-    }
-
-    bar += '**]**';
-
-    return bar;
 }
 
 // -- new things --
@@ -130,8 +91,6 @@ export interface BannerSticker {
 }
 
 const COOLDOWNS = new Map<Snowflake, number>();
-
-const RENDER_QUEUE = [];
 
 export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {    
     const d = new Date();
@@ -291,7 +250,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.fillStyle = '#1b1630';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('TESTER', offset_width + 6, 68);
-        offset_width += 92-5;
+        offset_width += 72-5;
     }
     if (supporter == 'ko-fi') {
         ctx.fillStyle = '#fa9de4';
@@ -305,7 +264,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.fillStyle = '#422a3d';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('DONATOR', offset_width + 6, 68);
-        offset_width += 103-5;
+        offset_width += 83-5;
     }
     if (supporter == 'granted') {
         ctx.fillStyle = '#9dfab4ff';
@@ -393,7 +352,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.fill();
 
     // XP Bar Progress
-    const progressRatio = profile.leveling.current_xp / CalculateTargetXP(profile.leveling.level, 0);
+    const progressRatio = profile.leveling.current_xp / CalculateTargetXP(profile.leveling.level);
     if (progressRatio * barWidth > 16) {
         ctx.fillStyle = bar_color.fg;
         ctx.beginPath();
@@ -405,7 +364,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.font = '16px azuki_font, bold Arial';
     ctx.fillStyle = num_color;
     ctx.textAlign = 'right';
-    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXP(profile.leveling.level, 0)} XP`, width - 10, height - 20);
+    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXP(profile.leveling.level)} XP`, width - 10, height - 20);
 
     const stickers = [
         "cherry-blossom.png",
@@ -528,8 +487,8 @@ export function Dangerous_WipeAllLevels() {
 
 import axios from 'axios';
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
-import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
+import { LangGetAutoTranslatedStringRaw } from "../../util/language";
+import { GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus } from "../../util/users";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
 import { CheckCompletionist, TITLES } from "../passive/achievement";

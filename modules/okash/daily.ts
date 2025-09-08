@@ -3,7 +3,6 @@ import {ChatInputCommandInteraction, TextChannel} from "discord.js"
 import {ITEMS} from "./items"
 import {AddXP} from "../levels/onMessage"
 import {Achievements, GrantAchievement} from "../passive/achievement"
-import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
 
