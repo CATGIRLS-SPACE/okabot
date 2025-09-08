@@ -1,6 +1,6 @@
-import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
-import { AttachmentBuilder, EmojiResolvable, GuildMember, Message, MessageFlags, Poll, PollAnswer, PollAnswerData, Snowflake, TextChannel } from "discord.js";
+import { AttachmentBuilder, GuildMember, Message, MessageFlags, PollAnswerData, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
@@ -130,9 +130,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     await channel.sendTyping();
 
-    let response;
-
-    const contents: any[] = [ {text:prompt} ];
+    const contents: Array<{text: string} | {inlineData:{mimeType: string, data: string}}> = [ {text:prompt} ];
     if (has_images) {
         inline_data.forEach(item => {
             contents.push({
@@ -144,7 +142,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         });
     }
 
-    response = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro',
         contents,
         config: {
@@ -187,7 +185,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     try {
         const response_data: {tool:string,reply:string} = JSON.parse((response.text as string).replaceAll('@',''));
-        response_data.reply = response_data.reply.replaceAll('@', '');
+        response_data.reply = response_data.reply.replaceAll('@', '').replaceAll('`', '\\`');
 
         if (response_data.tool.startsWith('save2mem')) {
             if (GlobalMemories.length == 25) GlobalMemories.pop();
@@ -259,7 +257,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
-    if (!ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference?.messageId!] && !ConversationChainReplyPointers[message.reference?.messageId!]) return message.react('❓');
+    if (!ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference!.messageId!] && !ConversationChainReplyPointers[message.reference!.messageId!]) return message.react('❓');
 
     let user;
 
@@ -287,7 +285,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     await channel.sendTyping();
 
-    const chain = ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference?.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
+    const chain = ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference!.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
     if (!chain) throw new Error(`conversation chain "${message.reference!.messageId!}" not found`);
 
     let replies: string = '';
@@ -314,8 +312,6 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     
     if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
 
-    let response;
-
     // response = await openai.chat.completions.create({
     //     messages: [{
     //         role: 'user',
@@ -324,7 +320,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     //     model: 'gpt-5-chat-latest'
     // });
 
-    response = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro',
         contents: {text:prompt},
         config: {
@@ -347,7 +343,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     try {
         const response_data: {tool:string,reply:string} = JSON.parse((response?.text as string).replaceAll('@','') || '{"tool":"","reply":":zzz: *silence...*"}');
-        response_data.reply = response_data.reply.replaceAll('@', '');
+        response_data.reply = response_data.reply.replaceAll('@', '').replaceAll('`', '\\`');
 
         if (response_data.tool.startsWith('save2mem')) {
             if (GlobalMemories.length == 25) GlobalMemories.pop();
@@ -441,7 +437,6 @@ import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 import OpenAI from 'openai';
-import axios from 'axios';
 
 const ENCODER = new TextEncoder();
 
@@ -477,15 +472,4 @@ export async function DumpConversationChain(message: Message, id: string) {
             new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', `${id}.aes`)), {name:`${id}.aes`})
         ]
     });
-}
-
-async function downloadFileAsBase64Axios(url: string) {
-  try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    const buffer = Buffer.from(response.data);
-    const base64String = buffer.toString('base64');
-    return base64String;
-  } catch (error) {
-    throw error;
-  }
 }
