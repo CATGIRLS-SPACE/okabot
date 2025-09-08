@@ -288,6 +288,23 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     const chain = ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference!.messageId!] || ConversationChains[ConversationChainReplyPointers[message.reference!.messageId!]];
     if (!chain) throw new Error(`conversation chain "${message.reference!.messageId!}" not found`);
 
+    const inline_data = [];
+    let has_images = false;
+
+    for (const attachment of message.attachments.values()) {
+        if (attachment.contentType?.startsWith('image/')) {
+            has_images = true;
+            console.log(attachment);
+            const response = await fetch(attachment.url);
+            const imageArrayBuffer = await response.arrayBuffer();
+            const b64 = Buffer.from(imageArrayBuffer).toString('base64');
+            inline_data.push({
+                mimeType: attachment.contentType,
+                data: b64,
+            });
+        }
+    }
+
     let replies: string = '';
     chain.messages.forEach(message => {
         replies = replies + `${message.user}: ${message.content}\n`;
@@ -310,7 +327,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
     prompt += 'Current Memories on User: [\n-' + (UserMemories[message.author.id] || []).join('\n- ') + '\n]';
     
-    if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
+    // if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
 
     // response = await openai.chat.completions.create({
     //     messages: [{
@@ -320,9 +337,21 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
     //     model: 'gpt-5-chat-latest'
     // });
 
+    const contents: Array<{text: string} | {inlineData:{mimeType: string, data: string}}> = [ {text:prompt} ];
+    if (has_images) {
+        inline_data.forEach(item => {
+            contents.push({
+                inlineData: {
+                    mimeType: item.mimeType,
+                    data: item.data
+                }
+            });
+        });
+    }
+
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-pro',
-        contents: {text:prompt},
+        contents,
         config: {
             thinkingConfig: {
                 includeThoughts: false,
