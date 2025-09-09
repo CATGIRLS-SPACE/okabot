@@ -4,7 +4,7 @@ import { AttachmentBuilder, GuildMember, Message, MessageFlags, PollAnswerData, 
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
 let ai: GoogleGenAI;
-let openai: OpenAI;
+// let openai: OpenAI;
 
 const GlobalMemories: string[] = [];
 const UserMemories: {[key: Snowflake]: Array<string>} = {};
@@ -34,7 +34,7 @@ const ConversationChainReplyPointers: {
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
-    if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
+    // if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
     if (message.channel.isDMBased() && (GetUserSupportStatus(message.author.id) == 'none' && GetUserDevStatus(message.author.id) == 'none')) return;
     
@@ -480,7 +480,6 @@ import { subtle } from "crypto";
 import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
-import OpenAI from 'openai';
 import emojiRegex from 'emoji-regex';
 
 const ENCODER = new TextEncoder();
@@ -495,7 +494,7 @@ let P_AES_KEY;
 let P_AES_KEY_BYTES: Uint8Array;
 let AES_KEY!: CryptoKey;
 
-async function DecryptAESString(data: string): Promise<ArrayBuffer> {
+export async function DecryptAESString(data: string): Promise<ArrayBuffer> {
     return await subtle.decrypt({ name: 'AES-CBC', iv: P_AES_KEY_BYTES }, AES_KEY, Uint8Array.from(data.match(/.{1,2}/g)!.map(b => parseInt(b, 16))));
 }
 

@@ -1,18 +1,22 @@
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, entersState, joinVoiceChannel, NoSubscriberBehavior, VoiceConnectionStatus } from "@discordjs/voice";
+import { AudioPlayerStatus, AudioResource, createAudioPlayer, createAudioResource, entersState, joinVoiceChannel, NoSubscriberBehavior, VoiceConnectionStatus } from "@discordjs/voice";
 import { VoiceChannel } from "discord.js";
 import { Logger } from "okayulogger";
+import { GetLLMStream } from "./streams/llm";
+import { GetAzureVoiceStream } from "./streams/voice";
+import { Readable } from "stream";
+import { appendFileSync } from "fs";
 import { join } from "path";
 
 const L = new Logger('LiveAI');
 
-export async function SetupVC(channel: VoiceChannel) {
+export async function SetupVC(channel: VoiceChannel, text: string) {
     const connection = joinVoiceChannel({
         channelId: channel.id,
         guildId: channel.guild.id,
         adapterCreator: channel.guild.voiceAdapterCreator
     });
 
-    connection.on(VoiceConnectionStatus.Ready, () => {
+    connection.on(VoiceConnectionStatus.Ready, async () => {
         L.debug(`voice connection to [${channel.name}] is ready`);
 
         const audioPlayer = createAudioPlayer({
@@ -20,13 +24,37 @@ export async function SetupVC(channel: VoiceChannel) {
                 noSubscriber: NoSubscriberBehavior.Pause
             }
         });
-        const resource = createAudioResource(join(__dirname, 'test.mp3'));
+        // const resource = createAudioResource(join(__dirname, 'test.mp3'));
         connection.subscribe(audioPlayer);
     
-        audioPlayer.play(resource);
+        // audioPlayer.play(resource);
+
+        const stream = await GetLLMStream(text);
+        const voice = GetAzureVoiceStream(stream);
+
+        const chunk_queue: Array<AudioResource> = [];
+        let playing = false;
+
+        for await (const chunk of voice) {
+            L.debug(`new voice chunk`);
+            appendFileSync(join(__dirname, 'voiceout.mp3'), chunk);
+            const resource = createAudioResource(Readable.from(chunk));
+            if (playing) {
+                chunk_queue.push(resource);
+            } else {
+                audioPlayer.play(resource);
+                playing = true;
+            }
+        }
 
         audioPlayer.on(AudioPlayerStatus.Idle, () => {
-            connection.disconnect();
+            // connection.disconnect();
+            if (chunk_queue.length != 0) {
+                L.debug(`chunks remaining: ${chunk_queue.length}`);
+                const chunk = chunk_queue.shift();
+                if (!chunk) return;
+                audioPlayer.play(chunk);
+            } else playing = false;
         });
     });
 

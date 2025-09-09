@@ -40,6 +40,8 @@ if (!existsSync(join(__dirname, 'config.json'))) {
         gemini: {
             enable: false,
             api_key: "<not required unless enabled>",
+            azure_api_key: "<azure voice resource, not required unless enabled>",
+            azure_region: "<not required unless enabled>",
         },
         aes_key: "<required to use prompts.mesy when gemini is enabled>",
         bot_master: "<not required, but recommended>",
@@ -67,6 +69,8 @@ export let CONFIG: {
     gemini: {
         enable: boolean,
         api_key: string,
+        azure_api_key: string,
+        azure_region: string,
     },
     aes_key: string,
     lilac: {
@@ -513,10 +517,10 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
-    if (message.content.startsWith('o.vc')) {
+    if (message.content.startsWith('o.vc') && CONFIG.gemini.enable && DEV) {
         const channel = await client.channels.fetch(message.content.split(' ')[1]);
         if (!channel) return message.reply('no channel');
-        SetupVC(channel as VoiceChannel);
+        SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
     }
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
