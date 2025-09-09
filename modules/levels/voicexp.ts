@@ -19,10 +19,10 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         L.info(`${newState.member!.displayName} joined voice.`);
 
         if (newState.channel)
-            newState.channel.send({
-                content:`***${newState.member?.displayName}**, I've started tracking your minutes in voice for XP!*`,
-                flags: [MessageFlags.SuppressNotifications]
-            });
+            // newState.channel.send({
+            //     content:`***${newState.member?.displayName}**, I've started tracking your minutes in voice for XP!*`,
+            //     flags: [MessageFlags.SuppressNotifications]
+            // });
 
         VoiceData.set(newState.member!.id, event_time);
     }
@@ -55,9 +55,9 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
 
         AddXP(newState.member!.id, <unknown>channel as TextChannel, xp_gained);
 
-        channel.send({
-            content:`**${newState.member!.displayName}**, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
-        });
+        // channel.send({
+        //     content:`**${newState.member!.displayName}**, you've earned **${xp_gained}XP** for your ${minutes_elapsed} ${minutes_elapsed==1?'minute':'minutes'} in voice!`
+        // });
 
         if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);
 
