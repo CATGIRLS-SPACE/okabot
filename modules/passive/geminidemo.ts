@@ -195,7 +195,8 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
-        if (response_data.tool.startsWith('react:') && false) {
+        if (response_data.tool.startsWith('react:')) {
+            const er = emojiRegex();
             const reaction = response_data.tool.split('react:')[1];
             const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
             const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
@@ -203,10 +204,15 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             for (const e of emojis) {
                 index++;
                 if (index >= 6) break;
-                try {
-                    message.react(e);
-                } catch (err) {
-                    console.warn(err);
+                
+                if (er.test(e)) {
+                    try {
+                        message.react(e);
+                    } catch (err) {
+                        console.warn(err);
+                    }
+                } else {
+                    console.log(`skipping invalid emoji ${e}`);
                 }
             }
         }
@@ -249,7 +255,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             ]
         }
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\``.replaceAll('@','') });
     }
 }
 
@@ -382,16 +388,25 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
-        if (response_data.tool.startsWith('react:') && false) {
+        if (response_data.tool.startsWith('react:')) {
             const reaction = response_data.tool.split('react:')[1];
             const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
             const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
+            let index = 0;
+            const er = emojiRegex();
             console.log(emojis);
             for (const e of emojis) {
-                try {
-                    message.react(e);
-                } catch (err) {
-                    console.warn(err);
+                index++;
+                if (index >= 6) break;
+                
+                if (er.test(e)) {
+                    try {
+                        message.react(e);
+                    } catch (err) {
+                        console.warn(err);
+                    }
+                } else {
+                    console.log(`skipping invalid emoji ${e}`);
                 }
             }
         }
@@ -431,7 +446,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response!.text}\`` });
+        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response!.text}\``.replaceAll('@','') });
     }
 }
 
@@ -466,6 +481,7 @@ import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 import OpenAI from 'openai';
+import emojiRegex from 'emoji-regex';
 
 const ENCODER = new TextEncoder();
 
