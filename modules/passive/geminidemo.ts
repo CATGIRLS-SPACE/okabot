@@ -195,7 +195,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
-        if (response_data.tool.startsWith('react:')) {
+        if (response_data.tool.startsWith('react:') && false) {
             const reaction = response_data.tool.split('react:')[1];
             const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
             const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
@@ -382,7 +382,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             if (!UserMemories[message.author.id]) UserMemories[message.author.id] = [];
             UserMemories[message.author.id].push(response_data.tool.split('save2user:')[1]);
         }
-        if (response_data.tool.startsWith('react:')) {
+        if (response_data.tool.startsWith('react:') && false) {
             const reaction = response_data.tool.split('react:')[1];
             const segmenter = new Intl.Segmenter("en", { granularity: "grapheme" });
             const emojis = Array.from(segmenter.segment(reaction), s => s.segment);
