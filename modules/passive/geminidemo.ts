@@ -17,7 +17,8 @@ const ConversationChains: {
         messages: Array<{
             user: 'okabot' | 'system' | string,
             content: string,
-        }>
+        }>,
+        last_update: number
     }
 } = {};
 
@@ -42,7 +43,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**-> ${message.author.id}(${message.author.username})** : ${message.content}`);
     }
 
-    if (message.channel.isDMBased() && ConversationChains[message.channel.id]) return GeminiDemoReplyToConversationChain(message);
+    if (message.channel.isDMBased() && ConversationChains[message.channel.id] && ConversationChains[message.channel.id].last_update + 3600000 > new Date().getTime()) return GeminiDemoReplyToConversationChain(message);
 
     if (!message.channel.isThread()) {
         if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
@@ -252,7 +253,8 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                     user: 'okabot',
                     content: response_data.reply
                 }
-            ]
+            ],
+            last_update: new Date().getTime()
         }
     } catch (err) {
         message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\``.replaceAll('@','') });
@@ -443,6 +445,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
             user: 'okabot',
             content: response_data.reply!
         });
+        ConversationChains[chain.orignal_message].last_update = new Date().getTime();
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
