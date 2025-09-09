@@ -14,7 +14,8 @@ import {
     Partials,
     Snowflake,
     TextChannel,
-    PermissionFlagsBits
+    PermissionFlagsBits,
+    VoiceChannel
 } from "discord.js";
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
@@ -145,6 +146,7 @@ import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
 import { CheckForTextCommands } from "./util/textCommandMappings";
+import { SetupVC } from "./modules/liveai/live";
 
 
 export const client = new Client({
@@ -511,6 +513,11 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
     if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
+    if (message.content.startsWith('o.vc')) {
+        const channel = await client.channels.fetch(message.content.split(' ')[1]);
+        if (!channel) return message.reply('no channel');
+        SetupVC(channel as VoiceChannel);
+    }
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
 

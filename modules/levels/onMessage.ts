@@ -1,19 +1,14 @@
 import {
-    ChatInputCommandInteraction,
-    GuildMember,
     Message,
     MessageFlags,
     Snowflake,
-    TextChannel,
-    User
+    TextChannel
 } from "discord.js";
-import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
-import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN, LEVEL_NAMES_JA } from "./levels";
+import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN } from "./levels";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import { EventType, RecordMonitorEvent } from "../../util/monitortool";
-import { Achievements, GrantAchievement } from "../passive/achievement";
-import {client, DEV, GetLastLocale} from "../../index";
-import { EMOJI, GetEmoji } from "../../util/emoji";
+import {client, GetLastLocale} from "../../index";
 import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
 import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
@@ -43,14 +38,14 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     if (!user) throw new Error('Cannot award XP to a nonexistent user');
 
     profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
-    let target_xp = CalculateTargetXP(profile.leveling.level, 0);
+    let target_xp = CalculateTargetXP(profile.leveling.level);
 
     const leveled_up = profile.leveling.current_xp >= target_xp;
     while (profile.leveling.current_xp >= target_xp) {
         profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP
         profile.leveling.level++;
 
-        target_xp = CalculateTargetXP(profile.leveling.level, 0);
+        target_xp = CalculateTargetXP(profile.leveling.level);
 
         const okash_reward = CalculateOkashReward(profile.leveling.level);
         AddToWallet(user_id, okash_reward);

@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel, MessageFlags} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
 import {AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
@@ -78,12 +78,6 @@ const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
     CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK,
     CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE,
     CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER,
-];
-
-const ALLOWED_SHOP_VOUCHER_ITEMS: Array<ITEMS> = [
-    ITEMS.STREAK_RESTORE,
-    ITEMS.CASINO_PASS_10_MIN,
-    ITEMS.LOOTBOX_INCREASE_15_MIN
 ];
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
@@ -336,7 +330,7 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
     RemoveFromWallet(interaction.user.id, 10000+(profile.leveling.level * 2500), true);
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.leveling.level * 2500)}**!`});
     
-    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level, 0));
+    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level));
 }
 
 
