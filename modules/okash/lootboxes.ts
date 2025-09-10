@@ -1,6 +1,5 @@
-import { ChatInputCommandInteraction, Snowflake } from "discord.js";
-import { ITEM_TYPE, ITEMS, CUSTOMIZATION_UNLOCKS } from "./items";
-import { GetUserProfile} from "../user/prefs";
+import { Snowflake } from "discord.js";
+import { ITEMS, CUSTOMIZATION_UNLOCKS } from "./items";
 
 export enum LOOTBOX_REWARD_TYPE {
     OKASH = 'money',

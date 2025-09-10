@@ -1,5 +1,5 @@
-import { ApplicationIntegrationType, Attachment, AttachmentBuilder, ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
-import { GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs"
+import { ApplicationIntegrationType, AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
+import { GetUserProfile, UpdateUserProfile } from "../user/prefs"
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
 import { BASE_DIRNAME, client } from "../../index";
@@ -115,7 +115,7 @@ export const ACHIEVEMENTS: {
     // 'streak25': {name:'Undoubtedly Cheating',description:'Win a (supported) gambling game 25 times in a row... then go to jail, and <@796201956255334452> needs to spend some money...',class:'gamble',diff:'ex'},
     'dango':{name:'Yum!',description:'Give okabot a yummy treat!',class:'fun',diff:'e'},
     'bankdep':{name:'A Visit From the IRS',description:'Rob the bank, then immediately deposit the earnings into your bank.',class:'fun',diff:'e'},
-    'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'fun',diff:'t'},
+    // 'blue':{name:'Not Quite Gacha',description:'Open a lootbox while playing Blue Archive.',class:'fun',diff:'t'},
     'robchain':{name:'Convoluted Indirect Deposit',description:'Rob the bank and immediately get robbed by someone else.',class:'fun',diff:'e'},
     'sticker':{name:'Adhesive',description:'Put a sticker on your level banner.',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Get dealt two aces in Blackjack.',class:'gamble',diff:'h'},
@@ -211,39 +211,6 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     });
 
     UpdateUserProfile(user.id, profile);
-}
-
-function CreateProgressBar(real_achievement_count: number): string {
-    const CHAR_UNFILLED = '░';
-    const CHAR_FILLED   = '█';
-    const PARTIAL_BLOCKS = ['░', '▒', '▒', '▒', '▒', '▓', '▓', '▓', '▓']; // Partial fill levels
-    let bar = '**[**';
-    const needed_xp = Object.keys(ACHIEVEMENTS).length;
-    const target_chars = 20;
-    const progress_ratio = real_achievement_count / needed_xp;
-    const total_filled_chars = progress_ratio * target_chars;
-    const filled_full = Math.floor(total_filled_chars); // Full blocks
-    const partial_fill = Math.round((total_filled_chars - filled_full) * 8); // Partial fill (0-8)
-    const unfilled_chars = target_chars - filled_full - 1;
-
-    // Add full blocks
-    for (let i = 0; i < filled_full; i++) {
-        bar += CHAR_FILLED;
-    }
-
-    // Add a partial block if applicable
-    if (partial_fill > 0) {
-        bar += PARTIAL_BLOCKS[partial_fill];
-    }
-
-    // Add unfilled blocks
-    for (let i = 0; i < unfilled_chars; i++) {
-        bar += CHAR_UNFILLED;
-    }
-
-    bar += '**]**';
-
-    return bar;
 }
 
 export function CheckCompletionist(user_id: Snowflake) {
@@ -363,8 +330,8 @@ async function GenerateAchievementsBanner(user_id: Snowflake, achievement_count:
     }
 
     // pfp
-    const pfp_url = client.users.cache.get(user_id)?.avatarURL({extension:'png', size:128})!;
-    const pfp_buffer = await fetchImage(pfp_url);
+    const pfp_url = client.users.cache.get(user_id)?.avatarURL({extension:'png', size:128});
+    const pfp_buffer = await fetchImage(pfp_url || '');
     const pfp_img = await loadImage(pfp_buffer);
     ctx.save();
     ctx.beginPath();

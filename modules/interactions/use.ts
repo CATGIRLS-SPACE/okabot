@@ -1,4 +1,4 @@
-import {ActionRow, APITextInputComponent, AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
+import {AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
 import {RestoreLastDailyStreak} from "../okash/daily";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {AddOneToInventory, AddToWallet, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
@@ -10,7 +10,7 @@ import {ITEM_NAMES} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
-import { ActionRowBuilder, ButtonBuilder, ModalBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextInputBuilder } from "@discordjs/builders";
+import { ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
 import { generateLevelBanner } from "../levels/levels";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -180,7 +180,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.editReply({
         content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds ${rewardMessage}`
     });
-    DoPresenceChecks(interaction);
+    // DoPresenceChecks(interaction);
 }
 async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
