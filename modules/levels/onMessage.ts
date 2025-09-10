@@ -7,7 +7,6 @@ import {
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN } from "./levels";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
-import { EventType, RecordMonitorEvent } from "../../util/monitortool";
 import {client, GetLastLocale} from "../../index";
 import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
@@ -73,8 +72,6 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
                 content: await LangGetAutoTranslatedString(LANG_INTERACTION.LEVEL_LEVELUP, GetLastLocale(user_id), user.displayName, LEVEL_NAMES_EN[profile.leveling.level - 1], profile.leveling.level, okash_reward, earned_item, target_xp),
                 flags: [MessageFlags.SuppressNotifications]
             });
-
-        RecordMonitorEvent(EventType.GAIN_LEVEL, {user_id:user_id, level:profile.leveling.level}, `${user_id} is now level ${profile.leveling.level}`)
     
         UpdateUserProfile(user_id, profile);
 

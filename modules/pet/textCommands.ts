@@ -1,10 +1,12 @@
-import {Embed, EmbedBuilder, Message, TextChannel} from "discord.js";
+/* eslint-disable no-case-declarations */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {EmbedBuilder, Message, TextChannel} from "discord.js";
 import {ACTIVITY_NAMES, FOOD_NAMES, FOOD_NAMES_TYPED, FOOD_STRING, SPECIAL_STRINGS} from "./strings";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {FOOD_PRICES, FOOD_VALUES, PET_EMOJIS, PET_NAMES} from "./common";
 import {DEV} from "../../index";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {GetWallet, RemoveFromWallet} from "../okash/wallet";
+import {GetWallet} from "../okash/wallet";
 import {
     CalculatePetTargetXP,
     PetFood,
@@ -44,7 +46,7 @@ export async function PetParseTextCommand(message: Message) {
             break;
 
         case 'list':
-            SubcommandList(message, args);
+            SubcommandList(message);
             break;
 
         case 'buy':
@@ -130,7 +132,7 @@ async function SubcommandShop(message: Message, args: Array<string>) {
 }
 
 
-async function SubcommandList(message: Message, args: Array<string>) {
+async function SubcommandList(message: Message) {
     const profile = GetUserProfile(message.author.id);
 
     if (profile.pet_data.pets.length == 0) return message.reply({

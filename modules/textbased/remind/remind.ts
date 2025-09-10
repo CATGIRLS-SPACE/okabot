@@ -39,7 +39,7 @@ function ScheduleReminder(r: Reminder) {
         let message;
         try {
             message = await channel.messages.fetch(r.message.message);
-        } catch (err) {
+        } catch {
             return channel.send({content: `:crying_cat_face: <@${r.user}>, you asked me to remind you of a message, but it seems it was deleted. sorry...`});
         }
 

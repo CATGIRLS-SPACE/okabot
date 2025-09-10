@@ -1,11 +1,12 @@
+/* eslint-disable no-case-declarations */
 import {ChatInputCommandInteraction, Message, Snowflake, TextChannel, User} from "discord.js";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {ITEMS} from "../okash/items";
 import {Logger} from "okayulogger";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {Achievements, GrantAchievement} from "./achievement";
-import {client, GetLastLocale} from "../../index";
-import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
+import {GetLastLocale} from "../../index";
+import {LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 const L = new Logger('onMessage.ts');
 
@@ -37,7 +38,7 @@ export async function DoRandomDrops(message: Message, author?: User) {
             const found_amount = Math.ceil(Math.random() * 1000);
             const sr_reply = await message.reply(await LangGetAutoTranslatedStringRaw("<:grey_question:0> Hey, something's on the ground...", GetLastLocale(message.author.id)));
             await Sleep(3000);
-            await sr_reply.edit(await LangGetAutoTranslatedStringRaw(`<:scream_cat:0> Hey, something\'s on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`, GetLastLocale(message.author.id)));
+            await sr_reply.edit(await LangGetAutoTranslatedStringRaw(`<:scream_cat:0> Hey, something's on the ground... and it was ${GetEmoji(EMOJI.OKASH)} OKA**${found_amount}**!`, GetLastLocale(message.author.id)));
             GrantAchievement(message.author, Achievements.OKASH_DROP, message.channel as TextChannel);
             AddToWallet(message.author.id, found_amount);
             break;

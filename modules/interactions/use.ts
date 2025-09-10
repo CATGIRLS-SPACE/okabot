@@ -1,4 +1,4 @@
-import {AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, MessageFlags, SlashCommandBuilder, TextChannel, TextInputStyle} from "discord.js";
+import {AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, Interaction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
 import {RestoreLastDailyStreak} from "../okash/daily";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {AddOneToInventory, AddToWallet, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
@@ -161,7 +161,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
             break;
 
         case LOOTBOX_REWARD_TYPE.SCRAPS:
-            rewardMessage = `some **scraps**!\n`;
+            { rewardMessage = `some **scraps**!\n`;
             const s = reward.amount;
             const profile = GetUserProfile(interaction.user.id);
             profile.inventory_scraps.electrical += s.e;
@@ -170,7 +170,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
             profile.inventory_scraps.rubber += s.r;
             profile.inventory_scraps.wood += s.w;
             rewardMessage += `**${GetEmoji(EMOJI.SCRAP_METAL)} x ${s.m}, ${GetEmoji(EMOJI.SCRAP_PLASTIC)} x ${s.p}, ${GetEmoji(EMOJI.SCRAP_WOOD)} x ${s.w}, ${GetEmoji(EMOJI.SCRAP_RUBBER)} x ${s.r}, ${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} x ${s.e}**`;
-            break;
+            break; }
 
         default:
             break;
@@ -470,10 +470,10 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
 
     const response = await interaction.reply({
         content: `Pick a sticker to place at X=${x} Y=${y}.`,
-        components: [new ActionRowBuilder().addComponents(valid_stickers) as any]
+        components: [new ActionRowBuilder().addComponents(valid_stickers) as never]
     });
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});
 
     collector.on('collect', async i => {
@@ -490,7 +490,7 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
         await i.editReply({
             content: `Place this sticker? It will cost you ${GetEmoji(EMOJI.OKASH)} OKA**${cost}**. You will not be able to move it once placed.\n-# Sticker removal is not implemented yet, but will be implemented in the future.`,
             files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', 'level-banner.png')))],
-            components: [new ActionRowBuilder().addComponents(button_yes,button_no) as any]
+            components: [new ActionRowBuilder().addComponents(button_yes,button_no) as never]
         });
 
         const collector_button = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});

@@ -1,11 +1,10 @@
 import {
-    ActivityType,
     ChatInputCommandInteraction,
     Locale,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake,
-    TextChannel, User
+    TextChannel
 } from "discord.js";
 import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
 import {
@@ -21,7 +20,6 @@ import {join} from "path";
 import {AddXP} from "../../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {format} from "util";
-import {EventType, RecordMonitorEvent} from "../../../util/monitortool";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CUSTOMIZTAION_ID_NAMES} from "../items";
@@ -132,9 +130,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
     ActiveFlips.push(interaction.user.id);
     RemoveFromWallet(interaction.user.id, bet);
 
-    RecordMonitorEvent(EventType.GAMBLE, {user_id: interaction.user.id});
-    RecordMonitorEvent(EventType.COINFLIP_START, {user_id: interaction.user.id, bet}, `${interaction.user.username} started a coinflip`);
-
     // check if user has weighted coin
     const prefs = GetUserProfile(interaction.user.id);
     const weighted_coin_equipped = (prefs.flags.indexOf(FLAG.WEIGHTED_COIN_EQUIPPED) != -1);
@@ -189,8 +184,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
 
             AddCasinoWin(interaction.user.id, bet*5, 'coinflip');
         }, 3000);
-
-        RecordMonitorEvent(EventType.COINFLIP_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended a coinflip`);
 
         return;
     }
@@ -258,8 +251,6 @@ export async function HandleCommandCoinflip(interaction: ChatInputCommandInterac
         writeFileSync(stats_file, JSON.stringify(stats), 'utf-8');
 
         ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
-
-        RecordMonitorEvent(EventType.COINFLIP_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended a coinflip`);
 
         AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
 
@@ -336,7 +327,6 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const coin_flipped = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY):GetEmoji(COIN_EMOJIS_DONE[profile.customization.games.coin_color]);
     const reply = await interaction.reply({
         flags: [MessageFlags.SuppressNotifications],
-        // @ts-ignore
         content:`${coin_flipping} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**...`
     });
 
@@ -389,7 +379,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
 
     if (!win && RECENT_ROBS.has(interaction.user.id)) {
-        if (RECENT_ROBS.get(interaction.user.id)?.amount == bet && RECENT_ROBS.get(interaction.user.id)?.when! + 300 > (new Date()).getTime()/1000) 
+        if (RECENT_ROBS.get(interaction.user.id)?.amount == bet && (RECENT_ROBS.get(interaction.user.id)?.when || 0) + 300 > (new Date()).getTime()/1000) 
             GrantAchievement(interaction.user, Achievements.USELESS_ROB, interaction.channel as TextChannel);
     }
 

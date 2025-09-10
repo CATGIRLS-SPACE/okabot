@@ -2,7 +2,7 @@ import {ChatInputCommandInteraction, Locale, SlashCommandBuilder} from "discord.
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetItemFromSerial, TrackableCardDeck} from "../okash/trackedItem";
+import {GetItemFromSerial} from "../okash/trackedItem";
 import {COIN_EMOJIS_DONE} from "../okash/games/coinflip";
 
 export const DECK_EMOJIS: {[key:number]: string} = {

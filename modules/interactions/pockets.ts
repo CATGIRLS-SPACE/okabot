@@ -1,6 +1,5 @@
-import {ChatInputCommandInteraction, EmbedBuilder, Emoji, Locale, SlashCommandBuilder} from "discord.js";
+import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashCommandBuilder} from "discord.js";
 import { GetInventory } from "../okash/wallet";
-import { ITEMS } from "../okash/items";
 import { GetUserProfile } from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
@@ -87,7 +86,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
     await interaction.deferReply();
     const page = interaction.options.getString('page', true);
 
-    const fields: any = [];
+    const fields: Array<APIEmbedField> = [];
 
     if (page == 'customize') {
         const profile = GetUserProfile(interaction.user.id);
@@ -99,7 +98,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         }
     } else if (page == 'items') {
         const inventory = GetInventory(interaction.user.id);
-        const counts: any = {};
+        const counts: {[key: string]: number} = {};
 
         for (const item in inventory) {
             if (counts[inventory[item]]) counts[inventory[item]]++;

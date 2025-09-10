@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     ActionRowBuilder,
-    ActivityType,
     ButtonBuilder,
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
-    ContainerBuilder, InteractionResponse,
+    ContainerBuilder,
+    Interaction,
     Message,
     MessageFlags,
     SeparatorBuilder,
@@ -15,7 +16,7 @@ import {
     TextChannel,
     TextDisplayBuilder
 } from "discord.js";
-import {Logger} from "okayulogger";
+// import {Logger} from "okayulogger";
 import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
 import {AddXP} from "../../levels/onMessage";
 import {CheckOkashRestriction, GetUserProfile, OKASH_ABILITY} from "../../user/prefs";
@@ -28,7 +29,7 @@ import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 
-const L = new Logger('blackjack');
+// const L = new Logger('blackjack');
 
 
 interface HandCard {
@@ -319,7 +320,7 @@ export async function SetupBlackjackMessage(interaction: ChatInputCommandInterac
         DoRandomDrops(await response.fetch(), interaction.user);
     }
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
 
     const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 120_000 });
 
@@ -617,7 +618,6 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // this is because the reply object
     // will be kinda weird if there is
     // a cooldown
-    //@ts-ignore
     let reply;
 
     // start setup of blackjack game
@@ -730,7 +730,6 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
         });
     }
 
-    // @ts-ignore
     setTimeout(() => GameIdleCheckV2(interaction.user.id, reply), 60_000)
 
     // listen for buttons

@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js";
 import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";

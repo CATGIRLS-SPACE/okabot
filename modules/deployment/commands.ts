@@ -14,7 +14,6 @@ import { PocketsSlashCommand } from "../interactions/pockets";
 import { CustomizeSlashCommand } from "../interactions/customize";
 import { LevelSlashCommand } from "../levels/levels";
 import { BlackjackSlashCommand } from "../okash/games/blackjack";
-import { StockSlashCommand } from "../interactions/stock";
 import { HelpSlashCommand } from "../interactions/help";
 import { REST } from "@discordjs/rest";
 import { Logger } from "okayulogger";
@@ -87,7 +86,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
 
     return new Promise((resolve, reject) => {
      rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
-        .then((a) => {
+        .then(() => {
             // console.log(a);
             L.info('Commands deployed successfully.');
             resolve();

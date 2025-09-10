@@ -1,4 +1,4 @@
-import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "./items";
+import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES} from "./items";
 import {Channel, Message, MessageFlags, Snowflake, TextChannel} from "discord.js";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";

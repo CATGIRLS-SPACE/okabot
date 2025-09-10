@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     ApplicationIntegrationType,
     ChatInputCommandInteraction,
@@ -14,11 +15,11 @@ import {readFileSync} from 'fs';
 import {GetLatestEarthquake} from './dmdata';
 import {Logger} from 'okayulogger';
 import {DMDataWebSocket} from 'lily-dmdata/socket';
-import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, ShindoValue, WebSocketEvent} from 'lily-dmdata';
+import {Classification, EarthquakeInformationSchemaBody, EEWInformationSchemaBody, WebSocketEvent} from 'lily-dmdata';
 import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
 import {UpdateDMDataStatus} from "../http/server";
-import {LangGetAutoTranslatedString, LangGetAutoTranslatedStringRaw} from "../../util/language";
+import {LangGetAutoTranslatedStringRaw} from "../../util/language";
 
 const L = new Logger('earthquakes');
 
@@ -127,7 +128,6 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 let MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 export let SOCKET: DMDataWebSocket;
 const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
-let is_reconnecting = false;
 let reconnect_tries = 0;
 
 export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
@@ -183,7 +183,6 @@ function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
                 content: `ok, i reconnected after ${reconnect_tries} tries.`
             });
             reconnect_tries = 0;
-            is_reconnecting = false;
         }
     }, 10000);
 }
@@ -250,7 +249,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         //     content:`okaaay, i reconnected successfully after ${reconnect_tries>1?reconnect_tries+' tries':reconnect_tries+' try'}.`,
         //     flags:[MessageFlags.SuppressNotifications]
         // });
-        is_reconnecting = false;
         UpdateDMDataStatus(true);
     });
 

@@ -1,9 +1,8 @@
-import {Client, EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
-import {Logger} from "okayulogger";
+import {EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
+// import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
     client, CONFIG,
-    DEV,
     LISTENING, ReloadConfig, SetActivity, SetLastLocale,
     SetListening, ToggleDisableOfCommand
 } from "../../index";
@@ -22,7 +21,6 @@ import {OnlyPull, SelfUpdate} from "../../util/updater";
 import {ReleaseUserGame} from "../okash/games/roulette";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { error } from "node:console";
 import {ManualRelease} from "../okash/games/slots";
 import {PassesActive, ReleaseBlackjackUser} from "../okash/games/blackjack";
 import { ITEM_NAMES } from "../interactions/pockets";
@@ -37,7 +35,7 @@ interface ShorthandList {
 }
 
 const Shorthands: ShorthandList = {};
-const L = new Logger('admin shorthands');
+// const L = new Logger('admin shorthands');
 
 /**
  * Register a shorthand command
@@ -49,6 +47,7 @@ function RegisterShorthand(key: string, on_trigger: CallableFunction) {
     // L.info(`registered shorthand '${key}'`);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setNestedProperty(obj: any, path: string, value: any): void {
     const keys = path.split(".");
     let current = obj;
@@ -74,7 +73,7 @@ function formatUserProfileAsText(obj: USER_PROFILE, prefix = ''): string {
   for (const key in obj) {
     if (!Object.hasOwnProperty.call(obj, key)) continue;
 
-    const value = (obj as any)[key];
+    const value = (obj as never)[key];
     const fullKey = prefix ? `${prefix}.${key}` : key;
 
     if (
@@ -169,16 +168,16 @@ export function RegisterAllShorthands() {
 
             switch (types[params[4]]) {
                 case 'number':
-                    const value = parseInt(params[5]);
+                    { const value = parseInt(params[5]);
                     if (Number.isNaN(value)) throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
                     daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = value;
-                    break;
+                    break; }
 
                 case 'boolean':
-                    if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
+                    { if (params[5] != 'true' && params[5] != 'false') throw new Error(`invalid value '${params[5]}' for type '${types[params[5]]}'`);
                     const v: {[key:string]:boolean} = {'true':true,'false':false};
                     daily_data[params[4].split('.')[0]][params[4].split('.')[1]] = v[params[5]];
-                    break;
+                    break; }
 
                 default:
                     break;
@@ -214,7 +213,7 @@ export function RegisterAllShorthands() {
 
                 switch(types[params[4]]) {
                     case 'number':
-                        const value = parseInt(params[6]);
+                        { const value = parseInt(params[6]);
                         if (Number.isNaN(value)) throw new Error(`invalid value '${params[6]}' for type '${types[params[4]]}'`);
                         if (params[5] == 'add') {
                             if (params[4].includes('.')) user_data[params[4].split('.')[0]][params[4].split('.')[1]].push(value);
@@ -225,7 +224,7 @@ export function RegisterAllShorthands() {
                             else user_data[params[4]]
                                 .splice(user_data[params[4]].indexOf(value, 1));
                         }
-                        break;
+                        break; }
 
                     case 'string':
                         if (params[5] == 'add') {
@@ -329,7 +328,7 @@ export function RegisterAllShorthands() {
         });
     });
 
-    RegisterShorthand('oka kill', async (message: Message, params: string[]) => {
+    RegisterShorthand('oka kill', async (message: Message) => {
         if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can kill okabot.');
         process.exit();
     });
@@ -342,7 +341,7 @@ export function RegisterAllShorthands() {
         DumpConversationChain(message, params[2]);
     });
 
-    RegisterShorthand('oka update', async (message: Message, params: string[]) => {
+    RegisterShorthand('oka update', async (message: Message) => {
         if (message.author.id != CONFIG.bot_master) return message.reply(':x: Only the bot master can initiate an update.');
         // check if anyone has an active casino pass
         const time = new Date().getTime()/1000;

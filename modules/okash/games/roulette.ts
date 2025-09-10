@@ -3,19 +3,17 @@
 
 import {
     ActionRowBuilder,
-    ActivityType,
     ButtonBuilder,
     ButtonStyle,
     ChatInputCommandInteraction,
     ComponentType,
-    InteractionCollector,
+    Interaction,
     InteractionResponse,
     Message,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake,
     StringSelectMenuBuilder,
-    StringSelectMenuInteraction,
     StringSelectMenuOptionBuilder,
     TextChannel
 } from "discord.js";
@@ -23,7 +21,6 @@ import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
 import { AddXP } from "../../levels/onMessage";
 import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
-import { EventType, RecordMonitorEvent } from "../../../util/monitortool";
 import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
@@ -76,11 +73,11 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
     switch (game.game_type) {
         case RouletteGameType.COLOR:
             // RED if has remainder, BLACK if no remainder
-            const rolled_color = number_picked%2==0?RouletteColor.BLACK:RouletteColor.RED;
+            { const rolled_color = number_picked%2==0?RouletteColor.BLACK:RouletteColor.RED;
             console.log(`rolled color is ${rolled_color}, user picked ${game.selection}`)
             win = rolled_color == game.selection;
             multiplier = 2;
-            break;
+            break; }
 
         case RouletteGameType.NUMBER:
             win = number_picked == game.selection;
@@ -94,14 +91,14 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
             
         case RouletteGameType.LARGE_SECTION:
             // 1-18, 19-36
-            const rolled_section = number_picked<19?RouletteSection.ONE_TO_EIGHTEEN:RouletteSection.NINETEEN_TO_THIRTYSIX;
+            { const rolled_section = number_picked<19?RouletteSection.ONE_TO_EIGHTEEN:RouletteSection.NINETEEN_TO_THIRTYSIX;
             win = rolled_section == game.selection;
             multiplier = 2;
-            break;
+            break; }
 
         case RouletteGameType.SMALL_SECTION:
             // 1-12, 13-24, 25-36
-            let rolled_section_small: RouletteSection;
+            { let rolled_section_small: RouletteSection;
 
             if (number_picked < 13) rolled_section_small = RouletteSection.ONE_TO_TWELVE;
             else if (number_picked < 25) rolled_section_small = RouletteSection.THIRTEEN_TO_TWENTYFOUR;
@@ -110,7 +107,7 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
             win = rolled_section_small == game.selection;
             multiplier = 3;
 
-            break;
+            break; }
     }
 
     return {win, multiplier};
@@ -137,8 +134,6 @@ async function StartRoulette(game: RouletteGame) {
             second_half = `betting on the ball landing between **${['1-18','19-36','1-12','13-24','25-36'][<number> game.selection]}**...`;
             break;
     }
-
-    RecordMonitorEvent(EventType.GAMBLE, {user_id: game.interaction.user.id, bet:game.bet});
 
     await game.interaction!.editReply({
         content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half}`,
@@ -181,7 +176,6 @@ async function StartRoulette(game: RouletteGame) {
 
         GAMES_ACTIVE.delete(game.interaction.user.id);
         SetGambleLock(game.interaction.user.id, false);
-        RecordMonitorEvent(EventType.ROULETTE_END, {user_id: game.interaction.user.id, bet:game.bet}, `${game.interaction.user.username} ended roulette`);
     }, 5000);
 }
 
@@ -328,7 +322,7 @@ async function ConfirmMultiNumberGame(user_id: string) {
         components: [ConfirmationBar]
     });
 
-    const collectorFilter = (i: any) => i.user.id === game.interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === game.interaction.user.id;
     const collector = response.createMessageComponentCollector({componentType: ComponentType.Button, time: 60_000, filter: collectorFilter});
 
     collector.on('collect', async i => {
@@ -383,8 +377,6 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     // take their money !!!
     RemoveFromWallet(interaction.user.id, bet);
 
-    RecordMonitorEvent(EventType.ROULETTE_START, {user_id: interaction.user.id, bet}, `${interaction.user.username} started roulette`);
-
     // dummy game so they can't start two
     // selection can't be 0 or the listener will pick up as if it was number
     SetGambleLock(interaction.user.id, true);
@@ -406,7 +398,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
         reply_id
     });
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 300_000, filter: collectorFilter});
 
     collector.on('collect', async i => {
@@ -416,7 +408,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
 
         switch (selection) {
             case RouletteGameType.NUMBER:
-                GAMES_ACTIVE.set(interaction.user.id, {
+                { GAMES_ACTIVE.set(interaction.user.id, {
                     bet,
                     game_type: selection,
                     selection: 0,
@@ -436,10 +428,10 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     AddToWallet(interaction.user.id, bet);
                     return;
                 });
-                break;
+                break; }
 
             case RouletteGameType.NUMBER_MULTIPLE:
-                GAMES_ACTIVE.set(interaction.user.id, {
+                { GAMES_ACTIVE.set(interaction.user.id, {
                     bet,
                     game_type: selection,
                     selection: 0,
@@ -461,10 +453,10 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     AddToWallet(interaction.user.id, bet);
                     return;
                 });
-                break;
+                break; }
             
             case RouletteGameType.COLOR:
-                i.update({
+                { i.update({
                     content:`${GetEmoji(EMOJI.ROULETTE_COLORS)} Please choose the color to bet on.`,
                     components: [ColorRow]
                 });
@@ -483,10 +475,10 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     StartRoulette(game);
                     return;
                 });
-                break;
+                break; }
 
             case RouletteGameType.LARGE_SECTION:
-                i.update({
+                { i.update({
                     content:`:1234: Please choose the section to bet on.`,
                     components: [LargeSectionRow]
                 });
@@ -505,10 +497,10 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     StartRoulette(game);
                     return;
                 });
-                break;
+                break; }
 
             case RouletteGameType.SMALL_SECTION:
-                i.update({
+                { i.update({
                     content:`:1234: Please choose the section to bet on.`,
                     components: [SmallSectionRow]
                 });
@@ -531,11 +523,11 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
                     StartRoulette(game);
                     return;
                 });
-                break;
+                break; }
         }
     });
 
-    collector.on('end', async i => {
+    collector.on('end', async () => {
         if (!CheckGambleLock(interaction.user.id)) return;
         if (GAMES_ACTIVE.get(interaction.user.id)?.picked) return;
 
@@ -546,7 +538,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
             content:`Ummm, **${interaction.user.displayName}**, you didn't interact, so I cancelled your game...`,
             components: []
         });
-        RecordMonitorEvent(EventType.ROULETTE_END, {user_id: interaction.user.id, bet}, `${interaction.user.username} ended roulette`);
+        
     });
 }
 

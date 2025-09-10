@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { Message } from "discord.js";
 import { Logger } from "okayulogger";
 import {BASE_DIRNAME, COMMIT, DEV} from "../index";
-import { stat, writeFileSync } from "fs";
+import { writeFileSync } from "fs";
 import { join } from "path";
 
 const PL = new Logger('child process');
@@ -89,6 +89,7 @@ export async function SelfUpdate(message: Message, commit?: string) {
 export async function OnlyPull(message: Message) {
     const reply = await message.reply('Pulling...');
     await pull_changes();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     reply.edit(`Pulling... done! Directory contents are now up-to-date with \`${require('child_process').execSync('git rev-parse HEAD').toString().trim().slice(0, 7)}\`. okabot is still running \`${COMMIT}\`.`);
 }
 

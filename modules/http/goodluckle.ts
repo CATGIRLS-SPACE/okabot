@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { BASE_DIRNAME, client, DEV } from "../../index";
 import { join } from "path";
-import { ButtonStyle, Snowflake, TextChannel } from "discord.js";
+import { ButtonStyle, Interaction, Snowflake, TextChannel } from "discord.js";
 import { Request, Response } from "express";
 import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
 import { HttpStatusCode } from "axios";
@@ -47,13 +47,13 @@ export async function AuthorizeUser(req: Request, res: Response) {
 
         const direct_message = await user.send({
             content: `## :closed_lock_with_key: __**AUTHENTICATION REQUEST**__\nDo you want to allow login to Goodluckle (token: ||${token}||)?\nYou have 60 seconds to allow login, otherwise it will be automatically cancelled.`,
-            components: [loginBar as any]
+            components: [loginBar as never]
         });
 
         LINKING_TOKENS.set(token, username);
         
         const collector = direct_message.createMessageComponentCollector({
-            filter: (i: any) => i.user.id === user.id,
+            filter: (i: Interaction) => i.user.id === user.id,
             time: 60_000
         });
 

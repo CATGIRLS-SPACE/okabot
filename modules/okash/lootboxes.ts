@@ -35,28 +35,28 @@ export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | L
 
     switch (roll) {
         case 1: // 1 = okash
-            const okash_reward = Math.floor(Math.random()*400) + 100; // 100-500
-            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward};
+            { const okash_reward = Math.floor(Math.random()*400) + 100; // 100-500
+            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward}; }
 
         case 2:
-            const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.CASINO_PASS_10_MIN;
+            { const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.CASINO_PASS_10_MIN;
             LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
-            return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item};
+            return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item}; }
 
         case 3:
-            const rolled_scraps = {
+            { const rolled_scraps = {
                 p: Math.floor(Math.random() * 50) + 1,
                 m: Math.floor(Math.random() * 50) + 1,
                 w: Math.floor(Math.random() * 50) + 1,
                 r: Math.floor(Math.random() * 50) + 1,
                 e: Math.floor(Math.random() * 50) + 1,
             };
-            return {type:LOOTBOX_REWARD_TYPE.SCRAPS, amount:rolled_scraps}
+            return {type:LOOTBOX_REWARD_TYPE.SCRAPS, amount:rolled_scraps} }
 
         default:
             // how did we get here?
-            const okash_reward_d = Math.floor(Math.random()*400) + 100; // 100-500
-            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward_d};
+            { const okash_reward_d = Math.floor(Math.random()*400) + 100; // 100-500
+            return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward_d}; }
     }
 }
 

@@ -9,9 +9,9 @@ const LANG_EN: {[key: string]: string} = {
     'interaction.okash':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **{1}**, you've got ${GetEmoji(EMOJI.OKASH)} OKA**{2}** in your wallet.\nYour bank balance is ${GetEmoji(EMOJI.OKASH)} OKA**{3}**.\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in the bank's fines.`,
 }
 
-const LANG_ES: {[key: string]: string} = {
-    'interaction.okash':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **{1}**, you've got ${GetEmoji(EMOJI.OKASH)} OKA**{2}** in your wallet.\nYour bank balance is ${GetEmoji(EMOJI.OKASH)} OKA**{3}**.\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in the bank's fines.`,
-}
+// const LANG_ES: {[key: string]: string} = {
+//     'interaction.okash':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **{1}**, you've got ${GetEmoji(EMOJI.OKASH)} OKA**{2}** in your wallet.\nYour bank balance is ${GetEmoji(EMOJI.OKASH)} OKA**{3}**.\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in the bank's fines.`,
+// }
 
 
 /**

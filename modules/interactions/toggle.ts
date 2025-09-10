@@ -10,18 +10,18 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
 
     switch (subcommand) {
         case 'okash-notification':
-            const active = interaction.options.getString('active') == 'on';
+            { const active = interaction.options.getString('active') == 'on';
             interaction.reply({
-                content: active?`${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! i'll try to send you notifications every time you receive/transfer okash on your account.`:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} too many notifications? i get that, i\'ll chill out with the notifications`,
+                content: active?`${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! i'll try to send you notifications every time you receive/transfer okash on your account.`:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} too many notifications? i get that, i'll chill out with the notifications`,
                 flags:[MessageFlags.Ephemeral]
             
             });
             prefs.customization.global.okash_notifications = active;
             UpdateUserProfile(interaction.user.id, prefs);
-            break;
+            break; }
 
         case 'preferred-pronouns':
-            if (interaction.locale != Locale.EnglishUS && interaction.locale != Locale.EnglishGB) {
+            { if (interaction.locale != Locale.EnglishUS && interaction.locale != Locale.EnglishGB) {
                 const message = 'Sorry, but this feature is not supported on your selected language. Change your Discord language to English to use this feature.';
                 return interaction.reply(message);
             }
@@ -34,10 +34,10 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
                 content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} okaaay! your pronouns are now set to "${preferred}!"`,
                 flags:[MessageFlags.Ephemeral]
             });
-            break;
+            break; }
 
         case 'okabot-updates':
-            if (interaction.guild?.id != "1019089377705611294") return interaction.reply({
+            { if (interaction.guild?.id != "1019089377705611294") return interaction.reply({
                 content: 'This function is not available in this server.'
             });
             const guild = interaction.client.guilds.cache.get(interaction.guild!.id)!;
@@ -58,7 +58,7 @@ export async function HandleCommandToggle(interaction: ChatInputCommandInteracti
                     flags: [MessageFlags.Ephemeral]
                 });
             }
-            break;
+            break; }
     
         default:
             break;

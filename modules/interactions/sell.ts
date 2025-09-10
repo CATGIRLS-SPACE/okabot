@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, Locale, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
 import {AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
@@ -74,10 +74,9 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
             RemoveOneFromInventory(interaction.user.id, SELL_PRICES[item].itemID!);
 
             // achievement for selling it right after dropped
-            const time = Math.round(new Date().getTime() / 1000);
             if (LootboxRecentlyDropped.has(interaction.user.id) && 
                 LootboxRecentlyDropped.get(interaction.user.id)!.item == SELL_PRICES[item].itemID! &&
-                LootboxRecentlyDropped.get(interaction.user.id)!.time + 180 >= time // has 3 minutes to sell or no achievment!
+                LootboxRecentlyDropped.get(interaction.user.id)!.time + 180 >= Math.round(new Date().getTime() / 1000) // has 3 minutes to sell or no achievment!
             ) GrantAchievement(interaction.user, Achievements.SELLDROPITEM, interaction.channel as TextChannel);
             break;
     

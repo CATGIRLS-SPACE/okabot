@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, EmbedBuilder, MessageFlags, SelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
+import { ActionRowBuilder, ChatInputCommandInteraction, ComponentType, SelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "discord.js";
 import { EMOJI, GetEmoji, GetEmojiID } from "../../util/emoji";
 import {LangGetAutoTranslatedStringRaw} from "../../util/language";
 
@@ -83,10 +83,10 @@ Each message you send in the server has a chance of gaining you a random drop.
 These drops include:
 - Lootboxes
 - okash Drops
-Lootboxes include okash rewards, customizations, and Shop Vouchers, which can be used to get a free customization\*
+Lootboxes include okash rewards, customizations, and Shop Vouchers, which can be used to get a free customization\\*
 okash Drops are either small or large. Small drops are less okash but more common, 
 whereas large drops are more okash but less common.
--# \*Some rarer customizations cannot be unlocked via Shop Vouchers.
+-# \\*Some rarer customizations cannot be unlocked via Shop Vouchers.
 `
 
 

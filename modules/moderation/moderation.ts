@@ -1,11 +1,10 @@
 import {Logger} from "okayulogger";
 import {
     EmbedBuilder,
-    GuildMember,
     Message,
     MessageReaction,
     PartialMessageReaction,
-    PermissionsBitField, ReactionEmoji,
+    PermissionsBitField,
     Snowflake, TextChannel, User
 } from "discord.js";
 import {BASE_DIRNAME, client, DEV} from "../../index";

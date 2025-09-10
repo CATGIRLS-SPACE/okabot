@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { Logger } from "okayulogger";
 import { join } from "path";
-import { client, DEV } from "../../index";
+import { DEV } from "../../index";
 import { Client, TextChannel } from "discord.js";
 // import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 
@@ -147,19 +149,19 @@ export function CheckUserShares(user_id: string, stock: Stocks): number {
 
     switch (stock) {
         case Stocks.CATGIRL:
-            const neko_holder = MARKET.catgirl.holders.find(holder => holder.user_id == user_id);
+            { const neko_holder = MARKET.catgirl.holders.find(holder => holder.user_id == user_id);
             count = neko_holder?.amount || 0;
-            break;
+            break; }
 
         case Stocks.DOGGIRL:
-            const dogy_holder = MARKET.doggirl.holders.find(holder => holder.user_id == user_id);
+            { const dogy_holder = MARKET.doggirl.holders.find(holder => holder.user_id == user_id);
             count = dogy_holder?.amount || 0;
-            break;
+            break; }
 
         case Stocks.FOXGIRL:
-            const fxgl_holder = MARKET.foxgirl.holders.find(holder => holder.user_id == user_id);
+            { const fxgl_holder = MARKET.foxgirl.holders.find(holder => holder.user_id == user_id);
             count = fxgl_holder?.amount || 0;
-            break;
+            break; }
     
         default:
             return 0;
@@ -183,6 +185,7 @@ enum Trend {
  * @param starting_price The set starting price of the stock
  */
 function CalculateNextTrend(trend: Trend, price: number, starting_price: number): Trend {
+    console.log(price, starting_price); // wehh
     // const amount_changed = Math.abs(trend - starting_price);
     // // if the price is 1000 above starting price, heavy chance to go down
     // // if it's already negative, it should have a tiny chance to flip
@@ -215,7 +218,7 @@ function CalculateNextTrend(trend: Trend, price: number, starting_price: number)
  * If the trend is no change (e.g. 150,150) then it will assume a positive trend.
  * This is so that the stock prices hopefully don't go insane rollercoaster 24/7.
  */
-export function UpdateMarkets(c: Client) {
+export function UpdateMarkets(_c: Client) {
     // L.info('updating markets...');
 
     let trend = Trend.POSITIVE;
@@ -256,7 +259,7 @@ export function UpdateMarkets(c: Client) {
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
-    const is_event = DoEventCheck(c);
+    // const is_event = DoEventCheck(c);
     // if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
 }
 
@@ -271,28 +274,28 @@ export async function BuyShares(user_id: string, stock: Stocks, amount: number) 
 
     switch (stock) {
         case Stocks.CATGIRL: case Stocks.NEKO:
-            const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
+            { const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
             if (neko_holder == undefined) {MARKET.catgirl.holders.push({user_id, amount}); break;}
             const neko_where = MARKET.catgirl.holders.indexOf(neko_holder);
             neko_holder.amount += amount;
             MARKET.catgirl.holders[neko_where] = neko_holder;
-            break;
+            break; }
 
         case Stocks.DOGGIRL: case Stocks.DOGY:
-            const dogy_holder = MARKET.doggirl.holders.find((holder) => holder.user_id == user_id);
+            { const dogy_holder = MARKET.doggirl.holders.find((holder) => holder.user_id == user_id);
             if (dogy_holder == undefined) {MARKET.doggirl.holders.push({user_id, amount}); break;}
             const dogy_where = MARKET.doggirl.holders.indexOf(dogy_holder);
             dogy_holder.amount += amount;
             MARKET.doggirl.holders[dogy_where] = dogy_holder;
-            break;
+            break; }
 
         case Stocks.FOXGIRL: case Stocks.FXGL:
-            const fxgl_holder = MARKET.foxgirl.holders.find((holder) => holder.user_id == user_id);
+            { const fxgl_holder = MARKET.foxgirl.holders.find((holder) => holder.user_id == user_id);
             if (fxgl_holder == undefined) {MARKET.foxgirl.holders.push({user_id, amount}); break;}
             const fxgl_where = MARKET.foxgirl.holders.indexOf(fxgl_holder);
             fxgl_holder.amount += amount;
             MARKET.foxgirl.holders[fxgl_where] = fxgl_holder;
-            break;
+            break; }
     
         default:
             return L.error(`unknown case ${stock}?`);
@@ -323,7 +326,7 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
 
     switch (stock) {
         case Stocks.CATGIRL: case Stocks.NEKO:
-            const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
+            { const neko_holder = MARKET.catgirl.holders.find((holder) => holder.user_id == user_id);
             if (neko_holder == undefined) return;
             // store where it was located because we can't use indexOf after modifying it
             const neko_where = MARKET.catgirl.holders.indexOf(neko_holder);
@@ -333,10 +336,10 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
                 MARKET.catgirl.holders[neko_where] = neko_holder;
             else
                 MARKET.catgirl.holders.splice(neko_where, 1); // remove them if they don't hold any shares;
-            break;
+            break; }
 
         case Stocks.DOGGIRL: case Stocks.DOGY:
-            const dogy_holder = MARKET.doggirl.holders.find((holder) => holder.user_id == user_id);
+            { const dogy_holder = MARKET.doggirl.holders.find((holder) => holder.user_id == user_id);
             if (dogy_holder == undefined) return;
             const dogy_where = MARKET.doggirl.holders.indexOf(dogy_holder);
             dogy_holder.amount -= amount;
@@ -344,10 +347,10 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
                 MARKET.doggirl.holders[dogy_where] = dogy_holder;
             else
                 MARKET.doggirl.holders.splice(dogy_where, 1); // remove them if they don't hold any shares;
-            break;
+            break; }
 
         case Stocks.FOXGIRL: case Stocks.FXGL:
-            const fxgl_holder = MARKET.foxgirl.holders.find((holder) => holder.user_id == user_id);
+            { const fxgl_holder = MARKET.foxgirl.holders.find((holder) => holder.user_id == user_id);
             if (fxgl_holder == undefined) return;
             const fxgl_where = MARKET.foxgirl.holders.indexOf(fxgl_holder);
             fxgl_holder.amount -= amount;
@@ -355,7 +358,7 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
                 MARKET.foxgirl.holders[fxgl_where] = fxgl_holder;
             else
                 MARKET.foxgirl.holders.splice(fxgl_where, 1); // remove them if they don't hold any shares;
-            break;
+            break; }
     
         default:
             return L.error(`unknown case ${stock}?`);

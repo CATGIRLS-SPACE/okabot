@@ -2,9 +2,10 @@ import {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    ChatInputCommandInteraction, Client,
+    ChatInputCommandInteraction,
+    Interaction,
     MessageFlags,
-    Snowflake, User
+    Snowflake
 } from "discord.js";
 import {client, CONFIG} from "../../index";
 import {Logger} from "okayulogger";
@@ -68,11 +69,11 @@ export async function SendLoginRequest(username: string, session: string): Promi
 
         const direct_message = await user.send({
             content: '## :closed_lock_with_key: __**AUTHENTICATION REQUEST**__\nDo you want to allow login to the okabot management page?\nYou have 60 seconds to allow login, otherwise it will be automatically cancelled.',
-            components: [loginBar as any]
+            components: [loginBar as never]
         });
 
         const collector = direct_message.createMessageComponentCollector({
-            filter: (i: any) => i.user.id === user.id,
+            filter: (i: Interaction) => i.user.id === user.id,
             time: 60_000
         });
 

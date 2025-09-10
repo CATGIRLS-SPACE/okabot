@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "fs"
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
@@ -5,7 +6,6 @@ import {BASE_DIRNAME} from "../../index"
 import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
-import {Wallet} from "../okash/wallet";
 import {UserPet} from "../pet/pet";
 import { BannerSticker } from "../levels/levels"
 
@@ -322,7 +322,7 @@ export function CheckUserIdOkashRestriction(user_id: string, ability: string): b
 
         // they are restricted in some way
         // abilities aren't relevant anymore
-        const abilities = profile.restriction.abilities.includes(',')?profile.restriction.abilities.split(','):profile.restriction.abilities;
+        // const abilities = profile.restriction.abilities.includes(',')?profile.restriction.abilities.split(','):profile.restriction.abilities;
 
         return true;
     }

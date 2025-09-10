@@ -1,11 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { scheduleJob } from 'node-schedule';
 import { Logger } from 'okayulogger';
 import { join } from 'path';
 import { BASE_DIRNAME, DEV } from '../../index';
-import { Client, TextChannel } from 'discord.js';
-import { GetEmoji } from '../../util/emoji';
-import { AddXP } from '../levels/onMessage';
-import { AddToWallet } from '../okash/wallet';
+import { Client } from 'discord.js';
 import { readFileSync, writeFileSync } from 'fs';
 
 const DO_IT_EVERY_MINUTE_BECAUSE_WHY_NOT = false;

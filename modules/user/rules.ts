@@ -4,6 +4,7 @@ import {
     ButtonStyle,
     ChatInputCommandInteraction,
     EmbedBuilder,
+    Interaction,
     Message,
     MessageFlags,
     MessageReaction,
@@ -13,7 +14,6 @@ import {
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import { client } from "../..";
 
 
 const agreement = new EmbedBuilder()
@@ -66,10 +66,10 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     const reply = await interaction.reply({
         embeds: [agreement],
         flags: [MessageFlags.Ephemeral],
-        components: [AgreementComponentBar as any]
+        components: [AgreementComponentBar as never]
     });
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 120_000 });
 
     collector.on('collect', (i => {

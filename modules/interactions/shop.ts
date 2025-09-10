@@ -46,7 +46,7 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
 
     switch (interaction.options.getString('page')) {
         case 'gems':
-            const profile = GetUserProfile(interaction.user.id);
+            { const profile = GetUserProfile(interaction.user.id);
             // has user-specific items so we must generate it here
             const AVAILABLE_ITEMS = new EmbedBuilder()
                 .setTitle('Available items to buy with your okash')
@@ -67,7 +67,7 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
             interaction.reply({embeds:[
                 AVAILABLE_ITEMS
             ]});
-            break;
+            break; }
     
         case 'customization.coin':
             interaction.reply({embeds:[AVAILABLE_CUSTOMIZATIONS_COIN]});

@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 const url = `${window.location.toString().startsWith('https')?'wss://bot.lilycatgirl.dev':'ws://localhost:9256'}`;
 
 let socket = new WebSocket(url);

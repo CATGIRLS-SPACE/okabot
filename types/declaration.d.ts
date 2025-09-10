@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ChatInputCommandInteraction } from 'discord.js';
 
 // This file allows me to add the custom properties for okabot to

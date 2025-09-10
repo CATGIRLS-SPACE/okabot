@@ -1,5 +1,4 @@
 import {
-    ActivityType,
     ChatInputCommandInteraction,
     MessageFlags,
     SlashCommandBuilder,
@@ -13,7 +12,7 @@ import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {GetUserProfile} from "../../user/prefs";
 import {DoRandomDrops} from "../../passive/onMessage";
-import {LANG_GAMES, LangGetAutoTranslatedString, LangGetFormattedString} from "../../../util/language";
+import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {DEV} from "../../../index";
 

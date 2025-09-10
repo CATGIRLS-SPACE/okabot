@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder, Snowflake} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake} from "discord.js";
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
 import {BASE_DIRNAME} from "../../index";
 import {join} from "path";
@@ -117,7 +117,7 @@ export function GetCasinoDB(): CasinoDB {
 export async function HandleCommandCasino(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    const embed = new EmbedBuilder();
+    // const embed = new EmbedBuilder();
 
     switch (interaction.options.getSubcommand()) {
         case 'alltime':

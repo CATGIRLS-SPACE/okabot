@@ -3,7 +3,7 @@ import {Logger} from "okayulogger";
 import { client } from "../../index";
 
 const L = new Logger('automod');
-const URL_REGEX = new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&\/=]*$/);
+const URL_REGEX = new RegExp(/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$/);
 
 /**
  * Runs some checks on a message to ensure it follows rules
@@ -14,7 +14,6 @@ export async function AutomodCheckMessage(message: Message) {
 
     // URL checks
     // check each word for a link
-    const links = [];
     let check_links = true; // if there's links, can they be sent?
     for (const word of words) {
         if (URL_REGEX.test(word)) check_links = check_links && await RunURLCheck(word, message.author.id, message.guildId!);

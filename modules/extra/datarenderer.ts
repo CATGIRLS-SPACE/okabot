@@ -125,7 +125,6 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     ctx.roundRect(5, 5, width - 10, height - 10, 12);
     ctx.stroke();
 
-    const graph_width = width - 10;
     const graph_height = height - 10;
 
     // we want nine lines for horizontal
@@ -280,15 +279,15 @@ function GenerateMultiBar(
     // make bar
     switch (sections.count) {
         case 2:
-            const double_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
+            { const double_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
             ctx.fillStyle = sections.colors[0];
             ctx.fillRect(bar_start_x, bar_start_y, double_first_width, bar_height);
             ctx.fillStyle = sections.colors[1];
             ctx.fillRect(bar_start_x + double_first_width, bar_start_y, bar_width - double_first_width, bar_height);
-            break;
+            break; }
 
         case 4:
-            const quad_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
+            { const quad_first_width = Math.round((sections.values[0]/sections.total) * bar_width);
             const quad_second_width = Math.round((sections.values[1]/sections.total) * bar_width);
             const quad_third_width = Math.round((sections.values[2]/sections.total) * bar_width);
             const quad_final_width = Math.round((sections.values[3]/sections.total) * bar_width);
@@ -300,7 +299,7 @@ function GenerateMultiBar(
             ctx.fillRect(bar_start_x + quad_first_width + quad_second_width, bar_start_y, quad_third_width, bar_height);
             ctx.fillStyle = sections.colors[3];
             ctx.fillRect(bar_start_x + quad_first_width + quad_second_width + quad_third_width, bar_start_y, quad_final_width, bar_height);
-            break;
+            break; }
     }
 
     // render bar

@@ -1,7 +1,7 @@
-import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Locale, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Interaction, Locale, SlashCommandBuilder } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetLastPrices, GetSharePrice, SellShares, Stocks } from "../okash/stock";
-import { AddToBank, AddToWallet, GetBank, GetWallet, RemoveFromBank, RemoveFromWallet } from "../okash/wallet";
+import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { format } from "util";
 // import { HandleCommandLink } from "./link";
 import { createCanvas, loadImage } from "canvas";
@@ -256,7 +256,7 @@ async function HandleSellConfirmation(interaction: ChatInputCommandInteraction, 
         components: [CONFIRMATION_BAR]
     })
 
-    const collectorFilter = (i: any) => i.user.id === interaction.user.id;
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = response.createMessageComponentCollector({ filter: collectorFilter, time: 30_000 });
 
     collector.on('collect', async i => {

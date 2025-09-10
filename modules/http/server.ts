@@ -1,9 +1,8 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
-import {BASE_DIRNAME, client, CONFIG, DEV} from '../../index';
-import {Client, EmbedBuilder, MessageFlags, Snowflake, TextChannel, User} from 'discord.js';
+import {CONFIG, DEV} from '../../index';
+import {Client, MessageFlags, Snowflake, TextChannel} from 'discord.js';
 import { join } from 'path';
-import { CheckUserShares, GetSharePrice, Stocks } from '../okash/stock';
 import { createServer } from 'http';
 import { Logger } from 'okayulogger';
 import { Server } from 'ws';
@@ -24,7 +23,7 @@ server.set('views', join(__dirname, 'page'));
 server.get('/minecraft', (req, res) => {
     res.send('cannot get this route, please post instead.');
 });
-// @ts-ignore why is typescript suddenly so upset with express?
+// @ts-expect-error why is typescript suddenly so upset with express?
 server.post('/minecraft', async (req: Request, res: Response) => {
     // console.log('request: ', req.body);
     if (DEV) return;
@@ -35,7 +34,7 @@ server.post('/minecraft', async (req: Request, res: Response) => {
     
     switch (req.body.type) {
         case 'chat':
-            const chat_message = await channel.send({
+            { const chat_message = await channel.send({
                 content: `**${req.body.username}:** ${req.body.content}`,
                 flags: MessageFlags.SuppressNotifications
             });
@@ -43,7 +42,7 @@ server.post('/minecraft', async (req: Request, res: Response) => {
                 // try this ridiculous idea
                 GeminiDemoRespondToInquiry(chat_message, true);
             }
-            break;
+            break; }
 
         case 'join':
             channel.send({
@@ -160,7 +159,7 @@ export function CreateSharedMedia(links: string[]): string {
     SHARED_MEDIA.set(id, links);
     return id;
 }
-// @ts-ignore
+// @ts-expect-error express wahh wahh
 server.get('/s/:id', (req, res) => {
     if (!SHARED_MEDIA.has(req.params.id)) return res.sendStatus(404);
 
@@ -183,15 +182,15 @@ server.get('/management', (req: Request, res: Response) => {
     res.render('admin.ejs');
 });
 
-// @ts-ignore
+// @ts-expect-error express wahh wahh
 server.get('/authorize', (req: Request, res: Response) => {
     if (req.query.app == 'goodluckle') return AuthorizeUser(req, res);
 
     return res.status(404).send('Not Found').end();
 });
-// @ts-ignore
+// @ts-expect-error express wahh wahh
 server.get('/gll/setup', (req: Request, res: Response) => StartAddLink(req, res));
-// @ts-ignore
+// @ts-expect-error express wahh wahh
 server.get('/gll/start', (req: Request, res: Response) => PostToNyt(req, res));
 
 const SERVER = createServer(server);
@@ -204,10 +203,6 @@ export function StartHTTPServer(c: Client) {
     SERVER.listen(9256).on('listening', () => {
         L.info('Server listening on :9256');
     });
-}
-
-interface PriviligedSession {
-    user_id: Snowflake,
 }
 
 const aliveConnections: import("ws")[] = [];
@@ -268,7 +263,7 @@ export function AuthorizeLogin(session: string, user_id: Snowflake) {
 
 export function DenyLogin(session: string, user_id: Snowflake) {
     aliveConnections.forEach(ws => {
-        ws.send(`SESSION ${session} DENY`);
+        ws.send(`SESSION ${session} DENY ${user_id}`);
     });
 }
 

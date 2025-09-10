@@ -13,8 +13,9 @@ import {join} from "path";
 export function ShowPatchnotes(message: Message) {
     let PATCHNOTES_COMPONENT: ContainerBuilder;
     try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         PATCHNOTES_COMPONENT = require(join(__dirname, 'versions', VERSION)).PATCHNOTES_COMPONENT;
-    } catch (err) {
+    } catch {
         return message.reply({
             content: `sorry, i couldn't find \`${VERSION}.js\` in the patch notes versions folder :crying_cat_face:`
         });

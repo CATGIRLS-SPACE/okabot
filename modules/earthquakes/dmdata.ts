@@ -4,7 +4,7 @@ import { WebSocket } from "ws";
 import { BASE_DIRNAME } from "../../index";
 import { appendFileSync, writeFileSync } from "fs";
 import { gunzip } from "zlib";
-import { xml2js, xml2json } from "xml-js";
+import { xml2js } from "xml-js";
 import { SendNewReportNow } from "./earthquakes";
 
 
