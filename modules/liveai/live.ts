@@ -6,6 +6,8 @@ import { GetAzureVoiceStream } from "./streams/voice";
 import { Readable } from "stream";
 import { appendFileSync } from "fs";
 import { join } from "path";
+import { ConnectAzureTTS } from "./streams/ws/azure";
+import { CONFIG } from "../..";
 
 const L = new Logger('LiveAI');
 
@@ -18,6 +20,11 @@ export async function SetupVC(channel: VoiceChannel, text: string) {
 
     connection.on(VoiceConnectionStatus.Ready, async () => {
         L.debug(`voice connection to [${channel.name}] is ready`);
+
+        await ConnectAzureTTS(CONFIG.gemini.azure_region, CONFIG.gemini.azure_api_key, (chunk: Buffer<ArrayBufferLike>) => {
+            L.debug('new tts chunk');
+            appendFileSync(join(__dirname, 'voiceout-ws.mp3'), chunk);
+        });
 
         const audioPlayer = createAudioPlayer({
             behaviors: {

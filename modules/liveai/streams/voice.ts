@@ -3,6 +3,7 @@ import { CONFIG } from "../../../index";
 import { GenerateContentResponse } from "@google/genai";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { sendSSML } from "./ws/azure";
 
 
 const SSML = readFileSync(join(__dirname, 'ssml.xml'), 'utf-8');
@@ -18,9 +19,11 @@ export async function* GetAzureVoiceStream(stream: AsyncGenerator<GenerateConten
         const text = chunk.text?.trim();
         if (!text) continue;
 
-        buffer += (buffer ? " " : "") + text;
+        buffer += text;
 
         if (!(/[.?!]["')\]]?\s*$/.test(buffer))) continue;
+
+        sendSSML(buffer);
 
         const audio = await new Promise<Buffer>((resolve, reject) => {
             synthesizer.speakSsmlAsync(SSML.replace('{SystemReplacedTextObject}', buffer), result => {
@@ -38,6 +41,8 @@ export async function* GetAzureVoiceStream(stream: AsyncGenerator<GenerateConten
 
     // left-overs
     if (buffer) {
+        sendSSML(buffer);
+
         const audio = await new Promise<Buffer>((resolve, reject) => {
             synthesizer.speakSsmlAsync(SSML.replace('{SystemReplacedTextObject}', buffer), result => {
                 if (result.reason === ResultReason.SynthesizingAudioCompleted) {
