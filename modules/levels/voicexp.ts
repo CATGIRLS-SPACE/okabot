@@ -1,6 +1,6 @@
-import {Client, MessageFlags, TextChannel, VoiceState} from "discord.js";
+import {Client, TextChannel, VoiceState} from "discord.js";
 import { Logger } from "okayulogger";
-import { BASE_DIRNAME, DEV } from "../../index";
+import { BASE_DIRNAME } from "../../index";
 import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
@@ -34,10 +34,10 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         if (!VoiceData.get(oldState.member!.id)) return;
 
         if (oldState.channel)
-            oldState.channel.send({
-                content:`*Bye bye, **${newState.member?.displayName}**!*`,
-                flags: [MessageFlags.SuppressNotifications]
-            });
+            // oldState.channel.send({
+            //     content:`*Bye bye, **${newState.member?.displayName}**!*`,
+            //     flags: [MessageFlags.SuppressNotifications]
+            // });
 
         L.info(`total time in voice: ${event_time - VoiceData.get(newState.member!.id)!} sec`);
         
