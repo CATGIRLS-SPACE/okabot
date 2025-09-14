@@ -150,7 +150,6 @@ import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
 import { CheckForTextCommands } from "./util/textCommandMappings";
-import { SetupVC } from "./modules/liveai/live";
 
 
 export const client = new Client({
@@ -520,7 +519,7 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.vc') && CONFIG.gemini.enable && DEV) {
         const channel = await client.channels.fetch(message.content.split(' ')[1]);
         if (!channel) return message.reply('no channel');
-        SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
+        // SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
     }
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
