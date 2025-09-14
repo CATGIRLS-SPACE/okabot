@@ -334,16 +334,6 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
     prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';
     prompt += 'Current Memories on User: [\n-' + (UserMemories[message.author.id] || []).join('\n- ') + '\n]';
-    
-    // if (message.attachments.size > 0) prompt += '\nAlso, start out your response by shortly telling the user that you can\'t see images in conversation chains (replies) yet, but it\'s coming soon.';
-
-    // response = await openai.chat.completions.create({
-    //     messages: [{
-    //         role: 'user',
-    //         content: prompt
-    //     }],
-    //     model: 'gpt-5-chat-latest'
-    // });
 
     const contents: Array<{text: string} | {inlineData:{mimeType: string, data: string}}> = [ {text:prompt} ];
     if (has_images) {
@@ -411,9 +401,6 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
                     console.log(`skipping invalid emoji ${e}`);
                 }
             }
-        }
-        if (response_data.tool.startsWith('pinthis')) {
-            message.pin();
         }
         if (response_data.tool.startsWith('poll:')) {
             channel.send({

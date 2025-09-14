@@ -585,7 +585,7 @@ client.on(Events.MessageCreate, async message => {
 // Voice handlers
 
 client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-    HandleVoiceEvent(client, oldState, newState);
+    // HandleVoiceEvent(client, oldState, newState);
 });
 
 
