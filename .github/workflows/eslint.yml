@@ -2,7 +2,7 @@ name: Code Quality
 run-name: ${{ github.actor }} is running eslint on okabot...
 on: [push, pull_request]
 jobs:
-    build:
+    eslint:
         runs-on: ubuntu-latest
 
         steps:
