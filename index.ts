@@ -569,7 +569,7 @@ client.on(Events.MessageCreate, async message => {
         }
 
         // send the message to the minecraft server
-        if (!DEV) fetch(`https://bot.lilycatgirl.dev/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
+        if (!DEV) fetch(`https://b.whats.moe/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',

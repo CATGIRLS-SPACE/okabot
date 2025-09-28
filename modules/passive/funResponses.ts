@@ -20,7 +20,7 @@ const TYOB_RESPONSE: Array<string> = [
     'why do you bully me :crying_cat_face:',
     'it is okabot :pouting_cat:',
     'please call me okabot :crying_cat_face:',
-    'https://bot.lilycatgirl.dev/gif/dekocry.gif'
+    'https://b.whats.moe/gif/dekocry.gif'
 ]
 
 export async function CheckForFunMessages(message: Message) {
@@ -46,7 +46,7 @@ export async function CheckForFunMessages(message: Message) {
             (message.reference && (await message.fetchReference()).author.id == client.user!.id)
         )) {
         await message.reply({
-            content: 'https://bot.lilycatgirl.dev/gif/dekocry.gif'
+            content: 'https://b.whats.moe/gif/dekocry.gif'
         });
         return GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
     }
@@ -60,7 +60,7 @@ export async function CheckForFunMessages(message: Message) {
     //     message.content.toLowerCase().includes('kms'))
     // {
     //     return message.reply({
-    //         content:(Math.random()>0.8)?'https://bot.lilycatgirl.dev/video/neverkys_alt.mp4':'https://bot.lilycatgirl.dev/video/neverkys.mp4'
+    //         content:(Math.random()>0.8)?'https://b.whats.moe/video/neverkys_alt.mp4':'https://b.whats.moe/video/neverkys.mp4'
     //     });
     // }
 

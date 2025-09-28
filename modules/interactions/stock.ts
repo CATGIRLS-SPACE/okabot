@@ -16,8 +16,8 @@ const STRINGS: { [key: string]: { en: string, ja: string } } = {
         ja: '**現在の株式市場値段**'
     },
     psst: {
-        en: '-# psst, view this online at <https://bot.lilycatgirl.dev/stocks>!',
-        ja: '-# ねえねえ！オンラインで見ては<https://bot.lilycatgirl.dev/stocks>！'
+        en: '-# psst, view this online at <https://b.whats.moe/stocks>!',
+        ja: '-# ねえねえ！オンラインで見ては<https://b.whats.moe/stocks>！'
     },
     shares_owned: {
         en: '-- You own %s shares totaling %s',
