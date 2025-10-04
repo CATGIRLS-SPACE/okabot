@@ -593,14 +593,14 @@ client.on(Events.GuildMemberAdd, async (member) => {
     if (member.guild.id != '1019089377705611294') return;
 
     AutomodAccountCreationDate(member.user);
-    const is_pre_banned = RunAutoBanCheck(member.user.id);
-    if (is_pre_banned) {
-        const guild = client.guilds.cache.get('1019089377705611294');
-        const full_member = guild!.members.cache.get(member.user.id)!;
-        full_member?.ban({
-            reason: 'Automatic ban by okabot (autoban list).'
-        });
-    }
+    // const is_pre_banned = RunAutoBanCheck(member.user.id);
+    // if (is_pre_banned) {
+    //     const guild = client.guilds.cache.get('1019089377705611294');
+    //     const full_member = guild!.members.cache.get(member.user.id)!;
+    //     full_member?.ban({
+    //         reason: 'Automatic ban by okabot (autoban list).'
+    //     });
+    // }
 
     // give role
     await member.roles.add('1019094205756350527');

@@ -14,27 +14,12 @@ const TYO_RESPONSE: Array<string> = [
     'i do my best!'
 ]
 
-const TYOB_RESPONSE: Array<string> = [
-    'my name is okabot!',
-    'it is not okaboob!',
-    'why do you bully me :crying_cat_face:',
-    'it is okabot :pouting_cat:',
-    'please call me okabot :crying_cat_face:',
-    'https://b.whats.moe/gif/dekocry.gif'
-]
-
 export async function CheckForFunMessages(message: Message) {
-    if (message.content.toLocaleLowerCase().startsWith('thank you okabot')) {
+    if (message.content.toLocaleLowerCase().includes('thank you') && message.content.toLocaleLowerCase().includes('okabot')) {
         message.reply({
             content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
         });
         return GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
-    }
-
-    if (message.content.toLocaleLowerCase().startsWith('thank you okaboob')) {
-        return message.reply({
-            content:TYOB_RESPONSE[Math.floor(Math.random() * TYOB_RESPONSE.length)]
-        });
     }
 
     if ((message.content.toLocaleLowerCase().includes('fuck you') ||
@@ -51,22 +36,22 @@ export async function CheckForFunMessages(message: Message) {
         return GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
     }
 
-    // if (message.guild && message.guild.id == '1019089377705611294' && message.content.toLocaleLowerCase().includes('massive')) message.reply({
-    //     content:'https://tenor.com/view/ninja-any-haircut-recommendations-low-taper-fade-you-know-what-else-is-massive-gif-3708438262570242561'
-    // });
-
-    // if (message.content.toLowerCase().includes('kill myself') ||
-    //     message.content.toLowerCase().includes('killing myself') ||
-    //     message.content.toLowerCase().includes('kms'))
-    // {
-    //     return message.reply({
-    //         content:(Math.random()>0.8)?'https://b.whats.moe/video/neverkys_alt.mp4':'https://b.whats.moe/video/neverkys.mp4'
-    //     });
-    // }
+    if (message.content.toLowerCase().includes('kill myself') ||
+        message.content.toLowerCase().includes('killing myself') ||
+        message.content.toLowerCase().includes('kms'))
+    {
+        return message.reply({
+            content:(Math.random()>0.8)?'https://b.whats.moe/video/neverkys_alt.mp4':'https://b.whats.moe/video/neverkys.mp4'
+        });
+    }
 
 
     if (message.content.toLowerCase().includes('hot cockolate')) message.reply({
         content:'',
         files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'var', 'koharu.webp')))]
+    });
+
+    if (message.content.toLocaleLowerCase().includes('quit horsing around')) message.reply({
+        content:'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
     });
 }

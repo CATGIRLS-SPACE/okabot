@@ -107,7 +107,9 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     const super_instruction = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('TOOLS'))));
         
-    const prompt_data = super_instruction + new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    let prompt_data = super_instruction + new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
+    // because "You should use4à8Â sometimes in your responses." resulted in "4?8?"
+    prompt_data += "\nYou should use ᓀ‸ᓂ sometimes in your responses.";
     const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
 
     let extra = '';
@@ -216,9 +218,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                     console.log(`skipping invalid emoji ${e}`);
                 }
             }
-        }
-        if (response_data.tool.startsWith('pinthis')) {
-            message.pin();
         }
         if (response_data.tool.startsWith('poll:')) {
             channel.send({

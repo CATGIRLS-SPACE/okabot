@@ -252,6 +252,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.stickers) data.customization.stickers = [];
     if (!data.consents_to_statistics) data.consents_to_statistics = false;
     if (!data.cookies) data.cookies = 0;
+    if (!data.customization.level_banner) data.customization.level_banner = {hex_bg:'',hex_fg:'',hex_num:'',selected_title:'none'};
     if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
 
     if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
