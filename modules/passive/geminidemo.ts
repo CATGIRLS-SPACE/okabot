@@ -38,10 +38,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     // if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
     if (message.channel.isDMBased() && (GetUserSupportStatus(message.author.id) == 'none' && GetUserDevStatus(message.author.id) == 'none')) return;
-    
-    if (message.channel.isDMBased() && !DEV) {
-        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**-> ${message.author.id}(${message.author.username})** : ${message.content}`);
-    }
 
     if (message.channel.isDMBased() && ConversationChains[message.channel.id] && ConversationChains[message.channel.id].last_update + 3600000 > new Date().getTime()) return GeminiDemoReplyToConversationChain(message);
 
@@ -181,10 +177,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
     //         content:`:x: No response was received from Google. Try again?`
     //     });;
     // }
-
-    if (message.channel.isDMBased() && !DEV) {
-        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response.text}`);
-    }
 
     try {
         const response_data: {tool:string,reply:string} = JSON.parse((response.text as string).replaceAll('@',''));
@@ -362,10 +354,6 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         });
         return null;
     });
-
-    if (message.channel.isDMBased() && !DEV) {
-        (await client.channels.fetch('1411838083921608806') as TextChannel).send(`**<- ${message.author.id}(${message.author.username})** : ${response!.text}`);
-    }
 
     try {
         const response_data: {tool:string,reply:string} = JSON.parse((response?.text as string).replaceAll('@','') || '{"tool":"","reply":":zzz: *silence...*"}');

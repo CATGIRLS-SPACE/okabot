@@ -196,7 +196,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     // labels
     let offset_width = PFP_OFFSET + 10; // so that we can display the booster tag no matter what
     if (CONFIG.permitted_to_use_shorthands.includes(interaction.user.id)) {
-        ctx.fillStyle = '#f56e6eff';
+        ctx.fillStyle = '#f56e6e66';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 90, 23, 6);
         ctx.fill();
@@ -210,7 +210,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 97;
     }
     if (dev_status != 'none') {
-        ctx.fillStyle = dev_status=='contributor'?'#6eeaf5':'#6ef5b6';
+        ctx.fillStyle = dev_status=='contributor'?'#6eeaf5bb':'#6ef5b6bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 88, 23, 6);
         ctx.fill();
@@ -225,7 +225,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
     // bugtest
     if (tester_status == 'cgc-beta') {
-        ctx.fillStyle = '#876ef5';
+        ctx.fillStyle = '#876ef5bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 62, 23, 6);
         ctx.fill();
@@ -239,7 +239,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 72-5;
     }
     if (tester_status == 'public') {
-        ctx.fillStyle = '#876ef5';
+        ctx.fillStyle = '#876ef5bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 62, 23, 6);
         ctx.fill();
@@ -253,7 +253,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 72-5;
     }
     if (supporter == 'ko-fi') {
-        ctx.fillStyle = '#fa9de4';
+        ctx.fillStyle = '#fa9de4bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 73, 23, 6);
         ctx.fill();
@@ -267,7 +267,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 83-5;
     }
     if (supporter == 'granted') {
-        ctx.fillStyle = '#9dfab4ff';
+        ctx.fillStyle = '#9dfab4bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 64, 23, 6);
         ctx.fill();
@@ -281,7 +281,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 94-5;
     }
     if (user_is_booster) {
-        ctx.fillStyle = '#fa9de4';
+        ctx.fillStyle = '#fa9de4bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 73, 23, 6);
         ctx.fill();
@@ -295,7 +295,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         offset_width += 83-5;
     }
     if (DEV || CheckCompletionist(interaction.user.id)) {
-        ctx.fillStyle = '#82cf93ff';
+        ctx.fillStyle = '#82cf93bb';
         ctx.beginPath();
         ctx.roundRect(offset_width, 52, 59, 23, 6);
         ctx.fill();
