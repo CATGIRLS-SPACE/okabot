@@ -182,6 +182,13 @@ server.get('/management', (req: Request, res: Response) => {
     res.render('admin.ejs');
 });
 
+// server.get('/proxy/*', async (req, res) => {
+//     const image = req.originalUrl.substring(req.originalUrl.indexOf('/proxy/'));
+//     const data = await fetch(image);
+//     res.set('Content-Type', data.headers.get('content-type') || 'unknown/unknown');
+//     data.body.pipeTo(res);
+// });
+
 // @ts-expect-error express wahh wahh
 server.get('/authorize', (req: Request, res: Response) => {
     if (req.query.app == 'goodluckle') return AuthorizeUser(req, res);

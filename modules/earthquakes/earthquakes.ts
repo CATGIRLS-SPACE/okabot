@@ -49,8 +49,10 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const specific_xml = await (await fetch(report_url)).text();
     const image_url = specific_xml.split('<Detail>')[1].split('</Detail>')[0];
 
+    console.log(image_url);
+
     const embeds = [embed];
-    if ('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId) embeds.push(new EmbedBuilder().setImage(`https://www3.nhk.or.jp/sokuho/jishin/${image_url}`));
+    if ('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId) embeds.push(new EmbedBuilder().setImage(`https://news.web.nhk/sokuho/jishin/${image_url}`));
     
     interaction.editReply({
         content: (('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId)?``:await LangGetAutoTranslatedStringRaw('No image rendered for this earthquake. Try again later.\n', interaction.okabot.translateable_locale))+await LangGetAutoTranslatedStringRaw('-# Earthquake image is unofficially provided by NHK.', interaction.okabot.translateable_locale),
