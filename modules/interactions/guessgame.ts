@@ -2,15 +2,17 @@ import sharp from "sharp";
 import {
     AttachmentBuilder,
     ChatInputCommandInteraction,
-    Message, MessageFlags,
+    Message,
+    MessageFlags,
     SlashCommandBuilder,
     Snowflake,
     TextChannel
 } from "discord.js";
-import {readdirSync, readFileSync, writeFileSync} from "fs";
+import {existsSync, readdirSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 import {BASE_DIRNAME} from "../../index";
 import {GetUserSupportStatus} from "../../util/users";
+import {Achievements, GrantAchievement} from "../passive/achievement";
 
 async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
     const img = sharp(input).ensureAlpha(); // force RGBA
@@ -50,10 +52,18 @@ async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
     return sharp(data, { raw: { width, height, channels } }).resize(width * 2, height * 2, {kernel:'nearest'}).png().toBuffer();
 }
 
+let has_loaded_db = false;
 const current_games = new Map<Snowflake, { message: Snowflake, answer: string, rid: number }>();
 const current_streaks = new Map<Snowflake, number>();
 
 export async function GuessBlueArchive(interaction: ChatInputCommandInteraction) {
+    if (!has_loaded_db) {
+        const db_path = join(BASE_DIRNAME, 'db', 'pixel.oka');
+        const db: {[key: string]: number} = JSON.parse(readFileSync(db_path, 'utf-8')).scores;
+        for (const key of Object.keys(db)) current_streaks.set(key, db[key]);
+        has_loaded_db = true;
+    }
+
     if (interaction.guild && interaction.guild.id == '1348652647963561984' && GetUserSupportStatus(interaction.user.id) == 'none') return interaction.reply({content:':warning: Something went wrong while starting the game:\n```(OkabotAccessError) This guild is not eligible for this interaction when used in the default user context.```'});
     if (current_games.has(interaction.user.id)) return interaction.reply({content:'You\'ve already got a guessing game going!',flags:[MessageFlags.Ephemeral]});
 
@@ -85,6 +95,7 @@ export async function GuessBlueArchive(interaction: ChatInputCommandInteraction)
             content: `Who is this Blue Archive student?\nIt was: ` + picked,
             files: [new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'ggba', picked + '.png')), {name:'true.png'})]
         });
+        UpdateStreakDB();
     }, 15_000); // 15 seconds
 }
 
@@ -99,6 +110,20 @@ export async function CheckGuessGameMessage(message: Message) {
         else current_streaks.set(message.author.id, current_streaks.get(message.author.id)! + 1);
         message.react('✅');
         message.reply(`Yup! Your streak is now **${current_streaks.get(message.author.id)}** in a row!`);
+        if (current_streaks.get(message.author.id)! == 5) GrantAchievement(message.author, Achievements.PIXELGAME_5, message.channel as TextChannel);
+        if (current_streaks.get(message.author.id)! == 10) GrantAchievement(message.author, Achievements.PIXELGAME_10, message.channel as TextChannel);
+        if (current_streaks.get(message.author.id)! == 25) GrantAchievement(message.author, Achievements.PIXELGAME_25, message.channel as TextChannel);
+
+        UpdateStreakDB();
+    }
+}
+
+async function UpdateStreakDB() {
+    const db_path = join(BASE_DIRNAME, 'db', 'pixel.oka');
+    if (!existsSync(db_path)) writeFileSync(db_path, '{scores:[]}');
+    const new_db: {[key: string]: number} = {};
+    for (const key of current_streaks.keys()) {
+        new_db[key] = current_streaks.get(key) || 0
     }
 }
 

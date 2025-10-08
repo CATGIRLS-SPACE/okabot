@@ -6,6 +6,7 @@ import {BASE_DIRNAME} from "../../index"
 import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
+console.log('achievements is', Achievements)
 import {UserPet} from "../pet/pet";
 import { BannerSticker } from "../levels/levels"
 
