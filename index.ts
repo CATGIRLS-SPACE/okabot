@@ -463,7 +463,10 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         .setFooter({text: 'read if cute | thanks for using my bot <3'})
         .setThumbnail(client.user!.avatarURL())
 
-    interaction.editReply({embeds:[info_embed]});
+    interaction.editReply({
+        content:['1387213389083709590','1019089377705611294','1348652647963561984'].includes(interaction.guildId || '0')?`This server has full access to okabot features! ${GetEmoji(EMOJI.NEKOHEART)}`:'This server is using basic okabot features.',
+        embeds:[info_embed]
+    });
 }
 
 
@@ -536,9 +539,13 @@ client.on(Events.MessageCreate, async message => {
             GeminiDemoRespondToInquiry(message);
     }
 
+    if (message.content.includes('<@908895994027049021>')) {
+        (await client.channels.fetch('1315805846910795846') as TextChannel).send(`User ${message.author.username} has pinged me with message:\n${message.content}`);
+    }
+
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         if (!CONFIG.gemini.enable) return;
-        if (message.guild.id == '1348652647963561984') message.reply({
+        if (message.guild.id != '1348652647963561984' && message.guild.id != '1019089377705611294') message.reply({
             content: 'This feature is no longer available.',
             flags:[MessageFlags.SuppressNotifications]
         });
