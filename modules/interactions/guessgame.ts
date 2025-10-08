@@ -10,9 +10,9 @@ import {
 } from "discord.js";
 import {existsSync, readdirSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
+// import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BASE_DIRNAME} from "../../index";
 import {GetUserSupportStatus} from "../../util/users";
-// import {Achievements, GrantAchievement} from "../passive/achievement";
 
 async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
     const img = sharp(input).ensureAlpha(); // force RGBA
@@ -110,9 +110,11 @@ export async function CheckGuessGameMessage(message: Message) {
         else current_streaks.set(message.author.id, current_streaks.get(message.author.id)! + 1);
         message.react('✅');
         message.reply(`Yup! Your streak is now **${current_streaks.get(message.author.id)}** in a row!`);
-        // if (current_streaks.get(message.author.id)! == 5) GrantAchievement(message.author, Achievements.PIXELGAME_5, message.channel as TextChannel);
-        // if (current_streaks.get(message.author.id)! == 10) GrantAchievement(message.author, Achievements.PIXELGAME_10, message.channel as TextChannel);
-        // if (current_streaks.get(message.author.id)! == 25) GrantAchievement(message.author, Achievements.PIXELGAME_25, message.channel as TextChannel);
+        // must lazy-load because circular dependencies fuck my stupid baka life bro
+        const { Achievements, GrantAchievement } = await import("../passive/achievement.js");
+        if (current_streaks.get(message.author.id)! == 5) GrantAchievement(message.author, Achievements.PIXELGAME_5, message.channel as TextChannel);
+        if (current_streaks.get(message.author.id)! == 10) GrantAchievement(message.author, Achievements.PIXELGAME_10, message.channel as TextChannel);
+        if (current_streaks.get(message.author.id)! == 25) GrantAchievement(message.author, Achievements.PIXELGAME_25, message.channel as TextChannel);
 
         UpdateStreakDB();
     }
