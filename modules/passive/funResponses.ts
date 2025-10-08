@@ -51,6 +51,10 @@ export async function CheckForFunMessages(message: Message) {
         files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'var', 'koharu.webp')))]
     });
 
+    if (message.content.toLowerCase().includes('nozomi') || message.content.toLowerCase().includes('hikari')) message.reply({
+        content: 'https://cdn.discordapp.com/attachments/633444420297031682/1421993693258317907/81b49a72a78b48c6b4e54cb40f56a86f.mov'
+    })
+
     if (message.content.toLocaleLowerCase().includes('quit horsing around')) message.reply({
         content:'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
     });

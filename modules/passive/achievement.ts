@@ -72,7 +72,10 @@ export enum Achievements {
     TWO_BY_FOUR = '2x4',
     TRACKED = 'stats',
     GIVE_COOKIE = 'givecookie',
-    COOKIES_250 = '250cookies'
+    COOKIES_250 = '250cookies',
+    PIXELGAME_5 = 'pixelstreak5',
+    PIXELGAME_10 = 'pixelstreak10',
+    PIXELGAME_25 = 'pixelstreak25',
 }
 
 export const ACHIEVEMENTS: {
@@ -126,6 +129,9 @@ export const ACHIEVEMENTS: {
     'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
     // 'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
     // '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
+    'pixelstreak5':{name:'Sensei',description:'Guess the correct student 5 times in a row.',class:'fun2',diff:'e'},
+    'pixelstreak10':{name:'Addict Sensei',description:'Guess the correct student 10 times in a row.',class:'fun2',diff:'t'},
+    'pixelstreak25':{name:'True Sensei',description:'Guess the correct student 25 times in a row.',class:'fun2',diff:'h'},
 }
 
 export const TITLES: {
@@ -177,7 +183,10 @@ export const TITLES: {
     '2x4':'construction worker',
     'stats':'statistics major',
     'givecookie':'just the sweetest',
-    '250cookies':'mega sweet tooth'
+    '250cookies':'mega sweet tooth',
+    'pixelstreak5':'relationship lvl 5',
+    'pixelstreak10':'relationship level 10',
+    'pixelstreak25':'relationship level MAX',
 }
 
 
