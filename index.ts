@@ -1,3 +1,5 @@
+import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
+
 const START_TIME_MS = (new Date()).getTime();
 
 import {Logger} from "okayulogger";
@@ -326,7 +328,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
         // yes
         interaction.reply({content:`yeah, last error was <t:${last_errors[last_errors.length - 1].time}:R>. reason:\n`+'```' + last_errors[last_errors.length - 1].error + '```'});
-    }
+    },
+    'guess': GuessBlueArchive,
 }
 
 const ALLOWED_COMMANDS_IN_DMS = [
@@ -511,6 +514,7 @@ client.on(Events.MessageCreate, async message => {
     Check$Message(message); // checks for $ messages, for serials on tracked items
     CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
     // CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
+    CheckGuessGameMessage(message);
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);

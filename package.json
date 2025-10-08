@@ -1,6 +1,6 @@
 {
   "name": "okabot",
-  "version": "5.1.2",
+  "version": "5.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "node-schedule": "^2.1.1",
     "okayulogger": "^3.0.0",
     "openai": "^5.12.2",
+    "sharp": "^0.34.4",
     "uuid": "^13.0.0",
     "ws": "^8.18.1",
     "xml-js": "^1.6.11"
