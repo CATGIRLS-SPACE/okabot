@@ -49,16 +49,17 @@ async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
         }
     }
 
-    return sharp(data, { raw: { width, height, channels } }).resize(width * 2, height * 2, {kernel:'nearest'}).png().toBuffer();
+    return sharp(data, { raw: { width, height, channels } }).resize(width, height, {kernel:'nearest'}).png().toBuffer();
 }
 
 let has_loaded_db = false;
-const current_games = new Map<Snowflake, { message: Snowflake, answer: string, rid: number }>();
+const current_games = new Map<Snowflake, { message: Snowflake, answer: string, rid: number, post_id: number }>();
 const current_streaks = new Map<Snowflake, number>();
 
 export async function GuessBlueArchive(interaction: ChatInputCommandInteraction) {
     if (!has_loaded_db) {
         const db_path = join(BASE_DIRNAME, 'db', 'pixel.oka');
+        if (!existsSync(db_path)) writeFileSync(db_path, '{"scores":{}}')
         const db: {[key: string]: number} = JSON.parse(readFileSync(db_path, 'utf-8')).scores;
         for (const key of Object.keys(db)) current_streaks.set(key, db[key]);
         has_loaded_db = true;
@@ -70,16 +71,35 @@ export async function GuessBlueArchive(interaction: ChatInputCommandInteraction)
     await interaction.deferReply();
 
     const allowed_students = readdirSync(join(BASE_DIRNAME, 'assets', 'ggba')).map(entry => entry.split('.png')[0]);
-    const picked = allowed_students[Math.floor(Math.random() * allowed_students.length)];
+    let picked = allowed_students[Math.floor(Math.random() * allowed_students.length)];
+    if (picked.includes(' (')) picked = picked.slice(0, picked.indexOf(' ('));
     // console.log(picked);
-    const pixelated = await pixelateImage(readFileSync(join(BASE_DIRNAME, 'assets', 'ggba', picked + '.png')), 5);
+    const danbooru_response = await fetch(`https://safebooru.donmai.us/posts.json?tags=rating:g+${picked}_(blue_archive)+1girl&page=${Math.floor(Math.random() * 5) + 1}&limit=10`);
+    const listing = await danbooru_response.json();
+    if (listing.length == 0) return interaction.editReply({
+        content: ':warning: Something went wrong while starting the game:\n```Danbooru response was length of 0```'
+    });
+    const chosen = listing[Math.floor(Math.random() * listing.length)];
+    // console.log(picked, chosen);
+    const image_asset_res = (await fetch(chosen.media_asset.variants.at(-1).url));
+    const arrayBuffer = await image_asset_res.arrayBuffer();
+
+    let pixelated;
+
+    try {
+        pixelated = await pixelateImage(Buffer.from(arrayBuffer), 50);
+    } catch (err) {
+        return interaction.editReply({
+            content: `:warning: An error occurred while starting the game. Your streak hasn't been affected.\n\`\`\`${err}\`\`\``
+        });
+    }
     const attachment = new AttachmentBuilder(pixelated, {name:'pixelated.png'});
     interaction.editReply({
-        content:'Who is this Blue Archive student?',
+        content:`Who is this Blue Archive student?`,
         files: [attachment]
     });
     const rid = Math.random();
-    current_games.set(interaction.user.id, {message: interaction.id, answer: picked, rid});
+    current_games.set(interaction.user.id, {message: interaction.id, answer: picked, rid, post_id: chosen.id});
 
     setTimeout(async () => {
         if (!current_games.has(interaction.user.id)) return console.debug('game doesnt exist anymore');
@@ -92,8 +112,8 @@ export async function GuessBlueArchive(interaction: ChatInputCommandInteraction)
             content: `<@${interaction.user.id}> Too bad! It was \`${picked}\`!`
         });
         interaction.editReply({
-            content: `Who is this Blue Archive student?\nIt was: ` + picked,
-            files: [new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'ggba', picked + '.png')), {name:'true.png'})]
+            content: `Who is this Blue Archive student?\nIt was: ` + picked + `\n[Source](<https://safebooru.donmai.us/posts/${chosen.id}>)`,
+            files: [new AttachmentBuilder(Buffer.from(arrayBuffer), {name:'true.png'})]
         });
         UpdateStreakDB();
     }, 15_000); // 15 seconds
@@ -109,7 +129,7 @@ export async function CheckGuessGameMessage(message: Message) {
         if (!current_streaks.has(message.author.id)) current_streaks.set(message.author.id, 1);
         else current_streaks.set(message.author.id, current_streaks.get(message.author.id)! + 1);
         message.react('✅');
-        message.reply(`Yup! Your streak is now **${current_streaks.get(message.author.id)}** in a row!`);
+        message.reply(`Yup! Your streak is now **${current_streaks.get(message.author.id)}** in a row!\n[Image Source](<https://safebooru.donmai.us/posts/${game.post_id}>)`);
         // must lazy-load because circular dependencies fuck my stupid baka life bro
         const { Achievements, GrantAchievement } = await import("../passive/achievement.js");
         if (current_streaks.get(message.author.id)! == 5) GrantAchievement(message.author, Achievements.PIXELGAME_5, message.channel as TextChannel);
@@ -127,6 +147,7 @@ async function UpdateStreakDB() {
     for (const key of current_streaks.keys()) {
         new_db[key] = current_streaks.get(key) || 0
     }
+    writeFileSync(db_path, JSON.stringify({scores:new_db}));
 }
 
 

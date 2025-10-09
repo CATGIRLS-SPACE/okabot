@@ -510,12 +510,12 @@ client.on(Events.MessageCreate, async message => {
     await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
     DoLeveling(message); // self-explanatory
-    CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
+    // CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
     if (message.channel.id == "1310486655257411594") WordleCheck(message); // checks for wordle spoilers
     DoRandomDrops(message); // drops!
     ListenForRouletteReply(message); // checks for number in response to roulette game
-    Check$Message(message); // checks for $ messages, for serials on tracked items
-    CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
+    // Check$Message(message); // checks for $ messages, for serials on tracked items
+    // CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
     // CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
     CheckGuessGameMessage(message);
 
@@ -608,14 +608,6 @@ client.on(Events.GuildMemberAdd, async (member) => {
     if (member.guild.id != '1019089377705611294') return;
 
     AutomodAccountCreationDate(member.user);
-    // const is_pre_banned = RunAutoBanCheck(member.user.id);
-    // if (is_pre_banned) {
-    //     const guild = client.guilds.cache.get('1019089377705611294');
-    //     const full_member = guild!.members.cache.get(member.user.id)!;
-    //     full_member?.ban({
-    //         reason: 'Automatic ban by okabot (autoban list).'
-    //     });
-    // }
 
     // give role
     await member.roles.add('1019094205756350527');

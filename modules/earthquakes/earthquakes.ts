@@ -48,9 +48,6 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     const report_url = (await reports_xml.text()).split('<item')[1].split('</item>')[0].split('url="')[1].split('"')[0];
     const specific_xml = await (await fetch(report_url)).text();
     const image_url = specific_xml.split('<Detail>')[1].split('</Detail>')[0];
-
-    console.log(image_url);
-
     const embeds = [embed];
     if ('20'+image_url.split('JS00cwA0')[1].split('_')[0]==earthquake.eventId) embeds.push(new EmbedBuilder().setImage(`https://news.web.nhk/sokuho/jishin/${image_url}`));
     
@@ -71,18 +68,6 @@ const SHINDO_IMG: { [key: string]: string } = {
     '6+':'6+.png',
     '7':'7.png'
 }
-
-// const SHINDO_EMOJI: { [key: string]: EMOJI } = {
-//     '1': EMOJI.SHINDO_1,
-//     '2': EMOJI.SHINDO_2,
-//     '3': EMOJI.SHINDO_3,
-//     '4': EMOJI.SHINDO_4,
-//     '5-':EMOJI.SHINDO_5_LOWER,
-//     '5+':EMOJI.SHINDO_5_UPPER,
-//     '6-':EMOJI.SHINDO_6_LOWER,
-//     '6+':EMOJI.SHINDO_6_UPPER,
-//     '7': EMOJI.SHINDO_7
-// }
 
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false, locale: string = 'en') {
     if (max_intensity == null || depth == null || magnitude == null) return new EmbedBuilder()
