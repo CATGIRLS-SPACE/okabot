@@ -152,6 +152,7 @@ import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
 import { CheckForTextCommands } from "./util/textCommandMappings";
+import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
 
 
 export const client = new Client({
@@ -324,6 +325,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
     'craft': HandleCommandCraft,
+    'server-preferences': HandleServerPrefsCommand,
     'was-there-an-error':async (interaction: ChatInputCommandInteraction) => {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
         // yes

@@ -29,6 +29,7 @@ import {FortuneBallSlashCommand} from "../interactions/8ball";
 import {CatgirlSlashCommand} from "../interactions/catgirl";
 import {CraftSlashCommand} from "../interactions/craft";
 import {GuessGameSlashCommand} from "../interactions/guessgame";
+import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -77,6 +78,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         CraftSlashCommand,
         // StockSlashCommand,
         GuessGameSlashCommand,
+        ServerPreferencesSlashCommand,
         was_there_an_error
     ].map(command => command.toJSON());
 
