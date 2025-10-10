@@ -6,6 +6,7 @@ import {join} from "node:path";
 import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 // import { createCanvas, loadImage } from "canvas";
 // import axios from "axios";
 
@@ -36,12 +37,10 @@ export function GetCurrentFines(): number {
 }
 
 export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
-    // if (interaction.guild?.id != "1019089377705611294") return interaction.reply({
-    //     content: `:x: Sorry, but robbing isn't available yet, as we're still migrating banks to be individual servers instead of global.`,
-    //     flags: [MessageFlags.Ephemeral]
-    // });
 
-    // return DrawWantedPoster(interaction);
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
 
     const d = new Date();
     if (COOLDOWNS.has(interaction.user.id) && COOLDOWNS.get(interaction.user.id)! > Math.floor(d.getTime()/1000)) return interaction.reply({

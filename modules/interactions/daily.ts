@@ -16,8 +16,13 @@ import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
 import { GetLastLocale } from "../..";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.daily)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     await interaction.deferReply();
     const d = new Date();
 

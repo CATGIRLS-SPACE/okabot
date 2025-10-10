@@ -7,6 +7,7 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 import {Achievements, GrantAchievement} from "./achievement";
 import {GetLastLocale} from "../../index";
 import {LangGetAutoTranslatedStringRaw} from "../../util/language";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('onMessage.ts');
 
@@ -17,6 +18,8 @@ async function Sleep(ms: number): Promise<void> {
 export const BoostsActive = new Map<Snowflake, number>();
 
 export async function DoRandomDrops(message: Message, author?: User) {
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.drops)) return;
+
     const time = Math.round(new Date().getTime() / 1000);
     const boost_active = (BoostsActive.has(message.author.id) && BoostsActive.get(message.author.id)! > time);
 

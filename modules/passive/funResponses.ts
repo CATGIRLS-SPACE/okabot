@@ -4,6 +4,7 @@ import {Achievements, GrantAchievement} from "./achievement";
 import {BASE_DIRNAME, client} from "../../index";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const TYO_RESPONSE: Array<string> = [
     'of course!',
@@ -15,6 +16,8 @@ const TYO_RESPONSE: Array<string> = [
 ]
 
 export async function CheckForFunMessages(message: Message) {
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs)) return;
+
     if (message.content.toLocaleLowerCase().includes('thank you') && message.content.toLocaleLowerCase().includes('okabot')) {
         message.reply({
             content:TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]

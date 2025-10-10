@@ -1,6 +1,7 @@
 import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { GetUserProfile } from "../user/prefs";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 
 const AVAILABLE_CUSTOMIZATIONS_COIN = new EmbedBuilder()
@@ -43,6 +44,9 @@ const AVAILABLE_CUSTOMIZATIONS_DECK = new EmbedBuilder()
     )
 
 export async function HandleCommandShop(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
 
     switch (interaction.options.getString('page')) {
         case 'gems':

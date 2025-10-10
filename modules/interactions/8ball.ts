@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../util/language";
 import {Logger} from "okayulogger";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('8ball');
 
@@ -35,6 +36,10 @@ const POSSIBLE_ANSWERS: Array<LANG_GAMES> = [
 ];
 
 export async function HandleCommand8Ball(interaction: ChatInputCommandInteraction) {
+    if (interaction.guild && !CheckFeatureAvailability(interaction.guild.id, ServerFeature.magicball)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     const question = interaction.options.getString('question', true);
 
     const answer = POSSIBLE_ANSWERS[Math.ceil(Math.random() * POSSIBLE_ANSWERS.length) - 1];

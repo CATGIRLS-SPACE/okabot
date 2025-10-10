@@ -11,6 +11,7 @@ import {client, GetLastLocale} from "../../index";
 import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
 import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const XPCooldown: Map<string, number> = new Map<string, number>();
 
@@ -20,6 +21,8 @@ export async function DoLeveling(message: Message) {
     const current_time = Math.floor(d.getTime() / 1000);
     const cooldown = XPCooldown.get(message.author.id) || 0;
     if (cooldown >= current_time) return;
+
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.msg_xp)) return;
 
     // 30 second cooldown between xp gains
     XPCooldown.set(message.author.id, current_time + 30);
@@ -67,7 +70,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
         // `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[profile.leveling.level - 1]}** (${profile.leveling.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}** and 1x **${earned_item}**!\nYour next level will be in **${target_xp}XP**.`,
 
-        if (channel.guildId != '1348652647963561984') 
+        if (CheckFeatureAvailability(channel.guild!.id, ServerFeature.levelup_msg))
             channel.send({
                 content: await LangGetAutoTranslatedString(LANG_INTERACTION.LEVEL_LEVELUP, GetLastLocale(user_id), user.displayName, LEVEL_NAMES_EN[profile.leveling.level - 1], profile.leveling.level, okash_reward, earned_item, target_xp),
                 flags: [MessageFlags.SuppressNotifications]

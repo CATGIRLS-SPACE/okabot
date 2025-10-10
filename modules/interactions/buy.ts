@@ -7,6 +7,7 @@ import {AddXP} from "../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetProperItemName} from "./pockets";
 import { Achievements, GrantAchievement } from "../passive/achievement";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 
 const LastBoughtLevel = new Map<string, number>();
@@ -81,6 +82,9 @@ const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
 ];
 
 export async function HandleCommandBuy(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
     
     const wanted_item = interaction.options.getString('item')!.toLowerCase();
     

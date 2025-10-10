@@ -92,7 +92,7 @@ export interface BannerSticker {
 
 const COOLDOWNS = new Map<Snowflake, number>();
 
-export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {    
+export async function generateLevelBanner(interaction: ChatInputCommandInteraction, profile: USER_PROFILE, override_user_with?: User | undefined, preview_sticker?: BannerSticker): Promise<boolean | undefined> {
     const d = new Date();
     if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV && !preview_sticker) {
         interaction.reply({
@@ -493,6 +493,7 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
 import { CheckCompletionist, TITLES } from "../passive/achievement";
 import { spawn } from "child_process";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

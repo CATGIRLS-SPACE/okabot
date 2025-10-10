@@ -13,6 +13,7 @@ import {join} from "path";
 // import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BASE_DIRNAME} from "../../index";
 import {GetUserSupportStatus} from "../../util/users";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
     const img = sharp(input).ensureAlpha(); // force RGBA
@@ -57,6 +58,10 @@ const current_games = new Map<Snowflake, { message: Snowflake, answer: string, r
 const current_streaks = new Map<Snowflake, number>();
 
 export async function GuessBlueArchive(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.pixelguess)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     if (!has_loaded_db) {
         const db_path = join(BASE_DIRNAME, 'db', 'pixel.oka');
         if (!existsSync(db_path)) writeFileSync(db_path, '{"scores":{}}')

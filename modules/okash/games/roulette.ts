@@ -25,6 +25,7 @@ import { Achievements, GrantAchievement } from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {client} from "../../../index";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -350,6 +351,10 @@ async function ConfirmMultiNumberGame(user_id: string) {
 const DISABLE_ROULETTE = false;
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.roulette)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
 
     if (DISABLE_ROULETTE) return interaction.reply({

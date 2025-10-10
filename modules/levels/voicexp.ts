@@ -5,6 +5,7 @@ import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { Achievements, GrantAchievement } from "../passive/achievement";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('voice xp');
 
@@ -41,6 +42,7 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         const channel = oldState.channel;
         if (channel == null) return;
 
+        if (!CheckFeatureAvailability(oldState.guild!.id, ServerFeature.voice_xp)) return;
         AddXP(newState.member!.id, <unknown>channel as TextChannel, xp_gained);
 
         if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);

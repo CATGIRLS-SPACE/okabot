@@ -20,6 +20,7 @@ import {EMOJI, GetEmoji} from '../../util/emoji';
 import {gzipSync} from 'zlib';
 import {UpdateDMDataStatus} from "../http/server";
 import {LangGetAutoTranslatedStringRaw} from "../../util/language";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('earthquakes');
 
@@ -27,6 +28,10 @@ const locations_english: {[key: string]: string} = {};
 
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.earthquakes)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     await interaction.deferReply();
     if (CONFIG.extra.includes('disable jma fetching')) return interaction.editReply({
         content: 'err: jma fetch disabled'

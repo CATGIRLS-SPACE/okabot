@@ -15,6 +15,7 @@ import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {DEV} from "../../../index";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -92,6 +93,10 @@ const WIN_STREAKS = new Map<Snowflake, number>();
 const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we show a tiny plz help me pay for okabot message
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.slots)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: `:x: You can only use one slot machine at a time, **${interaction.user.displayName}**!`
     });

@@ -4,9 +4,14 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BANK_ROBS } from "../okash/games/rob";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 import { CheckGambleLock } from "../okash/games/_lock";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 
 export async function HandleCommandTransfer(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content: 'nah.'
     });

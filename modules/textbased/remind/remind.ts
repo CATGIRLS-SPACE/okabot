@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { BASE_DIRNAME, client } from "../../../index";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { GetUserSupportStatus } from "../../../util/users";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 
 interface Reminder {
     user: Snowflake,
@@ -57,6 +58,10 @@ function GetBoostStatus(user_id: string, guild_id: Snowflake): boolean {
 }
 
 export function RemindLater(message: Message) {
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.reminders)) return message.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     const parsed_time = ParseRelativeTime(message.content.split(' ')[1]);
     if (isNaN(parsed_time)) return message.reply({
         content: `please tell me when, like "o.remind 3h" for 3 hours from now! supported suffixes are \`s, m, h, d, w, mo, y\`.`,

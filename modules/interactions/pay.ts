@@ -3,11 +3,16 @@ import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
 import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
 import { Achievements, GrantAchievement } from "../passive/achievement";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('payment');
 const PAYMENT_HISTORY = new Map<Snowflake, {paid: string, time: number}>();
 
 export async function HandleCommandPay(interaction: ChatInputCommandInteraction, client: Client) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+    
     const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.TRANSFER);
     if (has_restriction) return;
 

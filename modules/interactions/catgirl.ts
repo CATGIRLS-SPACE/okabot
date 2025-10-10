@@ -5,6 +5,7 @@ import {
     SlashCommandBuilder
 } from "discord.js";
 import axios from "axios";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
@@ -12,6 +13,10 @@ async function fetchImage(url: string) {
 }
 
 export async function HandleCommandCatgirl(interaction: ChatInputCommandInteraction) {
+    if (interaction.guild && !CheckFeatureAvailability(interaction.guild.id, ServerFeature.catgirl)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+
     await interaction.deferReply();
 
     try {

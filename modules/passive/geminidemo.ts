@@ -34,6 +34,9 @@ const ConversationChainReplyPointers: {
  */
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return message.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
     // if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});
 
@@ -255,6 +258,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
 export async function GeminiDemoReplyToConversationChain(message: Message) {
     if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
+    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return;
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
     if (!ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference!.messageId!] && !ConversationChainReplyPointers[message.reference!.messageId!]) return message.react('❓');
 
@@ -458,6 +462,7 @@ import { MESYFile } from '../story/mesy';
 import { join } from 'node:path';
 import { readFileSync, writeFileSync } from 'node:fs';
 import emojiRegex from 'emoji-regex';
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const ENCODER = new TextEncoder();
 

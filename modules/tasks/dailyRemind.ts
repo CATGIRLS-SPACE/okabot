@@ -2,6 +2,7 @@ import { Snowflake, TextChannel } from "discord.js";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { BASE_DIRNAME, client } from "../../index";
 import { join } from "path";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const reminders = new Map<Snowflake, {time: number, channel: Snowflake}>();
 export const quickdraw = new Map<Snowflake, number>();
@@ -18,6 +19,8 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
     const d = new Date();
     reminders.set(user_id, {time, channel: channel.id});
     setTimeout(() => {
+        if (!CheckFeatureAvailability(channel.guild!.id, ServerFeature.daily)) return;
+
         channel.send({
             content:`:clock3: <@${user_id}>, your daily is now available!`
         });
@@ -48,7 +51,9 @@ export async function LoadReminders() {
         });
 
         setTimeout(() => {
-            (client.channels.cache.get(reminder.channel) as TextChannel)!.send({
+            const ch = client.channels.cache.get(reminder.channel)!;
+            if (!CheckFeatureAvailability((ch as TextChannel).guild!.id, ServerFeature.daily)) return;
+            (ch as TextChannel).send({
                 content:`:clock3: <@${reminder.user_id}>, your daily is now available!`
             });
             const dd = new Date();

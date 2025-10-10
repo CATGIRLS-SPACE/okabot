@@ -6,6 +6,7 @@ import {GetEmoji} from "../../util/emoji";
 import {format} from "util";
 import {LootboxRecentlyDropped} from "../okash/lootboxes";
 import {Achievements, GrantAchievement} from "../passive/achievement";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -52,6 +53,10 @@ const STRINGS: {
 }
 
 export async function HandleCommandSell(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
+    
     await interaction.deferReply();
 
     let locale = interaction.locale;

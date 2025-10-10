@@ -28,6 +28,7 @@ import {UpdateTrackedItem} from "../trackedItem";
 import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 
 // const L = new Logger('blackjack');
 
@@ -599,6 +600,10 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // const locale_supported = interaction.locale == 'en-US' || interaction.locale == 'en-GB';
     // const use_classic = interaction.options.getBoolean('classic') || false;
     // if (use_classic) return SetupBlackjackMessage(interaction);
+
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.blackjack)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
         content:`A game of Blackjack with fewer than 52 cards would be unfair to someone, wouldn't it, **${interaction.user.displayName}**?\n-# Well, okabot card decks actually only have 44 cards. This is because I was pissed off at the sheer number of value 10 cards. I will not revert this change because I am stubborn.`,

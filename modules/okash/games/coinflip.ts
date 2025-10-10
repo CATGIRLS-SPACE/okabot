@@ -29,6 +29,7 @@ import {DoRandomDrops} from "../../passive/onMessage";
 import {CheckGambleLock} from "./_lock";
 import {BASE_DIRNAME} from "../../../index";
 import { RECENT_ROBS } from "./rob";
+import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -270,6 +271,10 @@ const WinStreaks = new Map<Snowflake, number>();
 // current function is messy af, needs a makeover
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
     // interaction.deferReply();
+
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.coinflip)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+    });
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1 || CheckGambleLock(interaction.user.id)) {
         const violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
