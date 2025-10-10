@@ -9,9 +9,7 @@ const FirstPage =
 Choose a menu below to see information!
 
 :grey_exclamation: okabot just went publicly available! There may be some bugs!
-If you encounter any, please report them [here](<https://github.com/okawaffles/okabot/issues/new>)!
-
-Join the official okabot Discord: discord.gg/2yznVpbuCw
+If you encounter any, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!
 `
 
 const CurrencyPage =
@@ -124,14 +122,12 @@ const ExtraPage =
 # Extra info
 okabot is created with the intent to be free and fun. 
 If you want to support me and his development, you can do so [here](<https://ko-fi.com/okawaffles>).
-
-okabot is available in English and Japanese. It will reflect your Discord language. 
-Not all features are 100% translated, and some translations may be inaccurate.
 If you would like to help translate okabot into another language, please contact okawaffles.
 
 okabot was originally intended to be an exclusive bot for a specific server.
 I'm in the process of converting it to be able to be used in any server.
-If there are any bugs you encounter, please report them [here](<https://github.com/okawaffles/okabot/issues/new>)!
+If there are any bugs you encounter, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!
+You can tag okabot and write a message to have it be privately relayed to the developers.
 
 Thanks for using okabot, it really does mean a lot to me ${GetEmoji(EMOJI.NEKOHEART)}
 `
