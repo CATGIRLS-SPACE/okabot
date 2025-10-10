@@ -41,6 +41,7 @@ export interface ServerPreferences {
         ai_responses: boolean,
         reminders: boolean,
         catgirl: boolean,
+        danbooru: boolean,
     }
 }
 
@@ -63,6 +64,7 @@ export enum ServerFeature {
     gemini = 'ai_responses',
     reminders = 'reminders',
     catgirl = 'catgirl',
+    danbooru = 'danbooru',
 }
 
 const DEFAULT_PREFERENCES: ServerPreferences = {
@@ -86,6 +88,7 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         ai_responses: true,
         reminders: true,
         catgirl: true,
+        danbooru: false,
     }
 };
 
@@ -232,6 +235,11 @@ const extra_selection = new StringSelectMenuBuilder()
             .setValue('reminders')
             .setLabel('Reminders')
             .setDescription('Enable or disable the o.remind command'),
+
+        new StringSelectMenuOptionBuilder()
+            .setValue('danbooru')
+            .setLabel('Danbooru')
+            .setDescription('Enable or disable the Danbooru features'),
     )
 
 export async function HandleServerPrefsCommand(interaction: ChatInputCommandInteraction) {
@@ -242,7 +250,7 @@ export async function HandleServerPrefsCommand(interaction: ChatInputCommandInte
     if (!guildMember.permissions.has(PermissionsBitField.Flags.ManageGuild)) return interaction.editReply('Must have the "Manage Server" permission to use this command.');
 
     if (!DB_LOADED_YET) LoadServerPreferencesDB();
-    if (SERVER_PREFERENCES_DB[guild.id]) {
+    if (!SERVER_PREFERENCES_DB[guild.id]) {
         SERVER_PREFERENCES_DB[guild.id] = DEFAULT_PREFERENCES;
         SaveServerPreferencesDB();
     }
@@ -282,8 +290,8 @@ export async function HandleServerPrefsCommand(interaction: ChatInputCommandInte
 export function CheckFeatureAvailability(guild_id: Snowflake, feature: ServerFeature) {
     if (!DB_LOADED_YET) LoadServerPreferencesDB();
     if (!SERVER_PREFERENCES_DB[guild_id]) {
-        if (FORCED_ELLIGIBILITY_LIST[guild_id]) return FORCED_ELLIGIBILITY_LIST[guild_id][feature] || true;
-        else return true;
+        if (FORCED_ELLIGIBILITY_LIST[guild_id]) return FORCED_ELLIGIBILITY_LIST[guild_id][feature] || feature != 'danbooru';
+        else return feature!='danbooru';
     }
     return SERVER_PREFERENCES_DB[guild_id].allowed_features[feature];
 }
@@ -362,6 +370,9 @@ function ChangeSettingTo(i: ButtonInteraction) {
             break;
         case 'reminders':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.reminders = enabled;
+            break;
+        case 'danbooru':
+            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru = enabled;
             break;
     }
 
@@ -566,6 +577,15 @@ function ExtraSelectDropDown(i: StringSelectMenuInteraction) {
             components: [new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setCustomId('reminders-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('reminders-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
+            ) as any]
+        });
+    }
+    if (i.values[0] == 'danbooru') {
+        i.update({
+            content: 'Do you want to enable or disable the Danbooru commands (d#9981938 and d$<tags>)? Posts which are not rating:g are always spoilered.',
+            components: [new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId('danbooru-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
             ) as any]
         });
     }

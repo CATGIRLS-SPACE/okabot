@@ -122,12 +122,14 @@ const ExtraPage =
 # Extra info
 okabot is created with the intent to be free and fun. 
 If you want to support me and his development, you can do so [here](<https://ko-fi.com/okawaffles>).
-If you would like to help translate okabot into another language, please contact okawaffles.
 
-okabot was originally intended to be an exclusive bot for a specific server.
-I'm in the process of converting it to be able to be used in any server.
+You can run /info to check if your server has Full Access or not.
+Servers with "full access" are given exclusive extra nonessential features, and are designated as such if the server
+either has enough donating members or meets some other criteria. These features are locked due to either high API costs
+or instability, whether it be due to it being an early build or just my incompetence.
+
 If there are any bugs you encounter, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!
-You can tag okabot and write a message to have it be privately relayed to the developers.
+You can also tag okabot and write a message to have it be privately relayed to the developers.
 
 Thanks for using okabot, it really does mean a lot to me ${GetEmoji(EMOJI.NEKOHEART)}
 `
