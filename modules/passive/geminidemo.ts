@@ -34,7 +34,7 @@ const ConversationChainReplyPointers: {
  */
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
     if (!CONFIG.gemini.enable) return;
-    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return message.reply({
+    if (!message.channel.isDMBased() && !CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return message.reply({
         content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
     });
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
@@ -226,7 +226,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
 
         const reply = await message.reply({
-            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'')
+            content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'') + `\n-# By using this feature, you agree to Google's [Gemini Policies](<https://gemini.google/policy-guidelines/>) and [Privacy Policy](<https://policies.google.com/privacy>)`
         });
 
         // create a new conversation chain
@@ -257,9 +257,12 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
 
 export async function GeminiDemoReplyToConversationChain(message: Message) {
-    if (!CONFIG.gemini.enable || message.content.startsWith('okabot, ')) return;
-    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return;
+    if (!CONFIG.gemini.enable || message.content.toLowerCase().startsWith('okabot, ')) return;
+    if (!message.channel.isDMBased() && !CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return;
+
+    // not really sure why this line exists considering it hypothetically will *never* trigger
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
+
     if (!ConversationChains[message.channel.isDMBased()?message.channel.id : message.reference!.messageId!] && !ConversationChainReplyPointers[message.reference!.messageId!]) return message.react('❓');
 
     let user;
@@ -407,12 +410,13 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         let reply;
         
         if (message.channel.isDMBased()) {
+            // i really could not give a shit what you're doing with gemini in dms, but I want to cover my ass.
             reply = await channel.send({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Direct Message Chains** | Thanks for supporting me <3` + `\n-# By using this feature, you agree to Google's [Gemini Policies](<https://gemini.google/policy-guidelines/>) and [Privacy Policy](<https://policies.google.com/privacy>). You also agree that usage data may be recorded to comply with Google's [Gemini API terms](<https://ai.google.dev/gemini-api/terms>).`
             });
         } else {
             reply = await message.reply({
-                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3`
+                content: response_data.reply + `\n-# GenAI+Tools (\`${response?.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n-# ✨ **Conversation Chains** [Jump to start](https://discord.com/channels/${message.guild!.id}/${message.channel.id}/${chain.orignal_message}) | Thanks for supporting me <3` + `\n-# By using this feature, you agree to Google's [Gemini Policies](<https://gemini.google/policy-guidelines/>) and [Privacy Policy](<https://policies.google.com/privacy>)`
             });
         }
 

@@ -16,7 +16,7 @@ const TYO_RESPONSE: Array<string> = [
 ]
 
 export async function CheckForFunMessages(message: Message) {
-    if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs)) return;
+    if (!message.channel.isDMBased() && !CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs)) return;
 
     if (message.content.toLocaleLowerCase().includes('thank you') && message.content.toLocaleLowerCase().includes('okabot')) {
         message.reply({

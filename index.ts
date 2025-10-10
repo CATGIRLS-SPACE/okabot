@@ -1,5 +1,3 @@
-import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
-
 const START_TIME_MS = (new Date()).getTime();
 
 import {Logger} from "okayulogger";
@@ -16,8 +14,6 @@ import {
     Partials,
     Snowflake,
     TextChannel,
-    PermissionFlagsBits,
-    VoiceChannel
 } from "discord.js";
 
 // Load config BEFORE imports, otherwise devmode doesn't load emojis properly
@@ -98,7 +94,7 @@ const DEPLOY_COMMANDS = process.argv.includes('--deploy');
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
 import {HandleCommandCoinflipV2} from "./modules/okash/games/coinflip";
-import {CheckBlackjackSilly, HandleCommandBlackjackV2} from "./modules/okash/games/blackjack";
+import {HandleCommandBlackjackV2} from "./modules/okash/games/blackjack";
 import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
@@ -124,13 +120,13 @@ import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {CreateSharedMedia, StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
-import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
+import {LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
-import {CheckForAgreementMessage, CheckForRuleReact, CheckForRulesSimple, CheckRuleAgreement, TextBasedRules} from "./modules/user/rules";
+import {CheckForRuleReact, CheckForRulesSimple, CheckRuleAgreement, TextBasedRules} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {DoRandomDrops} from "./modules/passive/onMessage";
-import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
+import {LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
 import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
@@ -140,20 +136,17 @@ import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGeminiDemo} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
-import {AutomodAccountCreationDate} from "./modules/moderation/automod";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import {HandleCommandCraft} from "./modules/interactions/craft";
-import {PetParseTextCommand} from "./modules/pet/textCommands";
 import {HARD_BAN, LoadSpecialUsers} from "./util/users";
-import { AC_OnCommand, ACLoadHookModule } from "./modules/ac/ac";
-import { InstallHook } from "./modules/ac/installer";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
-import { RunAutoBanCheck } from "./modules/moderation/autoban";
 import { CheckForTextCommands } from "./util/textCommandMappings";
 import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
 import {ConnectToN4Network} from "./modules/earthquakes/n4";
+import {CheckRequiredPermissions} from "./util/permscheck";
+import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 
 
 export const client = new Client({
@@ -207,21 +200,6 @@ export function ReloadConfig() {
  */
 async function StartBot() {
     await RunPreStartupTasks();
-
-    if (!existsSync(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))) 
-        await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
-
-    const mg_ver = '0.2.1';
-    
-    const is_updated = await ACLoadHookModule('millieguard.js', mg_ver);
-    if (!is_updated) {
-        L.warn('millieguard version mismatch!')
-        // update millieguard if not up-to-date
-        await InstallHook(join(__dirname, 'assets', 'millieguard.bin'), 'millieguard.js', CONFIG.aes_key);
-        // then try loading again
-        delete require.cache[require.resolve(join(__dirname, 'modules', 'ac', 'hooks', 'millieguard.js'))];
-        await ACLoadHookModule('millieguard.js', mg_ver);
-    }
 
     client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
@@ -354,55 +332,14 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
     LAST_USER_LOCALE.set(user_id, locale);
 }
 
-async function CheckRequiredPermissions(interaction: ChatInputCommandInteraction): Promise<boolean> {
-    if (interaction.channel?.isDMBased()) return true;    
-
-    const guild = await interaction.client.guilds.fetch(interaction.guildId!);
-    if (!guild) return false;
-    const me = guild.roles.botRoleFor(interaction.client.user);
-    if (!me) return false;
-
-    let has_perms = true;
-    
-    has_perms = me.permissions.has(PermissionFlagsBits.ReadMessageHistory);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.AddReactions);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.AttachFiles);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.EmbedLinks);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.ManageMessages);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.SendMessages);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.SendMessagesInThreads);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseApplicationCommands);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseExternalApps);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.UseExternalEmojis);
-    has_perms = has_perms && me.permissions.has(PermissionFlagsBits.ViewChannel);
-    // has_perms = has_perms && me.permissions.has(PermissionFlagsBits.);
-
-    return has_perms;
-}
-
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
-    if (!interaction.channel?.isTextBased()) try {
-        return interaction.reply({
-            content: 'Sorry, there\'s currently an issue with commands in guilds that don\'t have okabot!',
-            flags: [MessageFlags.SuppressNotifications]
-        });
-    } catch {
-        return console.log('Not text based, could not reply.');
-    }
+
+    if (!interaction.channel?.isTextBased()) return;
 
     L.info(`Execute command "${interaction.commandName}"`);
 
-    if (!(await CheckRequiredPermissions(interaction))) {
-        try {
-            interaction.reply({
-                content:':crying_cat_face: I don\'t have the right permissions to function! Please update my permissions! I require:\nread message history, add reactions, attach files, embed links, manage messages, send messages (+in threads), use application commands, use external apps, use external emojis, view channel.\n\nAlternatively, you could just check Administrator. Only do this if you absolutely trust me!'
-            });
-        } catch {
-            L.error('failed to send wrong perms message');
-        }
-        return;
-    }
+    if (!(await CheckRequiredPermissions(interaction))) return;
 
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
@@ -410,13 +347,7 @@ client.on(Events.InteractionCreate, async interaction => {
     };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
-    if (HARD_BAN.includes(interaction.user.id)) {
-        return interaction.reply({
-            content: ':x: Error: Hard Ban. You cannot use okabot.'
-        }); 
-    }
-
-    // if a user is super banned, okabot will stop here
+    // if a user is super banned, okabot will stop here <--- hey past millie, what the hell does "super banned" even mean?
     if (IsUserBanned(interaction.user.id)) {
         const profile = GetUserProfile(interaction.user.id);
         await interaction.reply({
@@ -425,15 +356,7 @@ client.on(Events.InteractionCreate, async interaction => {
         return;
     }
 
-    // this should never trigger but its a catch just in case it does happen somehow
-    if ((!interaction.channel || interaction.channel.isDMBased()) && !ALLOWED_COMMANDS_IN_DMS.includes(interaction.commandName)) return interaction.reply({
-        content:`:x: Sorry, **${interaction.user.displayName}**, but I'm not allowed to execute commands in DMs!`,
-        flags: [MessageFlags.Ephemeral]
-    });
-
     if (!HANDLERS[interaction.commandName]) return interaction.reply('No registered handler for this command. This is a bug.');
-
-    if (!(await AC_OnCommand(interaction))) return;
 
     // emergency killswitch for commands and bugs
     if (!LISTENING) return interaction.reply(`:crying_cat_face: Sorry, **${interaction.user.displayName}**, but I've been told to not respond to commands for now!\n-# this is likely due to updates, hold on a few minutes and try again!`);
@@ -477,14 +400,9 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
 // Message handlers
 
 client.on(Events.MessageCreate, async message => {
-    if (message.author.id == client.user!.id) { 
-        // await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
-        return; // don't listen to my own messages
-    }
+    if (!LISTENING) return; // disabling commands will disable message handlers as well
+    if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
-
-    if (HARD_BAN.includes(message.author.id)) return;
-
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     const rules = await CheckForRulesSimple(message.author.id);
@@ -514,24 +432,20 @@ client.on(Events.MessageCreate, async message => {
     await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
     DoLeveling(message); // self-explanatory
-    // CheckForAgreementMessage(message); // checks for "i agree..." message in response to rules
     if (message.channel.id == "1310486655257411594") WordleCheck(message); // checks for wordle spoilers
     DoRandomDrops(message); // drops!
     ListenForRouletteReply(message); // checks for number in response to roulette game
-    // Check$Message(message); // checks for $ messages, for serials on tracked items
-    // CheckBlackjackSilly(message); // checks for "should i hit" and responds if so
-    // CheckModerationShorthands(message); // checks for stuff like "o.kick" etc...
     CheckGuessGameMessage(message);
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
-    if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
-    if (message.content.startsWith('o.vc') && CONFIG.gemini.enable && DEV) {
-        const channel = await client.channels.fetch(message.content.split(' ')[1]);
-        if (!channel) return message.reply('no channel');
-        // SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
-    }
+    // if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
+    // if (message.content.startsWith('o.vc') && CONFIG.gemini.enable && DEV) {
+    //     const channel = await client.channels.fetch(message.content.split(' ')[1]);
+    //     if (!channel) return message.reply('no channel');
+    //     // SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
+    // }
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
 
@@ -610,8 +524,6 @@ client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 // Server join handler to give role automatically as well as the handler for reactions
 client.on(Events.GuildMemberAdd, async (member) => {
     if (member.guild.id != '1019089377705611294') return;
-
-    AutomodAccountCreationDate(member.user);
 
     // give role
     await member.roles.add('1019094205756350527');

@@ -178,11 +178,11 @@ const select_menu = new StringSelectMenuBuilder()
             .setValue('drops')
             .setEmoji('📦'),
 
-        new StringSelectMenuOptionBuilder()
-            .setLabel('Pets')
-            .setDescription('Get information on how pets work')
-            .setValue('pets')
-            .setEmoji('🦊'),
+        // new StringSelectMenuOptionBuilder()
+        //     .setLabel('Pets')
+        //     .setDescription('Get information on how pets work')
+        //     .setValue('pets')
+        //     .setEmoji('🦊'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('Extra')

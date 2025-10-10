@@ -129,9 +129,9 @@ export const ACHIEVEMENTS: {
     'stats':{name:'Statistics Major',description:'Create a tracked item and get 100 of its respective statistic.',class:'gamble',diff:'t'},
     // 'givecookie':{name:'Baker',description:'Give a cookie to someone!',class:'fun2',diff:'e'},
     // '250cookies':{name:'Sweet Tooth',description:'Have a total of 250 cookies given to you',class:'fun2',diff:'t'},
-    'pixelstreak5':{name:'Sensei',description:'Guess the correct student 5 times in a row.',class:'fun2',diff:'e'},
-    'pixelstreak10':{name:'Addict Sensei',description:'Guess the correct student 10 times in a row.',class:'fun2',diff:'t'},
-    'pixelstreak25':{name:'True Sensei',description:'Guess the correct student 25 times in a row.',class:'fun2',diff:'h'},
+    'pixelstreak5':{name:'Sensei',description:'Guess the correct student 5 times in a row.',class:'fun2',diff:'t'},
+    'pixelstreak10':{name:'Addict Sensei',description:'Guess the correct student 10 times in a row.',class:'fun2',diff:'h'},
+    'pixelstreak25':{name:'True Sensei',description:'Guess the correct student 25 times in a row.',class:'fun2',diff:'ex'},
 }
 
 export const TITLES: {

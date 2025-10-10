@@ -16,6 +16,7 @@ import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 const XPCooldown: Map<string, number> = new Map<string, number>();
 
 export async function DoLeveling(message: Message) {
+    if (message.channel.isDMBased()) return;
     // no spamming for levels allowed
     const d = new Date();
     const current_time = Math.floor(d.getTime() / 1000);

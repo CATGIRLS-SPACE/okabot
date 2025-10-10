@@ -18,6 +18,7 @@ async function Sleep(ms: number): Promise<void> {
 export const BoostsActive = new Map<Snowflake, number>();
 
 export async function DoRandomDrops(message: Message, author?: User) {
+    if (message.channel.isDMBased()) return;
     if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.drops)) return;
 
     const time = Math.round(new Date().getTime() / 1000);
