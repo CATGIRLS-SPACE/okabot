@@ -61,4 +61,18 @@ export async function CheckForFunMessages(message: Message) {
     if (message.content.toLocaleLowerCase().includes('quit horsing around')) message.reply({
         content:'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
     });
+
+    // CGC-exclusive starts here
+    if (message.guildId != '1019089377705611294' && message.guildId != '748284249487966282') return;
+
+    if (/^d#\d+$/.test(message.content)) {
+        const danbooru_response = await fetch(`https://danbooru.donmai.us/posts/${message.content.split('#')[1]}.json`);
+        const post = await danbooru_response.json();
+        const image_asset_res = (await fetch(post.file_url));
+        const arrayBuffer = await image_asset_res.arrayBuffer();
+        message.reply({
+            content: post.rating=='g'?'':`(post rating: ${post.rating})`,
+            files: [new AttachmentBuilder(Buffer.from(arrayBuffer), {name: post.rating=='g'?'danbooru.jpg':'SPOILER_danbooru.jpg'})]
+        });
+    }
 }
