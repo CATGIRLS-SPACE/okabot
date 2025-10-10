@@ -75,4 +75,24 @@ export async function CheckForFunMessages(message: Message) {
             files: [new AttachmentBuilder(Buffer.from(arrayBuffer), {name: post.rating=='g'?'danbooru.jpg':'SPOILER_danbooru.jpg'})]
         });
     }
+    if (message.content.startsWith('d$')) {
+        const tags = message.content.split('$')[1];
+        const danbooru_response = await fetch(`https://danbooru.donmai.us/posts.json?tags=${tags}`);
+        const posts = await danbooru_response.json();
+
+        if (posts.success == false) return message.reply({
+            content: `:warning: Error from Danbooru: \`${posts.message}\`\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)`
+        });
+
+        if (posts.length == 0) return message.reply({content:'No posts for list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)'});
+
+        let postlist = 'Found posts:\n';
+        for (const post of posts) {
+            postlist += `- #${post.id} - **${post.rating.toUpperCase()}**\n`
+        }
+
+        message.reply({
+            content: postlist + 'View one with "d#<post id>"'
+        });
+    }
 }
