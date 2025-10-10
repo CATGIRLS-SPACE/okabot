@@ -153,6 +153,7 @@ import { SetupTranslate } from "./util/translate";
 import { RunAutoBanCheck } from "./modules/moderation/autoban";
 import { CheckForTextCommands } from "./util/textCommandMappings";
 import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
+import {ConnectToN4Network} from "./modules/earthquakes/n4";
 
 
 export const client = new Client({
@@ -261,6 +262,7 @@ async function RunPostStartupTasks() {
 
     StartHTTPServer(client);
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
+    ConnectToN4Network();
 
     client.user!.setActivity({
         name: CONFIG.status.activity,
