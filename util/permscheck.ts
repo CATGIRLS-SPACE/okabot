@@ -8,13 +8,14 @@ import {ChatInputCommandInteraction, PermissionFlagsBits} from "discord.js";
  */
 export async function CheckRequiredPermissions(interaction: ChatInputCommandInteraction): Promise<boolean> {
     if (interaction.channel?.isDMBased()) return true;
+    // return true;
 
     const guild = await interaction.client.guilds.fetch(interaction.guildId!);
     if (!guild) return false;
     const me = guild.roles.botRoleFor(interaction.client.user);
     if (!me) return false;
 
-    let history, react, attachments, embeds, manage, sendmsg, sendmsgthread, appcmds, externalapps, emojis, viewchannel;
+    let history, react, attachments, embeds, manage, sendmsg, sendmsgthread, viewchannel;
 
     history = me.permissions.has(PermissionFlagsBits.ReadMessageHistory);
     react = me.permissions.has(PermissionFlagsBits.AddReactions);
@@ -23,12 +24,9 @@ export async function CheckRequiredPermissions(interaction: ChatInputCommandInte
     manage = me.permissions.has(PermissionFlagsBits.ManageMessages);
     sendmsg = me.permissions.has(PermissionFlagsBits.SendMessages);
     sendmsgthread = me.permissions.has(PermissionFlagsBits.SendMessagesInThreads);
-    appcmds = me.permissions.has(PermissionFlagsBits.UseApplicationCommands);
-    externalapps = me.permissions.has(PermissionFlagsBits.UseExternalApps);
-    emojis = me.permissions.has(PermissionFlagsBits.UseExternalEmojis);
     viewchannel = me.permissions.has(PermissionFlagsBits.ViewChannel);
 
-    const has_perms = history && react && attachments && embeds && manage && sendmsg && sendmsgthread && appcmds && externalapps && emojis && viewchannel;
+    const has_perms = history && react && attachments && embeds && manage && sendmsg && sendmsgthread && viewchannel;
 
     if (!has_perms) {
         try {
@@ -42,10 +40,6 @@ export async function CheckRequiredPermissions(interaction: ChatInputCommandInte
                         (manage ? '✅ ' : '❌ ') + 'Manage Messages',
                         (sendmsg ? '✅ ' : '❌ ') + 'Send Messages',
                         (sendmsgthread ? '✅ ' : '❌ ') + 'Send Messages in Threads',
-                        (appcmds ? '✅ ' : '❌ ') + 'Use Application Commands',
-                        (externalapps ? '✅ ' : '❌ ') + 'Use External Apps',
-                        (emojis ? '✅ ' : '❌ ') + 'Use External Emojis',
-                        (viewchannel ? '✅ ' : '❌ ') + 'View Channels',
                         '\nAlternatively, you *could* just enable the Administrator permission. This is a dangerous permission to grant, don\'t do it unless you absolutely trust me!'
                     ].join('\n')
             });
