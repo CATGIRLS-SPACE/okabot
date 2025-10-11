@@ -77,12 +77,24 @@ export async function CheckForFunMessages(message: Message) {
                     content: `An error occurred while fetching:\n\`\`\`${err}\`\`\``
                 });
             }
-            const image_asset_res = (await fetch(post.file_url));
-            const arrayBuffer = await image_asset_res.arrayBuffer();
-            message.reply({
-                content: post.rating == 'g' ? '' : `(post rating: ${post.rating})`,
-                files: [new AttachmentBuilder(Buffer.from(arrayBuffer), {name: post.rating == 'g' ? 'danbooru.jpg' : 'SPOILER_danbooru.jpg'})]
-            });
+            let image_asset_res = (await fetch(post.file_url));
+            let arrayBuffer = await image_asset_res.arrayBuffer();
+            try {
+                let was_oversize = false;
+                if (arrayBuffer.byteLength / 1024 / 1024 > 8.2) {
+                    console.log(`${arrayBuffer.byteLength / 1024 / 1024}mb is too big`);
+                    was_oversize = true;
+                    image_asset_res = (await fetch(post.media_asset.variants[3].url)); // variants #3 is generally jpg it seems
+                    arrayBuffer = await image_asset_res.arrayBuffer();
+                }
+
+                message.reply({
+                    content: (post.rating == 'g' ? '' : `(post rating: ${post.rating})`) + (was_oversize?'Lower resolution was chosen to prevent oversize error.':''),
+                    files: [new AttachmentBuilder(Buffer.from(arrayBuffer), {name: post.rating == 'g' ? 'danbooru.jpg' : 'SPOILER_danbooru.jpg'})]
+                });
+            } catch (err) {
+                message.reply({content: `An error occurred while sending:\n\`\`\`${err}\`\`\``})
+            }
         }
         if (message.content.startsWith('d$')) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru)) return message.reply({
