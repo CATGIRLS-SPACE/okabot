@@ -112,7 +112,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
         ctx.fillText(`You have ${user_shares.neko} shares, worth OKA${user_shares.neko * prices.neko}`, 45, 113);
     } else {
         ctx.font = '24px azuki_font';
-        ctx.fillText(`OKA${prices.neko} per share`, 55, 99);
+        ctx.fillText(`OKA${prices.neko} per share`, 45, 109);
     }
     // doggirl
     ctx.drawImage(sticker, 10, 142, 30, 30);

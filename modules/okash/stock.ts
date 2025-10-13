@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { Logger } from "okayulogger";
-import { join } from "path";
-import { DEV } from "../../index";
-import { Client, TextChannel } from "discord.js";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
+import {Logger} from "okayulogger";
+import {join} from "path";
+import {DEV} from "../../index";
+import {Client, TextChannel} from "discord.js";
+
 // import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 
 export interface Stock {
@@ -52,6 +53,8 @@ export function SetupStocks(dirname: string) {
     DB_PATH = join(dirname, 'db', 'stock.oka');
     
     if (existsSync(DB_PATH)) return MARKET = JSON.parse(readFileSync(DB_PATH, 'utf-8'));
+
+    L.info('stock.oka does not exist, creating...');
 
     // the stocks have different starting prices to make some easier to enter
     // early on. however this might not stay the same because okabot
@@ -218,7 +221,7 @@ function CalculateNextTrend(trend: Trend, price: number, starting_price: number)
  * If the trend is no change (e.g. 150,150) then it will assume a positive trend.
  * This is so that the stock prices hopefully don't go insane rollercoaster 24/7.
  */
-export function UpdateMarkets(_c: Client) {
+export function UpdateMarkets(c: Client) {
     // L.info('updating markets...');
 
     let trend = Trend.POSITIVE;
@@ -259,7 +262,7 @@ export function UpdateMarkets(_c: Client) {
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
-    // const is_event = DoEventCheck(c);
+    const is_event = DoEventCheck(c);
     // if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
 }
 
@@ -389,8 +392,7 @@ export async function SellShares(user_id: string, stock: Stocks, amount: number)
 }
 
 export function GetLastNumValues(stock: Stocks, length: number) {
-    const list = MARKET[stock].price_history.slice(-length, -1);
-    return list;
+    return MARKET[stock].price_history.slice(-length, -1);
 }
 
 
@@ -421,7 +423,7 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# in shambles as #ABBR# CEO tweets 'oops'", "positive":false},
     {"name":"Investors panic as #ABBR# gets listed in 'Top 10 Worst Buys'", "positive":false},
     {"name":"Market chaos: #STOCK# drops after CFO was seen buying ramen noodles", "positive":false},
-    {"name":"#STOCK# plummets as #ABBR# gets called 'mid' on social media", "positive":false},
+    // {"name":"#STOCK# plummets as #ABBR# gets called 'mid' on social media", "positive":false},
     {"name":"Financial disaster: #ABBR# stock crashes after a catgirl said 'meh'", "positive":false},
     {"name":"Insiders report that #STOCK# execs \"have no idea what they're doing\"", "positive":false},
     {"name":"#ABBR# stock tanks as investors realize it's just a meme", "positive":false},
@@ -436,7 +438,7 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# crumbles after #ABBR# CEO is caught using Internet Explorer", "positive":false},
     {"name":"Panic as #ABBR# website goes down for 5 minutes", "positive":false},
     {"name":"#STOCK# plummets after someone says '#ABBR# is kinda mid' on Discord", "positive":false},
-    {"name":"Investors panic-sell #ABBR# after finding out it's 'just vibes'", "positive":false},
+    {"name":"Investors panic-sell #ABBR# after finding out it's 'catboy-bait'", "positive":false},
     {"name":"#STOCK# free-falls as CEO admits 'we have no idea what we're doing'", "positive":false},
     {"name":"#ABBR# collapses after grandma tries to buy shares at a bank", "positive":false},
     {"name":"#STOCK# dips as catgirl streamers start talking about a different stock", "positive":false},
@@ -444,6 +446,8 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# hit with a disaster as CEO crashes out on Twitter", "positive":false},
     {"name":"#STOCK# prospers after okabot bug was discovered, mistakenly prioritizing #ABBR# over other stocks", "positive":true},
     {"name":"#STOCK# crumbles after okabot 3.1.6 patch nerfed trends", "positive":false},
+    {"name":"#STOCK# explodes after okabot 5.4.0 re-introduces stocks.","positive":true},
+    {"name":"#STOCK# is absolutely ruined after investors \"do a little trolling\"","positive":false},
 ];
 
 

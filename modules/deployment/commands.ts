@@ -30,6 +30,8 @@ import {CatgirlSlashCommand} from "../interactions/catgirl";
 import {CraftSlashCommand} from "../interactions/craft";
 import {GuessGameSlashCommand} from "../interactions/guessgame";
 import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
+import {DEV} from "../../index";
+import { StockSlashCommand } from "../interactions/stock";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -76,11 +78,12 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         FortuneBallSlashCommand,
         CatgirlSlashCommand,
         CraftSlashCommand,
-        // StockSlashCommand,
         GuessGameSlashCommand,
         ServerPreferencesSlashCommand,
-        was_there_an_error
-    ].map(command => command.toJSON());
+        was_there_an_error,
+        StockSlashCommand,
+    ];
+
 
     const L = new Logger('deployment');
     L.info('Deploying commands...');
@@ -89,7 +92,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         .setToken(token);
 
     return new Promise((resolve, reject) => {
-     rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER})
+     rest.put(Routes.applicationCommands(client_id), {body: COMMANDS_TO_REGISTER.map(command => command.toJSON())})
         .then(() => {
             // console.log(a);
             L.info('Commands deployed successfully.');
@@ -105,6 +108,6 @@ export async function DeployCommands(token: string, client_id: string): Promise<
 
 
 const was_there_an_error = new SlashCommandBuilder()
-    .setName('was-there-an-error')
+    .setName('recent-error')
     .setDescription('check if there was an error recently')
     .setContexts(InteractionContextType.Guild);

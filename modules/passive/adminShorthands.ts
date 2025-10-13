@@ -2,7 +2,7 @@ import {EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
 // import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
-    client, CONFIG,
+    client, CONFIG, DEV,
     LISTENING, ReloadConfig, SetActivity, SetLastLocale,
     SetListening, ToggleDisableOfCommand
 } from "../../index";
@@ -28,6 +28,7 @@ import {BoostsActive} from "./onMessage";
 import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
+import {UpdateMarkets} from "../okash/stock";
 
 
 interface ShorthandList {
@@ -398,6 +399,14 @@ export function RegisterAllShorthands() {
                 reject('!debug rejection');
             }, 500);
         });
+    });
+
+    // stock manual update
+    if (DEV) RegisterShorthand('oka stock update', async (message: Message, params: string[]) => {
+        message.react('📈');
+        if (params[3] && !isNaN(parseInt(params[3]))) {
+            for (let i = 0; i < parseInt(params[3]); i++) UpdateMarkets(message.client);
+        } else UpdateMarkets(message.client);
     });
 
     // dmdata management

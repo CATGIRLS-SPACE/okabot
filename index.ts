@@ -1,3 +1,5 @@
+import {SetupStocks, UpdateMarkets} from "./modules/okash/stock";
+
 const START_TIME_MS = (new Date()).getTime();
 
 import {Logger} from "okayulogger";
@@ -230,6 +232,11 @@ async function RunPreStartupTasks() {
     SetupGoodluckle();
     SetupTranslate();
     SetupGeminiDemo();
+    SetupStocks(__dirname);
+
+    setInterval(() => {
+        UpdateMarkets(client);
+    }, !DEV?10*60*1_000:30_000); // stocks update every 10 minutes (or 30 sec on dev)
 }
 
 /**
