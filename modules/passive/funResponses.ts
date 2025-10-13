@@ -2,8 +2,8 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 import {AttachmentBuilder, Message, TextChannel} from "discord.js";
 import {Achievements, GrantAchievement} from "./achievement";
 import {BASE_DIRNAME, client} from "../../index";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import {readFileSync} from "node:fs";
+import {join} from "node:path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const TYO_RESPONSE: Array<string> = [
@@ -68,6 +68,8 @@ export async function CheckForFunMessages(message: Message) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru)) return message.reply({
                 content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
             });
+            let force_general = false;
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw)) force_general = true;
             let post;
             try {
                 const danbooru_response = await fetch(`https://danbooru.donmai.us/posts/${message.content.split('#')[1]}.json`);
@@ -77,6 +79,9 @@ export async function CheckForFunMessages(message: Message) {
                     content: `An error occurred while fetching:\n\`\`\`${err}\`\`\``
                 });
             }
+            if (post.rating != 'g' && force_general) return message.reply({
+                content: `This server has its preferences set to not allow Danbooru content that is not rating:g`
+            });
             let image_asset_res = (await fetch(post.file_url));
             let arrayBuffer = await image_asset_res.arrayBuffer();
             try {
@@ -100,6 +105,8 @@ export async function CheckForFunMessages(message: Message) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru)) return message.reply({
                 content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
             });
+            let force_general = false;
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw)) force_general = true;
             let tags;
             let num = 10;
             let offset = 1;
@@ -117,7 +124,7 @@ export async function CheckForFunMessages(message: Message) {
             let posts;
 
             try {
-                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts.json?tags=${tags}&limit=${num}&page=${offset}`);
+                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts.json?tags=${tags}${force_general?'rating:g':''}&limit=${num}&page=${offset}`);
                 posts = await danbooru_response.json();
             } catch (err) {
                 return message.reply({

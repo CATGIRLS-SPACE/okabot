@@ -15,18 +15,17 @@ export async function CheckRequiredPermissions(interaction: ChatInputCommandInte
     const me = guild.roles.botRoleFor(interaction.client.user);
     if (!me) return false;
 
-    let history, react, attachments, embeds, manage, sendmsg, sendmsgthread, viewchannel;
+    // let history, react, attachments, embeds, manage, sendmsg, sendmsgthread;
 
-    history = me.permissions.has(PermissionFlagsBits.ReadMessageHistory);
-    react = me.permissions.has(PermissionFlagsBits.AddReactions);
-    attachments = me.permissions.has(PermissionFlagsBits.AttachFiles);
-    embeds = me.permissions.has(PermissionFlagsBits.EmbedLinks);
-    manage = me.permissions.has(PermissionFlagsBits.ManageMessages);
-    sendmsg = me.permissions.has(PermissionFlagsBits.SendMessages);
-    sendmsgthread = me.permissions.has(PermissionFlagsBits.SendMessagesInThreads);
-    viewchannel = me.permissions.has(PermissionFlagsBits.ViewChannel);
+    const history = me.permissions.has(PermissionFlagsBits.ReadMessageHistory);
+    const react = me.permissions.has(PermissionFlagsBits.AddReactions);
+    const attachments = me.permissions.has(PermissionFlagsBits.AttachFiles);
+    const embeds = me.permissions.has(PermissionFlagsBits.EmbedLinks);
+    const manage = me.permissions.has(PermissionFlagsBits.ManageMessages);
+    const sendmsg = me.permissions.has(PermissionFlagsBits.SendMessages);
+    const sendmsgthread = me.permissions.has(PermissionFlagsBits.SendMessagesInThreads);
 
-    const has_perms = history && react && attachments && embeds && manage && sendmsg && sendmsgthread && viewchannel;
+    const has_perms = history && react && attachments && embeds && manage && sendmsg && sendmsgthread;
 
     if (!has_perms) {
         try {

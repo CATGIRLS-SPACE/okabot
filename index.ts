@@ -139,7 +139,7 @@ import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
 import {HandleCommandCraft} from "./modules/interactions/craft";
-import {HARD_BAN, LoadSpecialUsers} from "./util/users";
+import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { CheckForTextCommands } from "./util/textCommandMappings";
@@ -313,12 +313,6 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     },
     'guess': GuessBlueArchive,
 }
-
-const ALLOWED_COMMANDS_IN_DMS = [
-    '8ball',
-    'recent-eq',
-    'catgirl'
-];
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
 
@@ -516,9 +510,9 @@ client.on(Events.MessageCreate, async message => {
 
 // Voice handlers
 
-client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-    // HandleVoiceEvent(client, oldState, newState);
-});
+// client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+//     // HandleVoiceEvent(client, oldState, newState);
+// });
 
 
 // Server join handler to give role automatically as well as the handler for reactions

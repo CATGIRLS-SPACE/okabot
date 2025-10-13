@@ -28,7 +28,7 @@ export async function ConnectToN4Network() {
         sock.write('DATA\r\n');
     });
 
-    let recvBuf = Buffer.alloc(0);
+    // let recvBuf = Buffer.alloc(0);
 
     sock.on('data', (chunk: Buffer) => {
         // console.log(data.toString());

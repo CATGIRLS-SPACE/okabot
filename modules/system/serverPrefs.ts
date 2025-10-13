@@ -11,7 +11,6 @@ import {
 } from "discord.js";
 import {
     ActionRowBuilder, ButtonBuilder,
-    ModalBuilder,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder
 } from "@discordjs/builders";
@@ -42,6 +41,7 @@ export interface ServerPreferences {
         reminders: boolean,
         catgirl: boolean,
         danbooru: boolean,
+        danbooru_sqe: boolean,
     }
 }
 
@@ -65,6 +65,7 @@ export enum ServerFeature {
     reminders = 'reminders',
     catgirl = 'catgirl',
     danbooru = 'danbooru',
+    danbooru_nsfw = 'danbooru_sqe',
 }
 
 const DEFAULT_PREFERENCES: ServerPreferences = {
@@ -89,6 +90,7 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         reminders: true,
         catgirl: true,
         danbooru: false,
+        danbooru_sqe: false,
     }
 };
 
@@ -115,6 +117,7 @@ function LoadServerPreferencesDB() {
     const db_path = join(BASE_DIRNAME, 'db', 'server_prefs.oka');
     if (!existsSync(db_path)) writeFileSync(db_path, '{}');
     SERVER_PREFERENCES_DB = JSON.parse(readFileSync(db_path, 'utf-8'));
+    DB_LOADED_YET = true;
 }
 
 function SaveServerPreferencesDB() {
@@ -257,7 +260,7 @@ export async function HandleServerPrefsCommand(interaction: ChatInputCommandInte
 
     const reply = await interaction.editReply({
         content: '# Server Configurator Tool\nThis tool will allow you to customize okabot in your server to your liking.\nThis configurator will expire in 3 minutes.\nPlease choose your category:',
-        components: [new ActionRowBuilder().addComponents(dropdown_section) as any]
+        components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(dropdown_section)]
     });
 
     const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
@@ -373,6 +376,12 @@ function ChangeSettingTo(i: ButtonInteraction) {
             break;
         case 'danbooru':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru = enabled;
+            if (!enabled)
+                SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru_sqe = false;
+            break;
+        case 'danbooru_sqe':
+            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru = enabled;
+            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru_sqe = enabled;
             break;
     }
 
@@ -391,19 +400,19 @@ function FeatureSelectionDropDown(i: StringSelectMenuInteraction) {
     if (i.values[0] == 'base') {
         i.update({
             content: `# Base Features\nThe bread and butter of okabot.\nPlease select a subcategory:`,
-            components: [new ActionRowBuilder().setComponents(base_selection) as any]
+            components: [new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(base_selection)]
         });
     }
     if (i.values[0] == 'games') {
         i.update({
             content: `# Game-related Features\nTurning off games means you'll forever be known as no fun! :crying_cat_face:\nPlease select a subcategory:`,
-            components: [new ActionRowBuilder().setComponents(games_selection) as any]
+            components: [new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(games_selection)]
         });
     }
     if (i.values[0] == 'extra') {
         i.update({
             content: `# Extra Features\nI don't blame you if you want to turn some of these off.\nPlease select a subcategory:`,
-            components: [new ActionRowBuilder().setComponents(extra_selection) as any]
+            components: [new ActionRowBuilder<StringSelectMenuBuilder>().setComponents(extra_selection)]
         });
     }
 }
@@ -420,10 +429,10 @@ function BaseSelectDropDown(i: StringSelectMenuInteraction) {
                 '- /move',
                 '- /pay'
             ].join('\n'),
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('okash-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('okash-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'levels') {
@@ -433,10 +442,10 @@ function BaseSelectDropDown(i: StringSelectMenuInteraction) {
                 '- Voice Channel XP',
                 'If you wish to only disable the "Level Up" messages, please use the corresponding drop-down option.'
             ].join('\n'),
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('leveling-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('leveling-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'levelup_msg') {
@@ -445,10 +454,10 @@ function BaseSelectDropDown(i: StringSelectMenuInteraction) {
                 '- "Level Up" messages',
                 'If you wish to disable leveling entirely, please use the "Leveling/XP" drop-down option.'
             ].join('\n'),
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('levelup_msg-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('levelup_msg-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'daily') {
@@ -457,10 +466,10 @@ function BaseSelectDropDown(i: StringSelectMenuInteraction) {
                 '- /daily',
                 '- Daily Reminders',
             ].join('\n'),
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('daily-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('daily-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'drops') {
@@ -469,10 +478,10 @@ function BaseSelectDropDown(i: StringSelectMenuInteraction) {
                 '- okash Drops',
                 '- Lootbox Drops',
             ].join('\n'),
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('drops-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('drops-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
 }
@@ -481,55 +490,55 @@ function GameSelectDropDown(i: StringSelectMenuInteraction) {
     if (i.values[0] == 'coinflip') {
         i.update({
             content: 'Do you want to enable or disable Coinflip?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('coinflip-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('coinflip-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'blackjack') {
         i.update({
             content: 'Do you want to enable or disable Blackjack?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('blackjack-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('blackjack-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'roulette') {
         i.update({
             content: 'Do you want to enable or disable Roulette?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('roulette-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('roulette-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'slots') {
         i.update({
             content: 'Do you want to enable or disable Slots?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('slots-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('slots-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'magicball') {
         i.update({
             content: 'Do you want to enable or disable the Magic 8 Ball?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('magicball-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('magicball-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'pixel_guess') {
         i.update({
             content: 'Do you want to enable or disable the Pixel Guessing Game?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('pixel_guess-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('pixel_guess-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
 }
@@ -538,55 +547,56 @@ function ExtraSelectDropDown(i: StringSelectMenuInteraction) {
     if (i.values[0] == 'earthquakes') {
         i.update({
             content: 'Do you want to enable or disable /recent-eq?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('earthquakes-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('earthquakes-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'catgirl') {
         i.update({
             content: 'Do you want to enable or disable /catgirl?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('catgirl-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('catgirl-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'eastereggs') {
         i.update({
             content: 'Do you want to enable or disable text-based easter eggs?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('eastereggs-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('eastereggs-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'gemini') {
         i.update({
             content: 'Do you want to enable or disable AI Responses?',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('gemini-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('gemini-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'reminders') {
         i.update({
             content: 'Do you want to enable or disable the o.remind command?\n**WARNING**: This will prevent all past reminders from being sent in this server!',
-            components: [new ActionRowBuilder().addComponents(
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('reminders-on').setLabel('Enable').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('reminders-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
     if (i.values[0] == 'danbooru') {
         i.update({
             content: 'Do you want to enable or disable the Danbooru commands (d#9981938 and d$<tags>)? Posts which are not rating:g are always spoilered.',
-            components: [new ActionRowBuilder().addComponents(
-                new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable').setStyle(ButtonStyle.Success),
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable (rating:g only)').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId('danbooru_sqe-on').setLabel('Enable (all ratings)').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('danbooru-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
-            ) as any]
+            )]
         });
     }
 }
