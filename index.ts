@@ -149,6 +149,7 @@ import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
 import {ConnectToN4Network} from "./modules/earthquakes/n4";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
+import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
 
 
 export const client = new Client({
@@ -437,6 +438,7 @@ client.on(Events.MessageCreate, async message => {
     DoRandomDrops(message); // drops!
     ListenForRouletteReply(message); // checks for number in response to roulette game
     CheckGuessGameMessage(message);
+    PrivacyGuardCheckLinks(message);
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
