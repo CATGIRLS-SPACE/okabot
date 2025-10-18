@@ -59,10 +59,10 @@ export let CONFIG: {
     devtoken: string,
     clientId: Snowflake,
     devclientId: Snowflake,
-    status: {
+    status: Array<{
         type: number,
         activity: string,
-    },
+    }>,
     extra: Array<string>,
     dmdata_api_key: string,
     translate_api_key: string,
@@ -240,6 +240,8 @@ async function RunPreStartupTasks() {
     }, !DEV?10*60*1_000:30_000); // stocks update every 10 minutes (or 30 sec on dev)
 }
 
+let status_selected = 0;
+
 /**
  * Run all tasks which should be started after the bot is logged in
  */
@@ -250,10 +252,20 @@ async function RunPostStartupTasks() {
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
     ConnectToN4Network();
 
+
     client.user!.setActivity({
-        name: CONFIG.status.activity,
-        type: CONFIG.status.type
+        name: CONFIG.status[status_selected].activity,
+        type: CONFIG.status[status_selected].type
     });
+
+    setInterval(() => {
+        status_selected++;
+        if (status_selected >= CONFIG.status.length) status_selected = 0;
+        client.user!.setActivity({
+            name: CONFIG.status[status_selected].activity,
+            type: CONFIG.status[status_selected].type
+        });
+    }, !DEV ? 5*60_000 : 10_000);
 
     if (existsSync(join(__dirname, 'update_id'))) {
         const ids = readFileSync(join(__dirname, 'update_id'), 'utf-8').split(',');
