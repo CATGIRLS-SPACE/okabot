@@ -150,6 +150,7 @@ import {ConnectToN4Network} from "./modules/earthquakes/n4";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
+import {MMFFile} from "./modules/catgirlcentral/mmf";
 
 
 export const client = new Client({
@@ -451,6 +452,10 @@ client.on(Events.MessageCreate, async message => {
     ListenForRouletteReply(message); // checks for number in response to roulette game
     CheckGuessGameMessage(message);
     PrivacyGuardCheckLinks(message);
+
+    if (message.content.includes('okabottestmmfandprinttoconsole')) {
+        new MMFFile(join(__dirname, 'assets', 'jlpt', 'n5.mmf'));
+    }
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
