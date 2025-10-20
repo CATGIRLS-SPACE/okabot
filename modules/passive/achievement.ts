@@ -12,7 +12,7 @@ import { join } from "path";
 interface Achievement {
     name: string,
     description: string,
-    class: 'okabot' | 'gamble' | 'fun' | 'fun2' | 'okash' | 'noshow',
+    class: 'okabot' | 'gamble' | 'fun' | 'fun2' | 'okash' | 'noshow' | 'jlpt', // jlpt is not required to get complete badge
     diff: 'e' | 't' | 'h' | 'ex' | 'na' // easy, tricky, hard, extra hard, not applicable (eg. levels)
 }
 

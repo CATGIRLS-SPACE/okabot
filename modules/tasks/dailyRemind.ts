@@ -22,7 +22,7 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
         if (!CheckFeatureAvailability(channel.guild!.id, ServerFeature.daily)) return;
 
         channel.send({
-            content:`:clock3: <@${user_id}>, your daily is now available!`
+            content:`:clock3: <@${user_id}>, come getcha daily!`
         });
         const dd = new Date();
         quickdraw.set(user_id, dd.getTime());
@@ -54,7 +54,7 @@ export async function LoadReminders() {
             const ch = client.channels.cache.get(reminder.channel)!;
             if (!CheckFeatureAvailability((ch as TextChannel).guild!.id, ServerFeature.daily)) return;
             (ch as TextChannel).send({
-                content:`:clock3: <@${reminder.user_id}>, your daily is now available!`
+                content:`:clock3: <@${reminder.user_id}>, come getcha daily!`
             });
             const dd = new Date();
             quickdraw.set(reminder.user_id, dd.getTime());

@@ -32,6 +32,7 @@ export class MMFFile {
                 this.tags = line_parts[1].split(',');
                 continue;
             }
+            if (line.trim() == '') continue;
 
             unmapped_card_values.push(line_parts);
         }
@@ -42,17 +43,15 @@ export class MMFFile {
         // console.log(unmapped_card_values);
 
         for (const values in unmapped_card_values) {
-            console.log(values, unmapped_card_values[values]);
             const card: {[key: string]: string} = {};
             for (const value in unmapped_card_values[values]) {
-                console.log(unmapped_card_values[values][value]);
                 card[this.schema_prop_names[value]] = unmapped_card_values[values][value];
-                this.cards.push(card);
             }
+            this.cards.push(card);
         }
 
         this.ok = true;
-        // console.log(this.cards);
+        console.log(this.cards);
     }
 
 
