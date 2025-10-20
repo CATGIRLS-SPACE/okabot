@@ -1,6 +1,6 @@
 _meta::JLPT N5 Kanji Deck::meowlliie;
 _schema::category,question,answers;
-_tags::unfinished
+_tags::unfinished;
 onyomi::日::にち,じつ,nichi,jitsu;
 kunyomi::日::ひ,hi;
 meaning::日 as にち::nth day,counter for days;

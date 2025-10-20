@@ -7,6 +7,7 @@ export class MMFFile {
 
     public readonly name;
     public readonly author;
+    public readonly tags: string[] = [];
     public readonly ok: boolean = false;
     public cards: Array<{[key:string]:string}> = [];
 
@@ -27,24 +28,31 @@ export class MMFFile {
                 this.schema_prop_names = line_parts[1].split(',');
                 continue;
             }
+            if (line_parts[0] == '_tags') {
+                this.tags = line_parts[1].split(',');
+                continue;
+            }
 
             unmapped_card_values.push(line_parts);
         }
 
         if (this.schema_prop_names.length == 0) throw new Error('schema was never provided');
 
-        console.log(this.schema_prop_names);
+        // console.log(this.schema_prop_names);
+        // console.log(unmapped_card_values);
 
         for (const values in unmapped_card_values) {
+            console.log(values, unmapped_card_values[values]);
             const card: {[key: string]: string} = {};
             for (const value in unmapped_card_values[values]) {
+                console.log(unmapped_card_values[values][value]);
                 card[this.schema_prop_names[value]] = unmapped_card_values[values][value];
                 this.cards.push(card);
             }
         }
 
         this.ok = true;
-        console.log(this.cards);
+        // console.log(this.cards);
     }
 
 
