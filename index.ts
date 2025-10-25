@@ -350,6 +350,8 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
+    if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
+
     if (!interaction.channel?.isTextBased()) return;
 
     L.info(`Execute command "${interaction.commandName}"`);
@@ -418,6 +420,7 @@ client.on(Events.MessageCreate, async message => {
     if (!LISTENING) return; // disabling commands will disable message handlers as well
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
+    if (message.guild && !(message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282')) return;
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     const rules = await CheckForRulesSimple(message.author.id);
@@ -469,13 +472,13 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
 
-    if (message.channel.isDMBased()) {
-        if (!CONFIG.gemini.enable) return;
-        if (message.reference)
-            GeminiDemoReplyToConversationChain(message);
-        else
-            GeminiDemoRespondToInquiry(message);
-    }
+    // if (message.channel.isDMBased()) {
+    //     if (!CONFIG.gemini.enable) return;
+    //     if (message.reference)
+    //         GeminiDemoReplyToConversationChain(message);
+    //     else
+    //         GeminiDemoRespondToInquiry(message);
+    // }
 
     if (message.content.includes('<@908895994027049021>')) {
         (await client.channels.fetch('1315805846910795846') as TextChannel).send(`User ${message.author.username} has pinged me with message:\n${message.content}`);
