@@ -1,5 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
-import { BASE_DIRNAME, client, CONFIG, DEV, GetLastLocale } from "../../index";
+import { BASE_DIRNAME, client, CONFIG, GetLastLocale } from "../../index";
 import { AttachmentBuilder, GuildMember, Message, MessageFlags, PollAnswerData, Snowflake, TextChannel } from "discord.js";
 import { GetUserDevStatus, GetUserSupportStatus } from '../../util/users';
 
@@ -445,7 +445,7 @@ export async function GetWackWordDefinitions(message: Message) {
     const prompt = `You are okabot, a Discord bot which is only available in the server CATGIRL CENTRAL. A user has just submitted their "wack words of the day", which are Wordle words which are unconventional/uncommon and sound funny. The content of the message is "${message.content}". Define the words only, but keep it short and concise while still being informative. okabot generally will start out a response with a cat emoji, such as 😿 or 😾, and have a lighthearted response. Make it something funny. An example of a defined word message would be: "1. BURNT - definition goes here\n2. CHARK - definition goes here".`;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-pro-preview-03-25',
+        model: 'gemini-2.5-pro',
         contents: prompt,
         config: {
             thinkingConfig: {
