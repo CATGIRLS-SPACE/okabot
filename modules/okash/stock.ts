@@ -448,14 +448,15 @@ const EVENTS: Array<StockEvent> = [
     {"name":"#STOCK# crumbles after okabot 3.1.6 patch nerfed trends", "positive":false},
     {"name":"#STOCK# explodes after okabot 5.4.0 re-introduces stocks.","positive":true},
     {"name":"#STOCK# is absolutely ruined after investors \"do a little trolling\"","positive":false},
+    {"name":"#STOCK# crashes repeatedly after okabot code mistakenly thinks stocks are way above what they should be.","positive":true},
 ];
 
 
 let LastEvent: StockEvent;
 const STARTING_VALUES = {
-    catgirl: 25000,
-    doggirl: 5000,
-    foxgirl: 1000
+    catgirl: 100_000,
+    doggirl: 50_000,
+    foxgirl: 25_000
 }
 
 // This will be triggered every 5 minutes when the markets update
