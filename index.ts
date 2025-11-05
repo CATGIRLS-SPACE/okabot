@@ -350,7 +350,7 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
 client.on(Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
+    // if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
 
     if (!interaction.channel?.isTextBased()) return;
 
@@ -420,7 +420,7 @@ client.on(Events.MessageCreate, async message => {
     if (!LISTENING) return; // disabling commands will disable message handlers as well
     if (message.author.id == client.user!.id) return; // don't listen to my own messages
     if ((message.author.bot || message.webhookId)) return; // don't listen to bot or webhook messages
-    if (message.guild && !(message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282')) return;
+    // if (message.guild && !(message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282')) return;
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
     const rules = await CheckForRulesSimple(message.author.id);

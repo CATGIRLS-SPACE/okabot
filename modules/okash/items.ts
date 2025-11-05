@@ -21,6 +21,8 @@ export enum ITEMS {
     SCRAP_TYPE_RUBBER,
     SCRAP_TYPE_ELECTRICAL,
     STICKER_NOT_APPLIED,
+    BANK_VIEWER,
+    BLACKMARKET_TOKEN,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {
@@ -37,7 +39,9 @@ export const ITEM_ID_NAMES: {[key: number]: string} = {
     10:'Casino Pass (10 minutes)',
     11:'Casino Pass (30 minutes)',
     12:'Casino Pass (60 minutes)',
-    18:'Sticker Kit'
+    18:'Sticker Kit',
+    19:'Hacking Tool',
+    20:'Black Market Token',
 }
 
 export enum CUSTOMIZATION_UNLOCKS {
