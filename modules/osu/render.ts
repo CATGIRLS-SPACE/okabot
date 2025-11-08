@@ -74,7 +74,7 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
         return interaction.editReply(`:x: Failed to commission render (${response.statusText})`);
     }
 
-    interaction.editReply(`okaaaay, i've commissioned millie's laptop to render those replays together! (expected wait: ${1 + ((score_ids.length - 1) * .5)}min) i'll ping you here when the render is ready! ᓀ‸ᓂ`);
+    interaction.editReply(`okaaaay, i've commissioned millie's laptop to render those replays together! (expected wait: ${.5 + ((score_ids.length - 1) * .5)}min) i'll ping you here when the render is ready! ᓀ‸ᓂ`);
 
     const check_render = async () => {
         const r = await fetch('http://192.168.1.118:3210/renderstatus');
@@ -88,7 +88,7 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
         }
         if (j.RENDER_STATUS == 'done') {
             RENDER_IN_PROGRESS = false;
-            return (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render is done!`)
+            return (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render is done! https://momoi.millie.zone/${j.LAST_RENDER_NAME}`)
         }
     }
 
