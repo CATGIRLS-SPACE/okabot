@@ -118,6 +118,10 @@ export interface USER_PROFILE {
         inventory: Array<number>,
     },
     cookies: number,
+    ordr: {
+        username: string,
+        osu_username: string,
+    }
 }
 
 const DEFAULT_DATA: USER_PROFILE = {
@@ -184,7 +188,11 @@ const DEFAULT_DATA: USER_PROFILE = {
         pets: [],
         inventory: [],
     },
-    cookies: 0
+    cookies: 0,
+    ordr: {
+        username: '',
+        osu_username: '',
+    }
 }
 
 let PROFILES_DIR: string | null = null;
@@ -255,6 +263,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.cookies) data.cookies = 0;
     if (!data.customization.level_banner) data.customization.level_banner = {hex_bg:'',hex_fg:'',hex_num:'',selected_title:'none'};
     if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
+    if (!data.ordr) data.ordr = {username:'',osu_username:''};
 
     if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
 

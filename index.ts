@@ -81,6 +81,10 @@ export let CONFIG: {
     permitted_to_use_shorthands: Array<Snowflake>,
     minecraft_relay_key: string,
     OPENAI_API_KEY: string,
+    osu: {
+        client_id: number,
+        secret: string
+    }
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 // eslint-disable-next-line no-var
 export var DEV: boolean = CONFIG.extra.includes('use dev token');
@@ -151,6 +155,7 @@ import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
 import {MMFFile} from "./modules/catgirlcentral/mmf";
+import {HandleCommandOsuConfig, HandleCommandOsuMulti} from "./modules/osu/render";
 
 
 export const client = new Client({
@@ -266,7 +271,7 @@ async function RunPostStartupTasks() {
             name: CONFIG.status[status_selected].activity,
             type: CONFIG.status[status_selected].type
         });
-    }, !DEV ? 5*60_000 : 10_000);
+    }, !DEV ? 5*60_000 : 60_000);
 
     if (existsSync(join(__dirname, 'update_id'))) {
         const ids = readFileSync(join(__dirname, 'update_id'), 'utf-8').split(',');
@@ -327,12 +332,14 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'catgirl': HandleCommandCatgirl,
     'craft': HandleCommandCraft,
     'server-preferences': HandleServerPrefsCommand,
-    'was-there-an-error':async (interaction: ChatInputCommandInteraction) => {
+    'recent-error':async (interaction: ChatInputCommandInteraction) => {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
         // yes
         interaction.reply({content:`yeah, last error was <t:${last_errors[last_errors.length - 1].time}:R>. reason:\n`+'```' + last_errors[last_errors.length - 1].error + '```'});
     },
     'guess': GuessBlueArchive,
+    'osu-config': HandleCommandOsuConfig,
+    'osu-multi': HandleCommandOsuMulti,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [

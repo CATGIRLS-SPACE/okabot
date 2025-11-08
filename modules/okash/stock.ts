@@ -188,7 +188,7 @@ enum Trend {
  * @param starting_price The set starting price of the stock
  */
 function CalculateNextTrend(trend: Trend, price: number, starting_price: number): Trend {
-    console.log(price, starting_price); // wehh
+    // console.log(price, starting_price); // wehh
     // const amount_changed = Math.abs(trend - starting_price);
     // // if the price is 1000 above starting price, heavy chance to go down
     // // if it's already negative, it should have a tiny chance to flip
@@ -260,7 +260,7 @@ export function UpdateMarkets(c: Client) {
 
     // write changes
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
-    L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
+    // L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
     const is_event = DoEventCheck(c);
     // if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);

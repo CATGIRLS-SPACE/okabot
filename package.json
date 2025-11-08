@@ -32,8 +32,10 @@
     "node-schedule": "^2.1.1",
     "okayulogger": "^3.0.0",
     "openai": "^5.12.2",
+    "osu-api-v2-js": "^2.1.5",
     "seisplotjs": "^3.1.4",
     "sharp": "^0.34.4",
+    "socket.io-client": "^4.8.1",
     "uuid": "^13.0.0",
     "ws": "^8.18.3",
     "xml-js": "^1.6.11"
