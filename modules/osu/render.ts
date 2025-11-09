@@ -57,21 +57,25 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
 
     const replays_list: string[] = score_ids.map(id => `${id}.osr`);
 
-    // const command = `E:\\OTHER\\danser\\danser-cli.exe -knockout2 ${knockout2} -settings=multiview -skip -id=${diff_id}`;
-    const response = await fetch('http://192.168.1.118:3210/startrender', {
-        method: 'POST',
-        headers: {
-            'Authorization': CONFIG.aes_key,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            replays: replays_list,
-            song_id: diff_id
-        })
-    });
-    if (!response.ok) {
+    try {
+        const response = await fetch('http://192.168.1.118:3210/startrender', {
+            method: 'POST',
+            headers: {
+                'Authorization': CONFIG.aes_key,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                replays: replays_list,
+                song_id: diff_id
+            })
+        });
+        if (!response.ok) {
+            RENDER_IN_PROGRESS = false;
+            return interaction.editReply(`:x: Failed to commission render (${response.statusText})`);
+        }
+    } catch (e: unknown) {
         RENDER_IN_PROGRESS = false;
-        return interaction.editReply(`:x: Failed to commission render (${response.statusText})`);
+        return interaction.editReply(`:x: Failed to commission render (${(e as Error).message})`);
     }
 
     interaction.editReply(`okaaaay, i've commissioned millie's laptop to render those replays together! (expected wait: ${.5 + ((score_ids.length - 1) * .5)}min) i'll ping you here when the render is ready! ᓀ‸ᓂ`);
