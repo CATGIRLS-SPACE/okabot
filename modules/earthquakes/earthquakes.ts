@@ -120,6 +120,7 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 let MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 export let SOCKET: DMDataWebSocket;
 const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
+const EXISTING_EARTHQUAKES_BY_ORIGIN_TIME = new Map<string, Message>();
 let reconnect_tries = 0;
 
 export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
@@ -220,10 +221,10 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             true
         );
 
-        if (EXISTING_EARTHQUAKES.has(data.eventId)) {
-            const event = EXISTING_EARTHQUAKES.get(data.eventId);
-            event!.message.reply({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
-            EXISTING_EARTHQUAKES.delete(data.eventId);
+        if (EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.has(data.earthquake.originTime)) {
+            const event = EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.get(data.earthquake.originTime);
+            event!.reply({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
+            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.delete(data.earthquake.originTime);
             return;
         }
 
@@ -303,6 +304,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 embeds: [embed]
             });
             EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: false, report_count: 1});
+            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, sent);
         } catch (err: any) {
             L.error(err);
         }
@@ -359,6 +361,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 embeds: [embed]
             });
             EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: true, report_count: 1});
+            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, sent);
         } catch (err: any) {
             L.error(err);
         }
