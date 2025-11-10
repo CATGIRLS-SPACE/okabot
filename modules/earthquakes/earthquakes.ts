@@ -78,21 +78,21 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
     if (max_intensity == null || depth == null || magnitude == null) return new EmbedBuilder()
         .setColor(0xf76565)
         .setTitle(await LangGetAutoTranslatedStringRaw('The most recent earthquake occurred overseas', locale))
-        .setAuthor({name: 'Project DM-D.S.S'})
+        .setAuthor({name: 'Project DM-D.S.S',iconURL:`https://bot.millie.zone/shindo/icon.png`})
         .setTimestamp(origin_time)
         .setDescription(await LangGetAutoTranslatedStringRaw('I\'m missing some information on this earthquake, so I can\'t display the full embed', locale))
         .setFields(
             {name: await LangGetAutoTranslatedStringRaw('Location', locale), value: locations_english[hypocenter_name] || await LangGetAutoTranslatedStringRaw(`No English localization for "${hypocenter_name}" found`, locale)}
         )
-        .setThumbnail(`https://b.whats.moe/shindo/unknown.png`);
+        .setThumbnail(`https://bot.millie.zone/shindo/unknown.png`);
 
 
     return new EmbedBuilder()
         .setColor(0x9d60cc)
         .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : await LangGetAutoTranslatedStringRaw('Most recent earthquake in Japan', locale))
         .setTimestamp(origin_time)
-        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`})
-        .setThumbnail(`https://b.whats.moe/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name: "Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
@@ -106,8 +106,8 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
         .setColor(event.is_warning ? 0xd61111 : 0xff8519)
         .setTitle((event.is_warning ? 'Earthquake Early Warning' : 'Earthquake Early Warning (Forecast)') + (event.report_count == 999 ? ' (Final Report)' : ` (Report ${event.report_count})`))
         .setTimestamp(origin_time)
-        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`})
-        .setThumbnail(`https://b.whats.moe/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name: "Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
@@ -134,12 +134,7 @@ export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
     setTimeout(() => {
         if (!SOCKET.is_active) {
             channel.send({
-                content: ':x: dmdata connection failure. i will not retry. run "oka dmdata connect" to retry.'
-            });
-        } else {
-            channel.send({
-                content: ':white_check_mark: dmdata connection success',
-                flags: [MessageFlags.SuppressNotifications]
+                content: ':x: dmdata connection failure. i will not retry, as this was the startup connection attempt. run "oka dmdata connect" to retry.'
             });
         }
     }, 10000);
@@ -225,22 +220,27 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             true
         );
 
-        EXISTING_EARTHQUAKES.delete(data.eventId);
+        if (EXISTING_EARTHQUAKES.has(data.eventId)) {
+            const event = EXISTING_EARTHQUAKES.get(data.eventId);
+            event!.message.reply({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
+            EXISTING_EARTHQUAKES.delete(data.eventId);
+            return;
+        }
 
         // send embed
         (channel as TextChannel)!.send({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
     });
 
     SOCKET.on(WebSocketEvent.PING, () => {
-        L.debug('dmdata ping');
+        // L.debug('dmdata ping');
     });
 
     SOCKET.on(WebSocketEvent.OPENED, () => {
         L.debug('dmdata connection opened ok!');
-        // if (is_reconnecting) (channel as TextChannel)!.send({
-        //     content:`okaaay, i reconnected successfully after ${reconnect_tries>1?reconnect_tries+' tries':reconnect_tries+' try'}.`,
-        //     flags:[MessageFlags.SuppressNotifications]
-        // });
+        (channel as TextChannel)!.send({
+            content:`DMData socket opened successfully ᓀ‸ᓂ`,
+            flags:[MessageFlags.SuppressNotifications]
+        });
         UpdateDMDataStatus(true);
     });
 
@@ -263,10 +263,14 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
         L.debug('WebSocketEvent.EEW_FORECAST');
         console.log(data);
 
+        let forecastMaxInt = (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to;
+        // @ts-expect-error this is an unknown issue with dmdata, i need to read up on the docs
+        if (forecastMaxInt == 'over' && data.isLastInfo) forecastMaxInt = (data.intensity || {forecastMaxInt: {from: 'unknown'}}).forecastMaxInt.from;
+
         let embed = BuildEEWEmbed(
             new Date((data.earthquake || {originTime:'0'}).originTime),
             (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
-            (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
+            forecastMaxInt,
             data.earthquake.hypocenter.depth.value,
             data.earthquake.hypocenter.name,
             {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
@@ -282,7 +286,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             embed = BuildEEWEmbed(
                 new Date((data.earthquake || {originTime:'0'}).originTime),
                 (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
-                (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to,
+                forecastMaxInt,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
                 event
@@ -307,13 +311,17 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
     SOCKET.on(WebSocketEvent.EEW_WARNING, async (data: EEWInformationSchemaBody) => {
         console.log(data);
 
+        let forecastMaxInt = (data.intensity || {forecastMaxInt: {to: 'unknown'}}).forecastMaxInt.to;
+        // @ts-expect-error this is an unknown issue with dmdata, i need to read up on the docs
+        if (forecastMaxInt == 'over' && data.isLastInfo) forecastMaxInt = (data.intensity || {forecastMaxInt: {from: 'unknown'}}).forecastMaxInt.from;
+
         let embed;
 
         try {
             embed = BuildEEWEmbed(
                 new Date((data.earthquake || {originTime:'0'}).originTime),
                 (data.earthquake || {magnitude:{value:'[unknown]'}}).magnitude.value,
-                data.intensity.forecastMaxInt.to,
+                forecastMaxInt,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
                 {message: undefined, report_count: parseInt(data.serialNo), is_warning: data.isWarning}
@@ -325,7 +333,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
 
         if (EXISTING_EARTHQUAKES.has(data.eventId)) {
             const event = EXISTING_EARTHQUAKES.get(data.eventId)!;
-            if (!event.is_warning) event.message.reply({content:`${GetEmoji(EMOJI.EPICENTER)} EEW Forecast was upgraded to EEW Warning!`})
+            if (!event.is_warning) await event.message.reply({content:`${GetEmoji(EMOJI.EPICENTER)} EEW Forecast was upgraded to EEW Warning!`})
             event.report_count = data.isLastInfo?999:parseInt(data.serialNo);
             event.is_warning = true;
 
@@ -334,7 +342,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             embed = BuildEEWEmbed(
                 new Date((data.earthquake || {originTime:'0'}).originTime),
                 data.earthquake.magnitude.value,
-                data.intensity.forecastMaxInt.to,
+                forecastMaxInt,
                 data.earthquake.hypocenter.depth.value,
                 data.earthquake.hypocenter.name,
                 event
