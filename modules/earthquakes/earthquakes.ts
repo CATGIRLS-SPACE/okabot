@@ -293,6 +293,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 event
             );
 
+            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, event.message);
             return await event.message.edit({
                 embeds: [embed]
             });
@@ -350,6 +351,7 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 event
             );
 
+            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, event.message);
             return event.message.edit({
                 embeds: [embed]
             });
