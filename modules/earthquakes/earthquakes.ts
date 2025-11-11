@@ -92,7 +92,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : await LangGetAutoTranslatedStringRaw('Most recent earthquake in Japan', locale))
         .setTimestamp(origin_time)
         .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
-        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}?salt=${Math.random()}`)
         .setFields(
             {name: "Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
@@ -107,7 +107,7 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
         .setTitle((event.is_warning ? 'Earthquake Early Warning' : 'Earthquake Early Warning (Forecast)') + (event.report_count == 999 ? ' (Final Report)' : ` (Report ${event.report_count})`))
         .setTimestamp(origin_time)
         .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
-        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}?salt=${Math.random()}`)
         .setFields(
             {name: "Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
