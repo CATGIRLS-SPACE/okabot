@@ -1,4 +1,4 @@
-import {ChatInputCommandInteraction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import * as osu from 'osu-api-v2-js';
 import {BASE_DIRNAME, CONFIG} from "../../index";
@@ -7,6 +7,7 @@ import {join} from "path";
 import {createWriteStream} from "node:fs";
 import {finished} from "node:stream/promises";
 import {Readable} from "stream";
+import {Timeout} from "microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common/Timeout";
 
 /* Commands */
 
@@ -80,7 +81,7 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
 
     interaction.editReply(`okaaaay, i've commissioned millie's laptop to render those replays together! (expected wait: ${.5 + ((score_ids.length - 1) * .5)}min) i'll ping you here when the render is ready! ᓀ‸ᓂ`);
 
-    const check_render = async () => {
+    const check_render = async (): Promise<Timeout | Message | undefined> => {
         const r = await fetch('http://192.168.1.118:3210/renderstatus');
         const j = await r.json();
         if (j.RENDER_STATUS == 'in-progress') {
@@ -88,11 +89,11 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
         }
         if (j.RENDER_STATUS == 'failed') {
             RENDER_IN_PROGRESS = false;
-            return (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render failed, sorry... here's what millie's laptop told me:\n\`${j.RENDER_FAIL_REASON}\``)
+            return await (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render failed, sorry... here's what millie's laptop told me:\n\`${j.RENDER_FAIL_REASON}\``)
         }
         if (j.RENDER_STATUS == 'done') {
             RENDER_IN_PROGRESS = false;
-            return (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render is done! https://momoi.millie.zone/${j.LAST_RENDER_NAME}`)
+            return await (interaction.channel as TextChannel).send(`<@${interaction.user.id}>, the render is done! https://momoi.millie.zone/${j.LAST_RENDER_NAME}`)
         }
     }
 

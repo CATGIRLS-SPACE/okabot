@@ -63,15 +63,15 @@ export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
 }
 
 const SHINDO_IMG: { [key: string]: string } = {
-    '1':'1.png',
-    '2':'2.png',
-    '3':'3.png',
-    '4':'4.png',
-    '5-':'5-.png',
-    '5+':'5+.png',
-    '6-':'6-.png',
-    '6+':'6+.png',
-    '7':'7.png'
+    '1':`1.png?salt=${Math.random()}`,
+    '2':`2.png?salt=${Math.random()}`,
+    '3':`3.png?salt=${Math.random()}`,
+    '4':`4.png?salt=${Math.random()}`,
+    '5-':`5-.png?salt=${Math.random()}`,
+    '5+':`5+.png?salt=${Math.random()}`,
+    '6-':`6-.png?salt=${Math.random()}`,
+    '6+':`6+.png?salt=${Math.random()}`,
+    '7':`7.png?salt=${Math.random()}`
 }
 
 export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string, max_intensity: string, depth: string, hypocenter_name: string, automatic = false, locale: string = 'en') {
@@ -92,7 +92,7 @@ export async function BuildEarthquakeEmbed(origin_time: Date, magnitude: string,
         .setTitle(automatic ? `A Shindo ${max_intensity} earthquake occurred.` : await LangGetAutoTranslatedStringRaw('Most recent earthquake in Japan', locale))
         .setTimestamp(origin_time)
         .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
-        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}?salt=${Math.random()}`)
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name: "Maximum Measured Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
@@ -107,7 +107,7 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
         .setTitle((event.is_warning ? 'Earthquake Early Warning' : 'Earthquake Early Warning (Forecast)') + (event.report_count == 999 ? ' (Final Report)' : ` (Report ${event.report_count})`))
         .setTimestamp(origin_time)
         .setAuthor({name: 'Project DM-D.S.S', url: `https://www.jma.go.jp/bosai/map.html`,iconURL:`https://bot.millie.zone/shindo/icon.png`})
-        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}?salt=${Math.random()}`)
+        .setThumbnail(`https://bot.millie.zone/shindo/${SHINDO_IMG[max_intensity] || 'unknown.png'}`)
         .setFields(
             {name: "Maximum Expected Intensity", value: `**${max_intensity}**`, inline: true},
             {name: 'Magnitude', value: `**M${magnitude}**`, inline: true},
@@ -120,7 +120,6 @@ function BuildEEWEmbed(origin_time: Date, magnitude: string, max_intensity: stri
 let MONITORING_CHANNEL = "1313343448354525214"; // #earthquakes (CC)
 export let SOCKET: DMDataWebSocket;
 const EXISTING_EARTHQUAKES = new Map<string, {message: Message, report_count: number, is_warning: boolean}>();
-const EXISTING_EARTHQUAKES_BY_ORIGIN_TIME = new Map<string, Message>();
 let reconnect_tries = 0;
 
 export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
@@ -221,10 +220,10 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
             true
         );
 
-        if (EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.has(data.earthquake.originTime)) {
-            const event = EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.get(data.earthquake.originTime);
-            event!.reply({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
-            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.delete(data.earthquake.originTime);
+        if (EXISTING_EARTHQUAKES.has(data.eventId)) {
+            const event = EXISTING_EARTHQUAKES.get(data.eventId);
+            event!.message.reply({embeds:[embed], flags:data.intensity.maxInt=="1"||data.intensity.maxInt=="2"?[MessageFlags.SuppressNotifications]:[]});
+            EXISTING_EARTHQUAKES.delete(data.eventId);
             return;
         }
 
@@ -293,7 +292,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 event
             );
 
-            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, event.message);
             return await event.message.edit({
                 embeds: [embed]
             });
@@ -305,7 +303,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 embeds: [embed]
             });
             EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: false, report_count: 1});
-            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, sent);
         } catch (err: any) {
             L.error(err);
         }
@@ -351,7 +348,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 event
             );
 
-            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, event.message);
             return event.message.edit({
                 embeds: [embed]
             });
@@ -363,7 +359,6 @@ export async function StartEarthquakeMonitoring(client: Client, disable_fetching
                 embeds: [embed]
             });
             EXISTING_EARTHQUAKES.set(data.eventId, {message:sent, is_warning: true, report_count: 1});
-            EXISTING_EARTHQUAKES_BY_ORIGIN_TIME.set(data.earthquake.originTime, sent);
         } catch (err: any) {
             L.error(err);
         }

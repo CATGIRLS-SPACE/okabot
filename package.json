@@ -1,6 +1,6 @@
 {
   "name": "okabot",
-  "version": "5.4.2",
+  "version": "5.4.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "express": "^4.21.2",
     "gifuct-js": "^2.1.2",
     "json": "^11.0.0",
-    "lily-dmdata": "^0.1.6-beta",
+    "lily-dmdata": "^0.1.7-beta",
     "microsoft-cognitiveservices-speech-sdk": "^1.45.0",
     "node-schedule": "^2.1.1",
     "okayulogger": "^3.0.0",
