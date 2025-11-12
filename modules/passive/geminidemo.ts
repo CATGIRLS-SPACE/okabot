@@ -32,7 +32,7 @@ const ConversationChainReplyPointers: {
  * @param message The message object passed by discord.js
  * @param disable_search Disable the search grounding tool?
  */
-export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false) {
+export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false, send_to_minecraft: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!message.channel.isDMBased() && !CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return message.reply({
         content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
@@ -223,6 +223,17 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
                     duration: 1
                 }
             })
+        }
+
+        if (send_to_minecraft) {
+            fetch(`https://bot.millie.zone/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    event: 'message',
+                    username: client.user?.displayName,
+                    message: response_data.reply
+                })
+            });
         }
 
         const reply = await message.reply({

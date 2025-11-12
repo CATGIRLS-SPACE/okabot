@@ -124,7 +124,7 @@ import {HandleCommandPair} from "./modules/http/pairing";
 import {HandleCommandCasino, LoadCasinoDB} from "./modules/okash/casinodb";
 import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
-import {CreateSharedMedia, StartHTTPServer} from "./modules/http/server";
+import {StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
 import {LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
@@ -516,28 +516,28 @@ client.on(Events.MessageCreate, async message => {
             final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
         }
 
-        let attachlink = '';
+        // let attachlink = '';
 
-        if (message.attachments.size > 0) {
-            const links: string[] = [];
-            const iterator = message.attachments.keys();
-            for (const attachment of iterator) {
-                if (message.attachments.get(attachment)!.contentType?.startsWith('image/')) links.push(message.attachments.get(attachment)!.url!);
-            }
-            const id = CreateSharedMedia(links);
-
-            attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id})`;
-
-            message.reply(`Your attachment(s) was/were sent to the server chat with ID \`${id}\`.`);
-        }
+        // if (message.attachments.size > 0) {
+        //     const links: string[] = [];
+        //     const iterator = message.attachments.keys();
+        //     for (const attachment of iterator) {
+        //         if (message.attachments.get(attachment)!.contentType?.startsWith('image/')) links.push(message.attachments.get(attachment)!.url!);
+        //     }
+        //     const id = CreateSharedMedia(links);
+        //
+        //     attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id})`;
+        //
+        //     message.reply(`Your attachment(s) was/were sent to the server chat with ID \`${id}\`.`);
+        // }
 
         // send the message to the minecraft server
-        if (!DEV) fetch(`https://b.whats.moe/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
+        if (!DEV) fetch(`https://bot.millie.zone/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
             method: 'POST',
             body: JSON.stringify({
                 event: 'message',
                 username: message.author.username==message.author.displayName?`@${message.author.username}`:message.author.displayName,
-                message: final_message + attachlink
+                message: final_message
             })
         });
     }
