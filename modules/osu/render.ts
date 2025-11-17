@@ -76,7 +76,7 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
         }
     } catch (e: unknown) {
         RENDER_IN_PROGRESS = false;
-        return interaction.editReply(`:x: Failed to commission render (${(e as Error).message})`);
+        return interaction.editReply(`:x: Failed to commission render (${(e as Error).message})\nThis could potentially be Windows's fault. If you know how to get danser running on Linux without BASS issues, please contact me.`);
     }
 
     interaction.editReply(`okaaaay, i've commissioned millie's laptop to render those replays together! (expected wait: ${.5 + ((score_ids.length - 1) * .5)}min) i'll ping you here when the render is ready! ᓀ‸ᓂ`);
