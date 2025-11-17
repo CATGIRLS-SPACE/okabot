@@ -13,7 +13,7 @@ import {Timeout} from "microsoft-cognitiveservices-speech-sdk/distrib/lib/src/co
 
 export async function HandleCommandOsuConfig(interaction: ChatInputCommandInteraction) {
     const profile = GetUserProfile(interaction.user.id);
-    profile.ordr.osu_username = interaction.options.getString('osu', true);
+    profile.ordr.osu_username = interaction.options.getString('username', true);
     UpdateUserProfile(interaction.user.id, profile);
     await interaction.reply({
         content: '✅ Updated your osu! configuration.',
