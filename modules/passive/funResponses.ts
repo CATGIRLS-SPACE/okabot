@@ -15,8 +15,8 @@ const TYO_RESPONSE: Array<string> = [
     'i do my best!'
 ]
 
-export async function CheckForFunMessages(message: Message) {
-    if (!message.channel.isDMBased() && CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs)) {
+export async function CheckForFunMessages(message: Message, emulated: boolean = false) {
+    if (emulated || (!message.channel.isDMBased() && CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs))) {
         if (message.content.toLocaleLowerCase().includes('thank you') && message.content.toLocaleLowerCase().includes('okabot')) {
             message.reply({
                 content: TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
@@ -65,7 +65,7 @@ export async function CheckForFunMessages(message: Message) {
 
 
         if (/^d#\d+$/.test(message.content)) {
-            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru)) return message.reply({
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
                 content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
             });
             let force_general = false;

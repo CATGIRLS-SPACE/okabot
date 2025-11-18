@@ -33,7 +33,7 @@ export async function ParseAsTextFromInput(interaction: ChatInputCommandInteract
         guild: interaction.guild,
         guildId: interaction.guildId
     } as unknown as Message;
-    CheckForFunMessages(faked);
+    CheckForFunMessages(faked, true);
 }
 
 export const EmulateMessageSlashCommand = new SlashCommandBuilder()
