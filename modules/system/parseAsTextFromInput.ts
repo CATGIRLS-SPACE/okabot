@@ -3,7 +3,7 @@ import {
     Message,
     MessagePayload,
     MessageReplyOptions,
-    SlashCommandBuilder
+    SlashCommandBuilder, TextChannel
 } from "discord.js";
 import {CheckForFunMessages} from "../passive/funResponses";
 
@@ -21,7 +21,7 @@ export async function ParseAsTextFromInput(interaction: ChatInputCommandInteract
         author: interaction.user,
         content: interaction.options.getString('message', true),
         channelId: interaction.channel!.id,
-        channel: interaction.channel,
+        channel: interaction.channel as TextChannel,
         reply: (data: string | MessagePayload | MessageReplyOptions) => {
             return reply.fetch().then(r => {
                 r.reply(data);
