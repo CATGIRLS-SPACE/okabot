@@ -58,7 +58,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
     }
 
     // FAS-exclusive starts here
-    if (['748284249487966282', '1019089377705611294', '1348652647963561984'].includes(message.guildId || '')) {
+    if (['748284249487966282', '1019089377705611294', '1348652647963561984'].includes(message.guildId || '') || emulated) {
         if (message.content.toLocaleLowerCase().includes('quit horsing around') && message.guildId != '1348652647963561984') message.reply({
             content: 'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
         });
@@ -69,7 +69,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
                 content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
             });
             let force_general = false;
-            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw)) force_general = true;
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;
             let post;
             try {
                 const danbooru_response = await fetch(`https://danbooru.donmai.us/posts/${message.content.split('#')[1]}.json`);
@@ -102,11 +102,11 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             }
         }
         if (message.content.startsWith('d$')) {
-            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru)) return message.reply({
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
                 content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
             });
             let force_general = false;
-            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw)) force_general = true;
+            if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;
             let tags;
             let num = 10;
             let offset = 1;
@@ -136,7 +136,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
                 content: `:warning: Error from Danbooru: \`${posts.message}\`\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)`
             });
 
-            if (posts.length == 0) return message.reply({content: 'No posts for list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)'});
+            if (posts.length == 0) return message.reply({content: 'No posts for list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` **do not** count towards the two-tag limit!)'});
 
             if (num == 10) {
                 // just send the list

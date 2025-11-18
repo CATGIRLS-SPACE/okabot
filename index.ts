@@ -491,6 +491,7 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.includes('<@908895994027049021>')) {
         (await client.channels.fetch('1315805846910795846') as TextChannel).send(`User ${message.author.username} has pinged me with message:\n${message.content}`);
+        await message.reply(`Heads up, **${message.author.displayName}**! Any message that pings me is relayed to Millie's private server. No other context can be seen, so if you are reporting a bug, please send as much context as possible.`);
     }
 
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
