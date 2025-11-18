@@ -32,6 +32,7 @@ import {GuessGameSlashCommand} from "../interactions/guessgame";
 import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
 import { StockSlashCommand } from "../interactions/stock";
 import {OsuConfigSlashCommand, OsuMultiSlashCommand} from "../osu/render";
+import {EmulateMessageSlashCommand} from "../system/parseAsTextFromInput";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -83,7 +84,8 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         was_there_an_error,
         StockSlashCommand,
         OsuConfigSlashCommand,
-        OsuMultiSlashCommand
+        OsuMultiSlashCommand,
+        EmulateMessageSlashCommand,
     ];
 
 

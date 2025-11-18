@@ -156,6 +156,7 @@ import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/gu
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
 import {MMFFile} from "./modules/catgirlcentral/mmf";
 import {HandleCommandOsuConfig, HandleCommandOsuMulti} from "./modules/osu/render";
+import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 
 
 export const client = new Client({
@@ -340,6 +341,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'guess': GuessBlueArchive,
     'osu-config': HandleCommandOsuConfig,
     'osu-multi': HandleCommandOsuMulti,
+    'emulate-message': ParseAsTextFromInput,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
