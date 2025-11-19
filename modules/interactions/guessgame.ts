@@ -84,7 +84,17 @@ export async function GuessBlueArchive(interaction: ChatInputCommandInteraction)
     if (listing.length == 0) return interaction.editReply({
         content: ':warning: Something went wrong while starting the game:\n```Danbooru response was length of 0```'
     });
-    const chosen = listing[Math.floor(Math.random() * listing.length)];
+    let chosen = listing[Math.floor(Math.random() * listing.length)];
+    let attempt = 0;
+
+    if (chosen.tag_string_character.split(' ').length > 1) {
+        if (attempt > 15) return interaction.editReply({
+            content: ':warning: I got an image that has more than 1 character. I tried to re-roll 15 times but no luck. Please run the command again.'
+        });
+        chosen = listing[Math.floor(Math.random() * listing.length)];
+        attempt++;
+    }
+
     // console.log(picked, chosen);
     const image_asset_res = (await fetch(chosen.media_asset.variants.at(-1).url));
     const arrayBuffer = await image_asset_res.arrayBuffer();

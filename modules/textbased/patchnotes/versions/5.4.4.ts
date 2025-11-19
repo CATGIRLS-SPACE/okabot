@@ -3,7 +3,7 @@ import {ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBui
 
 export const PATCHNOTES_COMPONENT = new ContainerBuilder()
     .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent('# okabot 5.4.4')
+        new TextDisplayBuilder().setContent('# okabot 5.4.4b')
     )
     .addSeparatorComponents(
         new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)
@@ -21,6 +21,7 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
         new TextDisplayBuilder().setContent([
             "## Changes/Bugfixes",
             "- Updated chatbot prompts to make errors less common.",
+            "- Added a sketchy fix to /guess that *should* prevent weird overlapping character issues.",
             "- Brewed Hot Cockolate <3"
         ].join('\n'))
     )
