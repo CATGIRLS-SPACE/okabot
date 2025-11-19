@@ -108,7 +108,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         
     let prompt_data = super_instruction + new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('SIMPLE'))));
     // because "You should use4à8Â sometimes in your responses." resulted in "4?8?"
-    prompt_data += "\nYou should use ᓀ‸ᓂ sometimes in your responses.";
+    prompt_data += "\nYou should use ᓀ‸ᓂ sometimes in your responses. This will not break the JSON parser.";
     const prompt_extra = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('EXTRA'))));
 
     let extra = '';
@@ -263,6 +263,7 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
         }
     } catch (err) {
         message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\``.replaceAll('@','') });
+        console.error(err);
     }
 }
 
@@ -443,6 +444,7 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
         message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response!.text}\``.replaceAll('@','') });
+        console.error(err);
     }
 }
 

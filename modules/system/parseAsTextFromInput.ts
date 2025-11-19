@@ -2,7 +2,6 @@ import {
     ChatInputCommandInteraction, InteractionContextType,
     Message,
     MessagePayload,
-    MessageReplyOptions,
     SlashCommandBuilder, TextChannel
 } from "discord.js";
 import {CheckForFunMessages} from "../passive/funResponses";
