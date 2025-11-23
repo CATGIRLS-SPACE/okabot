@@ -9,6 +9,7 @@ import { Server } from 'ws';
 import {PrivilegedConnections, SendLoginRequest} from "./pairing";
 import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
+import {TwitchSetOauthAndStartBot} from "../integrations/twitch";
 export const server = express();
 
 const channelId = "1321639990383476797";
@@ -279,4 +280,9 @@ export function DenyLogin(session: string, user_id: Snowflake) {
 server.get('/sticker', (req, res) => {
     if (DEV) res.render('sticker');
     else res.status(501).end();
+});
+
+server.get('/twitch/callback', (req, res) => {
+    TwitchSetOauthAndStartBot(req.query.code as string);
+    res.send(`code was ${req.query.code}.`);
 });

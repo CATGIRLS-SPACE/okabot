@@ -29,6 +29,7 @@ import {SOCKET, open_socket} from "../earthquakes/earthquakes";
 import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
+import {ActivateTwitchIntegration} from "../integrations/twitch";
 
 
 interface ShorthandList {
@@ -473,6 +474,10 @@ export function RegisterAllShorthands() {
         const type = parseInt(params[2]);
         const activity = params[3];
         SetActivity(activity, type);
+    });
+
+    RegisterShorthand('oka twitch start', (message: Message) => {
+        ActivateTwitchIntegration(message);
     });
 }
 

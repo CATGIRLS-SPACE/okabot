@@ -83,7 +83,11 @@ export let CONFIG: {
     OPENAI_API_KEY: string,
     osu: {
         client_id: number,
-        secret: string
+        secret: string,
+    },
+    twitch: {
+        client_id: string,
+        secret: string,
     }
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 // eslint-disable-next-line no-var
