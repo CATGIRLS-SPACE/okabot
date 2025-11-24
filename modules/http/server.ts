@@ -282,7 +282,25 @@ server.get('/sticker', (req, res) => {
     else res.status(501).end();
 });
 
+// twitch integrations
+
 server.get('/twitch/callback', (req, res) => {
     TwitchSetOauthAndStartBot(req.query.code as string);
     res.send(`code was ${req.query.code}.`);
+});
+
+const BALATRO_REQUESTS: Array<string> = [];
+
+export function AddBalatroRequest(type: 'rand_joker' | 'eternal_joker' | 'rand_voucher') {
+    BALATRO_REQUESTS.push(type);
+}
+
+server.get('/balatro/requests', (req, res) => {
+    L.info('balatro request get');
+    if (BALATRO_REQUESTS[0]) {
+        res.send(BALATRO_REQUESTS[0]);
+        BALATRO_REQUESTS.shift();
+    } else {
+        res.send('none');
+    }
 });

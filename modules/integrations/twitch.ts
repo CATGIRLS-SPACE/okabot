@@ -4,6 +4,7 @@ import {Bot, createBotCommand} from "@twurple/easy-bot";
 import {Message, TextChannel} from "discord.js";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
+import {AddBalatroRequest} from "../http/server";
 
 /*
     This integration is intended to be exclusive to meowlliie's twitch channel.
@@ -155,7 +156,27 @@ export async function TwitchSetOauthAndStartBot(token: string) {
 
                 if (count == 1) reply(`${userName} throws an item! Ouch!`);
                 else reply(`${userName} throws ${count} items! Owee!`);
-            })
+            }),
+
+            createBotCommand('joker', (params, {userName, userId, reply}) => {
+                const profile = GetTwitchProfile(userId);
+                if (profile.okash < 1_000) return reply(`Not enough okash! You need 1,000 okash to make a random joker!`);
+                profile.okash -= 1_000;
+                LOADED_TWITCH_DB.users[userId] = profile;
+                writeFileSync(join(BASE_DIRNAME, 'db', 'twitch.oka'), JSON.stringify(LOADED_TWITCH_DB));
+                AddBalatroRequest('rand_joker');
+                reply(`${userName} created a random non-eternal joker!`);
+            }),
+
+            createBotCommand('eternal', (params, {userName, userId, reply}) => {
+                const profile = GetTwitchProfile(userId);
+                if (profile.okash < 5_000) return reply(`Not enough okash! You need 5,000 okash to make a random eternal joker!`);
+                profile.okash -= 5_000;
+                LOADED_TWITCH_DB.users[userId] = profile;
+                writeFileSync(join(BASE_DIRNAME, 'db', 'twitch.oka'), JSON.stringify(LOADED_TWITCH_DB));
+                AddBalatroRequest('eternal_joker');
+                reply(`${userName} created a random eternal joker!`);
+            }),
         ]
     }).say('meowlliie', 'okabot is now active and listening for commands in this chat!');
 }
