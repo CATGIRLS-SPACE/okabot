@@ -143,7 +143,7 @@ import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
-import {LoadWarnings} from "./modules/moderation/moderation";
+import {CheckModerationShorthands, LoadWarnings} from "./modules/moderation/moderation";
 import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGeminiDemo} from "./modules/passive/geminidemo";
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
@@ -468,6 +468,7 @@ client.on(Events.MessageCreate, async message => {
     ListenForRouletteReply(message); // checks for number in response to roulette game
     CheckGuessGameMessage(message);
     PrivacyGuardCheckLinks(message);
+    CheckModerationShorthands(message);
 
     if (message.content.includes('okabottestmmfandprinttoconsole')) {
         new MMFFile(join(__dirname, 'assets', 'jlpt', 'n5.mmf'));

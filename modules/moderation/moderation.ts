@@ -5,11 +5,14 @@ import {
     MessageReaction,
     PartialMessageReaction,
     PermissionsBitField,
-    Snowflake, TextChannel, User
+    Snowflake,
+    TextChannel,
+    User
 } from "discord.js";
 import {BASE_DIRNAME, client, DEV} from "../../index";
 import {join} from "path";
 import {existsSync, readFileSync, writeFileSync} from "fs";
+import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 
 const L = new Logger('moderation');
@@ -78,6 +81,8 @@ export async function CheckReactionFlag(reaction: MessageReaction | PartialMessa
  * Checks for moderation shorthands such as o.ban or o.kick
  */
 export async function CheckModerationShorthands(message: Message) {
+    if (CheckFeatureAvailability(message.guildId || '0', ServerFeature.mod_shorthands)) return;
+
     if (message.content.startsWith('o.ban')) return BanUser(message);
     if (message.content.startsWith('o.kick')) return KickUser(message);
     if (message.content.startsWith('o.warn')) return WarnUser(message);

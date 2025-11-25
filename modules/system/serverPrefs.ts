@@ -42,6 +42,7 @@ export interface ServerPreferences {
         catgirl: boolean,
         danbooru: boolean,
         danbooru_sqe: boolean,
+        moderation: boolean,
     }
 }
 
@@ -66,6 +67,7 @@ export enum ServerFeature {
     catgirl = 'catgirl',
     danbooru = 'danbooru',
     danbooru_nsfw = 'danbooru_sqe',
+    mod_shorthands = 'moderation',
 }
 
 const DEFAULT_PREFERENCES: ServerPreferences = {
@@ -91,6 +93,7 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         catgirl: true,
         danbooru: false,
         danbooru_sqe: false,
+        moderation: false,
     }
 };
 
@@ -243,6 +246,11 @@ const extra_selection = new StringSelectMenuBuilder()
             .setValue('danbooru')
             .setLabel('Danbooru')
             .setDescription('Enable or disable the Danbooru features'),
+
+        new StringSelectMenuOptionBuilder()
+            .setValue('moderation')
+            .setLabel('Moderation')
+            .setDescription('Enable or disable the moderation commands.'),
     )
 
 export async function HandleServerPrefsCommand(interaction: ChatInputCommandInteraction) {
@@ -592,6 +600,16 @@ function ExtraSelectDropDown(i: StringSelectMenuInteraction) {
     if (i.values[0] == 'danbooru') {
         i.update({
             content: 'Do you want to enable or disable the Danbooru commands (d#9981938 and d$<tags>)? Posts which are not rating:g are always spoilered.',
+            components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
+                new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable (rating:g only)').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId('danbooru_sqe-on').setLabel('Enable (all ratings)').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId('danbooru-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
+            )]
+        });
+    }
+    if (i.values[0] == 'moderation') {
+        i.update({
+            content: 'Do you want to enable or disable the o.kick, o.ban, o.warn, and o.log commands?\nYou must create a roll named exactly "okabot mod" in order to use these commands.',
             components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable (rating:g only)').setStyle(ButtonStyle.Success),
                 new ButtonBuilder().setCustomId('danbooru_sqe-on').setLabel('Enable (all ratings)').setStyle(ButtonStyle.Success),
