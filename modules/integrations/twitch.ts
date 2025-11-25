@@ -110,7 +110,7 @@ export async function TwitchSetOauthAndStartBot(token: string) {
 
             createBotCommand('okash', (params, {userName, userId, reply}) => {
                 const profile = GetTwitchProfile(userId);
-                reply(`${userName}, you have ${profile.okash} okash!`);
+                reply(`${userName}, you have ${profile.okash} okash! Use !get to get some okash!`);
             }),
 
             createBotCommand('get', (params, {userName, userId, reply}) => {
@@ -138,7 +138,7 @@ export async function TwitchSetOauthAndStartBot(token: string) {
                 if (params[0] && !isNaN(parseInt(params[0]))) count = Math.max(1, parseInt(params[0]));
                 count = Math.min(count, 10);
 
-                if (profile.okash < count * 125) return reply(`Not enough okash to throw! You need 125 okash per item!`);
+                if (profile.okash < count * 125) return reply(`Not enough okash to throw! You need 125 okash per item! Try using !get`);
 
                 profile.okash -= count * 125;
                 LOADED_TWITCH_DB.users[userId] = profile;
