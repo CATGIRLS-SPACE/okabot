@@ -161,6 +161,7 @@ import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
 import {MMFFile} from "./modules/catgirlcentral/mmf";
 import {HandleCommandOsuConfig, HandleCommandOsuMulti} from "./modules/osu/render";
 import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
+import {EnableHoneypots} from "./modules/thecattree/honeypot";
 
 
 export const client = new Client({
@@ -262,6 +263,7 @@ async function RunPostStartupTasks() {
     StartHTTPServer(client);
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
     ConnectToN4Network();
+    EnableHoneypots();
 
 
     client.user!.setActivity({
