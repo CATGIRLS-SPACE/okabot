@@ -611,9 +611,8 @@ function ExtraSelectDropDown(i: StringSelectMenuInteraction) {
         i.update({
             content: 'Do you want to enable or disable the o.kick, o.ban, o.warn, and o.log commands?\nYou must create a roll named exactly "okabot mod" in order to use these commands.',
             components: [new ActionRowBuilder<ButtonBuilder>().addComponents(
-                new ButtonBuilder().setCustomId('danbooru-on').setLabel('Enable (rating:g only)').setStyle(ButtonStyle.Success),
-                new ButtonBuilder().setCustomId('danbooru_sqe-on').setLabel('Enable (all ratings)').setStyle(ButtonStyle.Success),
-                new ButtonBuilder().setCustomId('danbooru-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
+                new ButtonBuilder().setCustomId('moderation-on').setLabel('Enable').setStyle(ButtonStyle.Success),
+                new ButtonBuilder().setCustomId('moderation-off').setLabel('Disable').setStyle(ButtonStyle.Danger)
             )]
         });
     }
