@@ -31,6 +31,7 @@ const ConversationChainReplyPointers: {
  * Respond to an "okabot, xyz..." message
  * @param message The message object passed by discord.js
  * @param disable_search Disable the search grounding tool?
+ * @param send_to_minecraft Should the reply be relayed to the Minecraft endpoint?
  */
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false, send_to_minecraft: boolean = false) {
     if (!CONFIG.gemini.enable) return;
