@@ -100,12 +100,12 @@ export async function TwitchSetOauthAndStartBot(token: string) {
         authProvider,
         channel: 'meowlliie',
         commands:[
-            createBotCommand('discord', (params, {reply}) => {
-                reply("I don't have a Discord server yet. If enough people express interest, I'll make one.");
+            createBotCommand('discord', (params, {userName, reply}) => {
+                reply(`${userName}, https://discord.gg/e2Y5wgUWSn`);
             }),
 
             createBotCommand('okabot', (params, {reply}) => {
-                reply('okabot now has some limited integration with my Twitch chat. It sort of serves to bridge the gap for channel points while I am not affiliate. Try it out with !okash, !get, or !throw. More things are coming soon.');
+                reply('okabot now has some limited integration with my Twitch chat. Try it out with !okash, !get, or !throw. More things are coming soon.');
             }),
 
             createBotCommand('okash', (params, {userName, userId, reply}) => {
