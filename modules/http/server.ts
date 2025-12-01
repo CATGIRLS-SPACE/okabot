@@ -47,14 +47,14 @@ server.post('/minecraft', async (req: Request, res: Response) => {
 
         case 'join':
             channel.send({
-                content: `:arrow_right: **${req.body.username}** joined.`,
+                content: `## :inbox_tray: **${req.body.username}** joined.`,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
 
         case 'leave':
             channel.send({
-                content: `:arrow_left: **${req.body.username}** left.`,
+                content: `## :outbox_tray: **${req.body.username}** left.`,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
@@ -81,7 +81,11 @@ server.post('/minecraft', async (req: Request, res: Response) => {
             break;
 
         case 'achievement':
-            channel.send(`:tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`);
+            channel.send(`## :tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`);
+            break;
+
+        case 'system':
+            channel.send(`## :bangbang: **MoeMX says:** ${req.body.content}`);
             break;
 
         default:
