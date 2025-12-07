@@ -47,14 +47,14 @@ server.post('/minecraft', async (req: Request, res: Response) => {
 
         case 'join':
             channel.send({
-                content: `## :inbox_tray: **${req.body.username}** joined.`,
+                content: `### :inbox_tray: **${req.body.username}** joined.`,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
 
         case 'leave':
             channel.send({
-                content: `## :outbox_tray: **${req.body.username}** left.`,
+                content: `### :outbox_tray: **${req.body.username}** left.`,
                 flags: MessageFlags.SuppressNotifications
             });
             break;
@@ -81,16 +81,20 @@ server.post('/minecraft', async (req: Request, res: Response) => {
             break;
 
         case 'achievement':
-            channel.send(`## :tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`);
+            channel.send({content: `:tada: **${req.body.username}** has completed the advancement **${req.body.name}**!\n-# ${req.body.description}`, flags: MessageFlags.SuppressNotifications});
+            break;
+
+        case 'warp':
+            channel.send({content: `-# :cyclone: ***${req.body.username}** mysteriously teleports to **${req.body.name}***`, flags: MessageFlags.SuppressNotifications});
             break;
 
         case 'system':
-            channel.send(`## :bangbang: **MoeMX says:** ${req.body.content}`);
+            channel.send({content: `-# :bangbang: **MoeMX says:** ${req.body.content}`, flags: MessageFlags.SuppressNotifications});
             break;
 
         default:
             channel.send({
-                content: `:grey_question: unknown message type "${req.body.type}"\nfull body: \`${JSON.stringify(req.body)}\``,
+                content: `:grey_question: I don't know what message type "${req.body.type}" means!\nfull body: \`${JSON.stringify(req.body)}\``,
                 flags: MessageFlags.SuppressNotifications
             });
             break;

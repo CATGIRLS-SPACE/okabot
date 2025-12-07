@@ -22,7 +22,8 @@
         {"name": "PanickedShears","id": "659271658581786624","type": "cgc-beta"},
         {"name": "meowlliie","id": "796201956255334452","type": "cgc-beta"},
         {"name": "flyer.","id":"268666183018872832","type":"public"},
-        {"name": "themagicanimals", "id":"492908628597276692","type":"public"}
+        {"name": "themagicanimals", "id":"492908628597276692","type":"public"},
+        {"name": "krowned","id":"1007774901387677778","type":"public","bonus": "title:code injector"}
     ],
     "hard_bans":[]
 }
