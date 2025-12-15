@@ -52,8 +52,13 @@ export async function HandleCommandOsuMulti(interaction: ChatInputCommandInterac
     }
 
     for (const score_id of score_ids) {
-        if (!existsSync(join(BASE_DIRNAME, 'temp', 'osr', `${score_id}.osr`)))
-            writeFileSync(join(BASE_DIRNAME, 'temp', 'osr', `${score_id}.osr`), await api.getReplay(score_id), 'binary');
+        try {
+            if (!existsSync(join(BASE_DIRNAME, 'temp', 'osr', `${score_id}.osr`)))
+                writeFileSync(join(BASE_DIRNAME, 'temp', 'osr', `${score_id}.osr`), await api.getReplay(score_id), 'binary');
+        } catch {
+            interaction.editReply(`Looks like score ID ${score_id} can't be downloaded. It's not available on the osu! api. Please remove it and try again.`)
+            return RENDER_IN_PROGRESS = false;
+        }
     }
 
     const replays_list: string[] = score_ids.map(id => `${id}.osr`);
