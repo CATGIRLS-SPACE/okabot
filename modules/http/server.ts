@@ -1,6 +1,6 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
-import {CONFIG, DEV} from '../../index';
+import {client, CONFIG, DEV} from '../../index';
 import {Client, MessageFlags, Snowflake, TextChannel} from 'discord.js';
 import { join } from 'path';
 import { createServer } from 'http';
@@ -311,4 +311,45 @@ server.get('/balatro/requests', (req, res) => {
     } else {
         res.send('none');
     }
+});
+
+//@ts-expect-error shut up
+server.post('/gmod/event', async (req, res) => {
+    if (!req.query.key || req.query.key != CONFIG.minecraft_relay_key) return res.status(401).json({success:false,reason:'invalid key'});
+
+    const channel = await client.channels.fetch('1453190686860906638') as TextChannel;
+    if (!channel) return res.sendStatus(500);
+
+    if (req.query.event == 'chat') {
+        channel.send({
+            content: `**${req.body.player}**: ${req.body.content}`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+    if (req.query.event == 'join') {
+        channel.send({
+            content: `:inbox_tray: **${req.body.player}** joined`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+    if (req.query.event == 'leave') {
+        channel.send({
+            content: `:outbox_tray: **${req.body.player}** left`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+    if (req.query.event == 'kill') {
+        channel.send({
+            content: `:skull: **${req.body.player}** was killed by ${req.body.killer}!`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+    if (req.query.event == 'suicide') {
+        channel.send({
+            content: `:skull: **${req.body.player}** died!`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+    }
+
+    res.sendStatus(200);
 });
