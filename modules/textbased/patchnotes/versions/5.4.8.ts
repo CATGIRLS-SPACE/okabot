@@ -21,6 +21,7 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
     .addTextDisplayComponents(
         new TextDisplayBuilder().setContent([
             "## Changes/Bugfixes",
+            "- Fixed broken embed links (again).",
             "- Various bugfixes.",
             "- Brewed Hot Cockolate <3"
         ].join('\n'))

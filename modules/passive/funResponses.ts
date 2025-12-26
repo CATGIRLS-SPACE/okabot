@@ -33,7 +33,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
                 (message.reference && (await message.fetchReference()).author.id == client.user!.id)
             )) {
             await message.reply({
-                content: 'https://b.whats.moe/gif/dekocry.gif'
+                content: 'https://bot.millie.zone/gif/dekocry.gif'
             });
             return GrantAchievement(message.author, Achievements.OKABOT_CRY, message.channel as TextChannel);
         }
@@ -42,7 +42,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             message.content.toLowerCase().includes('killing myself') ||
             message.content.toLowerCase().includes('kms')) {
             return message.reply({
-                content: (Math.random() > 0.8) ? 'https://b.whats.moe/video/neverkys_alt.mp4' : 'https://b.whats.moe/video/neverkys.mp4'
+                content: (Math.random() > 0.8) ? 'https://bot.millie.zone/video/neverkys_alt.mp4' : 'https://bot.millie.zone/video/neverkys.mp4'
             });
         }
 
