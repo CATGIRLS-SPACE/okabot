@@ -33,6 +33,7 @@ import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
 import { StockSlashCommand } from "../interactions/stock";
 import {OsuConfigSlashCommand, OsuMultiSlashCommand} from "../osu/render";
 import {EmulateMessageSlashCommand} from "../system/parseAsTextFromInput";
+import {BookmarkContextMenuOption, BookmarkSlashCommand} from "../contextmenu/bookmarks";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -86,6 +87,9 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         OsuConfigSlashCommand,
         OsuMultiSlashCommand,
         EmulateMessageSlashCommand,
+    //     bookmarks
+        BookmarkSlashCommand,
+        BookmarkContextMenuOption,
     ];
 
 

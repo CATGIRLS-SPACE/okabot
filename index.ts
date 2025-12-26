@@ -11,7 +11,7 @@ import {
     Client,
     EmbedBuilder,
     Events,
-    GatewayIntentBits,
+    GatewayIntentBits, MessageContextMenuCommandInteraction,
     MessageFlags,
     Partials,
     Snowflake,
@@ -162,6 +162,7 @@ import {MMFFile} from "./modules/catgirlcentral/mmf";
 import {HandleCommandOsuConfig, HandleCommandOsuMulti} from "./modules/osu/render";
 import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 import {EnableHoneypots} from "./modules/thecattree/honeypot";
+import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
 
 
 export const client = new Client({
@@ -246,6 +247,7 @@ async function RunPreStartupTasks() {
     SetupTranslate();
     SetupGeminiDemo();
     SetupStocks(__dirname);
+    LoadBookmarkDB();
 
     setInterval(() => {
         UpdateMarkets(client);
@@ -348,6 +350,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'osu-config': HandleCommandOsuConfig,
     'osu-multi': HandleCommandOsuMulti,
     'emulate-message': ParseAsTextFromInput,
+    'bookmark': HandleCommandBookmark
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
@@ -363,6 +366,11 @@ export function SetLastLocale(user_id: Snowflake, locale: string) {
 }
 
 client.on(Events.InteractionCreate, async interaction => {
+    if (interaction.isContextMenuCommand()) {
+        if (interaction.commandName == 'Bookmark This') AddBookmark(interaction as MessageContextMenuCommandInteraction);
+        else console.log(interaction.commandName);
+        return;
+    }
     if (!interaction.isChatInputCommand()) return;
 
     // if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
