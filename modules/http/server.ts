@@ -10,6 +10,7 @@ import {PrivilegedConnections, SendLoginRequest} from "./pairing";
 import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
 import {TwitchSetOauthAndStartBot} from "../integrations/twitch";
+import {urlencoded} from 'body-parser';
 export const server = express();
 
 const channelId = "1321639990383476797";
