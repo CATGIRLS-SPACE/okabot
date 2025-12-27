@@ -237,6 +237,12 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             });
         }
 
+        if (response_data.tool.startsWith('noresp')) {
+            return message.reply({
+                content:'-# okabot has chosen not to respond to this...'
+            });
+        }
+
         const reply = await message.reply({
             content: response_data.reply + `\n-# GenAI+Tools (\`${response.modelVersion}\`) (Toolstring: "${response_data.tool}")${has_custom_emojis?'\n-# Custom emojis were stripped from your message in order to prevent bugs.':''}\n` + (disable_search?'-# Search was disabled by using ",,".':'') + `\n-# By using this feature, you agree to Google's [Gemini Policies](<https://gemini.google/policy-guidelines/>) and [Privacy Policy](<https://policies.google.com/privacy>)`
         });
@@ -418,6 +424,11 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
                     duration: 1
                 }
             })
+        }
+        if (response_data.tool.startsWith('noresp')) {
+            return message.reply({
+                content:'-# okabot has chosen not to respond to this...'
+            });
         }
 
         let reply;

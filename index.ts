@@ -511,7 +511,7 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         if (!CONFIG.gemini.enable) return;
-        if (message.guild.id != '1348652647963561984' && message.guild.id != '1019089377705611294') message.reply({
+        if (message.guild.id != '1348652647963561984' && message.guild.id != '1019089377705611294' && message.guild.id != '748284249487966282') message.reply({
             content: 'This feature is no longer available.',
             flags:[MessageFlags.SuppressNotifications]
         });
