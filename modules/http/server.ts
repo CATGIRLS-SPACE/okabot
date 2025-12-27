@@ -314,7 +314,7 @@ server.get('/balatro/requests', (req, res) => {
 });
 
 //@ts-expect-error shut up
-server.post('/gmod/event', async (req, res) => {
+server.post('/gmod/event', urlencoded, async (req, res) => {
     if (!req.query.key || req.query.key != CONFIG.minecraft_relay_key) return res.status(401).json({success:false,reason:'invalid key'});
 
     const channel = await client.channels.fetch('1453190686860906638') as TextChannel;
