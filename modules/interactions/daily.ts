@@ -68,8 +68,12 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         
             if (!success) GrantAchievement(i.user, Achievements.ANGER_OKABOT, i.channel as TextChannel);
 
+            const scheduled = interaction.user.id == '1007774901387677778' ?
+                await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED_KROWNED, interaction.okabot.translateable_locale)
+                : await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale);
+
             i.update({
-                content: success?await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale)
+                content: success ? scheduled
                 :await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_ANGRY, interaction.okabot.translateable_locale, interaction.user.displayName),
                 components:[]
             });
@@ -131,9 +135,13 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             ScheduleDailyReminder(ready, interaction.user.id, interaction.channel as TextChannel);
 
             const previous_content = i.message;
+
+            const scheduled = interaction.user.id == '1007774901387677778' ?
+                await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED_KROWNED, interaction.okabot.translateable_locale)
+                : await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale);
         
             i.update({
-                content: `${previous_content}\n\n` + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_REMINDER_SCHEDULED, interaction.okabot.translateable_locale),
+                content: `${previous_content}\n\n` + scheduled,
                 components:[]
             });
         });
