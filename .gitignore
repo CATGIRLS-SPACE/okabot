@@ -9,6 +9,7 @@ old_index.js
 .vscode/*
 !.vscode/settings.json
 *.oka
+*.oka2
 **/*.js.map
 ERROR.LOG
 package-lock.json
