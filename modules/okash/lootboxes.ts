@@ -29,6 +29,8 @@ export interface LootboxRewardsScraps {
 
 export const LootboxRecentlyDropped = new Map<Snowflake, {item:ITEMS,time:number}>();
 
+// DUDE WHAT THE FUCK IS THIS
+
 // Function that calculates Lootbox Rewards
 export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | LootboxRewardsItem | LootboxRewardsScraps {
     const roll = Math.floor(Math.random() * 3) + 1; // roll 1-3
@@ -39,7 +41,7 @@ export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | L
             return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward}; }
 
         case 2:
-            { const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.CASINO_PASS_10_MIN;
+            { const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.STREAK_RESTORE;
             LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
             return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item}; }
 
