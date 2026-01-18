@@ -9,6 +9,8 @@ import {Achievements} from "../passive/achievement"
 // console.log('achievements is', Achievements)
 import {UserPet} from "../pet/pet";
 import { BannerSticker } from "../levels/levels"
+import {Low} from "lowdb";
+import {JSONFile, JSONFilePreset} from "lowdb/node";
 
 const L = new Logger('profiles');
 
@@ -196,14 +198,27 @@ const DEFAULT_DATA: USER_PROFILE = {
 }
 
 let PROFILES_DIR: string | null = null;
+let LOW_PROFILE_DB_PATH: string;
 
 const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
-export function SetupPrefs(base_dirname: string) {
+
+interface ProfileDB {
+    profiles: {
+        [key: Snowflake]: USER_PROFILE
+    }
+}
+let ProfilesDB: Low<ProfileDB>
+
+export async function SetupPrefs(base_dirname: string) {
     PROFILES_DIR = join(base_dirname, 'profiles');
-    
+    LOW_PROFILE_DB_PATH = join(base_dirname, 'db', 'profiles.oka2');
+
     // runs on startup to ensure the profiles directory exists
     if (!existsSync(PROFILES_DIR)) mkdirSync(PROFILES_DIR);
+    ProfilesDB = await JSONFilePreset(LOW_PROFILE_DB_PATH, {
+        profiles: {} as {[key: Snowflake]: USER_PROFILE}
+    });
 }
 
 function GetProfilesDir(): string {

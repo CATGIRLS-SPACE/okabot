@@ -4,6 +4,7 @@ config.json
 /temp
 /modules/**/*.js
 /util/*.js
+/staging/*.js
 index.js
 old_index.js
 .vscode/*

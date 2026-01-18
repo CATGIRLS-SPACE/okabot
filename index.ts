@@ -487,22 +487,8 @@ client.on(Events.MessageCreate, async message => {
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
     if (message.content.startsWith('o.remind')) RemindLater(message);
-    // if (message.content.startsWith('o.pet ')) PetParseTextCommand(message);
-    // if (message.content.startsWith('o.vc') && CONFIG.gemini.enable && DEV) {
-    //     const channel = await client.channels.fetch(message.content.split(' ')[1]);
-    //     if (!channel) return message.reply('no channel');
-    //     // SetupVC(channel as VoiceChannel, message.content.split(channel.id)[1].trim());
-    // }
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
-
-    // if (message.channel.isDMBased()) {
-    //     if (!CONFIG.gemini.enable) return;
-    //     if (message.reference)
-    //         GeminiDemoReplyToConversationChain(message);
-    //     else
-    //         GeminiDemoRespondToInquiry(message);
-    // }
 
     if (message.content.includes('<@908895994027049021>')) {
         (await client.channels.fetch('1315805846910795846') as TextChannel).send(`User ${message.author.username} has pinged me with message:\n${message.content}`);
@@ -511,10 +497,7 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         if (!CONFIG.gemini.enable) return;
-        if (message.guild.id != '1348652647963561984' && message.guild.id != '1019089377705611294' && message.guild.id != '748284249487966282') message.reply({
-            content: 'This feature is no longer available.',
-            flags:[MessageFlags.SuppressNotifications]
-        });
+        if (message.guild.id != '1348652647963561984' && message.guild.id != '1019089377705611294' && message.guild.id != '748284249487966282') return;
         else GeminiDemoRespondToInquiry(message);
     }
     
@@ -534,21 +517,6 @@ client.on(Events.MessageCreate, async message => {
             final_message = `(replying to @${reference.author.username}, "${reference.content}") ${message.content}`;
         }
 
-        // let attachlink = '';
-
-        // if (message.attachments.size > 0) {
-        //     const links: string[] = [];
-        //     const iterator = message.attachments.keys();
-        //     for (const attachment of iterator) {
-        //         if (message.attachments.get(attachment)!.contentType?.startsWith('image/')) links.push(message.attachments.get(attachment)!.url!);
-        //     }
-        //     const id = CreateSharedMedia(links);
-        //
-        //     attachlink = ` (attached ${message.attachments.size} item(s), view at https://b.whats.moe/s/${id})`;
-        //
-        //     message.reply(`Your attachment(s) was/were sent to the server chat with ID \`${id}\`.`);
-        // }
-
         // send the message to the minecraft server
         if (!DEV) fetch(`https://bot.millie.zone/okabot/discord?key=${CONFIG.minecraft_relay_key}`, {
             method: 'POST',
@@ -560,14 +528,6 @@ client.on(Events.MessageCreate, async message => {
         });
     }
 });
-
-
-// Voice handlers
-
-// client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
-//     // HandleVoiceEvent(client, oldState, newState);
-// });
-
 
 // Server join handler to give role automatically as well as the handler for reactions
 client.on(Events.GuildMemberAdd, async (member) => {

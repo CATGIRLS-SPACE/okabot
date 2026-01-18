@@ -41,4 +41,4 @@ export const EmulateMessageSlashCommand = new SlashCommandBuilder()
         .setDescription('The message to emulate.')
         .setRequired(true)
     )
-    .setContexts(InteractionContextType.BotDM, InteractionContextType.Guild, InteractionContextType.PrivateChannel);
+    .setContexts(InteractionContextType.BotDM, InteractionContextType.PrivateChannel);
