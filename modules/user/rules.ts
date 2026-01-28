@@ -55,13 +55,13 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
 
     // hasn't agreed to rules
 
-    if (!interaction.inGuild()) {
-        interaction.reply({
-            content:'Please go to a server to run a command and agree to the rules.',
-            flags: [MessageFlags.Ephemeral]
-        });
-        return false;
-    }
+    // if (!interaction.inGuild()) {
+    //     interaction.reply({
+    //         content:'Please go to a server to run a command and agree to the rules.',
+    //         flags: [MessageFlags.Ephemeral]
+    //     });
+    //     return false;
+    // }
 
     const reply = await interaction.reply({
         embeds: [agreement],
