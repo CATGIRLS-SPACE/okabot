@@ -83,6 +83,7 @@ export const ACHIEVEMENTS: {
 } = {
     'lowcf': {name:'That\'s Low...',description:'Get a stupidly low coinflip float', class:'gamble', diff:'t'},
     'highcf': {name:'No Doubt',description:'Get a stupidly high coinflip float', class:'gamble', diff:'t'},
+    'autobanned': {name:'Kicked Out',description:'This one\'s a secret!', class:'gamble', diff:'e'},
     'usewc': {name:'Backup Plan',description:'Equip a weighted coin', class:'gamble', diff:'e'},
     'get21': {name:'Blackjack!',description:'Win a game of blackjack by getting 21', class:'gamble', diff:'t'},
     'newcf_daily': {name:'Making History... temporarily',description:'Get a new highest/lowest coinflip of the day', class:'gamble', diff:'h'},

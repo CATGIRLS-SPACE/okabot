@@ -35,6 +35,7 @@ const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
 const WIN_CHANCE = 0.5;
 const WEIGHTED_WIN_CHANCE = 0.3;
+const WEIGHTED_WIN_CHANCE_TAILS = 0.7;
 
 const COIN_EMOJIS_FLIP: {
     [key: number]: string
@@ -284,9 +285,9 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
         UIDViolationTracker.set(interaction.user.id, violations);
         
         if (violations == 5) {
-            // const d = new Date();
-            // const unrestrict_date = new Date(d.getTime()+600000);
-            // RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
+            const d = new Date();
+            const unrestrict_date = new Date(d.getTime()+600000);
+            RestrictUser(interaction.client, interaction.user.id, `${unrestrict_date.toISOString()}`, 'Potential macro abuse (automatically issued by okabot)');
             UIDViolationTracker.set(interaction.user.id, 0);
             GrantAchievement(interaction.user, Achievements.COINFLIP_BAN, interaction.channel as TextChannel);
         } 
@@ -340,7 +341,12 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // immediately determine whether its a win or not
     const roll = Math.random();
     // const roll = 1;
-    const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
+    // const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
+
+    let win = false;
+
+    if (weighted) win = side=='heads' ? (roll >= WEIGHTED_WIN_CHANCE) : (roll < WEIGHTED_WIN_CHANCE_TAILS);
+    else win = side=='heads' ? (roll >= WIN_CHANCE) : (roll < WIN_CHANCE);
 
     // wait 3 seconds
     await new Promise((resolve) => setTimeout(resolve, 3_000));
@@ -355,10 +361,10 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (win) streak++;
     console.log(`Coinflip winstreak is now ${streak}.`);
 
-    const streak_msg = streak>1?'\n:fire: **Heck yea, ' + streak + ' in a row!**':'';
+    const streak_msg = streak>1 && win?'\n:fire: **Heck yea, ' + streak + ' in a row!**':'';
 
     interaction.editReply({
-        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${!weighted?(roll>=0.5?'heads':'tails'):(roll>=0.3?'heads':'tails')}**, ${final}${streak_msg}\n-# ${roll}${nfm}`
+        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${win ? side : {heads:'tails',tails:'heads'}[side]}**, ${final}${streak_msg}\n-# ${roll}${nfm}`
     });
 
     // reload their profile so we don't cause any desync issues and give reward
