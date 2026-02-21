@@ -8,7 +8,7 @@ import { execSync } from "child_process";
 import {join} from "path";
 import {
     ChatInputCommandInteraction,
-    Client,
+    Client, DMChannel,
     EmbedBuilder,
     Events,
     GatewayIntentBits, MessageContextMenuCommandInteraction,
@@ -158,11 +158,11 @@ import {ConnectToN4Network} from "./modules/earthquakes/n4";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
-import {MMFFile} from "./modules/catgirlcentral/mmf";
 import {HandleCommandOsuConfig, HandleCommandOsuMulti} from "./modules/osu/render";
 import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
-import {EnableHoneypots} from "./modules/thecattree/honeypot";
+// import {EnableHoneypots} from "./modules/thecattree/honeypot";
 import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
+import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
 
 
 export const client = new Client({
@@ -265,7 +265,7 @@ async function RunPostStartupTasks() {
     StartHTTPServer(client);
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
     ConnectToN4Network();
-    EnableHoneypots();
+    // EnableHoneypots();
 
 
     client.user!.setActivity({
@@ -465,6 +465,11 @@ client.on(Events.MessageCreate, async message => {
     if (message.content.startsWith('o.rules')) TextBasedRules(message);
 
     if (!rules) return; // don't listen to non-rule-agreeing users
+
+    if (message.channel.isDMBased() && message.content.toLowerCase() == 'data deletion request') {
+        return StartDataDeletionRequest(message.channel as DMChannel);
+    }
+
     if (CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
@@ -479,10 +484,6 @@ client.on(Events.MessageCreate, async message => {
     CheckGuessGameMessage(message);
     PrivacyGuardCheckLinks(message);
     CheckModerationShorthands(message);
-
-    if (message.content.includes('okabottestmmfandprinttoconsole')) {
-        new MMFFile(join(__dirname, 'assets', 'jlpt', 'n5.mmf'));
-    }
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);

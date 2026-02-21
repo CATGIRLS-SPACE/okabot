@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync} from "fs"
+import {existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync} from "fs"
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
-import {BASE_DIRNAME} from "../../index"
+import {BASE_DIRNAME, client} from "../../index"
 import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
@@ -11,6 +11,7 @@ import {UserPet} from "../pet/pet";
 import { BannerSticker } from "../levels/levels"
 import {Low} from "lowdb";
 import {JSONFile, JSONFilePreset} from "lowdb/node";
+import {KNOWN_AGREED_USER_IDS} from "./rules";
 
 const L = new Logger('profiles');
 
@@ -405,77 +406,10 @@ export function RestrictUser(client: Client, user_id: string, until: string, rea
     }
 }
 
-// this will only be called if the --upgrade flag is used
-// export function UpgradeLegacyProfiles(dirname: string) {
-//     const ALL_PROFILES = readdirSync(join(dirname, 'profiles'));
-//
-//     for (const profile of ALL_PROFILES) {
-//         const t_start = Date.now();
-//         const old_data: LEGACY_USER_PROFILE = JSON.parse(readFileSync(join(dirname, 'profiles', profile), 'utf-8'));
-//         const daily_data: {
-//             version: number,
-//             last_get: {
-//                 time: number
-//             },
-//             streak: {
-//                 count: number,
-//                 last_count: number,
-//                 restored: boolean,
-//                 double_claimed: boolean
-//             }
-//         } = JSON.parse(readFileSync(join(dirname, 'money', 'daily', profile), 'utf-8'));
-//         const wallet_data: Wallet = JSON.parse(readFileSync(join(dirname, 'money', 'wallet', profile), 'utf-8'));
-//
-//         const new_data: USER_PROFILE = {
-//             version: 3,
-//             accepted_rules: false,
-//             flags: old_data.flags,
-//             restriction: {
-//                 active: false,
-//                 until: 0,
-//                 reason: '',
-//                 abilities: ''
-//             },
-//             daily: {
-//                 last_claimed: daily_data.last_get.time,
-//                 restore_to: daily_data.streak.last_count,
-//                 restored: daily_data.streak.restored,
-//                 streak: daily_data.streak.count
-//             },
-//             okash: {
-//                 wallet: wallet_data.wallet,
-//                 bank: wallet_data.bank
-//             },
-//             customization: {
-//                 games: {
-//                     coin_color: old_data.customization.coin_color,
-//                     equipped_trackable_coin: 'none',
-//                     card_deck_theme: CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
-//                     equipped_trackable_deck: 'none',
-//                 },
-//                 global: {
-//                     pronouns: {
-//                         subjective: (old_data.customization.pronoun || {subjective:'they'}).subjective,
-//                         possessive: (old_data.customization.pronoun || {possessive:'their'}).possessive,
-//                         objective: (old_data.customization.pronoun || {objective:'them'}).objective,
-//                     },
-//                     okash_notifications: old_data.okash_notifications
-//                 },
-//                 level_banner: old_data.customization.level_banner,
-//                 unlocked: old_data.customization.unlocked
-//             },
-//             leveling: {
-//                 level: old_data.level.level,
-//                 current_xp: old_data.level.current_xp
-//             },
-//             achievements: old_data.achievements || [],
-//             inventory: wallet_data.inventory.other,
-//             trackedInventory: [],
-//             story_unlocks: [],
-//         }
-//
-//         writeFileSync(join(dirname, 'profiles', profile), JSON.stringify(new_data), 'utf-8');
-//
-//         console.log(`upgraded ${profile} in ${Date.now() - t_start}ms`);
-//     }
-// }
+export function DANGER_DeleteProfile(user_id: Snowflake) {
+    L.info(`Deleting profile for ${user_id}`);
+    RestrictUser(client, user_id, '2099-12-31', 'Account deletion in progress...')
+    ProfileCache.delete(user_id);
+    rmSync(join(GetProfilesDir(), `${user_id}.oka`));
+    KNOWN_AGREED_USER_IDS.splice(KNOWN_AGREED_USER_IDS.indexOf(user_id), 1);
+}

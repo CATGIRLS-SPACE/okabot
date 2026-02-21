@@ -38,7 +38,7 @@ const AgreementComponentBar = new ActionRowBuilder()
     .addComponents(AcceptButton);
 
 
-const KNOWN_AGREED_USER_IDS: Array<string> = [];
+export const KNOWN_AGREED_USER_IDS: Array<string> = [];
 const CURRENT_RULES_VERSION = '2026-02-20';
 
 export async function CheckRuleAgreement(interaction: ChatInputCommandInteraction): Promise<boolean> {
