@@ -58,7 +58,8 @@ export interface LEGACY_USER_PROFILE {
 export interface USER_PROFILE {
     version: number,
     accepted_rules: boolean,
-    consents_to_statistics: boolean,
+    consents_to_statistics?: boolean,
+    rules_accepted_version: string,
     flags: Array<FLAG>,
     customization: {
         unlocked: Array<CUSTOMIZATION_UNLOCKS>,
@@ -129,7 +130,7 @@ export interface USER_PROFILE {
 const DEFAULT_DATA: USER_PROFILE = {
     version: 3,
     accepted_rules: false,
-    consents_to_statistics: true,
+    rules_accepted_version: '',
     flags: [],
     customization: {
         unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT, CUSTOMIZATION_UNLOCKS.DECK_DEFAULT],
@@ -274,11 +275,14 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     }
     if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
     if (!data.customization.stickers) data.customization.stickers = [];
-    if (!data.consents_to_statistics) data.consents_to_statistics = false;
     if (!data.cookies) data.cookies = 0;
     if (!data.customization.level_banner) data.customization.level_banner = {hex_bg:'',hex_fg:'',hex_num:'',selected_title:'none'};
     if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
     if (!data.ordr) data.ordr = {username:'',osu_username:''};
+    if (data.consents_to_statistics) {
+        data.consents_to_statistics = undefined;
+        data.rules_accepted_version = 'none';
+    }
 
     if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
 
