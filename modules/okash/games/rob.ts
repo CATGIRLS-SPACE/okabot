@@ -36,7 +36,7 @@ export function GetCurrentFines(): number {
     return JSON.parse(readFileSync(ROB_DB_LOCATION, 'utf-8')).fined;
 }
 
-export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
+export async function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
         content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
@@ -100,6 +100,14 @@ export function HandleCommandRob(interaction: ChatInputCommandInteraction) {
         content: `:x: **${interaction.user.displayName}**, you can't rob ${robbed_user_profile.customization.global.pronouns.objective}!`,
         flags: [MessageFlags.Ephemeral]
     });
+
+    // make sure user is in this server
+    if (interaction.guild!.members.cache.get(robbed_user.id) == undefined) {
+        return interaction.reply({
+            content: `:x: **${interaction.user.displayName}**, huh... looks like that person off in another server.`,
+            flags: [MessageFlags.Ephemeral]
+        });
+    }
 
     const robbed_user_balance = GetWallet(robbed_user.id);
 
