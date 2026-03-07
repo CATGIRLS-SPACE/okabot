@@ -151,6 +151,28 @@ export const GLOBAL_SHORTHANDS: {[key: string]: string} = {
     'ht': 'hacking tool',
 }
 
+export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
+    // shop items
+    'sr': 4,
+    'db15': 8,
+    'db30': 9,
+    'cas10': 10,
+    'cas30': 11,
+    'cas60': 12,
+    'st': 7,
+    'sk': 18,
+    // other items
+    'clb': 0,
+    'rlb': 1,
+    'exlb': 2,
+    'wc': 3,
+    // black market items
+    'ht': 19,
+    'bmt': 20,
+    'bmts': 21,
+    'brk': 22,
+}
+
 export enum ITEM_TYPE {
     ITEM,
     GEM,

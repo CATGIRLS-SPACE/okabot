@@ -220,7 +220,11 @@ const LANGUAGE_EN: Language = {
     'item.casino_pass.small':':credit_card: Casino Pass (10 min)',
     'item.casino_pass.large':':credit_card: Casino Pass (30 min)',
     'item.casino_pass.largest':':credit_card: Casino Pass (60 min)',
-    'item.sticker': ':crystal_ball: Sticker Kit'
+    'item.sticker': ':crystal_ball: Sticker Kit',
+    'item.black_market_token': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`,
+    'item.black_market_token_shard': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`,
+    'item.hacking_tool': `${GetEmoji(EMOJI.HACKING_TOOL)} Hacking Tool`,
+    'item.bank_robbery_tool': `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`,
 };
 
 const LANGUAGE_ES: Language = {
@@ -341,7 +345,11 @@ const LANGUAGE_JA: Language = {
     'item.casino_pass.small':':credit_card: ブラックジャックパス（10分）',
     'item.casino_pass.large':':credit_card: ブラックジャックパス（30分）',
     'item.casino_pass.largest':':credit_card: ブラックジャックパス（60分）',
-    'item.sticker': ':crystal_ball: スティカーキット'
+    'item.sticker': ':crystal_ball: スティカーキット',
+    'item.black_market_token': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} ブラックマーケットコイン`,
+    'item.black_market_token_shard': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} ブラックマーケットコインのかけら`,
+    'item.hacking_tool': `${GetEmoji(EMOJI.HACKING_TOOL)} ハックツール`,
+    'item.bank_robbery_tool': `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} 銀行強盗ツール`,
     
 }
 

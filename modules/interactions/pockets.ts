@@ -8,12 +8,12 @@ import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:':package: Common Lootbox',desc:'A box containing a random item!'},
-    1: {name:':package: Rare Lootbox',desc:'A box containing some better items!'},
-    2: {name:':package: EX Lootbox',desc:'An extremely rare box that contains the finest of items!'},
-    3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
-    4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'},
-    5: {name:'Tracking Device', desc:'Turn a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic.'},
+    0: {name:':package: Common Lootbox',desc:'An old cardboard box containing some common items.'},
+    1: {name:':package: Rare Lootbox',desc:'Not too shabby, a wooden box with a few rare items in it.'},
+    2: {name:':package: EX Lootbox',desc:`Woah, it's so sparkly! Looks like a metal box with a bunch of super rare items in it!`},
+    3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:`Sometimes life isn't fair, and neither is gambling. Use this to get around that fact.`},
+    4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Forgot your streak (or ended up in jail for a few days)? Use this to repair your broken streak!'},
+    5: {name:'Tracking Device', desc:'A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it\'s pretty popular amongst Spotify users.'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
     8: {name:`Drop Boost (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
@@ -21,7 +21,11 @@ export const ITEM_NAMES: {
     10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas10".'},
     11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas30".'},
     12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas60".'},
-    18: {name:`:crystal_ball: Sticker Kit`,desc:'A kit to apply a sticker for your level banner.'},
+    18: {name:`:crystal_ball: Sticker Kit`,desc:'Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it *yours*!'},
+    19: {name: `${GetEmoji(EMOJI.HACKING_TOOL)} Hacking Tool`, desc: `Hacking tool. This item is not currently used.`},
+    20: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`, desc: `It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.`},
+    21: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`, desc: `Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to hack together a token.`},
+    22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)}`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
 }
 
 const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {

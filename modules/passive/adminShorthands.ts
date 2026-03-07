@@ -30,6 +30,7 @@ import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
+import {GLOBAL_ITEM_SHORTHANDS_IDS} from "../okash/items";
 
 
 interface ShorthandList {
@@ -258,7 +259,12 @@ export function RegisterAllShorthands() {
     RegisterShorthand('oka insert', async (message: Message, params: string[]) => {
         if (params.length < 4) throw new Error("not enough parameters. usage: oka insert [Snowflake | them | me] [itemID] [count?]");
         if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
-        if (Number.isNaN(parseInt(params[3]))) throw new Error('invalid item ID');
+        if (Number.isNaN(parseInt(params[3]))) {
+            if (!GLOBAL_ITEM_SHORTHANDS_IDS[params[3]])
+                throw new Error('invalid item ID');
+
+            params[3] = GLOBAL_ITEM_SHORTHANDS_IDS[params[3]].toString();
+        }
         if (params.length > 4 && Number.isNaN(parseInt(params[4]))) throw new Error("invalid number at params[4]");
 
         const user = client.users.cache.get(params[2]);

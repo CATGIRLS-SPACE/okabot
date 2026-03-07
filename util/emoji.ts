@@ -75,7 +75,12 @@ export enum EMOJI {
     SCRAP_ELECTRICAL = 'sce',
     // etc
     BOOST = 'boost',
-    SQUISHY = 'squishy'
+    SQUISHY = 'squishy',
+    // black market items
+    BLACK_MARKET_TOKEN = 'bmt',
+    BLACK_MARKET_TOKEN_SHARD = 'bms',
+    HACKING_TOOL = 'ht',
+    BANK_ROBBERY_TOOL = 'brt'
 }
 
 const EMOJI_KEYS: {
@@ -183,7 +188,12 @@ const EMOJI_KEYS: {
     'sce':{prod:'1385422104777986069',dev:'1385396976593670234'},
     // etc
     'boost':{prod:'',dev:'1386506534426775552'},
-    'squishy':{prod:'1407581263145205841',dev:'1407582163297243276', animated:true}
+    'squishy':{prod:'1407581263145205841',dev:'1407582163297243276', animated:true},
+    // black market items
+    'bmt': {prod:'',dev:''},
+    'bms': {prod:'',dev:''},
+    'ht': {prod:'',dev:''},
+    'brt': {prod:'',dev:''},
 }
 
 export function GetEmoji(name: string): string {
