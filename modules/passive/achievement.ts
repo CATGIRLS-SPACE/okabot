@@ -7,6 +7,7 @@ import { fetchImage } from "../levels/levels";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import {AddXP} from "../levels/onMessage";
 
 
 interface Achievement {
@@ -124,7 +125,7 @@ export const ACHIEVEMENTS: {
     'sticker':{name:'Adhesive',description:'What are these things made of?!',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Dude, wrong game!',class:'gamble',diff:'h'},
     'dealt21both':{name:'Competitive Teamwork',description:'It\'s amazing what we can do when we work together!',class:'gamble',diff:'ex'},
-    'levelbar':{name:'Useless Exchange',description:'We are back to where we started.',class:'fun2',diff:'e'},
+    'levelbar':{name:'Useless Exchange',description:'We are back to where we started... which was right here.',class:'fun2',diff:'e'},
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Well, that\'s one way to get your fix.',class:'fun2',diff:'e'},
     '2x4':{name:'The House is Structurally Sound Now',description:'It was sound before, but now it\'s extra sound!',class:'gamble',diff:'h'},
     'stats':{name:'Statistics Major',description:'I didn\'t study statistics, but my calculations point to addiction.',class:'gamble',diff:'t'},
@@ -216,8 +217,11 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
         'na':''
     };
 
+    const gained_xp = {'e':25,'t':50,h:100,ex:500,na:10}[a.diff];
+    AddXP(user.id, channel, gained_xp);
+
     channel.send({
-        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# ${a.description}`
+        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**! **(+${gained_xp}XP)**\n-# ${a.description}`
     });
 
     UpdateUserProfile(user.id, profile);
