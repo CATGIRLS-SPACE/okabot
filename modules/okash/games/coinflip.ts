@@ -361,7 +361,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (win) streak++;
     console.log(`Coinflip winstreak is now ${streak}.`);
 
-    const streak_msg = streak>1 && win?'\n:fire: **Heck yea, ' + streak + ' in a row!**':'';
+    const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
+    const streak_msg = streak>1 && win?'\n:fire: **Heck yea, ' + streak + ` in a row! (+${streak_bonus}XP)**`:'';
 
     interaction.editReply({
         content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${win ? side : {heads:'tails',tails:'heads'}[side]}**, ${final}${streak_msg}\n-# ${roll}${nfm}`
@@ -372,6 +373,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     if (win) profile.okash.wallet += bet * 2;
     UpdateUserProfile(interaction.user.id, profile);
     AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
+    if (streak > 1) AddXP(interaction.user.id, interaction.channel as TextChannel, streak_bonus);
 
     if (win) AddCasinoWin(interaction.user.id, bet*2, 'coinflip'); else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
     if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
