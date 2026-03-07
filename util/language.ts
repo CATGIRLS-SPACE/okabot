@@ -196,7 +196,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjackv2.button.double':'‼️ Double Down!',
 
     'games.all.cooldown':':zzz: ah! one sec! waiting for your cooldown to end...',
-    'games.all.winstreak':':fire: **Heck yea, {1} in a row!**',
+    'games.all.winstreak':':fire: **Heck yea, {1} in a row! (+{2}XP)**',
 
     'render.casino.win':'WINS {1}',
     'render.casino.loss':'{1} LOSS',

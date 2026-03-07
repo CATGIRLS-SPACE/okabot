@@ -181,7 +181,9 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (multiplier > 0) streak++; else streak = 0;
     WIN_STREAKS.set(interaction.user.id, streak);
     console.log(`Slots winstreak is now ${streak}.`);
-    const streak_part = await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak);
+    const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
+    const streak_part = await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak, streak_bonus);
+    if (streak > 1) AddXP(interaction.user.id, interaction.channel as TextChannel, streak_bonus);
 
     const result = multiplier>0?
         await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.translateable_locale, earned_okash, earned_xp):
