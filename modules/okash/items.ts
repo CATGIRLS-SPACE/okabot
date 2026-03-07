@@ -15,14 +15,16 @@ export enum ITEMS {
     CASINO_PASS_10_MIN,
     CASINO_PASS_30_MIN,
     CASINO_PASS_1_HOUR,
-    SCRAP_TYPE_METAL,
-    SCRAP_TYPE_PLASTIC,
-    SCRAP_TYPE_WOOD,
-    SCRAP_TYPE_RUBBER,
-    SCRAP_TYPE_ELECTRICAL,
+    DONOTUSE_SCRAP_TYPE_METAL,
+    DONOTUSE_SCRAP_TYPE_PLASTIC,
+    DONOTUSE_SCRAP_TYPE_WOOD,
+    DONOTUSE_SCRAP_TYPE_RUBBER,
+    DONOTUSE_SCRAP_TYPE_ELECTRICAL,
     STICKER_NOT_APPLIED,
-    BANK_VIEWER,
+    HACKING_TOOL,
     BLACKMARKET_TOKEN,
+    BLACKMARKET_TOKEN_SHARD,
+    BANK_ROBBERY_KIT,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {
@@ -42,6 +44,8 @@ export const ITEM_ID_NAMES: {[key: number]: string} = {
     18:'Sticker Kit',
     19:'Hacking Tool',
     20:'Black Market Token',
+    21:'Black Market Token Shard',
+    22:'Bank Robbery Kit'
 }
 
 export enum CUSTOMIZATION_UNLOCKS {
@@ -103,6 +107,48 @@ export const TRACKABLE_ID_NAMES: {[key: string]: number} = {
     'sakura card deck': 14,
     'cherry blossom card deck': 14,
     'cbcd': 14
+}
+
+export const GLOBAL_SHORTHANDS: {[key: string]: string} = {
+    // customization
+    'rc': 'red coin',
+    'dbc': 'dark blue coin',
+    'lbc': 'light blue coin',
+    'pc': 'pink coin',
+    'ppc': 'purple coin',
+    'dgc': 'dark green coin',
+    'rbc': 'rainbow coin',
+    'tcd': 'trans card deck',
+    'scd': 'sakura card deck',
+    'cbcd': 'cherry blossom card deck',
+    'rcd': 'red coin deck',
+    // shop items
+    'xpl': 'xp level up',
+    'sr': 'streak restore',
+    'db15': 'drop boost 15 minute',
+    'db30': 'drop boost 30 minute',
+    'cas10': 'casino pass 10 minute',
+    'cas30': 'casino pass 30 minute',
+    'cas60': 'casino pass 60 minute',
+    'st': 'scratch ticket',
+    'sk': 'sticker kit',
+    'ublb': 'user banner level background',
+    'relb': 'red level bar',
+    'glb': 'green level bar',
+    'blb': 'blue level bar',
+    'plb': 'pink level bar',
+    'culb': 'custom level bar',
+    'reslb': 'reset level bar',
+    // other items
+    'clb': 'common lootbox',
+    'rlb': 'rare lootbox',
+    'exlb': 'ex lootbox',
+    'wc': 'weighted coin',
+    // black market items
+    'bmt': 'black market token',
+    'bmts': 'black market token shard',
+    'brk': 'bank robbery kit',
+    'ht': 'hacking tool',
 }
 
 export enum ITEM_TYPE {

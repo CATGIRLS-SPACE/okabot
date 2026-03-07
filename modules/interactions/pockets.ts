@@ -108,7 +108,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
         Object.keys(counts).forEach(item => {
             fields.push({
                 name: `**${counts[item]}x ${(ITEM_NAMES[parseInt(item)] || {name:'Unknown Item'}).name}**`,
-                value: (ITEM_NAMES[parseInt(item)] || {desc:'I don\'t know what this is!'}).desc
+                value: (ITEM_NAMES[parseInt(item)] || {desc:`I don't know what this is! (item ID: ${item})`}).desc
             })
         });
     } else if (page == 'tracked') {

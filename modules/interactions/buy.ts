@@ -1,6 +1,6 @@
 import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
 import {AddOneToInventory, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
-import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
+import {CUSTOMIZATION_UNLOCKS, GLOBAL_SHORTHANDS, ITEMS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CalculateTargetXP} from "../levels/levels";
 import {AddXP} from "../levels/onMessage";
@@ -45,27 +45,6 @@ const PRICES: {
     'scratch ticket': 10_000
 }
 
-const SHORTHANDS: {[key: string]: string} = {
-    'sr': 'streak restore',
-    'xpl': 'xp level up',
-    'dgc': 'dark green coin',
-    'dbc': 'dark blue coin',
-    'rc': 'red coin',
-    'lbc': 'light blue coin',
-    'prc': 'purple coin',
-    'pc': 'pink coin',
-    'rbc': 'rainbow coin',
-    'db15': 'drop boost 15 minute',
-    'db30': 'drop boost 30 minute',
-    'cas10': 'casino pass 10 minute',
-    'cas30': 'casino pass 30 minute',
-    'cas60': 'casino pass 60 minute',
-    'tcd': 'trans card deck',
-    'cbcd':'cherry blossom card deck',
-    'sk': 'sticker kit',
-    'st': 'scratch ticket'
-}
-
 const ALLOWED_SHOP_VOUCHER_CUSTOMIZATION: Array<CUSTOMIZATION_UNLOCKS> = [
     CUSTOMIZATION_UNLOCKS.COIN_DBLUE,
     CUSTOMIZATION_UNLOCKS.COIN_DGREEN,
@@ -98,11 +77,11 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     await interaction.deferReply();
 
-    if (!PRICES[wanted_item] && !PRICES[SHORTHANDS[wanted_item]]) return interaction.editReply({
+    if (!PRICES[wanted_item] && !PRICES[GLOBAL_SHORTHANDS[wanted_item]]) return interaction.editReply({
         content:(wanted_item == 'weighted coin')?`:crying_cat_face: Silly **${interaction.user.displayName}**, you should know I don't sell gambling buffs here!`:`${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Looks like I don't sell that here, sorry!`
     });
 
-    const price = PRICES[wanted_item!.toLowerCase()] || PRICES[SHORTHANDS[wanted_item]];
+    const price = PRICES[wanted_item!.toLowerCase()] || PRICES[GLOBAL_SHORTHANDS[wanted_item]];
     const wallet = GetWallet(interaction.user.id, true);
     
     if (wallet < price) return interaction.editReply({
@@ -205,7 +184,7 @@ export async function HandleCommandBuy(interaction: ChatInputCommandInteraction)
 
     // this will only execute if it's a '/use'able item
     RemoveFromWallet(interaction.user.id, price, true);
-    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one **${GetProperItemName(SHORTHANDS[wanted_item] || wanted_item, interaction.okabot.locale)}** for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
+    interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one **${GetProperItemName(GLOBAL_SHORTHANDS[wanted_item] || wanted_item, interaction.okabot.locale)}** for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
 
