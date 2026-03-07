@@ -986,9 +986,11 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
                 await LangGetAutoTranslatedString(LANG_GAMES.BLACKJACKV2_WIN, game.language!, game.bet*2, streak_text)
             ));
 
-            BlackjackContainer.addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
-            )
+            if ((WinStreak.get(user_id || '0') || 0) > 1) {
+                BlackjackContainer.addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
+                )
+            }
     } else if (gameover != 'no') {
         BlackjackContainer.addSeparatorComponents(new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small));
 
@@ -1005,9 +1007,11 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
             )
         );
 
-        BlackjackContainer.addTextDisplayComponents(
-            new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
-        )
+        if ((WinStreak.get(user_id || '0') || 0) > 1 && (gameover != 'bust') && (gameover != 'value') && (gameover != 'value')) {
+            BlackjackContainer.addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`-# Your current win streak: ${WinStreak.get(user_id || '0')}`)
+            )
+        }
     }
 
     const is_blackjack = TallyCards(game.user)==21;

@@ -180,7 +180,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjack.stand':'Stand!',
     'games.blackjack.doubledown':'Double Down!',
 
-    'games.blackjackv2.top':'# okabot Blackjack',
+    'games.blackjackv2.top':`# ${GetEmoji(EMOJI.ROYALTY)}${GetEmoji(EMOJI.ACE)} Blackjack`,
     'games.blackjackv2.bet':`You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**`,
     'games.blackjackv2.okabot':'## okabot: {1}',
     'games.blackjackv2.you':'## you: {1}',
@@ -195,7 +195,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjackv2.button.must_stand':'✨ Stand!',
     'games.blackjackv2.button.double':'‼️ Double Down!',
 
-    'games.all.cooldown':':zzz: ah! one sec! waiting for your cooldown to end...',
+    'games.all.cooldown':':zzz: hold on, we gotta wait for your cooldown to end...',
     'games.all.winstreak':':fire: **Heck yea, {1} in a row! (+{2}XP)**',
 
     'render.casino.win':'WINS {1}',
