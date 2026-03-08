@@ -109,7 +109,7 @@ import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
 import {HandleCommandUse} from "./modules/interactions/use";
-import {HandleCommandShop} from "./modules/interactions/shop";
+import {HandleCommandShopV2} from "./modules/interactions/shop";
 import {HandleCommandBuy} from "./modules/interactions/buy";
 import {HandleCommandSell} from "./modules/interactions/sell";
 import {HandleCommandPockets} from "./modules/interactions/pockets";
@@ -320,7 +320,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'recent-eq': GetMostRecent,
     'leaderboard': HandleCommandLeaderboard,
     'use': HandleCommandUse,
-    'shop': HandleCommandShop,
+    'shop': HandleCommandShopV2,
     'buy': HandleCommandBuy,
     'sell': HandleCommandSell,
     'pockets': HandleCommandPockets,

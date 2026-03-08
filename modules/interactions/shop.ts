@@ -1,4 +1,10 @@
-import { ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder, LabelBuilder,
+    ModalBuilder,
+    SlashCommandBuilder,
+    StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextDisplayBuilder
+} from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { GetUserProfile } from "../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
@@ -45,7 +51,7 @@ const AVAILABLE_CUSTOMIZATIONS_DECK = new EmbedBuilder()
 
 export async function HandleCommandShop(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     switch (interaction.options.getString('page')) {
@@ -92,6 +98,170 @@ export async function HandleCommandShop(interaction: ChatInputCommandInteraction
 }
 
 
+/*
+    Shop V2
+    Replaces need for /buy command hopefully
+*/
+
+const CUSTOMIZATIONS_COIN_MODAL = new ModalBuilder()
+    .setCustomId('shopModalCoin')
+    .setTitle('Coinflip Customizations Shop')
+    .addTextDisplayComponents(
+        new TextDisplayBuilder()
+            .setContent('These are purely visual and provide no advantage (other than making you look cooler than your friends!). Items with "SV" next to their price can be exchanged for a Shop Voucher.'),
+    )
+    .addLabelComponents(
+        new LabelBuilder()
+            .setLabel('Whatcha wanna buy?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('shopModalCoinSelection')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Dark Blue Coin - (SV) OKA2,500')
+                            .setEmoji(GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY))
+                            .setDescription('This coin has a deep color resembling the ocean. Hopefully this can make your pockets just as deep.')
+                            .setValue('dbc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Dark Green Coin - (SV) OKA2,500')
+                            .setEmoji(GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY))
+                            .setDescription('Even though it\'s not weighted, you still feel luckier when you use it.')
+                            .setValue('dgc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Red Coin - (SV) OKA5,000')
+                            .setEmoji(GetEmoji(EMOJI.COIN_RED_STATIONARY))
+                            .setDescription('Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!')
+                            .setValue('rc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Light Blue Coin - (SV) OKA10,000')
+                            .setEmoji(GetEmoji(EMOJI.COIN_BLUE_STATIONARY))
+                            .setDescription('Even the sky struggles to reach this shade of blue. Just like you\'re struggling to win your flips.')
+                            .setValue('lbc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Purple Coin - OKA50,000')
+                            .setEmoji(GetEmoji(EMOJI.COIN_PURPLE_STATIONARY))
+                            .setDescription('The slightly-less-rich man\'s pink coin, but you don\'t care, cause it\'s just as cool!')
+                            .setValue('ppc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Pink Coin - OKA100,000')
+                            .setEmoji(GetEmoji(EMOJI.COIN_PINK_STATIONARY))
+                            .setDescription('"Pink is for girls"? I\'ll do you one better: Pink is for rich people. Beat that.')
+                            .setValue('pc'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Rainbow Coin - OKA1,000,000')
+                            .setEmoji(GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY))
+                            .setDescription('This mythical coin, said to be gifted from a god, is almost useless... but it looks extremely cool.')
+                            .setValue('rbc')
+                    ).setRequired(true)
+            ),
+        new LabelBuilder()
+            .setLabel('Use a Shop Voucher?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('useVoucher')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Use a voucher')
+                            .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
+                            .setDescription('If you don\'t have a voucher, this option will still use okash.')
+                            .setValue('yes'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Don\'t use a voucher')
+                            .setEmoji('❌')
+                            .setDescription('This purchase will be completed with okash')
+                            .setValue('no')
+                    ).setRequired(true)
+            )
+    )
+
+export async function HandleCommandShopV2(interaction: ChatInputCommandInteraction) {
+    if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
+    });
+
+    const selection = interaction.options.getString('page');
+    if (selection == 'items') return ModalMenuItems(interaction);
+    if (selection == 'customization.coin') return interaction.showModal(CUSTOMIZATIONS_COIN_MODAL);
+}
+
+async function ModalMenuItems(interaction: ChatInputCommandInteraction) {
+    // we have to craft the items modal manually due to the XP Level Up
+    const ITEMS_MODAL = new ModalBuilder().setCustomId('shopModalItems').setTitle('okash Item Shop');
+
+    const profile = GetUserProfile(interaction.user.id);
+
+    const ITEMS_SELECTION = new StringSelectMenuBuilder()
+        .setCustomId('shopModalItemsSelection')
+        .setPlaceholder('Select an item to buy')
+        .addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel(`Streak Restore - (SV) OKA15,000`)
+                .setEmoji(GetEmoji(EMOJI.STREAK_RESTORE_GEM))
+                .setDescription('Forgot your streak (or ended up in jail for a few days)? Use this to repair your broken streak!')
+                .setValue('sr'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel(`XP Level Up - OKA${10000+(profile.leveling.level * 2500)}`)
+                .setEmoji('🧿')
+                .setDescription('Skip the process of grinding to level up, simply by paying to win!')
+                .setValue('xpl'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Casino Pass (10 minute) - (SV) OKA25,000')
+                .setEmoji('💳')
+                .setDescription('Skip the queue and play casino games with no cooldown!')
+                .setValue('cas10'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Casino Pass (30 minute) - OKA60,000')
+                .setEmoji('💳')
+                .setDescription('Skip the queue and play casino games with no cooldown!')
+                .setValue('cas30'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Casino Pass (60 minute) - OKA100,000')
+                .setEmoji('💳')
+                .setDescription('Skip the queue and play casino games with no cooldown!')
+                .setValue('cas60'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Drop Boost (10 minute) - OKA15,000')
+                .setEmoji('📦')
+                .setDescription('Decrease your luck... by tripping over more lootboxes!')
+                .setValue('db10'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Drop Boost (30 minute) - OKA50,000')
+                .setEmoji('📦')
+                .setDescription('Decrease your luck... by tripping over more lootboxes!')
+                .setValue('db30'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Scratch Ticket - OKA10,000')
+                .setEmoji('🎫')
+                .setDescription('Test your luck with a scratch ticket, and potentially win big!')
+                .setValue('st'),
+        );
+
+    ITEMS_MODAL.addLabelComponents(
+        new LabelBuilder().setLabel('Whatcha wanna buy?').setStringSelectMenuComponent(ITEMS_SELECTION),
+        new LabelBuilder()
+            .setLabel('Use a Shop Voucher?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('useVoucher')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Use a voucher')
+                            .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
+                            .setDescription('If you don\'t have a voucher, this option will still use okash.')
+                            .setValue('yes'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Don\'t use a voucher')
+                            .setEmoji('❌')
+                            .setDescription('This purchase will be completed with okash')
+                            .setValue('no')
+                    ).setRequired(true)
+            )
+    );
+
+    interaction.showModal(ITEMS_MODAL);
+}
+
+
 export const ShopSlashCommand = new SlashCommandBuilder()
     .setName('shop').setNameLocalizations({ja:'カタログ'})
     .setDescription('Get the shop item and price listings').setDescriptionLocalization('ja', 'アイテムのカタログと値段を見る')
@@ -99,7 +269,7 @@ export const ShopSlashCommand = new SlashCommandBuilder()
     .setName('page').setDescriptionLocalizations({ja:'ページ'})
     .setDescription('The shop category to display').setDescriptionLocalizations({ja:'カタログのカテゴリー'})
     .addChoices(
-        {name:'Items', value: 'gems', name_localizations:{ja:'アイテム'}},
+        {name:'Items', value: 'items', name_localizations:{ja:'アイテム'}},
         {name:'Customization - Coinflip', value:'customization.coin', name_localizations:{ja:'コイントスのカスタマイズ'}},
         {name:'Customization - Card Games', value:'customization.card', name_localizations:{ja:'カードゲームのカスタマイズ'}},
         {name:'Customization - Profile', value:'customization.profile', name_localizations:{ja:'プロフィールのカスタマイズ'}},

@@ -27,7 +27,6 @@ import {ToggleSlashCommand} from "../interactions/toggle";
 import {TradeSlashCommand} from "../interactions/trade";
 import {FortuneBallSlashCommand} from "../interactions/8ball";
 import {CatgirlSlashCommand} from "../interactions/catgirl";
-import {CraftSlashCommand} from "../interactions/craft";
 import {GuessGameSlashCommand} from "../interactions/guessgame";
 import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
 import { StockSlashCommand } from "../interactions/stock";
@@ -79,7 +78,6 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         CasinoSlashCommand, // <-- not ready yet!
         FortuneBallSlashCommand,
         CatgirlSlashCommand,
-        CraftSlashCommand,
         GuessGameSlashCommand,
         ServerPreferencesSlashCommand,
         was_there_an_error,
