@@ -109,7 +109,7 @@ import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
 import {HandleCommandUse} from "./modules/interactions/use";
-import {HandleCommandShopV2} from "./modules/interactions/shop";
+import {HandleCommandShopV2, HandleModalShopSubmit} from "./modules/interactions/shop";
 import {HandleCommandBuy} from "./modules/interactions/buy";
 import {HandleCommandSell} from "./modules/interactions/sell";
 import {HandleCommandPockets} from "./modules/interactions/pockets";
@@ -374,6 +374,7 @@ client.on(Events.InteractionCreate, async interaction => {
     }
     if (interaction.isModalSubmit()) {
         if (interaction.customId == 'blackMarketTokenModal') return item_bmToken_modal(interaction);
+        if (['shopModalItems', 'shopModalCoin', 'shopModalCards', 'shopModalProfile'].includes(interaction.customId)) return HandleModalShopSubmit(interaction);
     }
 
     if (!interaction.isChatInputCommand()) return;

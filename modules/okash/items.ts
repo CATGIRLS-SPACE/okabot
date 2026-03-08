@@ -25,6 +25,8 @@ export enum ITEMS {
     BLACKMARKET_TOKEN,
     BLACKMARKET_TOKEN_SHARD,
     BANK_ROBBERY_KIT,
+    NO_ITEM_ASSIGNED, // don't replace this
+    VIRTUAL_ITEM_XP_LEVEL_UP,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {
@@ -45,7 +47,9 @@ export const ITEM_ID_NAMES: {[key: number]: string} = {
     19:'Hacking Tool',
     20:'Black Market Token',
     21:'Black Market Token Shard',
-    22:'Bank Robbery Kit'
+    22:'Bank Robbery Kit',
+    23:'No Item Assigned',
+    24:'XP Level Up (virtual)',
 }
 
 export enum CUSTOMIZATION_UNLOCKS {

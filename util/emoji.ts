@@ -43,6 +43,8 @@ export enum EMOJI {
     TEN = 'c10',
     ROYALTY = 'cr',
     CARD_BACK = 'cb',
+    CARD_BACK_TRANS = 'cb_t',
+    CARD_BACK_SAKURA = 'cb_s',
     // shindo
     SHINDO_1 = 'eq1',
     SHINDO_2 = 'eq2',
@@ -190,8 +192,8 @@ const EMOJI_KEYS: {
     'boost':{prod:'',dev:'1386506534426775552'},
     'squishy':{prod:'1407581263145205841',dev:'1407582163297243276', animated:true},
     // black market items
-    'bmt': {prod:'',dev:''},
-    'bms': {prod:'',dev:''},
+    'bmt': {prod:'1480104177320460378',dev:'1480104439082647613'},
+    'bms': {prod:'1480104207582236774',dev:'1480104373781528597'},
     'ht': {prod:'',dev:''},
     'brt': {prod:'',dev:''},
 }

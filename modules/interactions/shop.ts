@@ -1,13 +1,21 @@
 import {
     ChatInputCommandInteraction,
-    EmbedBuilder, LabelBuilder,
+    EmbedBuilder,
+    LabelBuilder,
     ModalBuilder,
+    ModalSubmitInteraction,
     SlashCommandBuilder,
-    StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextDisplayBuilder
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder, TextChannel,
+    TextDisplayBuilder
 } from "discord.js";
-import { EMOJI, GetEmoji } from "../../util/emoji";
-import { GetUserProfile } from "../user/prefs";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {GetUserProfile} from "../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {ITEM_ID_NAMES, ITEMS} from "../okash/items";
+import {AddOneToInventory, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
+import {AddXP} from "../levels/onMessage";
+import {CalculateTargetXP} from "../levels/levels";
 
 
 const AVAILABLE_CUSTOMIZATIONS_COIN = new EmbedBuilder()
@@ -108,7 +116,7 @@ const CUSTOMIZATIONS_COIN_MODAL = new ModalBuilder()
     .setTitle('Coinflip Customizations Shop')
     .addTextDisplayComponents(
         new TextDisplayBuilder()
-            .setContent('These are purely visual and provide no advantage (other than making you look cooler than your friends!). Items with "SV" next to their price can be exchanged for a Shop Voucher.'),
+            .setContent('-# These are purely visual and provide no advantage (other than making you look cooler than your friends!). Items with "SV" next to their price can be exchanged for a Shop Voucher.'),
     )
     .addLabelComponents(
         new LabelBuilder()
@@ -116,6 +124,7 @@ const CUSTOMIZATIONS_COIN_MODAL = new ModalBuilder()
             .setStringSelectMenuComponent(
                 new StringSelectMenuBuilder()
                     .setCustomId('shopModalCoinSelection')
+                    .setPlaceholder('Pick a coin, flip the coin.')
                     .addOptions(
                         new StringSelectMenuOptionBuilder()
                             .setLabel('Dark Blue Coin - (SV) OKA2,500')
@@ -159,20 +168,144 @@ const CUSTOMIZATIONS_COIN_MODAL = new ModalBuilder()
             .setStringSelectMenuComponent(
                 new StringSelectMenuBuilder()
                     .setCustomId('useVoucher')
+                    .setPlaceholder('This only applies if vouchers are allowed.')
                     .addOptions(
                         new StringSelectMenuOptionBuilder()
-                            .setLabel('Use a voucher')
+                            .setLabel('Heck yea!')
                             .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
                             .setDescription('If you don\'t have a voucher, this option will still use okash.')
                             .setValue('yes'),
                         new StringSelectMenuOptionBuilder()
-                            .setLabel('Don\'t use a voucher')
+                            .setLabel('Maybe later...')
                             .setEmoji('❌')
                             .setDescription('This purchase will be completed with okash')
                             .setValue('no')
                     ).setRequired(true)
             )
+    );
+
+const CUSTOMIZATIONS_CARDS_MODAL = new ModalBuilder()
+    .setCustomId('shopModalCards')
+    .setTitle('Card Game Customizations Shop')
+    .addTextDisplayComponents(
+        new TextDisplayBuilder()
+            .setContent('-# These are purely visual and provide no advantage (other than making you look cooler than your friends!). Items with "SV" next to their price can be exchanged for a Shop Voucher.'),
     )
+    .addLabelComponents(
+        new LabelBuilder()
+            .setLabel('Whatcha wanna buy?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('shopModalCardSelection')
+                    .setPlaceholder('Pick a deck. Any deck.')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Trans Card Deck - (SV) OKA25,000')
+                            .setEmoji(GetEmoji(EMOJI.CARD_BACK_TRANS))
+                            .setDescription('A card deck that\'s a little bit different, but being different is okay!')
+                            .setValue('tcd'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Sakura Card Deck - (SV) OKA50,000')
+                            .setEmoji(GetEmoji(EMOJI.CARD_BACK_SAKURA))
+                            .setDescription('A card deck with some pretty sakura flowers and pink numbers on it.')
+                            .setValue('scd'),
+                    ).setRequired(true)
+            ),
+        new LabelBuilder()
+            .setLabel('Use a Shop Voucher?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('useVoucher')
+                    .setPlaceholder('This only applies if vouchers are allowed.')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Heck yea!')
+                            .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
+                            .setDescription('If you don\'t have a voucher, this option will still use okash.')
+                            .setValue('yes'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Maybe later...')
+                            .setEmoji('❌')
+                            .setDescription('This purchase will be completed with okash')
+                            .setValue('no')
+                    ).setRequired(true)
+            )
+    );
+
+const CUSTOMIZATIONS_PROFILE_MODAL = new ModalBuilder()
+    .setCustomId('shopModalProfile')
+    .setTitle('Profile Customizations Shop')
+    .addLabelComponents(
+        new LabelBuilder()
+            .setLabel('Whatcha wanna buy?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('shopModalProfileSelection')
+                    .setPlaceholder('Ready to make yourself look cooler?!')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('User Banner Level Background - (SV) OKA25,000')
+                            .setEmoji('🖼️')
+                            .setDescription('Your level banner\'s background will be your Discord profile banner (or one of your choosing).')
+                            .setValue('ublb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Red Level Bar - (SV) OKA10,000')
+                            .setEmoji('❤️')
+                            .setDescription('Makes your level bar red. Pretty self explanatory.')
+                            .setValue('rlb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Green Level Bar - (SV) OKA10,000')
+                            .setEmoji('💚')
+                            .setDescription('Makes your level bar green. Still pretty self explanatory.')
+                            .setValue('glb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Blue Level Bar - (SV) OKA10,000')
+                            .setEmoji('💙')
+                            .setDescription('Makes your level bar blue yeah yeah yeah...')
+                            .setValue('blb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Pink Level Bar - (SV) OKA10,000')
+                            .setEmoji('🩷')
+                            .setDescription('Do I even need to keep going?')
+                            .setValue('plb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Custom Level Bar - (SV) OKA10,000')
+                            .setEmoji('🎨')
+                            .setDescription('Lets you set your level bar to a custom color! That\'s new!')
+                            .setValue('clb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Reset Level Bar - Free')
+                            .setEmoji('🔴')
+                            .setDescription('Makes your level bar the default color. "Nothing" happens if it\'s already default...')
+                            .setValue('relb'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Sticker Kit - OKA250,000')
+                            .setEmoji('🔮')
+                            .setDescription('Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it scream you!')
+                            .setValue('sk'),
+                    ).setRequired(true)
+            ),
+        new LabelBuilder()
+            .setLabel('Use a Shop Voucher?')
+            .setStringSelectMenuComponent(
+                new StringSelectMenuBuilder()
+                    .setCustomId('useVoucher')
+                    .setPlaceholder('This only applies if vouchers are allowed.')
+                    .addOptions(
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Heck yea!')
+                            .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
+                            .setDescription('If you don\'t have a voucher, this option will still use okash.')
+                            .setValue('yes'),
+                        new StringSelectMenuOptionBuilder()
+                            .setLabel('Maybe later...')
+                            .setEmoji('❌')
+                            .setDescription('This purchase will be completed with okash')
+                            .setValue('no')
+                    ).setRequired(true)
+            )
+    );
+
 
 export async function HandleCommandShopV2(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
@@ -182,6 +315,8 @@ export async function HandleCommandShopV2(interaction: ChatInputCommandInteracti
     const selection = interaction.options.getString('page');
     if (selection == 'items') return ModalMenuItems(interaction);
     if (selection == 'customization.coin') return interaction.showModal(CUSTOMIZATIONS_COIN_MODAL);
+    if (selection == 'customization.card') return interaction.showModal(CUSTOMIZATIONS_CARDS_MODAL);
+    if (selection == 'customization.profile') return interaction.showModal(CUSTOMIZATIONS_PROFILE_MODAL);
 }
 
 async function ModalMenuItems(interaction: ChatInputCommandInteraction) {
@@ -220,10 +355,10 @@ async function ModalMenuItems(interaction: ChatInputCommandInteraction) {
                 .setDescription('Skip the queue and play casino games with no cooldown!')
                 .setValue('cas60'),
             new StringSelectMenuOptionBuilder()
-                .setLabel('Drop Boost (10 minute) - OKA15,000')
+                .setLabel('Drop Boost (15 minute) - OKA15,000')
                 .setEmoji('📦')
                 .setDescription('Decrease your luck... by tripping over more lootboxes!')
-                .setValue('db10'),
+                .setValue('db15'),
             new StringSelectMenuOptionBuilder()
                 .setLabel('Drop Boost (30 minute) - OKA50,000')
                 .setEmoji('📦')
@@ -243,14 +378,15 @@ async function ModalMenuItems(interaction: ChatInputCommandInteraction) {
             .setStringSelectMenuComponent(
                 new StringSelectMenuBuilder()
                     .setCustomId('useVoucher')
+                    .setPlaceholder('This only applies if vouchers are allowed.')
                     .addOptions(
                         new StringSelectMenuOptionBuilder()
-                            .setLabel('Use a voucher')
+                            .setLabel('Heck yea!')
                             .setEmoji(GetEmoji(EMOJI.SHOP_VOUCHER))
                             .setDescription('If you don\'t have a voucher, this option will still use okash.')
                             .setValue('yes'),
                         new StringSelectMenuOptionBuilder()
-                            .setLabel('Don\'t use a voucher')
+                            .setLabel('Maybe later...')
                             .setEmoji('❌')
                             .setDescription('This purchase will be completed with okash')
                             .setValue('no')
@@ -259,6 +395,113 @@ async function ModalMenuItems(interaction: ChatInputCommandInteraction) {
     );
 
     interaction.showModal(ITEMS_MODAL);
+}
+
+
+export async function HandleModalShopSubmit(interaction: ModalSubmitInteraction) {
+    await interaction.deferReply();
+
+    switch (interaction.customId) {
+        case 'shopModalItems':
+            HandleModalItemPurchase(interaction);
+            break;
+    }
+}
+
+async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
+    const wanted_item = interaction.fields.getStringSelectValues('shopModalItemsSelection')[0];
+    let selected_item: ITEMS = ITEMS.NO_ITEM_ASSIGNED;
+    let okash_requirement: number;
+    let voucher_allowed: boolean = false;
+
+    const profile = GetUserProfile(interaction.user.id);
+    let use_voucher = interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' && profile.inventory.includes(ITEMS.SHOP_VOUCHER);
+
+    switch (wanted_item) {
+        case 'sr':
+            selected_item = ITEMS.STREAK_RESTORE;
+            okash_requirement = 15000;
+            voucher_allowed = true;
+            break;
+
+        case 'xpl':
+            selected_item = ITEMS.VIRTUAL_ITEM_XP_LEVEL_UP;
+            okash_requirement = 10000 + (profile.leveling.level * 2500);
+            voucher_allowed = false;
+            break;
+
+        case 'cas10':
+            selected_item = ITEMS.CASINO_PASS_10_MIN;
+            okash_requirement = 25000;
+            voucher_allowed = true;
+            break;
+
+        case 'cas30':
+            selected_item = ITEMS.CASINO_PASS_30_MIN;
+            okash_requirement = 60000;
+            voucher_allowed = false;
+            break;
+
+        case 'cas60':
+            selected_item = ITEMS.CASINO_PASS_1_HOUR;
+            okash_requirement = 100000;
+            voucher_allowed = false;
+            break;
+
+        case 'db15':
+            selected_item = ITEMS.LOOTBOX_INCREASE_15_MIN;
+            okash_requirement = 15000;
+            voucher_allowed = false;
+            break;
+
+        case 'db30':
+            selected_item = ITEMS.LOOTBOX_INCREASE_30_MIN;
+            okash_requirement = 50000;
+            voucher_allowed = false;
+            break;
+
+        case 'st':
+            selected_item = ITEMS.LOT_SCRATCH;
+            okash_requirement = 10000;
+            voucher_allowed = false;
+            break;
+
+        default:
+            okash_requirement = 0;
+            voucher_allowed = false;
+            break;
+    }
+
+    const okash_held = (profile.okash.wallet + profile.okash.bank);
+    use_voucher = use_voucher && voucher_allowed;
+
+    if (selected_item == ITEMS.NO_ITEM_ASSIGNED) return interaction.editReply({
+        content: `:x: Something went wrong (switch statement defaulted out)`
+    });
+
+    if (okash_held < okash_requirement && !use_voucher) return interaction.editReply({
+        content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, you need ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement - okash_held}** more to buy that...`
+    });
+
+    if (selected_item == ITEMS.VIRTUAL_ITEM_XP_LEVEL_UP) {
+        RemoveFromWallet(interaction.user.id, okash_requirement, true);
+        AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level));
+        return interaction.editReply({
+            content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you bought 1x **XP Level Up** for ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement}**!`
+        });
+    }
+
+    if (use_voucher) RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
+    else RemoveFromWallet(interaction.user.id, okash_requirement, true);
+
+    AddOneToInventory(interaction.user.id, selected_item);
+
+    if (use_voucher) interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher** for 1x **${ITEM_ID_NAMES[selected_item]}**!`
+    });
+    else interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you bought 1x **${ITEM_ID_NAMES[selected_item]}** for ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement}**!`
+    });
 }
 
 
