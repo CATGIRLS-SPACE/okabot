@@ -163,6 +163,7 @@ import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 // import {EnableHoneypots} from "./modules/thecattree/honeypot";
 import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
 import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
+import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
 
 
 export const client = new Client({
@@ -371,6 +372,10 @@ client.on(Events.InteractionCreate, async interaction => {
         else console.log(interaction.commandName);
         return;
     }
+    if (interaction.isModalSubmit()) {
+        if (interaction.customId == 'blackMarketTokenModal') return item_bmToken_modal(interaction);
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     // if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;

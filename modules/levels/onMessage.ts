@@ -43,6 +43,8 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
     let target_xp = CalculateTargetXP(profile.leveling.level);
 
+    // console.debug(`${user_id} gained ${amount} xp`)
+
     const leveled_up = profile.leveling.current_xp >= target_xp;
     while (profile.leveling.current_xp >= target_xp) {
         profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP

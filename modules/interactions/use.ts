@@ -16,6 +16,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME } from "../../index";
 import { scratch_ticket } from "./usables/scratchTicket";
+import {item_bmToken} from "./usables/blackMarketToken";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -69,6 +70,10 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
 
         case 'scratch ticket': case 'st':
             scratch_ticket(interaction);
+            break;
+
+        case 'black market token': case 'bmt':
+            item_bmToken(interaction);
             break;
 
         default:

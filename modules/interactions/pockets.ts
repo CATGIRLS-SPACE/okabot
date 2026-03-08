@@ -25,7 +25,7 @@ export const ITEM_NAMES: {
     19: {name: `${GetEmoji(EMOJI.HACKING_TOOL)} Hacking Tool`, desc: `Hacking tool. This item is not currently used.`},
     20: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`, desc: `It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.`},
     21: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`, desc: `Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to hack together a token.`},
-    22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)}`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
+    22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
 }
 
 const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
