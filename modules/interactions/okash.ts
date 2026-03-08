@@ -10,7 +10,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
     // await interaction.deferReply();
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     const bank = GetBank(interaction.user.id);
@@ -32,7 +32,7 @@ export async function HandleCommandOkash(interaction: ChatInputCommandInteractio
 
 export async function TextBasedOkash(message: Message) {
     if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.okash)) return message.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     const bank = GetBank(message.author.id);

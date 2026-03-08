@@ -94,7 +94,7 @@ const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.slots)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({

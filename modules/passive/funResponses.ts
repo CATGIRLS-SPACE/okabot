@@ -66,7 +66,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
 
         if (/^d#\d+$/.test(message.content)) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
-                content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
+                content: 'Your server has access to this feature, but it is disabled by default. Maybe ask a server admin to enable it?'
             });
             let force_general = false;
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;
@@ -103,7 +103,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
         }
         if (message.content.startsWith('d$')) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
-                content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
+                content: 'Your server has access to this feature, but it is disabled by default. Maybe ask a server admin to enable it?'
             });
             let force_general = false;
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;

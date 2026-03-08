@@ -141,21 +141,6 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                 }
             }
         }
-    } else if (page == 'scraps') {
-        const profile = GetUserProfile(interaction.user.id);
-        const scrap_names: {[key: string]: string} = {
-            'plastic':`${GetEmoji(EMOJI.SCRAP_PLASTIC)} Plastic`,
-            'metal':`${GetEmoji(EMOJI.SCRAP_METAL)} Metal`,
-            'wood':`${GetEmoji(EMOJI.SCRAP_WOOD)} Wood`,
-            'rubber':`${GetEmoji(EMOJI.SCRAP_RUBBER)} Rubber`,
-            'electrical':`${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical`,
-        };
-        for (const scrap of Object.keys(profile.inventory_scraps)) {
-            fields.push({
-                name: `** ${profile.inventory_scraps[scrap as 'plastic'|'metal'|'wood'|'rubber'|'electrical']}x ${scrap_names[scrap]}**`,
-                value: 'Scraps you can use to craft items'
-            });
-        }
     }
 
     if (fields.length == 0) {
@@ -186,5 +171,4 @@ export const PocketsSlashCommand = new SlashCommandBuilder()
             {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
             {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}},
             {name:'Tracked Items',value:'tracked'},
-            {name:'Scraps',value:'scraps'}
     ).setRequired(true));

@@ -59,7 +59,7 @@ function GetBoostStatus(user_id: string, guild_id: Snowflake): boolean {
 
 export function RemindLater(message: Message) {
     if (!CheckFeatureAvailability(message.guild!.id, ServerFeature.reminders)) return message.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     const parsed_time = ParseRelativeTime(message.content.split(' ')[1]);

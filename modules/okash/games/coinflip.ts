@@ -274,7 +274,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // interaction.deferReply();
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.coinflip)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1 || CheckGambleLock(interaction.user.id)) {

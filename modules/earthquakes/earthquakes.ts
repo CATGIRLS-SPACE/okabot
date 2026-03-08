@@ -29,7 +29,7 @@ const locations_english: {[key: string]: string} = {};
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.earthquakes)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     await interaction.deferReply();

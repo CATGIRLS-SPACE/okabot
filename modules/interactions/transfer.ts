@@ -9,7 +9,7 @@ import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 export async function HandleCommandTransfer(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({

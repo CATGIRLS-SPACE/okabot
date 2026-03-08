@@ -352,7 +352,7 @@ const DISABLE_ROULETTE = false;
 
 export async function HandleCommandRoulette(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.roulette)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;

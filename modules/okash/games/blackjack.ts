@@ -602,7 +602,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
     // if (use_classic) return SetupBlackjackMessage(interaction);
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.blackjack)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({

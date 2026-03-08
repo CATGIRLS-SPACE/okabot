@@ -37,7 +37,7 @@ const POSSIBLE_ANSWERS: Array<LANG_GAMES> = [
 
 export async function HandleCommand8Ball(interaction: ChatInputCommandInteraction) {
     if (interaction.guild && !CheckFeatureAvailability(interaction.guild.id, ServerFeature.magicball)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     const question = interaction.options.getString('question', true);
