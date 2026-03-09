@@ -9,7 +9,7 @@ import {
 import { CheckForProfile, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
 import {BASE_DIRNAME, CONFIG, DEV} from "../../index";
 import { join } from "path";
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs";
+import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
 import { createCanvas, loadImage } from "canvas";
 
 
@@ -161,17 +161,22 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
         const banner_buffer = await fetchImage(banner_url);
-        // const banner_img = await loadImage(banner_buffer);
-        // ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
-        // console.log('before:', banner_img.width, banner_img.height);
-        // let new_width = 600;
-        // let new_height = banner_img.height * (600/banner_img.width); // i cant anymore
-        // console.log('after:', new_width, new_height);
-        // ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
-        
-        // don't draw anymore and rather we will save it and invoke the python script
-        writeFileSync(join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`), banner_buffer);
-        IS_GIF_BANNER = true;
+
+        console.log(banner_url);
+
+        if (banner_url.split('?')[0].endsWith('.gif')) {
+            // don't draw anymore and rather we will save it and invoke the python script
+            writeFileSync(join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`), banner_buffer);
+            IS_GIF_BANNER = true;
+        } else {
+            const banner_img = await loadImage(banner_buffer);
+            ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+            console.log('before:', banner_img.width, banner_img.height);
+            const new_width = 600;
+            const new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+            console.log('after:', new_width, new_height);
+            ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+        }
 
         // darken with a slightly-transparent rectangle
         ctx.fillStyle = 'rgba(0,0,0,0.6)';
@@ -417,7 +422,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         });
     } else {
         const buffer = canvas.toBuffer('image/png');
-        writeFileSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`), buffer);
+
+        // if the .gif one exists we have to delete it so that the main function
+        // doesn't pick .gif over .png
+        if (existsSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`)))
+            rmSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`));
+
+        writeFileSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`), buffer);
     }
 }
 
@@ -458,7 +469,13 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 
     const return_out = await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
     if (return_out) return;
-    const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`));
+    let image;
+
+    if (existsSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`)))
+        image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.gif`));
+    else
+        image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`));
+
     interaction.editReply({
         content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
         files: [image]
@@ -467,22 +484,6 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
 
 export function CalculateOkashReward(level: number): number {
     return Math.floor((500 * level + 500) * 3/5);
-}
-
-export function Dangerous_WipeAllLevels() {
-    const PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
-
-    readdirSync(PROFILES_DIR).forEach(file => {
-        const user_id = file.split('.oka')[0];
-        console.log(`${user_id} ...`);
-        const profile = GetUserProfile(user_id);
-        profile.leveling = {
-            current_xp: 0,
-            level: 1
-        };
-        UpdateUserProfile(user_id, profile);
-        console.log(`Wiped level data in file ${file}`);
-    });
 }
 
 
@@ -494,7 +495,6 @@ import { EMOJI, GetEmoji } from "../../util/emoji";
 import { item_sticker } from "../interactions/use";
 import { CheckCompletionist, TITLES } from "../passive/achievement";
 import { spawn } from "child_process";
-import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});
