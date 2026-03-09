@@ -225,7 +225,7 @@ function UnlockCustomization(interaction: ChatInputCommandInteraction, unlock: C
         interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you unlocked the customization \`${wanted_item}\` for ${GetEmoji(EMOJI.OKASH)} OKA**${price}**! Try it out with /customize!\nYour new balance is OKA**${wallet-price}**.`});
 }
 
-function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, unlock: CUSTOMIZATION_UNLOCKS, price: number) {
+export function UnlockOneTimeCustomization(interaction: ChatInputCommandInteraction, unlock: CUSTOMIZATION_UNLOCKS, price: number) {
     const profile = GetUserProfile(interaction.user.id);
 
     if (

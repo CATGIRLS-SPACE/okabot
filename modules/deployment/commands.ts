@@ -7,7 +7,6 @@ import { LeaderboardSlashCommand } from "../interactions/leaderboard";
 import { CoinflipSlashCommand } from "../okash/games/coinflip";
 import { RecentEarthquakeSlashCommand } from "../earthquakes/earthquakes";
 import { UseSlashCommand } from "../interactions/use";
-import { BuySlashCommand } from "../interactions/buy";
 import { SellSlashCommand } from "../interactions/sell";
 import { ShopSlashCommand } from "../interactions/shop";
 import { PocketsSlashCommand } from "../interactions/pockets";
@@ -60,7 +59,6 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         CoinflipSlashCommand,
         RecentEarthquakeSlashCommand,
         UseSlashCommand,
-        BuySlashCommand,
         SellSlashCommand,
         ShopSlashCommand,
         PocketsSlashCommand,

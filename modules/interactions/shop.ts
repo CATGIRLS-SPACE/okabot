@@ -6,16 +6,18 @@ import {
     ModalSubmitInteraction,
     SlashCommandBuilder,
     StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder, TextChannel,
+    StringSelectMenuOptionBuilder,
+    TextChannel,
     TextDisplayBuilder
 } from "discord.js";
 import {EMOJI, GetEmoji} from "../../util/emoji";
-import {GetUserProfile} from "../user/prefs";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
-import {ITEM_ID_NAMES, ITEMS} from "../okash/items";
+import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {AddOneToInventory, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
 import {AddXP} from "../levels/onMessage";
 import {CalculateTargetXP} from "../levels/levels";
+import {UnlockOneTimeCustomization} from "./buy";
 
 
 const AVAILABLE_CUSTOMIZATIONS_COIN = new EmbedBuilder()
@@ -279,7 +281,7 @@ const CUSTOMIZATIONS_PROFILE_MODAL = new ModalBuilder()
                             .setDescription('Makes your level bar the default color. "Nothing" happens if it\'s already default...')
                             .setValue('relb'),
                         new StringSelectMenuOptionBuilder()
-                            .setLabel('Sticker Kit - OKA250,000')
+                            .setLabel('Sticker Kit - OKA50,000')
                             .setEmoji('🔮')
                             .setDescription('Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it scream you!')
                             .setValue('sk'),
@@ -405,6 +407,15 @@ export async function HandleModalShopSubmit(interaction: ModalSubmitInteraction)
         case 'shopModalItems':
             HandleModalItemPurchase(interaction);
             break;
+
+        case 'shopModalCoin': case 'shopModalCards': case 'shopModalProfile':
+            HandleModalCustPurchase(interaction);
+            break;
+
+        default:
+            return interaction.editReply({
+                content: ':x: Something went wrong (switch statement defaulted out (at HandleModalShopSubmit))'
+            });
     }
 }
 
@@ -504,6 +515,180 @@ async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
     });
 }
 
+async function HandleModalCustPurchase(interaction: ModalSubmitInteraction) {
+    let wanted_cust = '';
+    switch (interaction.customId) {
+        case 'shopModalCoin':
+            wanted_cust = interaction.fields.getStringSelectValues('shopModalCoinSelection')[0];
+            break;
+
+        case 'shopModalCards':
+            wanted_cust = interaction.fields.getStringSelectValues('shopModalCardSelection')[0];
+            break;
+
+        case 'shopModalProfile':
+            wanted_cust = interaction.fields.getStringSelectValues('shopModalProfileSelection')[0];
+            break;
+
+        default:
+            throw new Error('section is not coin, card, or profile');
+    }
+    let selected_cust: CUSTOMIZATION_UNLOCKS = CUSTOMIZATION_UNLOCKS.NO_CUSTOMIZATION_ASSIGNED;
+    let okash_requirement: number;
+    let voucher_allowed: boolean = false;
+
+    let profile = GetUserProfile(interaction.user.id);
+    let use_voucher = interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' && profile.inventory.includes(ITEMS.SHOP_VOUCHER);
+
+    switch (wanted_cust) {
+        // coins
+        case 'dbc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_DBLUE;
+            okash_requirement = 2500;
+            voucher_allowed = true;
+            break;
+        case 'dgc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_DGREEN;
+            okash_requirement = 2500;
+            voucher_allowed = true;
+            break;
+        case 'rc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_RED;
+            okash_requirement = 5000;
+            voucher_allowed = true;
+            break;
+        case 'lbc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_BLUE;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+        case 'ppc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_PURPLE;
+            okash_requirement = 50000;
+            voucher_allowed = false;
+            break;
+        case 'pc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_PINK;
+            okash_requirement = 100000;
+            voucher_allowed = false;
+            break;
+        case 'rbc':
+            selected_cust = CUSTOMIZATION_UNLOCKS.COIN_RAINBOW;
+            okash_requirement = 1_000_000;
+            voucher_allowed = false;
+            break;
+
+        // cards
+        case 'tcd':
+            selected_cust = CUSTOMIZATION_UNLOCKS.DECK_TRANS;
+            okash_requirement = 25000;
+            voucher_allowed = true;
+            break;
+
+        case 'scd':
+            selected_cust = CUSTOMIZATION_UNLOCKS.DECK_SAKURA;
+            okash_requirement = 50000;
+            voucher_allowed = true;
+            break;
+
+        // profile customizations
+        case 'ublb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER;
+            okash_requirement = 25000;
+            voucher_allowed = true;
+            break;
+
+        case 'rlb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+
+        case 'glb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+
+        case 'blb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+
+        case 'plb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+
+        case 'clb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM;
+            okash_requirement = 10000;
+            voucher_allowed = true;
+            break;
+
+        case 'relb':
+            selected_cust = CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF;
+            okash_requirement = 0;
+            voucher_allowed = false;
+            break;
+
+        case 'sk':
+            // special logic because this is an item, not a customization
+            okash_requirement = 50000;
+            if (profile.okash.wallet + profile.okash.bank < okash_requirement) return interaction.editReply({
+                content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, you need ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement - (profile.okash.wallet + profile.okash.bank)}** more to buy that...`
+            });
+            RemoveFromWallet(interaction.user.id, okash_requirement, true);
+            AddOneToInventory(interaction.user.id, ITEMS.STICKER_NOT_APPLIED);
+            interaction.editReply({
+                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you bought a :crystal_ball: **Sticker Kit** for ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement}**!`
+            });
+            return;
+
+
+        default:
+            okash_requirement = 0;
+            voucher_allowed = false;
+            break;
+    }
+
+    if (selected_cust == CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF) {
+        // @ts-expect-error casting should work just fine
+        return UnlockOneTimeCustomization(interaction as ChatInputCommandInteraction, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, 0);
+    }
+
+    use_voucher = use_voucher && voucher_allowed;
+    const okash_held = (profile.okash.wallet + profile.okash.bank);
+
+    if (selected_cust == CUSTOMIZATION_UNLOCKS.NO_CUSTOMIZATION_ASSIGNED) return interaction.editReply({
+        content: `:x: Something went wrong (switch statement defaulted out)`
+    });
+
+    if (profile.customization.unlocked.includes(selected_cust)) return interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} **${interaction.user.displayName}**, you've already got this customization!`
+    });
+
+    if (okash_held < okash_requirement && !use_voucher) return interaction.editReply({
+        content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, you need ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement - okash_held}** more to buy that...`
+    });
+
+    if (use_voucher) RemoveOneFromInventory(interaction.user.id, ITEMS.SHOP_VOUCHER);
+    else RemoveFromWallet(interaction.user.id, okash_requirement, true);
+
+    // refresh profile
+    profile = GetUserProfile(interaction.user.id);
+    profile.customization.unlocked.push(selected_cust);
+    UpdateUserProfile(interaction.user.id, profile);
+
+    if (use_voucher) interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you unlocked the customization **${CUSTOMIZTAION_ID_NAMES[selected_cust]}** for a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`
+    });
+    else interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you unlocked the customization **${CUSTOMIZTAION_ID_NAMES[selected_cust]}** for ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement}**!`
+    });
+}
 
 export const ShopSlashCommand = new SlashCommandBuilder()
     .setName('shop').setNameLocalizations({ja:'カタログ'})

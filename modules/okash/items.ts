@@ -68,10 +68,10 @@ export enum CUSTOMIZATION_UNLOCKS {
     DECK_DEFAULT,
     DECK_TRANS,
     DECK_SAKURA,
-    UNUSED_CUST_ID_15,
+    NO_CUSTOMIZATION_ASSIGNED,
     COIN_DGREEN, // normal green = reserved for weighted coin
     COIN_RAINBOW,
-    CV_LEVEL_BANNER_USER,
+    CV_LEVEL_BANNER_USER, // User Banner Level Background
     CV_LEVEL_BAR_CUSTOM,
     CV_LEVEL_BAR_CUSTOM_PENDING
 }
