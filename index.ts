@@ -162,6 +162,7 @@ import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
 import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
 import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
+import {HandleCommandChallenges} from "./modules/tasks/dailyMissions";
 
 
 export const client = new Client({
@@ -347,7 +348,8 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'osu-config': HandleCommandOsuConfig,
     'osu-multi': HandleCommandOsuMulti,
     'emulate-message': ParseAsTextFromInput,
-    'bookmark': HandleCommandBookmark
+    'bookmark': HandleCommandBookmark,
+    'challenges': HandleCommandChallenges,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [

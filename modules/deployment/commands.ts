@@ -32,6 +32,7 @@ import { StockSlashCommand } from "../interactions/stock";
 import {OsuConfigSlashCommand, OsuMultiSlashCommand} from "../osu/render";
 import {EmulateMessageSlashCommand} from "../system/parseAsTextFromInput";
 import {BookmarkContextMenuOption, BookmarkSlashCommand} from "../contextmenu/bookmarks";
+import {ChallengesSlashCommand} from "../tasks/dailyMissions";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -86,6 +87,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
     //     bookmarks
         BookmarkSlashCommand,
         BookmarkContextMenuOption,
+        ChallengesSlashCommand,
     ];
 
 

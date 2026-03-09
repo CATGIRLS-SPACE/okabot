@@ -4,7 +4,7 @@ import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
 import {Logger} from "okayulogger";
 import {join} from "path";
 import {DEV} from "../../index";
-import {Client, TextChannel} from "discord.js";
+import {Client, MessageFlags, TextChannel} from "discord.js";
 
 // import { WSS_SendStockUpdate, WSSStockMessage } from "../http/server";
 
@@ -501,7 +501,8 @@ function DoEventCheck(c: Client): boolean {
 
     // send the event to the channel
     channel.send({
-        content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`
+        content:`:bangbang:${LastEvent.positive?':chart_with_upwards_trend:':':chart_with_downwards_trend:'} **STOCK MARKET NEWS:** ${LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id)}`,
+        flags: [MessageFlags.SuppressNotifications]
     });
 
     // WSS_SendStockUpdate(LastEvent.positive?WSSStockMessage.EVENT_UPDATE_POSITIVE:WSSStockMessage.EVENT_UPDATE_NEGATIVE, LastEvent.name.replace('#STOCK#', MARKET[stock].name).replace('#ABBR#', MARKET[stock].id));

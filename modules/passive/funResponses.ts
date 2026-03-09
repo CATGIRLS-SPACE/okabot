@@ -5,6 +5,7 @@ import {BASE_DIRNAME, client} from "../../index";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 const TYO_RESPONSE: Array<string> = [
     'of course!',
@@ -21,6 +22,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             message.reply({
                 content: TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
             });
+            if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.THANK_OKABOT) CompleteDailyMission(message.author, 'e', message.channel as TextChannel);
             return GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
         }
 
