@@ -485,6 +485,13 @@ export function RegisterAllShorthands() {
     RegisterShorthand('oka twitch start', (message: Message) => {
         ActivateTwitchIntegration(message);
     });
+
+    RegisterShorthand('oka reset-daily', (message: Message, params: string[]) => {
+        const user = GetUserProfile(params[2]);
+        user.daily.last_claimed = new Date().getTime() - (24 * 60 * 60 * 1000);
+        UpdateUserProfile(params[2], user);
+        message.reply(`Daily was reset for <@!${params[2]}>, the last claimed time was set to <t:${Math.floor(user.daily.last_claimed/1000)}>`);
+    });
 }
 
 export async function CheckForShorthand(message: Message) {
