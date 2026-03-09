@@ -11,16 +11,36 @@ import {
 import {ClaimDaily, GetDailyStreak} from "../okash/daily";
 import {quickdraw, ScheduleDailyReminder} from "../tasks/dailyRemind";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../util/language";
-import {GetUserProfile} from "../user/prefs";
+import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString, LangGetFormattedString} from "../../util/language";
+import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
-import { GetLastLocale } from "../..";
+import {GetLastLocale} from "../..";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {AddXP} from "../levels/onMessage";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {AddOneToInventory, AddToWallet} from "../okash/wallet";
+import {ITEMS} from "../okash/items";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.daily)) return interaction.reply({
         content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
+
+    // scrap removal checks
+    const profile = GetUserProfile(interaction.user.id);
+    if (profile.inventory_scraps) {
+        const p = profile.inventory_scraps;
+        const all_scrap_count = p.plastic + p.rubber + p.wood + p.electrical + p.metal;
+        profile.inventory_scraps = undefined;
+        UpdateUserProfile(interaction.user.id, profile);
+
+        AddXP(interaction.user.id, interaction.channel as TextChannel, Math.ceil(all_scrap_count * 0.5));
+        AddToWallet(interaction.user.id, all_scrap_count * 5);
+
+        if (interaction.channel!.isSendable()) interaction.channel.send({
+            content: `:grey_exclamation: **${interaction.user.displayName}**, due to the removal of scraps, your **${all_scrap_count} scraps** have been converted to ${GetEmoji(EMOJI.OKASH)} OKA**${all_scrap_count * 5}** and **${Math.ceil(all_scrap_count * 0.5)} XP**. **(+${Math.ceil(all_scrap_count * 0.5)}XP)**`,
+        });
+    }
 
     await interaction.deferReply();
     const d = new Date();
@@ -37,8 +57,6 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             .addComponents(
                 localizedRemindButton
             );
-
-        const profile = GetUserProfile(interaction.user.id);
 
         // must wait
         console.log(result);
@@ -97,7 +115,13 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-        const reply_content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale));
+        let reply_content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale));
+        reply_content += ` **(+250XP)**\n`;
+
+        if (Math.round(Math.random() * 25) == 23) {
+            reply_content += LangGetFormattedString(LANG_INTERACTION.DAILY_GOT_SHARD, interaction.okabot.translateable_locale);
+            AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN_SHARD);
+        }
 
         const response = await interaction.editReply({
             content: reply_content,
@@ -138,10 +162,16 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
-    const content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
+    let content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
+    content += ` **(+${250 + (Math.min(2*(profile.daily.streak+1), 1000))}XP)**\n`;
+
+    if (Math.round(Math.random() * 25) == 23) {
+        content += LangGetFormattedString(LANG_INTERACTION.DAILY_GOT_SHARD, interaction.okabot.translateable_locale);
+        AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN_SHARD);
+    }
 
     const response = await interaction.editReply({
-        content,
+        content: content,
         components: [onClaimBar]
     });
 

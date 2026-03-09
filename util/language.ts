@@ -20,6 +20,7 @@ export enum LANG_INTERACTION {
     DAILY_REMINDER_ANGRY = 'interaction.daily.reminder.angry',
     DAILY_REMINDER_BUTTON = 'interaction.daily.reminder.button',
     DAILY_REMINDER_BUTTON_AGAIN = 'interaction.daily.reminder.button_claim',
+    DAILY_GOT_SHARD = 'interaction.daily.gotshard',
 
     LEVEL_LEVELUP = 'level.levelup',
 }
@@ -123,8 +124,8 @@ const LANGUAGE_EN: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in fines at the bank.`,
 
-    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
-    'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} Cha-ching! Your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** was delivered to your wallet, and a **{1}** was added to your inventory!`,
+    'interaction.daily.streak': `:1234: Wow! You've got a streak of {1} days, keep it up! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
     'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
     'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
     'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
@@ -135,8 +136,9 @@ const LANGUAGE_EN: Language = {
     'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
     'interaction.daily.reminder.button': 'Remind Me',
     'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
+    'interaction.daily.gotshard': `:scream_cat: Woah! You also got a rare 1x ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} **Black Market Token Shard**!`,
 
-    'level.levelup': `Congrats, **{1}**! You're now level **{2}** ({3})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
+    'level.levelup': `Heck yea, **{1}**! You've leveled up to **{2}** ({3})!\nYou got ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
 
     'games.8ball.affirmative.a':'yup, certainly!',
     'games.8ball.affirmative.b':'decidedly so!',

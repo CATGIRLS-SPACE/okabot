@@ -108,7 +108,7 @@ export interface USER_PROFILE {
         abilities:  string
     }
     inventory: Array<ITEMS>,
-    inventory_scraps: {
+    inventory_scraps?: {
         metal: number,
         plastic: number,
         wood: number,
@@ -268,7 +268,6 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     if (!data.customization.games.equipped_trackable_coin) data.customization.games.equipped_trackable_coin = 'none';
     if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
     if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
-    if (!data.inventory_scraps) data.inventory_scraps = {metal: 0, plastic: 0, wood: 0, rubber: 0, electrical: 0 };
     if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
     data.okash = {
         bank: Math.ceil(data.okash.bank),

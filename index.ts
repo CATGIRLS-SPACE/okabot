@@ -147,7 +147,6 @@ import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGem
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
-import {HandleCommandCraft} from "./modules/interactions/craft";
 import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
@@ -338,7 +337,6 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
-    'craft': HandleCommandCraft,
     'server-preferences': HandleServerPrefsCommand,
     'recent-error':async (interaction: ChatInputCommandInteraction) => {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
