@@ -64,10 +64,6 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_tracking_device(interaction);
             break;
 
-        case 'sticker': case 'sticker kit': case 'sk':
-            item_sticker(interaction);
-            break;
-
         case 'scratch ticket': case 'st':
             scratch_ticket(interaction);
             break;
