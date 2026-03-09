@@ -49,9 +49,9 @@ const UNLOCK_NAMES: {
     [key: number]: {name: string, desc: string, hide?: boolean}
 } = {
     0:  {name:`${GetEmoji(EMOJI.COIN_DEFAULT_STATIONARY)} Default Coin`,desc:'The definitely-not-biased classic yellow coin everyone has, but you\'re still convinced it\'s biased.'},
-    1:  {name:`${GetEmoji(EMOJI.COIN_RED_STATIONARY)} Red Coin`,desc:'A red coin. It resembles strawberries. Using this coin makes you feel like you can do anything, maybe even climbing a mountain?'},
-    2:  {name:`${GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY)} Dark Blue Coin`,desc:'A dark blue coin. This coin has a deep color resembling the ocean. Hopefully you can make your pockets just as deep using this!'},
-    3:  {name:`${GetEmoji(EMOJI.COIN_BLUE_STATIONARY)} Light Blue Coin`,desc:'A light blue coin. Even the sky struggles to reach this shade of pure blue. Just like you struggles to win your coinflips.'},
+    1:  {name:`${GetEmoji(EMOJI.COIN_RED_STATIONARY)} Red Coin`,desc:'Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!'},
+    2:  {name:`${GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY)} Dark Blue Coin`,desc:'This coin has a deep color resembling the ocean. Hopefully this can make your pockets just as deep.'},
+    3:  {name:`${GetEmoji(EMOJI.COIN_BLUE_STATIONARY)} Light Blue Coin`,desc:'Even the sky struggles to reach this shade of blue. Just like you\'re struggling to win your flips.'},
     4:  {name:`${GetEmoji(EMOJI.COIN_PINK_STATIONARY)} Pink Coin`,desc:'"Pink is for girls"? I\'ll do you one better: Pink is for rich people. Beat that.'},
     5:  {name:`${GetEmoji(EMOJI.COIN_PURPLE_STATIONARY)} Purple Coin`,desc:'A purple coin. It\'s the slightly-less-rich man\'s pink coin, but you don\'t care because it still looks cool anyways.'},
     6:  {name:'CV_LEVEL_BANNER_DEF',desc:'',hide:true},
@@ -61,8 +61,8 @@ const UNLOCK_NAMES: {
     10: {name:'Pink Level Bar',desc:'Sets your level bar color to pink'},
     11: {name:'CV_LEVEL_THEME_OKABOT',desc:'',hide:true},
     12: {name:`${GetEmoji(EMOJI.CARD_BACK)} Default Card Deck`,desc:'The classic card deck. It\'s not unique in terms of design, but it gets the job done.'},
-    13: {name:`${GetEmoji('cb_t')} Trans-themed Card Deck`,desc:'A card deck no different than the rest, but it lets you know that being trans is OK!'},
-    14: {name:`${GetEmoji('cb_s')} Cherry Blossom Card Deck`,desc:'A card deck with pretty flowers and pink numbers on it.'},
+    13: {name:`${GetEmoji('cb_t')} Trans-themed Card Deck`,desc:'A card deck that\'s a little bit different, but being different is okay!'},
+    14: {name:`${GetEmoji('cb_s')} Cherry Blossom Card Deck`,desc:'A card deck with some pretty sakura flowers and pink numbers on it.'},
     15: {name:'UNUSED_CUST_ID_15',desc:'this item should not be visible in the customize listing', hide:true},
     16: {name:`${GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY)} Dark Green Coin`,desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
     17: {name:`${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} Rainbow Coin`,desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},

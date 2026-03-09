@@ -110,7 +110,6 @@ import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/ea
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
 import {HandleCommandUse} from "./modules/interactions/use";
 import {HandleCommandShopV2, HandleModalShopSubmit} from "./modules/interactions/shop";
-import {HandleCommandBuy} from "./modules/interactions/buy";
 import {HandleCommandSell} from "./modules/interactions/sell";
 import {HandleCommandPockets} from "./modules/interactions/pockets";
 import {HandleCommandCustomize} from "./modules/interactions/customize";
@@ -321,7 +320,6 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'leaderboard': HandleCommandLeaderboard,
     'use': HandleCommandUse,
     'shop': HandleCommandShopV2,
-    'buy': HandleCommandBuy,
     'sell': HandleCommandSell,
     'pockets': HandleCommandPockets,
     'customize': HandleCommandCustomize,
