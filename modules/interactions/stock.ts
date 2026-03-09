@@ -1,4 +1,14 @@
-import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Interaction, Locale, SlashCommandBuilder } from "discord.js";
+import {
+    ActionRowBuilder, ApplicationIntegrationType,
+    AttachmentBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Interaction,
+    InteractionContextType,
+    Locale,
+    SlashCommandBuilder
+} from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetLastPrices, GetSharePrice, SellShares, Stocks } from "../okash/stock";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
@@ -338,7 +348,7 @@ export const StockSlashCommand = new SlashCommandBuilder()
             .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
             .setRequired(false)
         )
-    )
+    ).setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     // .addSubcommand(sc => sc
     //     .setName('link')
     //     .setDescription('Link a browser session to your account')

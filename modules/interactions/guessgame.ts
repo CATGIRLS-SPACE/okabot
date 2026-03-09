@@ -1,7 +1,8 @@
 import sharp from "sharp";
 import {
+    ApplicationIntegrationType,
     AttachmentBuilder,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction, InteractionContextType,
     Message,
     MessageFlags,
     SlashCommandBuilder,
@@ -169,3 +170,4 @@ async function UpdateStreakDB() {
 export const GuessGameSlashCommand = new SlashCommandBuilder()
     .setName('guess')
     .setDescription('Guess a character based off a pixelated image and go for the highest streak!')
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall)

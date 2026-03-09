@@ -1,6 +1,7 @@
 import {
+    ApplicationIntegrationType,
     AttachmentBuilder,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction, InteractionContextType,
     MessageFlags,
     SlashCommandBuilder,
     Snowflake, User
@@ -537,4 +538,4 @@ export const LevelSlashCommand = new SlashCommandBuilder()
             .setRequired(true)
             .setMinValue(0).setMaxValue(150)
         )
-    );
+    ).setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);

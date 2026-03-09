@@ -1,4 +1,4 @@
-import { InteractionContextType, Routes, SlashCommandBuilder } from "discord.js";
+import {ApplicationIntegrationType, InteractionContextType, Routes, SlashCommandBuilder} from "discord.js";
 import { OkashSlashCommand } from "../interactions/okash";
 import { DailySlashCommand } from "../interactions/daily";
 import { PaySlashCommand } from "../interactions/pay";
@@ -114,4 +114,4 @@ export async function DeployCommands(token: string, client_id: string): Promise<
 const was_there_an_error = new SlashCommandBuilder()
     .setName('recent-error')
     .setDescription('check if there was an error recently')
-    .setContexts(InteractionContextType.Guild);
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);
