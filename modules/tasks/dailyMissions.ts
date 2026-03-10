@@ -8,6 +8,10 @@ import {
 import {AddOneToInventory} from "../okash/wallet";
 import {ITEMS} from "../okash/items";
 import {AddXP} from "../levels/onMessage";
+import {existsSync, readFileSync, writeFileSync} from "fs";
+import {join} from "path";
+import {BASE_DIRNAME} from "../../index";
+import {scheduleJob} from "node-schedule";
 
 
 export enum DAILY_MISSIONS_EASY {
@@ -83,6 +87,7 @@ const HardMissionDescriptions: Array<string> = [
 
 
 interface MissionSelection {
+    date: number,
     easy: {
         selected: number,
         first_completed?: {
@@ -112,7 +117,8 @@ interface MissionSelection {
     }
 }
 
-export const CurrentMissions: MissionSelection = {
+export let CurrentMissions: MissionSelection = {
+    date: 0,
     easy: {
         selected: 3,
         completed: [],
@@ -125,6 +131,43 @@ export const CurrentMissions: MissionSelection = {
         selected: 1,
         completed: [],
     }
+}
+
+let scheduled_daily_missions = false;
+
+export function LoadDailyMissions() {
+    if (!scheduled_daily_missions) {
+        scheduleJob('0 0 * * *', LoadDailyMissions)
+        scheduled_daily_missions = true;
+    }
+
+    if (!existsSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'))) {
+        // first ever daily
+        const d = new Date();
+        d.setHours(24, 0, 0);
+        CurrentMissions.date = d.getTime();
+        console.log(CurrentMissions.date);
+        CurrentMissions.easy.selected = Math.floor(Math.random() * EasyMissionDescriptions.length);
+        CurrentMissions.intermediate.selected = Math.floor(Math.random() * IntermediateMissionDescriptions.length);
+        CurrentMissions.hard.selected = Math.floor(Math.random() * HardMissionDescriptions.length);
+        writeFileSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'), JSON.stringify(CurrentMissions), 'utf-8');
+        return;
+    }
+
+    CurrentMissions = JSON.parse(readFileSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'), 'utf-8'));
+    if (CurrentMissions.date + (1000 * 60 * 60 * 23.9) > Date.now()) return console.log('it not time yet!');
+    console.log('daily missions reset');
+    CurrentMissions.date = Date.now();
+    CurrentMissions.easy.selected = Math.floor(Math.random() * EasyMissionDescriptions.length);
+    CurrentMissions.easy.completed = [];
+    CurrentMissions.easy.first_completed = undefined;
+    CurrentMissions.intermediate.selected = Math.floor(Math.random() * IntermediateMissionDescriptions.length);
+    CurrentMissions.intermediate.completed = [];
+    CurrentMissions.intermediate.first_completed = undefined;
+    CurrentMissions.hard.selected = Math.floor(Math.random() * HardMissionDescriptions.length);
+    CurrentMissions.hard.completed = [];
+    CurrentMissions.hard.first_completed = undefined;
+    writeFileSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'), JSON.stringify(CurrentMissions), 'utf-8');
 }
 
 // handlers for completion
@@ -140,7 +183,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 100);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_COMMON);
-            await channel.send(`:tada: Congratulations, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
             break;
 
         case "i":
@@ -153,7 +196,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 250);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_RARE);
-            await channel.send(`:tada: Congratulations, **${user.displayName}**! You completed the intermediate daily mission! You got a :package: **Rare Lootbox**! **(+250 XP)**\n-# ${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the intermediate daily mission! You got a :package: **Rare Lootbox**! **(+250 XP)**\n-# ${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`);
             break;
 
         case "h":
@@ -166,7 +209,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 500);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_EX);
-            await channel.send(`:tada: Congratulations, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
             break;
     }
 }
@@ -175,17 +218,17 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
 // slash command
 
 export function HandleCommandChallenges(interaction: ChatInputCommandInteraction) {
-    let easy_mission = `## Easy:\n- ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`;
+    let easy_mission = `## Easy:\n${EasyMissionDescriptions[CurrentMissions.easy.selected]}`;
     if (CurrentMissions.easy.first_completed) easy_mission += `\n:medal: First completed by **${CurrentMissions.easy.first_completed.username}** <t:${Math.floor(new Date(CurrentMissions.easy.first_completed.time).getTime()/1000)}:R>`;
 
-    let intermediate_mission = `## Intermediate:\n- ${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`;
+    let intermediate_mission = `## Intermediate:\n${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`;
     if (CurrentMissions.intermediate.first_completed) intermediate_mission += `\n:medal: First completed by **${CurrentMissions.intermediate.first_completed.username}** <t:${Math.floor(new Date(CurrentMissions.intermediate.first_completed.time).getTime()/1000)}:R>`;
 
-    let hard_mission = `## Hard:\n- ${HardMissionDescriptions[CurrentMissions.hard.selected]}`;
+    let hard_mission = `## Hard:\n${HardMissionDescriptions[CurrentMissions.hard.selected]}`;
     if (CurrentMissions.hard.first_completed) hard_mission += `\n:medal: First completed by **${CurrentMissions.hard.first_completed.username}** <t:${Math.floor(new Date(CurrentMissions.hard.first_completed.time).getTime()/1000)}:R>`;
 
     interaction.reply({
-        content: `# Today's Daily Challenges:\n${easy_mission}\n${intermediate_mission}\n${hard_mission}`,
+        content: `# Today's Daily Challenges:\n-# Resets <t:${Math.round((new Date(CurrentMissions.date).getTime() + (1000 * 60 * 60 * 24)) / 1000)}:R>\n${easy_mission}\n${intermediate_mission}\n${hard_mission}`,
         flags: [MessageFlags.SuppressNotifications]
     });
 }

@@ -58,7 +58,7 @@ export function ClaimDaily(user_id: string, reclaim: boolean = false, channel: T
         AddOneToInventory(user_id, ITEMS.WEIGHTED_COIN_ONE_USE);
         ModifyOkashAmount(user_id, 'wallet', amount);
 
-        AddXP(user_id, channel, 250 + Math.min(2 * profile.daily.streak, 1000));
+        AddXP(user_id, channel, 250 + Math.min(2 * profile.daily.streak, 500));
 
         return amount;
     } else return -Math.floor((profile.daily.last_claimed + ONE_DAY)/1000);

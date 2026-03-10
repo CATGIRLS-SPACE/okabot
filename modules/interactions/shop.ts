@@ -4,7 +4,7 @@ import {
     LabelBuilder,
     ModalBuilder,
     ModalSubmitInteraction,
-    SlashCommandBuilder,
+    SlashCommandBuilder, Snowflake,
     StringSelectMenuBuilder,
     StringSelectMenuOptionBuilder,
     TextChannel,
@@ -419,6 +419,8 @@ export async function HandleModalShopSubmit(interaction: ModalSubmitInteraction)
     }
 }
 
+const LEVEL_BUY_TIMES = new Map<Snowflake, number>();
+
 async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
     const wanted_item = interaction.fields.getStringSelectValues('shopModalItemsSelection')[0];
     let selected_item: ITEMS = ITEMS.NO_ITEM_ASSIGNED;
@@ -426,7 +428,10 @@ async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
     let voucher_allowed: boolean = false;
 
     const profile = GetUserProfile(interaction.user.id);
-    let use_voucher = interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' && profile.inventory.includes(ITEMS.SHOP_VOUCHER);
+    let use_voucher =
+        interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' &&
+        profile.inventory.some(item => item.item_id == ITEMS.SHOP_VOUCHER) &&
+        profile.inventory.find(item => item.item_id == ITEMS.SHOP_VOUCHER)!.amount > 0;
 
     switch (wanted_item) {
         case 'sr':
@@ -436,6 +441,9 @@ async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
             break;
 
         case 'xpl':
+            if (LEVEL_BUY_TIMES.has(interaction.user.id) && LEVEL_BUY_TIMES.get(interaction.user.id)! + (1000 * 60 * 60 * 3) > Date.now()) return interaction.editReply({
+                content: `:crying_cat_face: Sorry **${interaction.user.displayName}**, but you can only buy an XP Level every 3 hours.`
+            });
             selected_item = ITEMS.VIRTUAL_ITEM_XP_LEVEL_UP;
             okash_requirement = 10000 + (profile.leveling.level * 2500);
             voucher_allowed = false;
@@ -538,7 +546,10 @@ async function HandleModalCustPurchase(interaction: ModalSubmitInteraction) {
     let voucher_allowed: boolean = false;
 
     let profile = GetUserProfile(interaction.user.id);
-    let use_voucher = interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' && profile.inventory.includes(ITEMS.SHOP_VOUCHER);
+    let use_voucher =
+        interaction.fields.getStringSelectValues('useVoucher')[0] == 'yes' &&
+        profile.inventory.some(item => item.item_id == ITEMS.SHOP_VOUCHER) &&
+        profile.inventory.find(item => item.item_id == ITEMS.SHOP_VOUCHER)!.amount > 0;
 
     switch (wanted_cust) {
         // coins

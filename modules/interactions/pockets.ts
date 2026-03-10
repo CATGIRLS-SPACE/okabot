@@ -1,6 +1,5 @@
 import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashCommandBuilder} from "discord.js";
-import { GetInventory } from "../okash/wallet";
-import { GetUserProfile } from "../user/prefs";
+import {GetUserProfile, ItemData} from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
@@ -101,18 +100,14 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             })
         }
     } else if (page == 'items') {
-        const inventory = GetInventory(interaction.user.id);
-        const counts: {[key: string]: number} = {};
-
-        for (const item in inventory) {
-            if (counts[inventory[item]]) counts[inventory[item]]++;
-            else counts[inventory[item]] = 1;
-        }
-
-        Object.keys(counts).forEach(item => {
+        const profile = GetUserProfile(interaction.user.id);
+        let c = 0;
+        profile.inventory.forEach((item: ItemData) => {
+            c++;
             fields.push({
-                name: `**${counts[item]}x ${(ITEM_NAMES[parseInt(item)] || {name:'Unknown Item'}).name}**`,
-                value: (ITEM_NAMES[parseInt(item)] || {desc:`I don't know what this is! (item ID: ${item})`}).desc
+                name: `${item.amount}x ${(ITEM_NAMES[item.item_id] || {name: `Unknown Item (id: ${item.item_id})`}).name}`,
+                value: (ITEM_NAMES[item.item_id] || {desc:'I don\'t know what this is...\n(this is a bug, please report it!)'}).desc,
+                inline: c % 2 == 1
             })
         });
     } else if (page == 'tracked') {

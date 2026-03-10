@@ -165,7 +165,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
     let content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
-    content += ` **(+${250 + (Math.min(2*(profile.daily.streak+1), 1000))}XP)**\n`;
+    content += ` **(+${250 + (Math.min(2*(profile.daily.streak+1), 500))}XP)**\n`;
 
     if (Math.round(Math.random() * 25) == 23) {
         content += LangGetFormattedString(LANG_INTERACTION.DAILY_GOT_SHARD, interaction.okabot.translateable_locale);

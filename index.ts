@@ -169,7 +169,7 @@ import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
 import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
 import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
-import {HandleCommandChallenges} from "./modules/tasks/dailyMissions";
+import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
 
 
 export const client = new Client({
@@ -255,6 +255,7 @@ async function RunPreStartupTasks() {
     SetupGeminiDemo();
     SetupStocks(__dirname);
     LoadBookmarkDB();
+    LoadDailyMissions();
 
     if (MIGRATE_PROFILES) {
         await MigrateProfilesToLowDB();
