@@ -38,18 +38,11 @@ const AgreementComponentBar = new ActionRowBuilder()
     .addComponents(AcceptButton);
 
 
-export const KNOWN_AGREED_USER_IDS: Array<string> = [];
 const CURRENT_RULES_VERSION = '2026-02-20';
 
 export async function CheckRuleAgreement(interaction: ChatInputCommandInteraction): Promise<boolean> {
-    // helps to eliminate disk-read slowdowns
-    if (KNOWN_AGREED_USER_IDS.indexOf(interaction.user.id) != -1) return true; 
-
     const profile = GetUserProfile(interaction.user.id);
-    if (profile.accepted_rules && profile.rules_accepted_version == CURRENT_RULES_VERSION) {
-        KNOWN_AGREED_USER_IDS.push(interaction.user.id);
-        return true;
-    }
+    if (profile.accepted_rules && profile.rules_accepted_version == CURRENT_RULES_VERSION) return true;
 
     // hasn't agreed to rules
 
@@ -81,14 +74,8 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
 }
 
 export async function CheckForRulesSimple(user_id: Snowflake): Promise<boolean> {
-    // helps to eliminate disk-read slowdowns
-    if (KNOWN_AGREED_USER_IDS.indexOf(user_id) != -1) return true; 
-
     const profile = GetUserProfile(user_id);
-    if (profile.accepted_rules && profile.rules_accepted_version == CURRENT_RULES_VERSION) {
-        KNOWN_AGREED_USER_IDS.push(user_id);
-        return true;
-    }
+    if (profile.accepted_rules && profile.rules_accepted_version == CURRENT_RULES_VERSION) return true;
 
     // hasn't agreed to rules
     return false;

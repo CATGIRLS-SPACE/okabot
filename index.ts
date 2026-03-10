@@ -100,6 +100,7 @@ export let LISTENING = true;
 // non-exported
 const NO_LAUNCH = process.argv.includes('--no-launch');
 const DEPLOY_COMMANDS = process.argv.includes('--deploy');
+const MIGRATE_PROFILES = process.argv.includes('--migrate')
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -137,7 +138,13 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoRandomDrops} from "./modules/passive/onMessage";
 import {LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
+import {
+    CheckUserIdOkashRestriction,
+    DumpProfileCache,
+    GetUserProfile,
+    MigrateProfilesToLowDB,
+    SetupPrefs
+} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
@@ -221,7 +228,7 @@ async function StartBot() {
         RunPostStartupTasks();
     });
 
-    if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
+    if (!NO_LAUNCH && !MIGRATE_PROFILES) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 }
 
 /**
@@ -235,7 +242,7 @@ async function RunPreStartupTasks() {
 
     LoadCasinoDB(); // load casino games stats
     RegisterAllShorthands(); // register all "oka [etc...]" shorthands
-    SetupPrefs(__dirname); // setup user profiles
+    await SetupPrefs(__dirname); // setup user profiles
     LoadVoiceData(); // load voice data that might have been lost on restart
     LoadReminders(); // load daily reminders
     LoadUserReminders(); // o.remind reminders
@@ -248,6 +255,11 @@ async function RunPreStartupTasks() {
     SetupGeminiDemo();
     SetupStocks(__dirname);
     LoadBookmarkDB();
+
+    if (MIGRATE_PROFILES) {
+        await MigrateProfilesToLowDB();
+        process.exit();
+    }
 
     setInterval(() => {
         UpdateMarkets(client);
@@ -474,7 +486,7 @@ client.on(Events.MessageCreate, async message => {
         return StartDataDeletionRequest(message.channel as DMChannel);
     }
 
-    if (CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
+    if (CheckUserIdOkashRestriction(message.author.id)) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 

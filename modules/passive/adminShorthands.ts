@@ -1,4 +1,4 @@
-import {EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
+import {AttachmentBuilder, EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
 // import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
@@ -10,7 +10,7 @@ import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {
-    DumpProfileCache,
+    DumpProfileCache, GetProfileLowDB,
     GetUserProfile,
     ReloadProfile,
     RestrictUser,
@@ -31,6 +31,9 @@ import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
 import {GLOBAL_ITEM_SHORTHANDS_IDS} from "../okash/items";
+import {exec} from "child_process";
+import {existsSync} from "fs";
+import axios from "axios";
 
 
 interface ShorthandList {
@@ -475,6 +478,41 @@ export function RegisterAllShorthands() {
             .replaceAll('scraps', 's');
         message.reply(`\`\`\`${results}\`\`\``);
     });
+
+    RegisterShorthand('oka export', async (message: Message, params: string[]) => {
+        if (isNaN(parseInt(params[2]))) throw new Error('invalid user ID');
+
+        const profile = GetProfileLowDB(params[2]);
+        writeFileSync(join(BASE_DIRNAME, 'temp', `${params[2]}.json`), JSON.stringify(profile), 'utf-8');
+
+        exec(`gpg --encrypt --recipient okawaffles@gmail.com ${join(BASE_DIRNAME, 'temp', `${params[2]}.json`)}`).on("exit", () => {
+             if (!existsSync(join(BASE_DIRNAME, 'temp', `${params[2]}.json.gpg`))) throw new Error('gpg failed to encrypt file');
+             const attachment = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `${params[2]}.json.gpg`));
+             message.reply({
+                 content: `Profile data for ${params[2]}\n# Warning: malforming this file and re-importing can cause a whole host of issues.\n### For the sake of the user's privacy, do not import in a public channel, decryption of imported data is not supported.`,
+                 files: [attachment]
+             });
+        });
+    });
+
+    RegisterShorthand('oka import', async (message: Message, params: string[]) => {
+        if (isNaN(parseInt(params[2]))) throw new Error('invalid user ID');
+        const attachment = message.attachments.first();
+        if (!attachment) throw new Error('no attachments found');
+        const response = await axios.get(attachment.url, {responseType: 'arraybuffer'});
+        const decoder = new TextDecoder('utf-8');
+        let data: USER_PROFILE;
+
+        try {
+            data = JSON.parse(decoder.decode(response.data));
+        } catch {
+            return message.reply({
+                content: 'malformed JSON file or invalid profile data. please check the file and try again.'
+            });
+        }
+
+        UpdateUserProfile(params[2], data);
+    })
 
     RegisterShorthand('oka status', (message: Message, params: string[]) => {
         const type = parseInt(params[2]);

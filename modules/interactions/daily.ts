@@ -34,12 +34,14 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         profile.inventory_scraps = undefined;
         UpdateUserProfile(interaction.user.id, profile);
 
-        AddXP(interaction.user.id, interaction.channel as TextChannel, Math.ceil(all_scrap_count * 0.5));
-        AddToWallet(interaction.user.id, all_scrap_count * 5);
+        if (all_scrap_count != 0) {
+            AddXP(interaction.user.id, interaction.channel as TextChannel, Math.ceil(all_scrap_count * 0.5));
+            AddToWallet(interaction.user.id, all_scrap_count * 5);
 
-        if (interaction.channel!.isSendable()) interaction.channel.send({
-            content: `:grey_exclamation: **${interaction.user.displayName}**, due to the removal of scraps, your **${all_scrap_count} scraps** have been converted to ${GetEmoji(EMOJI.OKASH)} OKA**${all_scrap_count * 5}** and **${Math.ceil(all_scrap_count * 0.5)} XP**. **(+${Math.ceil(all_scrap_count * 0.5)}XP)**`,
-        });
+            if (interaction.channel!.isSendable()) interaction.channel.send({
+                content: `:grey_exclamation: **${interaction.user.displayName}**, due to the removal of scraps, your **${all_scrap_count} scraps** have been converted to ${GetEmoji(EMOJI.OKASH)} OKA**${all_scrap_count * 5}** and **${Math.ceil(all_scrap_count * 0.5)} XP**. **(+${Math.ceil(all_scrap_count * 0.5)}XP)**`,
+            });
+        }
     }
 
     await interaction.deferReply();

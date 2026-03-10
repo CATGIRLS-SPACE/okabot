@@ -41,7 +41,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
         });
     }
 
-    const receiver_has_restriction = CheckUserIdOkashRestriction(receiver_id, OKASH_ABILITY.TRANSFER);
+    const receiver_has_restriction = CheckUserIdOkashRestriction(receiver_id);
     if (receiver_has_restriction) {
         return interaction.editReply({
             content: `:x: **${interaction.user.displayName}**, failed to transfer money to this person.`,
