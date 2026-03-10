@@ -44,7 +44,7 @@ const PAYOUTS = {
 
 export async function scratch_ticket(interaction: ChatInputCommandInteraction) {
     const profile = GetUserProfile(interaction.user.id);
-    if (!profile.inventory.includes(ITEMS.LOT_SCRATCH)) return interaction.reply({
+    if (!profile.inventory.some(i => i.item_id == ITEMS.LOT_SCRATCH)) return interaction.reply({
         content:`:crying_cat_face: **${interaction.user.displayName}**, you don't have a :ticket: **Scratch Ticket**!`,
         flags: [MessageFlags.SuppressNotifications]
     });

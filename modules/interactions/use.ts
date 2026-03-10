@@ -1,7 +1,23 @@
-import {AttachmentBuilder, ButtonStyle, ChatInputCommandInteraction, ComponentType, Interaction, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {
+    AttachmentBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    ComponentType,
+    Interaction,
+    MessageFlags,
+    SlashCommandBuilder,
+    TextChannel
+} from "discord.js";
 import {RestoreLastDailyStreak} from "../okash/daily";
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
-import {AddOneToInventory, AddToWallet, GetInventory, GetWallet, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
+import {
+    AddOneToInventory,
+    AddToWallet,
+    GetInventory,
+    GetWallet,
+    RemoveFromWallet,
+    RemoveOneFromInventory
+} from "../okash/wallet";
 import {FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
 import {exLootboxReward, LOOTBOX_REWARD_TYPE, lootboxRewardCommon, rareLootboxReward} from "../okash/lootboxes";
 import {EMOJI, GetEmoji, GetEmojiID} from "../../util/emoji";
@@ -10,12 +26,17 @@ import {ITEM_NAMES} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
-import { ActionRowBuilder, ButtonBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from "@discordjs/builders";
-import { generateLevelBanner } from "../levels/levels";
-import { readFileSync } from "fs";
-import { join } from "path";
-import { BASE_DIRNAME } from "../../index";
-import { scratch_ticket } from "./usables/scratchTicket";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder
+} from "@discordjs/builders";
+import {generateLevelBanner} from "../levels/levels";
+import {readFileSync} from "fs";
+import {join} from "path";
+import {BASE_DIRNAME} from "../../index";
+import {scratch_ticket} from "./usables/scratchTicket";
 import {item_bmToken} from "./usables/blackMarketToken";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
@@ -87,7 +108,7 @@ async function item_streak_restore(interaction: ChatInputCommandInteraction) {
 
     const inventory = GetInventory(interaction.user.id);
 
-    if (inventory.indexOf(ITEMS.STREAK_RESTORE) == -1)
+    if (!inventory.some(i => i.item_id == ITEMS.STREAK_RESTORE))
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore**!`
         });
@@ -104,7 +125,7 @@ async function item_weighted_coin(interaction: ChatInputCommandInteraction) {
     const inventory = GetInventory(interaction.user.id);
     const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
-    if (inventory.indexOf(ITEMS.WEIGHTED_COIN_ONE_USE) == -1) {
+    if (!inventory.some(i => i.item_id == ITEMS.WEIGHTED_COIN_ONE_USE)) {
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**s!`
         });
@@ -133,7 +154,7 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
     const inventory = GetInventory(interaction.user.id);
     const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
-    if (inventory.indexOf(ITEMS.LOOTBOX_COMMON) == -1) {
+    if (!inventory.some(i => i.item_id == ITEMS.LOOTBOX_COMMON)) {
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :package: **Common Lootbox** to open!`
         });
@@ -177,7 +198,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
     const inventory = GetInventory(interaction.user.id);
     const preferences: USER_PROFILE = GetUserProfile(interaction.user.id);
 
-    if (inventory.indexOf(ITEMS.LOOTBOX_RARE) == -1) {
+    if (!inventory.some(i => i.item_id == ITEMS.LOOTBOX_RARE)) {
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any :package: **Rare Lootboxes**!`
         });
@@ -224,7 +245,7 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
 async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
     const preferences = GetUserProfile(interaction.user.id);
 
-    if (GetInventory(interaction.user.id).indexOf(ITEMS.LOOTBOX_EX) == -1) return interaction.reply({
+    if (!GetInventory(interaction.user.id).some(i => i.item_id == ITEMS.LOOTBOX_EX)) return interaction.reply({
         content: `**${interaction.user.displayName}**, you don't have an :sparkles: **EX Lootbox** :sparkles: to open!` 
     });
 
@@ -277,7 +298,7 @@ async function item_casino_pass(interaction: ChatInputCommandInteraction, time: 
 
     const item = {'10': ITEMS.CASINO_PASS_10_MIN, '30': ITEMS.CASINO_PASS_30_MIN, '60': ITEMS.CASINO_PASS_1_HOUR}[time];
 
-    if (pockets.indexOf(item) == -1)
+    if (!pockets.some(i => i.item_id == item))
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a :credit_card: **${time}-minute Casino Pass**!`
         });
@@ -319,7 +340,7 @@ async function item_drop_boost(interaction: ChatInputCommandInteraction, time: '
 
     const item = {'15': ITEMS.LOOTBOX_INCREASE_15_MIN, '30': ITEMS.LOOTBOX_INCREASE_30_MIN}[time];
 
-    if (pockets.indexOf(item) == -1)
+    if (!pockets.some(i => i.item_id == item))
         return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **${time}-minute Drop Boost**!`
         });
@@ -432,25 +453,9 @@ const USE_V2 = false;
 
 export async function item_sticker(interaction: ChatInputCommandInteraction) {
     let profile = GetUserProfile(interaction.user.id);
-    if (!profile.inventory.includes(ITEMS.STICKER_NOT_APPLIED)) return interaction.reply({
+    if (!profile.inventory.some(i => i.item_id == ITEMS.STICKER_NOT_APPLIED)) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **Sticker Kit**!`
     });
-
-    // const modal = new ModalBuilder()
-    //     .setTitle('Use a Sticker Kit')
-    //     .setCustomId('sticker-applicator');
-
-    // modal.addComponents(
-    //     <any> new TextInputBuilder()
-    //         .setCustomId('x-pos')
-    //         .setLabel('X Position'),
-
-    //     <any> new TextInputBuilder()
-    //         .setCustomId('y-pos')
-    //         .setLabel('Y Position'),
-
-    //     <any> new 
-    // )
 
     if (USE_V2) return;
 

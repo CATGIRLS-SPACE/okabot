@@ -59,7 +59,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
 
     switch ((SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).type) {
         case 'item':
-            if (!pockets.includes((SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!)) return interaction.editReply({
+            if (!pockets.some(i => i.item_id == (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!)) return interaction.editReply({
                 content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
             });
             RemoveOneFromInventory(interaction.user.id, (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!);

@@ -12,7 +12,6 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 import {
     DumpProfileCache, GetProfileLowDB,
     GetUserProfile,
-    ReloadProfile,
     RestrictUser,
     UpdateUserProfile,
     USER_PROFILE
@@ -443,10 +442,9 @@ export function RegisterAllShorthands() {
         });
     });
 
-    RegisterShorthand('oka reload ', async (message: Message, params: string[]) => {
-        ReloadProfile(params[2]);
+    RegisterShorthand('oka reload ', async (message: Message) => {
         message.reply({
-            content:':white_check_mark: Dropped user profile from cache and reloaded from file.',
+            content:':x: This command is deprecated in place of `oka dump <user>` and `oka import <user>` and has no effect.',
             flags: [MessageFlags.SuppressNotifications]
         });
     });

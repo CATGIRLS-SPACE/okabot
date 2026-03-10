@@ -43,7 +43,7 @@ const ITEM_SELECT_LABEL_COMPONENT = new LabelBuilder()
 
 export async function item_bmToken(interaction: ChatInputCommandInteraction) {
     const profile = GetUserProfile(interaction.user.id);
-    if (profile.inventory.indexOf(ITEMS.BLACKMARKET_TOKEN) == -1) return interaction.reply({
+    if (!profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Tokens**!`
     });
 
@@ -56,19 +56,15 @@ export async function item_bmToken(interaction: ChatInputCommandInteraction) {
 export async function item_bmToken_modal(interaction: ModalSubmitInteraction) {
     const profile = GetUserProfile(interaction.user.id);
 
-    if (profile.inventory.indexOf(ITEMS.BLACKMARKET_TOKEN) == -1) return interaction.reply({
+    if (!profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)) return interaction.reply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Tokens**!`
     });
 
     const selection = interaction.fields.getStringSelectValues('blackMarketTokenItemSelect')[0];
 
     if (selection == 'xpl') {
-        // count how many tokens they have
-        let count = 0;
-        for (const item of profile.inventory) {
-            if (item == ITEMS.BLACKMARKET_TOKEN) count++;
-        }
-        if (count < 2) return interaction.reply({
+
+        if (!profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN) || profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)!.amount < 2) return interaction.reply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough (2x) ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Tokens**!`
         });
 
