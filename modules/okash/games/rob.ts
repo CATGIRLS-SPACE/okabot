@@ -7,6 +7,7 @@ import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../../tasks/dailyMissions";
 // import { createCanvas, loadImage } from "canvas";
 // import axios from "axios";
 
@@ -84,6 +85,9 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
                 .replace('#USER', interaction.user.displayName)
                 .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
         });
+
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.ROB_BANK)
+            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
         
         return;
     } 

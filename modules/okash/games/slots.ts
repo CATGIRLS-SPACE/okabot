@@ -16,6 +16,12 @@ import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {DEV} from "../../../index";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -197,6 +203,10 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
     if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
     if (streak == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+
+    if (streak == 3 && CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GAMBLE_STREAK_3) CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+    if (streak == 5 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_STREAK_5) CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (streak == 7 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_STREAK_7) CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
 
     DoRandomDrops(reply_as_message, interaction.user);
 

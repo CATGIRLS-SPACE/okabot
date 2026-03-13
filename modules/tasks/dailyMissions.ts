@@ -15,15 +15,15 @@ import {scheduleJob} from "node-schedule";
 
 
 export enum DAILY_MISSIONS_EASY {
-    GAMBLE_STREAK_3,
-    PAY_USER_OKASH,
-    BUY_STOCK,
-    THANK_OKABOT,
-    GET_DAILY_REWARD,
-    USE_WEIGHTED_COIN,
-    SWITCH_TITLE,
-    ROB_BANK,
-    SELL_ITEM
+    GAMBLE_STREAK_3, // cf yes slot yes bj yes
+    PAY_USER_OKASH, // yup
+    BUY_STOCK, // yup
+    THANK_OKABOT, // yup
+    GET_DAILY_REWARD, // yup
+    USE_WEIGHTED_COIN, // yup
+    SWITCH_TITLE, // yup
+    ROB_BANK, // yup
+    SELL_ITEM// yup
 }
 
 export enum DAILY_MISSIONS_INTERMEDIATE {

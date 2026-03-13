@@ -279,7 +279,7 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
             if (GetUserProfile(interaction.user.id).customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.COIN_RAINBOW) == -1) { 
                 AddToWallet(interaction.user.id, 500_000);
                 return await interaction.editReply({
-                    content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000**`
+                    content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000** into your wallet!`
                 });
             }
             // doesn't have

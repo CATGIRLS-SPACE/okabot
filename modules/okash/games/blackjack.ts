@@ -29,6 +29,12 @@ import {DoRandomDrops} from "../../passive/onMessage";
 import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 
 // const L = new Logger('blackjack');
 
@@ -837,6 +843,10 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
         if (streak+1 == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
         // if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
+
+        if (streak+1 == 3 && CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GAMBLE_STREAK_3) CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+        if (streak+1 == 5 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_STREAK_5) CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+        if (streak+1 == 7 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_STREAK_7) CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
         
         const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);
         
@@ -878,6 +888,10 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     if (streak+1 == 5) GrantAchievement(i.user, Achievements.STREAK_5, i.client.channels.cache.get(i.channelId) as TextChannel);
     if (streak+1 == 10) GrantAchievement(i.user, Achievements.STREAK_10, i.client.channels.cache.get(i.channelId) as TextChannel);
     // if (streak+1 == 25) GrantAchievement(i.user, Achievements.STREAK_25, i.client.channels.cache.get(i.channelId) as TextChannel);
+
+    if (streak+1 == 3 && CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GAMBLE_STREAK_3) CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+    if (streak+1 == 5 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_STREAK_5) CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (streak+1 == 7 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_STREAK_7) CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
 
     // build new embed
     const BlackjackContainer = await BuildBlackjackContainer(game, false, 'win', i.user.id);

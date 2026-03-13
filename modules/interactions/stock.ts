@@ -7,7 +7,7 @@ import {
     Interaction,
     InteractionContextType,
     Locale,
-    SlashCommandBuilder
+    SlashCommandBuilder, TextChannel
 } from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetLastPrices, GetSharePrice, SellShares, Stocks } from "../okash/stock";
@@ -18,6 +18,7 @@ import { createCanvas, loadImage } from "canvas";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME } from "../../index";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 
 const STRINGS: { [key: string]: { en: string, ja: string } } = {
@@ -213,6 +214,9 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         // remove from bank first
         RemoveFromWallet(interaction.user.id, Math.round(amount * share_price));
         BuyShares(interaction.user.id, stock as Stocks, amount);
+
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.BUY_STOCK)
+            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 
         interaction.editReply({
             content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.buy_ok[locale], amount, stock == 'catgirl' ? 'NEKO' : stock == 'doggirl' ? 'DOGY' : 'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`

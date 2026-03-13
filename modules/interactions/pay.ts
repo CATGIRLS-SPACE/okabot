@@ -1,9 +1,11 @@
-import { ChatInputCommandInteraction, Client, EmbedBuilder, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Client, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, CheckUserIdOkashRestriction, GetUserProfile, OKASH_ABILITY } from "../user/prefs";
+import { CheckOkashRestriction, CheckUserIdOkashRestriction, OKASH_ABILITY } from "../user/prefs";
 import { Logger } from "okayulogger";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 const L = new Logger('payment');
 const PAYMENT_HISTORY = new Map<Snowflake, {paid: string, time: number}>();
@@ -49,10 +51,6 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     }
 
     const sender_bank_amount = GetWallet(sender_id);
-    const receiver_bank_amount = GetWallet(receiver_id);
-    
-    const sender_prefs = GetUserProfile(interaction.user.id);
-    const receiver_prefs = GetUserProfile(receiver_id);
 
     const pay_amount = Math.floor(interaction.options.getNumber('amount')!);
 
@@ -75,6 +73,8 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     }
 
     GrantAchievement(interaction.user, Achievements.PAY_USER, interaction.channel as TextChannel);
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.PAY_USER_OKASH)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
     
     const receiver_user = interaction.options.getUser('user')!;
     L.info(`PAYMENT SUCCESS FOR OKA${pay_amount} | ${interaction.user.username}(${interaction.user.id}) --> ${receiver_user.username}(${receiver_user.id})`);
@@ -84,48 +84,8 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
 
     PAYMENT_HISTORY.set(sender_id, {paid: receiver_id, time:d.getTime()});
 
-    const interaction_embed = new EmbedBuilder()
-        .setColor(0x9d60cc)
-        .setTitle(`okash Transfer of OKA${pay_amount}`)
-        .addFields(
-            {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
-        )
-        .setDescription('The payment has been successful and the funds were transferred.');
-
     interaction.editReply({
-        embeds:[interaction_embed]
-    });
-
-    const receiver_embed = new EmbedBuilder()
-        .setColor(0x9d60cc)
-        .setTitle(`You received some okash!`)
-        .addFields(
-            {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
-        )
-        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${receiver_bank_amount+pay_amount}.`);
-
-
-    const sender_embed = new EmbedBuilder()
-        .setColor(0x9d60cc)
-        .setTitle(`You sent some okash!`)
-        .addFields(
-            {name:'⬆️ Sender', value:interaction.user.username, inline: true},
-            {name:'⬇️ Receiver', value:receiver_user.username, inline: true},
-        )
-        .setDescription(`okash Transfer of OKA${pay_amount} | Your new balance is OKA${sender_bank_amount-pay_amount}.`);
-
-    if (receiver_prefs.customization.global.okash_notifications) receiver_user.send({
-        embeds:[receiver_embed]
-    }).catch(() => {
-        (interaction.channel as TextChannel).send({content:`:crying_cat_face: <@!${receiver_id}>, your DMs are closed, so I have to send your receipt here!`, embeds:[receiver_embed]});
-    });
-    
-    if (sender_prefs.customization.global.okash_notifications) interaction.user.send({
-        embeds:[sender_embed]
-    }).catch(() => {
-        (interaction.channel as TextChannel).send({content:`:crying_cat_face: **${interaction.user.displayName}**, your DMs are closed, so I have to send your receipt here!`, embeds:[sender_embed]});
+        content: `:handshake: **${interaction.user.displayName}** paid **${receiver_user.displayName}** ${GetEmoji(EMOJI.OKASH)} OKA**${pay_amount}**! You should say thanks!`
     });
 }
 

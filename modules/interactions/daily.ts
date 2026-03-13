@@ -20,6 +20,7 @@ import {AddXP} from "../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {ITEMS} from "../okash/items";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.daily)) return interaction.reply({
@@ -100,6 +101,9 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
         return;
     }
+
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GET_DAILY_REWARD)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 
     const remindButtonNext = new ButtonBuilder()
         .setCustomId('remindmen')

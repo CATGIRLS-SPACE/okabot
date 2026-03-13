@@ -6,6 +6,7 @@ import {EMOJI, GetEmoji} from "../../util/emoji";
 import {LootboxRecentlyDropped} from "../okash/lootboxes";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -93,6 +94,9 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     interaction.editReply({
         content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, you sold your \`${GLOBAL_SHORTHANDS[item] || item}\` for ${GetEmoji(EMOJI.OKASH)} OKA**${(SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).price}**!`
     });
+
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SELL_ITEM)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 }
 
 

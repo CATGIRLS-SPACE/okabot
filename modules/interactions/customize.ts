@@ -1,9 +1,10 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js";
+import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
 import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 import { Achievements, ACHIEVEMENTS, TITLES } from "../passive/achievement";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
@@ -219,6 +220,10 @@ async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
         interaction.editReply({
             content: `Your title has been updated to **${TITLES[entry]}**!`,
         });
+
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SWITCH_TITLE)
+            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+
         return;
     }
 
@@ -236,6 +241,10 @@ async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
             interaction.editReply({
                 content: `Your title has been updated to **${TITLES[key]}**!`,
             });
+
+            if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SWITCH_TITLE)
+                CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+
             return;
         }
     }
