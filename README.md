@@ -1,5 +1,4 @@
-![Build](https://github.com/okawaffles/okabot/actions/workflows/build.yml/badge.svg)
-![Code Quality](https://github.com/okawaffles/okabot/actions/workflows/eslint.yml/badge.svg)
+![Build](https://github.com/CATGIRLS-SPACE/okabot/actions/workflows/build.yml/badge.svg)
 
 > [!IMPORTANT]
 > If you are planning on contributing, AI generated code is not allowed due to hallucinations and quirks of okabot's code.
