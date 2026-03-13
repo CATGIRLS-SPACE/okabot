@@ -486,11 +486,11 @@ function DoEventCheck(c: Client): boolean {
 
         if (crash_roll < crash_chance) {
             L.info('stock crash triggered');
-            MARKET[stock].price -= Math.floor(Math.random() * 2500) + 500; // -_-
+            MARKET[stock].price -= Math.floor(Math.random() * 7000) + 500; // -_-
         }
-        else MARKET[stock].price -= Math.floor(Math.random() * 500) + 50; // BOOOOOOORING
+        else MARKET[stock].price -= Math.floor(Math.random() * 2500) + 50; // BOOOOOOORING
     }
-    else MARKET[stock].price += Math.floor(Math.random() * 500) + 50; // still BOOOOOORIIIINNGGG
+    else MARKET[stock].price += Math.floor(Math.random() * 7500) + 500; // still BOOOOOORIIIINNGGG
 
     if (MARKET[stock].price <= 0) MARKET[stock].price = 1;
 
