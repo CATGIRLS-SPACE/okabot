@@ -444,7 +444,7 @@ export function RegisterAllShorthands() {
 
     RegisterShorthand('oka reload ', async (message: Message) => {
         message.reply({
-            content:':x: This command is deprecated in place of `oka dump <user>` and `oka import <user>` and has no effect.',
+            content:':x: This command is deprecated in place of `oka export <user>` and `oka import <user>` and has no effect.',
             flags: [MessageFlags.SuppressNotifications]
         });
     });

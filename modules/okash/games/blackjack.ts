@@ -33,7 +33,7 @@ import {
     CompleteDailyMission,
     CurrentMissions,
     DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
-    DAILY_MISSIONS_INTERMEDIATE
+    DAILY_MISSIONS_INTERMEDIATE, TrackedItemCounters
 } from "../../tasks/dailyMissions";
 
 // const L = new Logger('blackjack');
@@ -497,7 +497,12 @@ async function Stand(interaction: ChatInputCommandInteraction, confirmation: any
         WinStreak.set(interaction.user.id, streak);
         console.log(`Blackjack winstreak is now ${streak}.`);
 
-        if (game.bet == 12500) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+        if (game.bet == 12500) {
+            GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+
+            if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+                CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+        }
     } else if (tie) {
         // WinStreak.set(interaction.user.id, 0);
         if (player_blackjack) AddToWallet(confirmation.user.id, Math.floor(game.bet * 1.5));
@@ -832,8 +837,11 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         if (game.trackable_serial) UpdateTrackedItem(game.trackable_serial, {property:"dealt_cards",amount:1}, interaction.channel as TextChannel);
     }
 
+    const user_total = TallyCards(game.user);
+    const dealer_total = TallyCards(game.dealer);
+
     // did okabot bust?
-    if (TallyCards(game.dealer) > 21) {
+    if (dealer_total > 21) {
         // yes, so user wins
         const streak = WinStreak.get(i.user.id) || 0;
         WinStreak.set(i.user.id, streak + 1);
@@ -854,8 +862,21 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
         AddToWallet(i.user.id, game.bet * ((TallyCards(game.user) == 21)?3:2));
         AddXP(i.user.id, i.channel as TextChannel, TallyCards(game.user)==21?20:15);
 
-        if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
-        
+        if (game.bet >= 12_500) {
+            GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
+
+            if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+                CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+        }
+
+        if (game.bet * ((TallyCards(game.user) == 21)?3:2) >= 2500 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_WIN_2500)
+            CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.BLACKJACK_21 && user_total == 21)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+
+        DoDailyTrackableCheck(interaction, game);
+
         // remove their game
         GamesActive.delete(i.user.id);
         SetGambleLock(i.user.id, false);
@@ -869,9 +890,6 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
             flags: [MessageFlags.IsComponentsV2]
         });
     }
-
-    const user_total = TallyCards(game.user);
-    const dealer_total = TallyCards(game.dealer);
 
     // okabot didn't bust, did we get less?
     if (user_total < dealer_total) return LoseV2(i, game, 'value');
@@ -906,6 +924,10 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     // achievement for max bet (remember max can be 25_000 due to dd)
     if (game.bet >= 12_500) GrantAchievement(i.user, Achievements.MAX_WIN, i.channel as TextChannel);
     if (user_total == 21) GrantAchievement(i.user, Achievements.BLACKJACK, i.channel as TextChannel);
+
+    if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.BLACKJACK_21 && user_total == 21)
+        CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+
     if (TallyCards([game.user[0],game.user[1],game.dealer[0],game.dealer[1]]) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
 
     // give the reward money!
@@ -913,6 +935,8 @@ async function StandV2(interaction: ChatInputCommandInteraction, i: ButtonIntera
     AddXP(i.user.id, i.channel as TextChannel, user_total==21?20:15);
 
     DoRandomDrops(await i.fetchReply(), i.user);
+
+    DoDailyTrackableCheck(interaction, game);
 
     // remove their game
     GamesActive.delete(i.user.id);
@@ -951,6 +975,8 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
 
     AddXP(i.user.id, i.channel as TextChannel, 10);
     DoRandomDrops(await i.fetchReply(), i.user);
+
+    DoDailyTrackableCheck(i, game);
 
     // delete their game
     GamesActive.delete(i.user.id);
@@ -1043,6 +1069,33 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
     return BlackjackContainer;
 }
 
+function DoDailyTrackableCheck(interaction: ChatInputCommandInteraction | ButtonInteraction, game: BlackjackGame) {
+    if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10 || CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30) {
+            const profile = GetUserProfile(interaction.user.id);
+            if (TrackedItemCounters.has(interaction.user.id) && TrackedItemCounters.get(interaction.user.id)!.some(t => t.uuid == profile.customization.games.equipped_trackable_deck)) {
+                const current = TrackedItemCounters.get(interaction.user.id)!;
+                current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck)!.count += game.user.length;
+                TrackedItemCounters.set(interaction.user.id, current);
+                console.log('new value:', current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck));
+            } else {
+                if (!TrackedItemCounters.has(interaction.user.id)) {
+                    TrackedItemCounters.set(interaction.user.id, [{
+                        count: game.user.length,
+                        type: 'deck',
+                        uuid: profile.customization.games.equipped_trackable_deck
+                    }]);
+                } else {
+                    const current = TrackedItemCounters.get(interaction.user.id)!;
+                    current.push({
+                        count: game.user.length,
+                        uuid: profile.customization.games.equipped_trackable_deck,
+                        type: 'deck',
+                    })
+                    TrackedItemCounters.set(interaction.user.id, current);
+                }
+            }
+        }
+}
 
 
 

@@ -26,6 +26,12 @@ import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {client} from "../../../index";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_HARD,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -157,19 +163,33 @@ async function StartRoulette(game: RouletteGame) {
 
     setTimeout(async () => {        
         if (win.win) {
+            if (game.game_type == RouletteGameType.LARGE_SECTION && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.ROULETTE_SECTION_SMALL)
+                CompleteDailyMission(game.interaction.user, 'i', game.interaction.channel as TextChannel);
+
+            if (game.game_type == RouletteGameType.NUMBER && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.ROULETTE_PERFECT)
+                CompleteDailyMission(game.interaction.user, 'h', game.interaction.channel as TextChannel);
+
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
             AddCasinoWin(game.interaction.user.id, game.bet * win.multiplier, 'roulette');
-            await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
+            await game.interaction.editReply({
+                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
-            if (game.bet == 50000) GrantAchievement(game.interaction.user, Achievements.MAX_WIN, game.interaction.channel as TextChannel);
+            if (game.bet == 50000) {
+                GrantAchievement(game.interaction.user, Achievements.MAX_WIN, game.interaction.channel as TextChannel);
+
+                if (game.game_type == RouletteGameType.NUMBER && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+                    CompleteDailyMission(game.interaction.user, 'h', game.interaction.channel as TextChannel);
+            }
             if (game.game_type == RouletteGameType.NUMBER) GrantAchievement(game.interaction.user, Achievements.ROULETTE_ONE, game.interaction.channel as TextChannel);
             if (game.game_type == RouletteGameType.NUMBER_MULTIPLE && (game.selection as Array<number>).length < 8 && (game.selection as Array<number>).length > 1) GrantAchievement(game.interaction.user, Achievements.ROULETTE_MULTI, game.interaction.channel as TextChannel);
+
+            if (game.bet * win.multiplier >= 2500 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_WIN_2500)
+                CompleteDailyMission(game.interaction.user, 'i', game.interaction.channel as TextChannel);
         } else {
             if (GetWallet(game.interaction.user.id) == 0 && GetBank(game.interaction.user.id) == 0) GrantAchievement(game.interaction.user, Achievements.NO_MONEY, game.interaction.channel as TextChannel);
             AddCasinoLoss(game.interaction.user.id, game.bet, 'roulette');
-            await game.interaction!.editReply({
-                content:`:fingers_crossed: **${game.interaction!.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
+            await game.interaction.editReply({
+                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
             });
         }
 

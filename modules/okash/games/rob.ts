@@ -7,7 +7,12 @@ import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
-import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../../tasks/dailyMissions";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_EASY,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 // import { createCanvas, loadImage } from "canvas";
 // import axios from "axios";
 
@@ -184,6 +189,9 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
     interaction.reply({
         content: `:bangbang: ${msg}`
     });
+
+    if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.ROB_USER)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
 
     if (BANK_ROBS.has(robbed_user.id)) {
         if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(robbed_user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);

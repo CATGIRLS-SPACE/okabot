@@ -31,7 +31,7 @@ import {
     CompleteDailyMission,
     CurrentMissions,
     DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
-    DAILY_MISSIONS_INTERMEDIATE
+    DAILY_MISSIONS_INTERMEDIATE, TrackedItemCounters
 } from "../../tasks/dailyMissions";
 
 const ActiveFlips: Array<string> = [];
@@ -125,6 +125,38 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     if (profile.customization.games.equipped_trackable_coin != 'none') {
         UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1}, interaction.channel as TextChannel);
+
+        if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10 || CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30) {
+            if (TrackedItemCounters.has(interaction.user.id) && TrackedItemCounters.get(interaction.user.id)!.some(t => t.uuid == profile.customization.games.equipped_trackable_coin)) {
+                const current = TrackedItemCounters.get(interaction.user.id)!;
+                current.find(t => t.uuid == profile.customization.games.equipped_trackable_coin)!.count++;
+                TrackedItemCounters.set(interaction.user.id, current);
+                console.log('new value:', current.find(t => t.uuid == profile.customization.games.equipped_trackable_coin));
+
+                const count = current.find(t => t.uuid == profile.customization.games.equipped_trackable_coin)!.count;
+                if (count >= 10 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10)
+                    CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
+                if (count >= 30 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30)
+                    CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+            } else {
+                if (!TrackedItemCounters.has(interaction.user.id)) {
+                    TrackedItemCounters.set(interaction.user.id, [{
+                        count: 1,
+                        type: 'coin',
+                        uuid: profile.customization.games.equipped_trackable_coin
+                    }]);
+                } else {
+                    const current = TrackedItemCounters.get(interaction.user.id)!;
+                    current.push({
+                        count: 1,
+                        uuid: profile.customization.games.equipped_trackable_coin,
+                        type: 'coin',
+                    })
+                    TrackedItemCounters.set(interaction.user.id, current);
+                }
+            }
+        }
     }
 
     // initial reply
@@ -173,12 +205,19 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // reload their profile so we don't cause any desync issues and give reward
     profile = GetUserProfile(interaction.user.id);
     if (win) profile.okash.wallet += bet * 2;
+    if (win && bet * 2 >= 2500 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_WIN_2500)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
     UpdateUserProfile(interaction.user.id, profile);
     AddXP(interaction.user.id, interaction.channel as TextChannel, win?15:5);
     if (streak > 1) AddXP(interaction.user.id, interaction.channel as TextChannel, streak_bonus);
 
     if (win) AddCasinoWin(interaction.user.id, bet*2, 'coinflip'); else AddCasinoLoss(interaction.user.id, bet, 'coinflip');
-    if (bet == 10000) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+    if (bet == 10000) {
+        GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+    }
 
     if (win) {
         WinStreaks.set(interaction.user.id, streak);
@@ -195,8 +234,21 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     if (profile.okash.wallet + profile.okash.bank == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 
-    if (roll <= 0.01) GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
-    if (roll >= 0.99) GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+    if (roll <= 0.01) {
+        GrantAchievement(interaction.user, Achievements.LOW_COINFLIP, interaction.channel as TextChannel);
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.COINFLIP_TINY_FLOAT)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+    }
+    if (roll >= 0.99) {
+        GrantAchievement(interaction.user, Achievements.HIGH_COINFLIP, interaction.channel as TextChannel);
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.COINFLIP_ABSURD_FLOAT)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+    }
+
+    if (roll <= 0.05 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.COINFLIP_SMALL_FLOAT)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (roll >= 0.95 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.COINFLIP_BIG_FLOAT)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
 
     if (!win && RECENT_ROBS.has(interaction.user.id)) {
         if (RECENT_ROBS.get(interaction.user.id)?.amount == bet && (RECENT_ROBS.get(interaction.user.id)?.when || 0) + 300 > (new Date()).getTime()/1000) 
@@ -221,11 +273,17 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
         stats.coinflip.daily!.high = {value:float,user_id:interaction.user.id};
         message += `\n**New Daily Highest:** \`${float}\` is the highest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
+
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.DAILY_FLOAT_MINMAX)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
     }
     if (float < stats.coinflip.daily!.low.value) {
         stats.coinflip.daily!.low = {value:float,user_id:interaction.user.id};
         message += `\n**New Daily Lowest:** \`${float}\` is the lowest float someone has rolled today!`
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
+
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.DAILY_FLOAT_MINMAX)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
     }
 
     // all-time

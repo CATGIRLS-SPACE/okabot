@@ -175,13 +175,27 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     AddToWallet(interaction.user.id, earned_okash);
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
+    if (earned_okash >= 2500 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_WIN_2500)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
     if (multiplier == 0 && GetWallet(interaction.user.id, true) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 
     if (multiplier == 0) AddCasinoLoss(interaction.user.id, bet, 'slots');
     else AddCasinoWin(interaction.user.id, bet * multiplier, 'slots');
 
-    if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+    if (bet == 25_000 && multiplier>0) {
+        GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+    }
+
     if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
+
+    if (multiplier >= 2 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.SLOTS_MIN_2X)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (multiplier >= 5 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.SLOTS_MIN_5X)
+        CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
 
     let streak = WIN_STREAKS.get(interaction.user.id) || 0;
     if (multiplier > 0) streak++; else streak = 0;

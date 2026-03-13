@@ -77,6 +77,9 @@ export enum Achievements {
     PIXELGAME_5 = 'pixelstreak5',
     PIXELGAME_10 = 'pixelstreak10',
     PIXELGAME_25 = 'pixelstreak25',
+    TASK_COMPLETE = 'taskdone',
+    TASK_COMPLETE_FIRST = 'taskfirstdone',
+    TASK_COMPLETE_ALL = 'alltasksdone',
 }
 
 export const ACHIEVEMENTS: {
@@ -134,6 +137,9 @@ export const ACHIEVEMENTS: {
     'pixelstreak5':{name:'Sensei',description:'Guess the correct student 5 times in a row.',class:'fun2',diff:'t'},
     'pixelstreak10':{name:'Addict Sensei',description:'Guess the correct student 10 times in a row.',class:'fun2',diff:'h'},
     'pixelstreak25':{name:'True Sensei',description:'Guess the correct student 25 times in a row.',class:'fun2',diff:'ex'},
+    'taskdone':{name:'No Sweat',description:'That was pretty easy!',class:'okabot',diff:'e'},
+    'taskfirstdone':{name:'Podium Start',description:'You\'re pretty quick with it!',class:'okabot',diff:'t'},
+    'alltasksdone':{name:'Okay, Maybe a Little Sweat',description:'Can you do it again tomorrow?',class:'okabot',diff:'h'},
 }
 
 export const TITLES: {
@@ -189,6 +195,9 @@ export const TITLES: {
     'pixelstreak5':'relationship lvl 5',
     'pixelstreak10':'relationship level 10',
     'pixelstreak25':'relationship level MAX',
+    'taskdone':'hard worker',
+    'taskfirstdone':'quick like a fox',
+    'alltasksdone':'model student',
 }
 
 
@@ -202,7 +211,7 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     const profile = GetUserProfile(user.id);
 
     if (profile.achievements.indexOf(achievement as Achievements) != -1) {
-        console.log(`user ${user.username} already has achievement ${achievement}`);
+        // console.log(`user ${user.username} already has achievement ${achievement}`);
         return;
     }
 
@@ -221,7 +230,7 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     AddXP(user.id, channel, gained_xp);
 
     channel.send({
-        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**! **(+${gained_xp}XP)**\n-# ${a.description}`
+        content: `<:trophy:0> Yaay, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**! **(+${gained_xp}XP)**\nYou can now use the title "**${TITLES[achievement]}**" on your profile!\n-# ${a.description}`
     });
 
     UpdateUserProfile(user.id, profile);

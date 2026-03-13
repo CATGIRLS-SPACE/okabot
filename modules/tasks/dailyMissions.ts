@@ -27,31 +27,31 @@ export enum DAILY_MISSIONS_EASY {
 }
 
 export enum DAILY_MISSIONS_INTERMEDIATE {
-    GAMBLE_STREAK_5,
-    USE_TRACKED_ITEM_10,
-    ROULETTE_SECTION_SMALL,
-    SLOTS_MIN_2X,
-    LEVEL_UP,
-    ROB_USER,
-    COINFLIP_SMALL_FLOAT,
-    COINFLIP_BIG_FLOAT,
-    GAMBLE_WIN_2500
+    GAMBLE_STREAK_5, // all yup
+    USE_TRACKED_ITEM_10, // cf yes, bj yes
+    ROULETTE_SECTION_SMALL, // yup
+    SLOTS_MIN_2X, // ya
+    LEVEL_UP, // yip
+    ROB_USER, // uhhuh
+    COINFLIP_SMALL_FLOAT, // yup
+    COINFLIP_BIG_FLOAT, // yup
+    GAMBLE_WIN_2500// cf blj slots roulette
 }
 
 export enum DAILY_MISSIONS_HARD {
-    GAMBLE_STREAK_7,
-    USE_TRACKED_ITEM_30,
-    ROULETTE_PERFECT,
-    SLOTS_MIN_5X,
-    BLACKJACK_21,
-    DAILY_FLOAT_MINMAX,
-    COINFLIP_TINY_FLOAT,
-    COINFLIP_ABSURD_FLOAT,
-    GAMBLE_WIN_MAX,
+    GAMBLE_STREAK_7, // all yes
+    USE_TRACKED_ITEM_30, // cf yes bj yes
+    ROULETTE_PERFECT, // yup
+    SLOTS_MIN_5X, // ya
+    BLACKJACK_21, // ya
+    DAILY_FLOAT_MINMAX, // yeah
+    COINFLIP_TINY_FLOAT, // mhm
+    COINFLIP_ABSURD_FLOAT, // ye
+    GAMBLE_WIN_MAX, // yea
 }
 
 const EasyMissionDescriptions: Array<string> = [
-    "Get a 3 streak on a supported gambling game",
+    "Get a 3 streak on a supported gambling game (all but roulette)",
     "Pay a user at least 1000 okash at once",
     "Buy any stock for at least 1000 okash",
     "Give okabot your praise",
@@ -63,7 +63,7 @@ const EasyMissionDescriptions: Array<string> = [
 ];
 
 const IntermediateMissionDescriptions: Array<string> = [
-    "Get a 5 streak on a supported gambling game",
+    "Get a 5 streak on a supported gambling game (all but roulette)",
     "Play a game with a tracked item equipped 10 times",
     "Play a roulette game, selecting the \"Small Section\" bet, and win",
     "Win at least 2x your bet in slots",
@@ -75,7 +75,7 @@ const IntermediateMissionDescriptions: Array<string> = [
 ];
 
 const HardMissionDescriptions: Array<string> = [
-    "Get a 7 streak on a supported gambling game",
+    "Get a 7 streak on a supported gambling game (all but roulette)",
     "Play a game with a tracked item equipped 30 times",
     "Play a roulette game, selecting the \"Single Number\" bet, and win",
     "Win at least 5x your bet in slots",
@@ -85,6 +85,13 @@ const HardMissionDescriptions: Array<string> = [
     "Win a gambling game which you bet the max allowed amount of okash on",
 ];
 
+interface TrackedItemCounter {
+    type: 'coin' | 'deck',
+    uuid: string,
+    count: number,
+}
+
+export const TrackedItemCounters: Map<Snowflake, Array<TrackedItemCounter>> = new Map<Snowflake, Array<TrackedItemCounter>>();
 
 interface MissionSelection {
     date: number,
@@ -157,6 +164,7 @@ export function LoadDailyMissions() {
     CurrentMissions = JSON.parse(readFileSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'), 'utf-8'));
     if (CurrentMissions.date + (1000 * 60 * 60 * 23.9) > Date.now()) return console.log('it not time yet!');
     console.log('daily missions reset');
+    TrackedItemCounters.clear();
     CurrentMissions.date = Date.now();
     CurrentMissions.easy.selected = Math.floor(Math.random() * EasyMissionDescriptions.length);
     CurrentMissions.easy.completed = [];
@@ -168,6 +176,13 @@ export function LoadDailyMissions() {
     CurrentMissions.hard.completed = [];
     CurrentMissions.hard.first_completed = undefined;
     writeFileSync(join(BASE_DIRNAME, 'db', 'dailytasks.oka'), JSON.stringify(CurrentMissions), 'utf-8');
+}
+
+function formatNumberNth(num: number): string {
+    if (num.toString().endsWith('1')) return `${num}st`;
+    if (num.toString().endsWith('2')) return `${num}nd`;
+    if (num.toString().endsWith('3')) return `${num}rd`;
+    return `${num}th`;
 }
 
 // handlers for completion
@@ -183,7 +198,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 100);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_COMMON);
-            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\nYou're the **${formatNumberNth(CurrentMissions.easy.completed.length + 1)}** to complete this mission.\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
             break;
 
         case "i":
@@ -196,7 +211,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 250);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_RARE);
-            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the intermediate daily mission! You got a :package: **Rare Lootbox**! **(+250 XP)**\n-# ${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the intermediate daily mission! You got a :package: **Rare Lootbox**! **(+250 XP)**\nYou're the **${formatNumberNth(CurrentMissions.intermediate.completed.length + 1)}** to complete this mission.\n-# ${IntermediateMissionDescriptions[CurrentMissions.intermediate.selected]}`);
             break;
 
         case "h":
@@ -209,7 +224,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 500);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_EX);
-            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\nYou're the **${formatNumberNth(CurrentMissions.hard.completed.length + 1)}** to complete this mission.\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
             break;
     }
 }
