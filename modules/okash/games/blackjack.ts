@@ -1071,30 +1071,38 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
 
 function DoDailyTrackableCheck(interaction: ChatInputCommandInteraction | ButtonInteraction, game: BlackjackGame) {
     if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10 || CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30) {
-            const profile = GetUserProfile(interaction.user.id);
-            if (TrackedItemCounters.has(interaction.user.id) && TrackedItemCounters.get(interaction.user.id)!.some(t => t.uuid == profile.customization.games.equipped_trackable_deck)) {
-                const current = TrackedItemCounters.get(interaction.user.id)!;
-                current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck)!.count += game.user.length;
-                TrackedItemCounters.set(interaction.user.id, current);
-                console.log('new value:', current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck));
+        const profile = GetUserProfile(interaction.user.id);
+        if (TrackedItemCounters.has(interaction.user.id) && TrackedItemCounters.get(interaction.user.id)!.some(t => t.uuid == profile.customization.games.equipped_trackable_deck)) {
+            const current = TrackedItemCounters.get(interaction.user.id)!;
+            current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck)!.count += game.user.length + game.dealer.length;
+            TrackedItemCounters.set(interaction.user.id, current);
+            console.log('new value:', current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck));
+
+            const count = current.find(t => t.uuid == profile.customization.games.equipped_trackable_deck)!.count;
+
+            if (count >= 10 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10)
+                CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
+            if (count >= 30 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30)
+                CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+        } else {
+            if (!TrackedItemCounters.has(interaction.user.id)) {
+                TrackedItemCounters.set(interaction.user.id, [{
+                    count: game.user.length + game.dealer.length,
+                    type: 'deck',
+                    uuid: profile.customization.games.equipped_trackable_deck
+                }]);
             } else {
-                if (!TrackedItemCounters.has(interaction.user.id)) {
-                    TrackedItemCounters.set(interaction.user.id, [{
-                        count: game.user.length,
-                        type: 'deck',
-                        uuid: profile.customization.games.equipped_trackable_deck
-                    }]);
-                } else {
-                    const current = TrackedItemCounters.get(interaction.user.id)!;
-                    current.push({
-                        count: game.user.length,
-                        uuid: profile.customization.games.equipped_trackable_deck,
-                        type: 'deck',
-                    })
-                    TrackedItemCounters.set(interaction.user.id, current);
-                }
+                const current = TrackedItemCounters.get(interaction.user.id)!;
+                current.push({
+                    count: game.user.length,
+                    uuid: profile.customization.games.equipped_trackable_deck,
+                    type: 'deck',
+                })
+                TrackedItemCounters.set(interaction.user.id, current);
             }
         }
+    }
 }
 
 

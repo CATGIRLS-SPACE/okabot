@@ -91,7 +91,7 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
                 .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
         });
 
-        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.ROB_BANK)
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.ROB_BANK && robbed_amount >= 500)
             CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
         
         return;
