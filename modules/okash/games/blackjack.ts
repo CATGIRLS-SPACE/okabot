@@ -1095,7 +1095,7 @@ function DoDailyTrackableCheck(interaction: ChatInputCommandInteraction | Button
             } else {
                 const current = TrackedItemCounters.get(interaction.user.id)!;
                 current.push({
-                    count: game.user.length,
+                    count: game.user.length + game.dealer.length,
                     uuid: profile.customization.games.equipped_trackable_deck,
                     type: 'deck',
                 })

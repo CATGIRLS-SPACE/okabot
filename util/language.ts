@@ -124,8 +124,8 @@ const LANGUAGE_EN: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in fines at the bank.`,
 
-    'interaction.daily': `${GetEmoji(EMOJI.CAT_MONEY_EYES)} Cha-ching! Your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** was delivered to your wallet, and a **{1}** was added to your inventory!`,
-    'interaction.daily.streak': `:1234: Wow! You've got a streak of {1} days, keep it up! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} You got your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: Wow! You've got a streak of {1} days, keep it up! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
     'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
     'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
     'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',

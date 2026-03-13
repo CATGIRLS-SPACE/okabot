@@ -170,6 +170,7 @@ import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/cont
 import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
 import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
 import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
+import {HandleCommandDig} from "./modules/okash/games/dig";
 
 
 export const client = new Client({
@@ -363,6 +364,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'emulate-message': ParseAsTextFromInput,
     'bookmark': HandleCommandBookmark,
     'challenges': HandleCommandChallenges,
+    'dig': HandleCommandDig,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
