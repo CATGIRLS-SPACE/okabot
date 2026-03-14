@@ -415,7 +415,7 @@ export function RegisterAllShorthands() {
         message.react('📈');
         if (params[3] && !isNaN(parseInt(params[3]))) {
             for (let i = 0; i < parseInt(params[3]); i++) UpdateMarkets(message.client);
-        } else UpdateMarkets(message.client);
+        } else UpdateMarkets(message.client, params[3] == 'event');
     });
 
     // dmdata management

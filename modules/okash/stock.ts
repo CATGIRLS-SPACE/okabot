@@ -221,7 +221,7 @@ function CalculateNextTrend(trend: Trend, price: number, starting_price: number)
  * If the trend is no change (e.g. 150,150) then it will assume a positive trend.
  * This is so that the stock prices hopefully don't go insane rollercoaster 24/7.
  */
-export function UpdateMarkets(c: Client) {
+export function UpdateMarkets(c: Client, force_event: boolean = false) {
     // L.info('updating markets...');
 
     let trend = Trend.POSITIVE;
@@ -262,7 +262,7 @@ export function UpdateMarkets(c: Client) {
     writeFileSync(DB_PATH, JSON.stringify(MARKET), 'utf-8');
     // L.info(`Market prices have updated: [NEKO: ${MARKET.catgirl.price}] [DOGY: ${MARKET.doggirl.price}] [FXGL: ${MARKET.foxgirl.price}]`);
 
-    const is_event = DoEventCheck(c);
+    const is_event = DoEventCheck(c, force_event);
     // if (!is_event) WSS_SendStockUpdate(WSSStockMessage.NATURAL_UPDATE);
 }
 
@@ -461,9 +461,9 @@ const STARTING_VALUES = {
 
 // This will be triggered every 5 minutes when the markets update
 // 1/10 and 1/25 was too much, 1/50 was still too much, 1/100 now
-function DoEventCheck(c: Client): boolean {
+function DoEventCheck(c: Client, forced: boolean = false): boolean {
     // should we do an event?
-    if (Math.floor(Math.random() * 100) != 5) return false;
+    if (Math.floor(Math.random() * 100) != 5 && !forced) return false;
 
     L.info('event is happening!');
     const BROADCAST_CHANNEL_ID = !DEV?"1315805846910795846":"941843973641736253"; 

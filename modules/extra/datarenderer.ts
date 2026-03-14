@@ -3,7 +3,7 @@ import {AttachmentBuilder, ChatInputCommandInteraction, GuildMember, SlashComman
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 import {BASE_DIRNAME} from "../../index";
-import {GetLastNumValues, Stocks} from "../okash/stock";
+import {GetLastNumValues, GetSharePrice, Stocks} from "../okash/stock";
 import {GetCasinoDB} from "../okash/casinodb";
 import {CoinFloats} from "../tasks/cfResetBonus";
 import {LANG_RENDER, LangGetFormattedString} from "../../util/language";
@@ -97,9 +97,13 @@ export async function RenderStockDisplay(interaction: ChatInputCommandInteractio
     const width = 550, height = 125;
     const canvas = createCanvas(width,height);
     const ctx = canvas.getContext('2d');
+    const stock = interaction.options.getString('stock', true) as Stocks;
 
-    const values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, parseInt(interaction.options.getString('length', true)));
-    const sorted_values = GetLastNumValues(interaction.options.getString('stock', true) as Stocks, parseInt(interaction.options.getString('length', true))).sort(sortPrices);
+    const values = GetLastNumValues(stock, parseInt(interaction.options.getString('length', true)));
+    values.push(GetSharePrice(stock));
+    let sorted_values = GetLastNumValues(stock, parseInt(interaction.options.getString('length', true)));
+    sorted_values.push(GetSharePrice(stock));
+    sorted_values = sorted_values.sort(sortPrices);
 
     if (values.length < 25) {
         const d = new Date();

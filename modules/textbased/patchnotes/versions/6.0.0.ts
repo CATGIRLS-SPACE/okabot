@@ -3,7 +3,7 @@ import {ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, TextDisplayBui
 
 export const PATCHNOTES_COMPONENT = new ContainerBuilder()
     .addTextDisplayComponents(
-        new TextDisplayBuilder().setContent('# okabot 6.0.0\n### Say hi to the new major version of okabot!')
+        new TextDisplayBuilder().setContent('There\'s a new okabot update!\n# okabot 6.0.0\n### Say hi to the new major version of okabot!')
     )
     .addSeparatorComponents(
         new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Large)
@@ -40,11 +40,13 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
             "- Fixed a bug where a drop string was not fully finished.",
             "- Fixed a bug where you could /use a sticker kit and cause an uncaught exception.",
             "- Fixed a bug where some guild-only commands would show when okabot was installed to your personal apps.",
+            "- Fixed a bug where `/render stocks` would not account for the most recent share value.",
             "- The profile banner GIF renderer no longer fires if the user does not have an animated profile banner.",
             "- Stock event messages are now @silent messages.",
             "- Updated many item descriptions.",
             "- Updated rules.",
             "- Modernized /sell.",
+            "- Roulette is no longer considered experimental.",
             "- Moved all profiles into one centralized lowdb database.",
             "- Items are now stored as `Array<ItemData>` instead of `Array<number>`.",
             "- `oka peek` shorthand has been deprecated in place of `oka export`. This returns a gpg-encrypted copy of a user's profile data.",
