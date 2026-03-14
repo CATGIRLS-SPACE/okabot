@@ -16,6 +16,9 @@ enum Digables {
     NOTHING,
     SCRAP,
     OKASH,
+    LOOTBOX_COMMON,
+    LOOTBOX_RARE,
+    LOOTBOX_EX,
     SHARD,
 }
 
@@ -56,7 +59,7 @@ function GenerateDigGame(wager: number): DigGame {
             const t = Math.max(0, Math.min(1, (normalized - MIN) / (MAX - MIN)));
             const r = Math.pow(Math.random(), 1 - t);
             // @ts-expect-error this is jank but i know it will work fine
-            game[row][c] = Math.floor(r * 4);
+            game[row][c] = Math.floor(r * 6);
         }
     }
 
@@ -100,6 +103,13 @@ const BASE_BUTTON_ROW_FIFTH = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setLabel('E5').setCustomId('fifth:4').setStyle(ButtonStyle.Primary),
 );
 
+
+const FINAL_BUTTON_ROW = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setLabel('Take it!').setStyle(ButtonStyle.Success).setCustomId('yes').setEmoji('✅'),
+    new ButtonBuilder().setLabel('Ehh... nevermind.').setStyle(ButtonStyle.Danger).setCustomId('no').setEmoji('❌'),
+);
+
+
 const ID_COORDINATE_MAPPINGS: {[key: string]: string} = {
     'first':'A',
     'second':'B',
@@ -137,11 +147,20 @@ export async function HandleCommandDig(interaction: ChatInputCommandInteraction)
 
     collector.on('collect', (i: ButtonInteraction) => {
         const id = i.customId;
+        const g = ActiveDigs.get(interaction.user.id)!;
+
+        if (id == 'yes' || id == 'no') {
+            if (id == 'yes') {
+
+            }
+
+            return;
+        }
+
         const x = ID_COORDINATE_MAPPINGS[id.split(':')[0]];
         const y = parseInt(id.split(':')[1]) + 1;
 
-        const g = ActiveDigs.get(interaction.user.id)!;
-        g.picked.push({
+        if (!g.picked.some(p => p.display == x+y)) g.picked.push({
             display: x+y,
             // @ts-expect-error this is jank but i know it will work fine
             has: g[id.split(':')[0]][y-1]
@@ -149,8 +168,8 @@ export async function HandleCommandDig(interaction: ChatInputCommandInteraction)
 
         if (g.picked.length == 3) {
             i.update({
-                content: `# Time to dig! Wonder what you'll find...\n-# **Early Beta!** Bugs may arise!\nYou chose **${g.picked[0].display}**, **${g.picked[1].display}**, and **${g.picked[2].display}**.\nNow, do you wanna spend your ${GetEmoji(EMOJI.OKASH)} OKA**${g.wager}** to see what you got, or just reveal what you could've gotten?`,
-                components: []
+                content: `# Time to dig! Wonder what you'll find...\n-# **Early Beta!** Bugs may arise!\nYou chose **${g.picked[0].display}**, **${g.picked[1].display}**, and **${g.picked[2].display}**.\nNow, do you wanna spend your ${GetEmoji(EMOJI.OKASH)} OKA**${g.wager}** to take what you got, or just reveal what you could've gotten?`,
+                components: [FINAL_BUTTON_ROW] as Array<never>
             });
         } else {
             const picked_part = `**${g.picked[0].display}**, **${(g.picked[1] || {display:'??'}).display}**, and **${(g.picked[2] || {display:'??'}).display}**`
