@@ -407,7 +407,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
     SetGambleLock(interaction.user.id, true);
 
     const response = await interaction.reply({
-        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\nRoulette is experimental: you may lose your okash if not played properly!\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
+        content: `## :game_die: okabot Roulette\nPlease select how you'd like to bet your ${GetEmoji(EMOJI.OKASH)} OKA**${bet}**.\n-# You have 5 minutes to pick before the game will auto-close. Win streaks are not available for roulette.`,
         components: [InitialTypeRow],
         flags: [MessageFlags.SuppressNotifications]
     });
