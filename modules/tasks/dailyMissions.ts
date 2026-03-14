@@ -202,7 +202,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 100);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_COMMON);
-            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\nYou're the **${formatNumberNth(CurrentMissions.easy.completed.length + 1)}** to complete this mission.\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the easy daily mission! You got a :package: **Common Lootbox**! **(+100 XP)**\nYou're the **${formatNumberNth(CurrentMissions.easy.completed.length)}** to complete this mission.\n-# ${EasyMissionDescriptions[CurrentMissions.easy.selected]}`);
             break;
 
         case "i":
@@ -234,7 +234,7 @@ export async function CompleteDailyMission(user: User, difficulty: 'e' | 'i' | '
             }
             AddXP(user.id, channel, 500);
             AddOneToInventory(user.id, ITEMS.LOOTBOX_EX);
-            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\nYou're the **${formatNumberNth(CurrentMissions.hard.completed.length + 1)}** to complete this mission.\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
+            await channel.send(`:tada: Nice, **${user.displayName}**! You completed the hard daily mission! You got a :package: :sparkles: **EX Lootbox**! :sparkles: **(+500 XP)**\nYou're the **${formatNumberNth(CurrentMissions.hard.completed.length)}** to complete this mission.\n-# ${HardMissionDescriptions[CurrentMissions.hard.selected]}`);
             break;
     }
 
