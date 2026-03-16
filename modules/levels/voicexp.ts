@@ -12,6 +12,7 @@ const L = new Logger('voice xp');
 const VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
+    if (newState.guild.id != '1019089377705611294') return;
     const d = new Date();
     const event_time = Math.floor(d.getTime() / 1000);
 
