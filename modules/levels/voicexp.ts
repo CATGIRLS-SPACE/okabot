@@ -1,10 +1,9 @@
-import {Client, TextChannel, VoiceState} from "discord.js";
+import {Client, MessageFlags, TextChannel, User, VoiceState} from "discord.js";
 import { Logger } from "okayulogger";
 import { BASE_DIRNAME } from "../../index";
 import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import { Achievements, GrantAchievement } from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 const L = new Logger('voice xp');
@@ -12,13 +11,19 @@ const L = new Logger('voice xp');
 const VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
-    if (newState.guild.id != '1019089377705611294') return;
+    if ((<unknown>newState.member! as User).bot) return;
     const d = new Date();
     const event_time = Math.floor(d.getTime() / 1000);
 
     if (oldState.channelId == null) {
         // user has joined a channel
+        if (!CheckFeatureAvailability(newState.guild!.id, ServerFeature.voice_xp)) return;
         L.info(`${newState.member!.displayName} joined voice.`);
+
+        if (newState.channel!.isSendable()) newState.channel!.send({
+            content: `:cat: *Hi there, **${newState.member!.nickname || newState.member!.displayName}**!*`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
 
         VoiceData.set(newState.member!.id, event_time);
     }
@@ -46,7 +51,12 @@ export async function HandleVoiceEvent(client: Client, oldState: VoiceState, new
         if (!CheckFeatureAvailability(oldState.guild!.id, ServerFeature.voice_xp)) return;
         AddXP(newState.member!.id, <unknown>channel as TextChannel, xp_gained);
 
-        if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);
+        if (channel.isSendable()) channel.send({
+            content: `:cat: ***${newState.member!.nickname || newState.member!.displayName}**, you earned +**${xp_gained}XP** from your ${minutes_elapsed} minutes spent in voice!*`,
+            flags: [MessageFlags.SuppressNotifications]
+        });
+
+        // if (xp_gained >= 300) GrantAchievement(newState.member!.user, Achievements.VOICE_XP, <unknown>channel as TextChannel);
 
         VoiceData.delete(newState.member!.id);
     }
