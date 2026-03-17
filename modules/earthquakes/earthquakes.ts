@@ -29,7 +29,7 @@ const locations_english: {[key: string]: string} = {};
 
 export async function GetMostRecent(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.earthquakes)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     await interaction.deferReply();
@@ -419,5 +419,5 @@ export function DoEarthquakeTest(data: any) {
 export const RecentEarthquakeSlashCommand = new SlashCommandBuilder()
     .setName('recent-eq').setNameLocalization('ja', '地震')
     .setDescription('Get the most recent earthquake data from the Japan Meteorological Agency').setDescriptionLocalization('ja', '気象庁から最近の地震データを見る')
-    .setIntegrationTypes(ApplicationIntegrationType.UserInstall, ApplicationIntegrationType.GuildInstall)
-    .setContexts(InteractionContextType.Guild, InteractionContextType.BotDM, InteractionContextType.PrivateChannel)
+    .setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
+    .setContexts(InteractionContextType.Guild)

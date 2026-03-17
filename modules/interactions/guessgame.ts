@@ -1,7 +1,8 @@
 import sharp from "sharp";
 import {
+    ApplicationIntegrationType,
     AttachmentBuilder,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction, InteractionContextType,
     Message,
     MessageFlags,
     SlashCommandBuilder,
@@ -59,7 +60,7 @@ const current_streaks = new Map<Snowflake, number>();
 
 export async function GuessBlueArchive(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.pixelguess)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (!has_loaded_db) {
@@ -169,3 +170,4 @@ async function UpdateStreakDB() {
 export const GuessGameSlashCommand = new SlashCommandBuilder()
     .setName('guess')
     .setDescription('Guess a character based off a pixelated image and go for the highest streak!')
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall)

@@ -2,6 +2,7 @@ import {join} from "path";
 import {BASE_DIRNAME} from "../../index";
 import {existsSync, readFileSync, writeFileSync} from "fs";
 import {
+    ApplicationIntegrationType,
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction, ComponentType, Interaction,
@@ -621,4 +622,4 @@ function ExtraSelectDropDown(i: StringSelectMenuInteraction) {
 export const ServerPreferencesSlashCommand = new SlashCommandBuilder()
     .setName('server-preferences')
     .setDescription('(admin only) change okabot server preferences')
-    .setContexts(InteractionContextType.Guild);
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);

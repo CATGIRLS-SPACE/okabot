@@ -1,4 +1,10 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, Snowflake} from "discord.js";
+import {
+    ApplicationIntegrationType,
+    ChatInputCommandInteraction,
+    InteractionContextType,
+    SlashCommandBuilder,
+    Snowflake
+} from "discord.js";
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
 import {BASE_DIRNAME} from "../../index";
 import {join} from "path";
@@ -150,4 +156,4 @@ export const CasinoSlashCommand = new SlashCommandBuilder()
     .addSubcommand(sc => sc
         .setName('alltime')
         .setDescription('All-time information on the casino')
-    )
+    ).setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);

@@ -15,14 +15,18 @@ export enum ITEMS {
     CASINO_PASS_10_MIN,
     CASINO_PASS_30_MIN,
     CASINO_PASS_1_HOUR,
-    SCRAP_TYPE_METAL,
-    SCRAP_TYPE_PLASTIC,
-    SCRAP_TYPE_WOOD,
-    SCRAP_TYPE_RUBBER,
-    SCRAP_TYPE_ELECTRICAL,
+    DONOTUSE_SCRAP_TYPE_METAL,
+    DONOTUSE_SCRAP_TYPE_PLASTIC,
+    DONOTUSE_SCRAP_TYPE_WOOD,
+    DONOTUSE_SCRAP_TYPE_RUBBER,
+    DONOTUSE_SCRAP_TYPE_ELECTRICAL,
     STICKER_NOT_APPLIED,
-    BANK_VIEWER,
+    HACKING_TOOL,
     BLACKMARKET_TOKEN,
+    BLACKMARKET_TOKEN_SHARD,
+    BANK_ROBBERY_KIT,
+    NO_ITEM_ASSIGNED, // don't replace this
+    VIRTUAL_ITEM_XP_LEVEL_UP,
 }
 
 export const ITEM_ID_NAMES: {[key: number]: string} = {
@@ -42,6 +46,10 @@ export const ITEM_ID_NAMES: {[key: number]: string} = {
     18:'Sticker Kit',
     19:'Hacking Tool',
     20:'Black Market Token',
+    21:'Black Market Token Shard',
+    22:'Bank Robbery Kit',
+    23:'No Item Assigned',
+    24:'XP Level Up (virtual)',
 }
 
 export enum CUSTOMIZATION_UNLOCKS {
@@ -60,10 +68,10 @@ export enum CUSTOMIZATION_UNLOCKS {
     DECK_DEFAULT,
     DECK_TRANS,
     DECK_SAKURA,
-    UNUSED_CUST_ID_15,
+    NO_CUSTOMIZATION_ASSIGNED,
     COIN_DGREEN, // normal green = reserved for weighted coin
     COIN_RAINBOW,
-    CV_LEVEL_BANNER_USER,
+    CV_LEVEL_BANNER_USER, // User Banner Level Background
     CV_LEVEL_BAR_CUSTOM,
     CV_LEVEL_BAR_CUSTOM_PENDING
 }
@@ -103,6 +111,70 @@ export const TRACKABLE_ID_NAMES: {[key: string]: number} = {
     'sakura card deck': 14,
     'cherry blossom card deck': 14,
     'cbcd': 14
+}
+
+export const GLOBAL_SHORTHANDS: {[key: string]: string} = {
+    // customization
+    'rc': 'red coin',
+    'dbc': 'dark blue coin',
+    'lbc': 'light blue coin',
+    'pc': 'pink coin',
+    'ppc': 'purple coin',
+    'dgc': 'dark green coin',
+    'rbc': 'rainbow coin',
+    'tcd': 'trans card deck',
+    'scd': 'sakura card deck',
+    'cbcd': 'cherry blossom card deck',
+    'rcd': 'red coin deck',
+    // shop items
+    'xpl': 'xp level up',
+    'sr': 'streak restore',
+    'db15': 'drop boost 15 minute',
+    'db30': 'drop boost 30 minute',
+    'cas10': 'casino pass 10 minute',
+    'cas30': 'casino pass 30 minute',
+    'cas60': 'casino pass 60 minute',
+    'st': 'scratch ticket',
+    'sk': 'sticker kit',
+    'ublb': 'user banner level background',
+    'relb': 'red level bar',
+    'glb': 'green level bar',
+    'blb': 'blue level bar',
+    'plb': 'pink level bar',
+    'culb': 'custom level bar',
+    'reslb': 'reset level bar',
+    // other items
+    'clb': 'common lootbox',
+    'rlb': 'rare lootbox',
+    'exlb': 'ex lootbox',
+    'wc': 'weighted coin',
+    // black market items
+    'bmt': 'black market token',
+    'bmts': 'black market token shard',
+    'brk': 'bank robbery kit',
+    'ht': 'hacking tool',
+}
+
+export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
+    // shop items
+    'sr': 4,
+    'db15': 8,
+    'db30': 9,
+    'cas10': 10,
+    'cas30': 11,
+    'cas60': 12,
+    'st': 7,
+    'sk': 18,
+    // other items
+    'clb': 0,
+    'rlb': 1,
+    'exlb': 2,
+    'wc': 3,
+    // black market items
+    'ht': 19,
+    'bmt': 20,
+    'bmts': 21,
+    'brk': 22,
 }
 
 export enum ITEM_TYPE {

@@ -4,6 +4,7 @@ import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} fro
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetItemFromSerial} from "../okash/trackedItem";
 import {COIN_EMOJIS_DONE} from "../okash/games/coinflip";
+import {AddOneToInventory, RemoveOneFromInventory} from "../okash/wallet";
 
 export const DECK_EMOJIS: {[key:number]: string} = {
     12: EMOJI.CARD_BACK,
@@ -103,13 +104,15 @@ export async function HandleCommandTrade(interaction: ChatInputCommandInteractio
     const receiver_profile = GetUserProfile(receiver.id);
 
     if (tradable_items[item].type == 'item') {
-        if (!sender_profile.inventory.includes(tradable_items[item].id as ITEMS)) return interaction.editReply({
+        if (!sender_profile.inventory.some(i => i.item_id == tradable_items[item].id as ITEMS)) return interaction.editReply({
             content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any of those!`
         });
 
         // send it right over!!
-        sender_profile.inventory.splice(sender_profile.inventory.indexOf(tradable_items[item].id as ITEMS), 1);
-        receiver_profile.inventory.push(tradable_items[item].id as ITEMS);
+        RemoveOneFromInventory(interaction.user.id, tradable_items[item].id as ITEMS)
+        // sender_profile.inventory.splice(sender_profile.inventory.indexOf(tradable_items[item].id as ITEMS), 1);
+        AddOneToInventory(receiver.id, tradable_items[item].id as ITEMS);
+        // receiver_profile.inventory.push(tradable_items[item].id as ITEMS);
     }
 
     if (tradable_items[item].type == 'cust') {

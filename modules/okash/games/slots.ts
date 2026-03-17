@@ -16,6 +16,12 @@ import {LANG_GAMES, LangGetAutoTranslatedString} from "../../../util/language";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {DEV} from "../../../index";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 
 async function Sleep(time_ms: number) {
     return new Promise(resolve => setTimeout(resolve, time_ms));
@@ -94,7 +100,7 @@ const USER_GAMES_TICK = new Map<Snowflake, number>(); // every 50 games or so we
 
 export async function HandleCommandSlots(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.slots)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     if (CheckGambleLock(interaction.user.id)) return interaction.reply({
@@ -169,19 +175,35 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     AddToWallet(interaction.user.id, earned_okash);
     AddXP(interaction.user.id, interaction.channel as TextChannel, earned_xp);
 
+    if (earned_okash >= 2500 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_WIN_2500)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+
     if (multiplier == 0 && GetWallet(interaction.user.id, true) == 0) GrantAchievement(interaction.user, Achievements.NO_MONEY, interaction.channel as TextChannel);
 
     if (multiplier == 0) AddCasinoLoss(interaction.user.id, bet, 'slots');
     else AddCasinoWin(interaction.user.id, bet * multiplier, 'slots');
 
-    if (bet == 25_000 && multiplier>0) GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+    if (bet == 25_000 && multiplier>0) {
+        GrantAchievement(interaction.user, Achievements.MAX_WIN, interaction.channel as TextChannel);
+
+        if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_WIN_MAX)
+            CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
+    }
+
     if (multiplier == 50) GrantAchievement(interaction.user, Achievements.SLOTS_GEMS, interaction.channel as TextChannel);
+
+    if (multiplier >= 2 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.SLOTS_MIN_2X)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (multiplier >= 5 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.SLOTS_MIN_5X)
+        CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
 
     let streak = WIN_STREAKS.get(interaction.user.id) || 0;
     if (multiplier > 0) streak++; else streak = 0;
     WIN_STREAKS.set(interaction.user.id, streak);
     console.log(`Slots winstreak is now ${streak}.`);
-    const streak_part = await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak);
+    const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
+    const streak_part = await LangGetAutoTranslatedString(LANG_GAMES.ANY_WIN_STREAK, interaction.okabot.translateable_locale, streak, streak_bonus);
+    if (streak > 1) AddXP(interaction.user.id, interaction.channel as TextChannel, streak_bonus);
 
     const result = multiplier>0?
         await LangGetAutoTranslatedString(LANG_GAMES.SLOTS_WIN, interaction.okabot.translateable_locale, earned_okash, earned_xp):
@@ -195,6 +217,10 @@ export async function HandleCommandSlots(interaction: ChatInputCommandInteractio
     if (streak == 5) GrantAchievement(interaction.user, Achievements.STREAK_5, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
     if (streak == 10) GrantAchievement(interaction.user, Achievements.STREAK_10, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
     if (streak == 25) GrantAchievement(interaction.user, Achievements.STREAK_25, interaction.client.channels.cache.get(interaction.channelId) as TextChannel);
+
+    if (streak == 3 && CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GAMBLE_STREAK_3) CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+    if (streak == 5 && CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.GAMBLE_STREAK_5) CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
+    if (streak == 7 && CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.GAMBLE_STREAK_7) CompleteDailyMission(interaction.user, 'h', interaction.channel as TextChannel);
 
     DoRandomDrops(reply_as_message, interaction.user);
 

@@ -16,24 +16,14 @@ export interface LootboxRewardsItem {
     type: LOOTBOX_REWARD_TYPE.ITEM,
     item_id: ITEMS
 }
-export interface LootboxRewardsScraps {
-    type: LOOTBOX_REWARD_TYPE.SCRAPS,
-    amount: {
-        p: number,
-        m: number,
-        w: number,
-        r: number,
-        e: number,
-    }
-}
 
 export const LootboxRecentlyDropped = new Map<Snowflake, {item:ITEMS,time:number}>();
 
 // DUDE WHAT THE FUCK IS THIS
 
 // Function that calculates Lootbox Rewards
-export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | LootboxRewardsItem | LootboxRewardsScraps {
-    const roll = Math.floor(Math.random() * 3) + 1; // roll 1-3
+export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | LootboxRewardsItem {
+    const roll = Math.floor(Math.random() * 2) + 1; // roll 1-2 lol
 
     switch (roll) {
         case 1: // 1 = okash
@@ -44,16 +34,6 @@ export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | L
             { const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.STREAK_RESTORE;
             LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
             return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item}; }
-
-        case 3:
-            { const rolled_scraps = {
-                p: Math.floor(Math.random() * 50) + 1,
-                m: Math.floor(Math.random() * 50) + 1,
-                w: Math.floor(Math.random() * 50) + 1,
-                r: Math.floor(Math.random() * 50) + 1,
-                e: Math.floor(Math.random() * 50) + 1,
-            };
-            return {type:LOOTBOX_REWARD_TYPE.SCRAPS, amount:rolled_scraps} }
 
         default:
             // how did we get here?
@@ -77,7 +57,7 @@ export function rareLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TY
             value: moneyAmount 
         };
     } else if (roll<=149 && roll>=20) {
-        const drop = (Math.random()>0.5)?ITEMS.SHOP_VOUCHER:ITEMS.WEIGHTED_COIN_ONE_USE;
+        const drop = [ITEMS.WEIGHTED_COIN_ONE_USE, ITEMS.STREAK_RESTORE, ITEMS.BLACKMARKET_TOKEN_SHARD][ Math.round(Math.random() * 2) ];
         LootboxRecentlyDropped.set(user_id, {item:drop, time});
         return { 
             type: LOOTBOX_REWARD_TYPE.ITEM, 
@@ -87,7 +67,7 @@ export function rareLootboxReward(user_id: Snowflake): { type: LOOTBOX_REWARD_TY
         LootboxRecentlyDropped.set(user_id, {item:Math.random()>0.3?ITEMS.LOT_SCRATCH:ITEMS.TRACKED_CONVERTER, time});
         return {
             type: LOOTBOX_REWARD_TYPE.ITEM,
-            value: ITEMS.LOT_SCRATCH
+            value: [ITEMS.LOT_SCRATCH, ITEMS.BLACKMARKET_TOKEN_SHARD][ Math.round(Math.random()) ]
         };
     } 
 }
@@ -103,7 +83,7 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
     }
 
     if (roll >= 500 && roll < 900) {
-        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.STICKER_NOT_APPLIED][Math.round(Math.random())];
+        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.STICKER_NOT_APPLIED, ITEMS.BLACKMARKET_TOKEN_SHARD][Math.round(Math.random() * 2)];
         LootboxRecentlyDropped.set(user_id, {item, time})
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item}
     }
@@ -116,8 +96,9 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
             ITEMS.LOOTBOX_INCREASE_15_MIN,
             ITEMS.LOOTBOX_INCREASE_30_MIN,
             ITEMS.TRACKED_CONVERTER,
-            ITEMS.STICKER_NOT_APPLIED
-        ][Math.round(Math.random() * 6)]; // get a random item
+            ITEMS.STICKER_NOT_APPLIED,
+            ITEMS.BLACKMARKET_TOKEN
+        ][Math.round(Math.random() * 7)]; // get a random item
 
         LootboxRecentlyDropped.set(user_id, {item, time});
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};

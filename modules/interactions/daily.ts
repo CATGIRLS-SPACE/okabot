@@ -11,17 +11,39 @@ import {
 import {ClaimDaily, GetDailyStreak} from "../okash/daily";
 import {quickdraw, ScheduleDailyReminder} from "../tasks/dailyRemind";
 import {Achievements, GrantAchievement} from "../passive/achievement";
-import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString} from "../../util/language";
+import {LANG_INTERACTION, LANG_ITEMS, LangGetAutoTranslatedString, LangGetFormattedString} from "../../util/language";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
-import { GetLastLocale } from "../..";
+import {GetLastLocale} from "../..";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {AddXP} from "../levels/onMessage";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {AddOneToInventory, AddToWallet} from "../okash/wallet";
+import {ITEMS} from "../okash/items";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.daily)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
+
+    // scrap removal checks
+    const profile = GetUserProfile(interaction.user.id);
+    if (profile.inventory_scraps) {
+        const p = profile.inventory_scraps;
+        const all_scrap_count = p.plastic + p.rubber + p.wood + p.electrical + p.metal;
+        profile.inventory_scraps = undefined;
+        UpdateUserProfile(interaction.user.id, profile);
+
+        if (all_scrap_count != 0) {
+            AddXP(interaction.user.id, interaction.channel as TextChannel, Math.ceil(all_scrap_count * 0.5));
+            AddToWallet(interaction.user.id, all_scrap_count * 5);
+
+            if (interaction.channel!.isSendable()) interaction.channel.send({
+                content: `:grey_exclamation: **${interaction.user.displayName}**, due to the removal of scraps, your **${all_scrap_count} scraps** have been converted to ${GetEmoji(EMOJI.OKASH)} OKA**${all_scrap_count * 5}** and **${Math.ceil(all_scrap_count * 0.5)} XP**. **(+${Math.ceil(all_scrap_count * 0.5)}XP)**`,
+            });
+        }
+    }
 
     await interaction.deferReply();
     const d = new Date();
@@ -38,8 +60,6 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
             .addComponents(
                 localizedRemindButton
             );
-
-        const profile = GetUserProfile(interaction.user.id);
 
         // must wait
         console.log(result);
@@ -82,6 +102,9 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         return;
     }
 
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.GET_DAILY_REWARD)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+
     const remindButtonNext = new ButtonBuilder()
         .setCustomId('remindmen')
         .setStyle(ButtonStyle.Primary)
@@ -99,28 +122,12 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
         let reply_content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale));
+        reply_content += ` **(+250XP)**\n`;
 
-        // new! scraps!
-        // user will get 3 types of scraps per day. they can get between 5-15 of each.
-        const scrap_names: {[key: string]: string} = {
-            'plastic':`**${GetEmoji(EMOJI.SCRAP_PLASTIC)} Plastic**`,
-            'metal':`**${GetEmoji(EMOJI.SCRAP_METAL)} Metal**`,
-            'wood':`**${GetEmoji(EMOJI.SCRAP_WOOD)} Wood**`,
-            'rubber':`**${GetEmoji(EMOJI.SCRAP_RUBBER)} Rubber**`,
-            'electrical':`**${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical**`,
-        };
-        const profile = GetUserProfile(interaction.user.id);
-        const scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
-        shuffle(scrap_types);
-        const scrap_message_parts = [];
-        for (let i = 0; i < 3; i++) {
-            const amount_given = 5 + Math.floor(Math.random() * 10);
-            profile.inventory_scraps[scrap_types[i]] += amount_given;
-            scrap_message_parts.push(scrap_names[scrap_types[i]] + ` x ${amount_given}`);
+        if (Math.round(Math.random() * 25) == 23) {
+            reply_content += LangGetFormattedString(LANG_INTERACTION.DAILY_GOT_SHARD, interaction.okabot.translateable_locale);
+            AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN_SHARD);
         }
-        UpdateUserProfile(interaction.user.id, profile);
-
-        reply_content += '\nGot Scraps: ' + scrap_message_parts.join(', ') + '!';
 
         const response = await interaction.editReply({
             content: reply_content,
@@ -155,30 +162,6 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
 
     GrantAchievement(interaction.user, Achievements.DAILY, interaction.channel as TextChannel);
     if (streak_count >= 7) GrantAchievement(interaction.user, Achievements.DAILY_7, interaction.channel as TextChannel);
-    // if (streak_count >= 30) GrantAchievement(interaction.user, Achievements.DAILY_30, interaction.channel as TextChannel);
-    // if (streak_count >= 61) GrantAchievement(interaction.user, Achievements.DAILY_61, interaction.channel as TextChannel);
-    // if (streak_count >= 100) GrantAchievement(interaction.user, Achievements.DAILY_100, interaction.channel as TextChannel);
-    // if (streak_count >= 365) GrantAchievement(interaction.user, Achievements.DAILY_365, interaction.channel as TextChannel);
-
-    // new! scraps!
-    // user will get 3 types of scraps per day. they can get between 5-15 of each.
-    const scrap_names: {[key: string]: string} = {
-        'plastic':`**${GetEmoji(EMOJI.SCRAP_PLASTIC)} Plastic**`,
-        'metal':`**${GetEmoji(EMOJI.SCRAP_METAL)} Metal**`,
-        'wood':`**${GetEmoji(EMOJI.SCRAP_WOOD)} Wood**`,
-        'rubber':`**${GetEmoji(EMOJI.SCRAP_RUBBER)} Rubber**`,
-        'electrical':`**${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical**`,
-    };
-    const profile = GetUserProfile(interaction.user.id);
-    const scrap_types: ['plastic','metal','wood','rubber','electrical'] = ['plastic','metal','wood','rubber','electrical'];
-    shuffle(scrap_types);
-    const scrap_message_parts = [];
-    for (let i = 0; i < 3; i++) {
-        const amount_given = 5 + Math.floor(Math.random() * 10);
-        profile.inventory_scraps[scrap_types[i]] += amount_given;
-        scrap_message_parts.push(scrap_names[scrap_types[i]] + ` x ${amount_given}`);
-    }
-    UpdateUserProfile(interaction.user.id, profile);
 
     let percentage = 100+(100*0.05*(streak_count-1));
     if (percentage > 200) percentage = 200;
@@ -186,10 +169,15 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     if (quickdraw.has(interaction.user.id) && quickdraw.get(interaction.user.id)! + 60_000 > d.getTime()) GrantAchievement(interaction.user, Achievements.FAST_CLAIM_REMINDER, interaction.channel as TextChannel);
 
     let content = await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY, interaction.okabot.translateable_locale, await LangGetAutoTranslatedString(LANG_ITEMS.WEIGHTED_COIN, interaction.okabot.translateable_locale)) + '\n' + await LangGetAutoTranslatedString(LANG_INTERACTION.DAILY_STREAK, interaction.okabot.translateable_locale, streak_count, bonus);
-    content += '\nGot Scraps: ' + scrap_message_parts.join(', ') + '!';
+    content += ` **(+${250 + (Math.min(2*(profile.daily.streak+1), 500))}XP)**\n`;
+
+    if (Math.round(Math.random() * 25) == 23) {
+        content += LangGetFormattedString(LANG_INTERACTION.DAILY_GOT_SHARD, interaction.okabot.translateable_locale);
+        AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN_SHARD);
+    }
 
     const response = await interaction.editReply({
-        content,
+        content: content,
         components: [onClaimBar]
     });
 
@@ -228,23 +216,6 @@ export async function TextBasedDaily(message: Message) {
     });
 }
 
-
-// from https://stackoverflow.com/questions/2450954
-function shuffle(array: Array<string>) {
-    let currentIndex = array.length;
-
-    // While there remain elements to shuffle...
-    while (currentIndex != 0) {
-
-        // Pick a remaining element...
-        const randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex--;
-
-        // And swap it with the current element.
-        [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex], array[currentIndex]];
-    }
-}
 
 export const DailySlashCommand = 
     new SlashCommandBuilder()

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import {existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync} from "fs"
+import {existsSync, mkdirSync, readdirSync, readFileSync} from "fs"
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
 import {BASE_DIRNAME, client} from "../../index"
@@ -8,10 +7,9 @@ import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 // console.log('achievements is', Achievements)
 import {UserPet} from "../pet/pet";
-import { BannerSticker } from "../levels/levels"
+import {BannerSticker} from "../levels/levels"
 import {Low} from "lowdb";
-import {JSONFile, JSONFilePreset} from "lowdb/node";
-import {KNOWN_AGREED_USER_IDS} from "./rules";
+import {JSONFilePreset} from "lowdb/node";
 
 const L = new Logger('profiles');
 
@@ -19,6 +17,12 @@ export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
     CASINO_PASS,
     DROP_BOOST
+}
+
+export interface ItemData {
+    item_id: ITEMS,
+    amount: number,
+    item_specific_data?: never // reserved for items that might need extra data saved to them
 }
 
 export interface LEGACY_USER_PROFILE {
@@ -107,8 +111,8 @@ export interface USER_PROFILE {
         reason:     string,
         abilities:  string
     }
-    inventory: Array<ITEMS>,
-    inventory_scraps: {
+    inventory: Array<ItemData>,
+    inventory_scraps?: {
         metal: number,
         plastic: number,
         wood: number,
@@ -179,13 +183,6 @@ const DEFAULT_DATA: USER_PROFILE = {
         abilities: ""
     },
     inventory: [],
-    inventory_scraps: {
-        metal: 0,
-        plastic: 0,
-        wood: 0,
-        rubber: 0,
-        electrical: 0,
-    },
     achievements: [],
     trackedInventory: [],
     pet_data: {
@@ -221,6 +218,11 @@ export async function SetupPrefs(base_dirname: string) {
     ProfilesDB = await JSONFilePreset(LOW_PROFILE_DB_PATH, {
         profiles: {} as {[key: Snowflake]: USER_PROFILE}
     });
+    ProfilesDB.write();
+}
+
+export function GetProfileLowDB(user_id: Snowflake): USER_PROFILE {
+    return ProfilesDB.data.profiles[user_id];
 }
 
 function GetProfilesDir(): string {
@@ -248,58 +250,82 @@ export function CheckForProfile(user_id: string): boolean {
 }
 
 export function GetUserProfile(user_id: string): USER_PROFILE {
-    // only should trigger if you use the --wipe flag
-    if (!PROFILES_DIR) PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
-
-    if (ProfileCache.has(user_id)) return ProfileCache.get(user_id)!;
-
-    const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
-
     // check if it exists
-    if (!existsSync(profile_path)) {
-        // initialize default
-        writeFileSync(profile_path, JSON.stringify(DEFAULT_DATA), 'utf-8');
-        return DEFAULT_DATA; // just return the default cuz no profile changes yet
+    if (!ProfilesDB.data.profiles[user_id]) {
+        ProfilesDB.data.profiles[user_id] = DEFAULT_DATA;
+        ProfilesDB.write();
     }
 
-    const data: USER_PROFILE = JSON.parse(readFileSync(profile_path, 'utf-8'));
-    if (!data.trackedInventory) data.trackedInventory = [];
-    if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = CUSTOMIZATION_UNLOCKS.DECK_DEFAULT;
-    if (!data.customization.games.equipped_trackable_coin) data.customization.games.equipped_trackable_coin = 'none';
-    if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
-    if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
-    if (!data.inventory_scraps) data.inventory_scraps = {metal: 0, plastic: 0, wood: 0, rubber: 0, electrical: 0 };
-    if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
-    data.okash = {
-        bank: Math.ceil(data.okash.bank),
-        wallet: Math.ceil(data.okash.wallet)
-    }
-    if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
-    if (!data.customization.stickers) data.customization.stickers = [];
-    if (!data.cookies) data.cookies = 0;
-    if (!data.customization.level_banner) data.customization.level_banner = {hex_bg:'',hex_fg:'',hex_num:'',selected_title:'none'};
-    if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
-    if (!data.ordr) data.ordr = {username:'',osu_username:''};
-    if (data.consents_to_statistics) {
-        data.consents_to_statistics = undefined;
-        data.rules_accepted_version = 'none';
-    }
-
-    if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
-
-    ProfileCache.set(user_id, data);
-
-    return data;
+    return ProfilesDB.data.profiles[user_id];
 }
-
 
 export function UpdateUserProfile(user_id: string, new_data: USER_PROFILE) {
-    const profile_path = join(GetProfilesDir(), `${user_id}.oka`);
-    writeFileSync(profile_path, JSON.stringify(new_data), 'utf-8');
-
-    ProfileCache.set(user_id, new_data);
+    ProfilesDB.data.profiles[user_id] = new_data;
+    ProfilesDB.write();
 }
 
+export async function MigrateProfilesToLowDB() {
+    console.log('\n\n\n');
+    L.fatal('!!! THIS WILL DELETE THE CURRENT PROFILE DATABASE IF IT EXISTS !!!');
+    L.fatal('Migration will start in 10 seconds. Press Ctrl+C to cancel.')
+
+    await new Promise(resolve => setTimeout(resolve, 10_000));
+
+    ProfilesDB.data.profiles = {};
+
+    L.info('Migrating profiles to lowdb...');
+
+    const profiles = readdirSync(GetProfilesDir());
+    profiles.forEach(p => {
+        L.info(`Migrating ${p} ...`);
+
+        const data = JSON.parse(readFileSync(join(GetProfilesDir(), p), 'utf-8')) as USER_PROFILE;
+
+        if (!data.trackedInventory) data.trackedInventory = [];
+        if (!data.customization.games.card_deck_theme) data.customization.games.card_deck_theme = CUSTOMIZATION_UNLOCKS.DECK_DEFAULT;
+        if (!data.customization.games.equipped_trackable_coin) data.customization.games.equipped_trackable_coin = 'none';
+        if (!data.customization.games.equipped_trackable_deck) data.customization.games.equipped_trackable_deck = 'none';
+        if (!data.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT)) data.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.DECK_DEFAULT);
+        if (!data.pet_data) data.pet_data = {pets: [], inventory: []};
+        data.okash = {
+            bank: Math.ceil(data.okash.bank),
+            wallet: Math.ceil(data.okash.wallet)
+        }
+        if (!data.customization.level_bg_override) data.customization.level_bg_override = '';
+        if (!data.customization.stickers) data.customization.stickers = [];
+        if (!data.cookies) data.cookies = 0;
+        if (!data.customization.level_banner) data.customization.level_banner = {hex_bg:'',hex_fg:'',hex_num:'',selected_title:'none'};
+        if (!data.customization.level_banner.selected_title) data.customization.level_banner.selected_title = 'none';
+        if (!data.ordr) data.ordr = {username:'',osu_username:''};
+        if (data.consents_to_statistics) {
+            data.consents_to_statistics = undefined;
+            data.rules_accepted_version = 'none';
+        }
+        if (data.restriction.active && data.restriction.until < new Date().getTime()) data.restriction.active = false;
+
+        // update inventory to new schema
+        const new_inventory: Array<ItemData> = [];
+        const counts: {[key: string]: number} = {};
+        // @ts-expect-error migration requires us to cast this
+        (data.inventory as Array<ITEMS>).forEach(item => {
+            counts[item] = (counts[item] || 0) + 1;
+        });
+
+        Object.keys(counts).forEach(item => {
+            new_inventory.push({
+                item_id: parseInt(item) as ITEMS,
+                amount: counts[item]
+            });
+        })
+
+        data.inventory = new_inventory;
+
+        ProfilesDB.data.profiles[p.split('.')[0]] = data;
+    });
+
+    L.info('Migration complete.')
+    await ProfilesDB.write();
+}
 
 export enum OKASH_ABILITY {
     GAMBLE = 'gamble',
@@ -339,7 +365,7 @@ export async function CheckOkashRestriction(interaction: ChatInputCommandInterac
 }
 
 
-export function CheckUserIdOkashRestriction(user_id: string, ability: string): boolean {
+export function CheckUserIdOkashRestriction(user_id: string): boolean {
     const profile = GetUserProfile(user_id);
 
     if (profile.restriction.active) {
@@ -401,7 +427,7 @@ export function RestrictUser(client: Client, user_id: string, until: string, rea
 
     try {
         client.users.cache.find((user) => user.id == user_id)!.send({embeds:[embed]});
-    } catch (err) {
+    } catch {
         L.error(`Couldn't send restriction info to ${user_id}`);
     }
 }
@@ -409,7 +435,5 @@ export function RestrictUser(client: Client, user_id: string, until: string, rea
 export function DANGER_DeleteProfile(user_id: Snowflake) {
     L.info(`Deleting profile for ${user_id}`);
     RestrictUser(client, user_id, '2099-12-31', 'Account deletion in progress...')
-    ProfileCache.delete(user_id);
-    rmSync(join(GetProfilesDir(), `${user_id}.oka`));
-    KNOWN_AGREED_USER_IDS.splice(KNOWN_AGREED_USER_IDS.indexOf(user_id), 1);
+    delete ProfilesDB.data.profiles[user_id];
 }

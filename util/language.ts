@@ -20,6 +20,7 @@ export enum LANG_INTERACTION {
     DAILY_REMINDER_ANGRY = 'interaction.daily.reminder.angry',
     DAILY_REMINDER_BUTTON = 'interaction.daily.reminder.button',
     DAILY_REMINDER_BUTTON_AGAIN = 'interaction.daily.reminder.button_claim',
+    DAILY_GOT_SHARD = 'interaction.daily.gotshard',
 
     LEVEL_LEVELUP = 'level.levelup',
 }
@@ -123,8 +124,8 @@ const LANGUAGE_EN: Language = {
 
     'interaction.okash': `${GetEmoji('okash')} **{1}**, you've got OKA**{2}** in your wallet and OKA**{3}** in your bank!\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in fines at the bank.`,
 
-    'interaction.daily': `:white_check_mark: You claimed your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
-    'interaction.daily.streak': `:chart_with_upwards_trend: Nice! You've got a streak of {1} days! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
+    'interaction.daily': `${GetEmoji(EMOJI.CAT_SUNGLASSES)} You got your daily reward of ${GetEmoji(EMOJI.OKASH)} OKA**1500** and a **{1}**!`,
+    'interaction.daily.streak': `:chart_with_upwards_trend: Wow! You've got a streak of {1} days, keep it up! You get a daily bonus of ${GetEmoji(EMOJI.OKASH)} OKA**{2}**!`,
     'interaction.daily.srok': `${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **{1}**, you've restored your daily reward streak to **{2} days!**`,
     'interaction.daily.srfail_higher': ':crying_cat_face: Sorry, **{1}**, but your current streak is higher than your previous streak, so I can\'t restore it...',
     'interaction.daily.srfail_twice': ':crying_cat_face: Sorry, **{1}**, but you already restored your previous streak once, so I can\'t restore it...',
@@ -135,8 +136,9 @@ const LANGUAGE_EN: Language = {
     'interaction.daily.reminder.angry': ':pouting_cat: **{1}**! I already told you that I\'d remind you!',
     'interaction.daily.reminder.button': 'Remind Me',
     'interaction.daily.reminder.button_claim': 'Remind Me Tomorrow',
+    'interaction.daily.gotshard': `:scream_cat: Woah! You also got a rare 1x ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} **Black Market Token Shard**!`,
 
-    'level.levelup': `Congrats, **{1}**! You're now level **{2}** ({3})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
+    'level.levelup': `Heck yea, **{1}**! You've leveled up to **{2}** ({3})!\nYou got ${GetEmoji(EMOJI.OKASH)} OKA**{4}** and 1x **{5}**!\nYour next level will be in **{6}XP**.`,
 
     'games.8ball.affirmative.a':'yup, certainly!',
     'games.8ball.affirmative.b':'decidedly so!',
@@ -180,7 +182,7 @@ const LANGUAGE_EN: Language = {
     'games.blackjack.stand':'Stand!',
     'games.blackjack.doubledown':'Double Down!',
 
-    'games.blackjackv2.top':'# okabot Blackjack',
+    'games.blackjackv2.top':`# ${GetEmoji(EMOJI.ROYALTY)}${GetEmoji(EMOJI.ACE)} Blackjack`,
     'games.blackjackv2.bet':`You bet ${GetEmoji(EMOJI.OKASH)} OKA**{1}**`,
     'games.blackjackv2.okabot':'## okabot: {1}',
     'games.blackjackv2.you':'## you: {1}',
@@ -195,8 +197,8 @@ const LANGUAGE_EN: Language = {
     'games.blackjackv2.button.must_stand':'✨ Stand!',
     'games.blackjackv2.button.double':'‼️ Double Down!',
 
-    'games.all.cooldown':':zzz: ah! one sec! waiting for your cooldown to end...',
-    'games.all.winstreak':':fire: **Heck yea, {1} in a row!**',
+    'games.all.cooldown':':zzz: hold on, we gotta wait for your cooldown to end...',
+    'games.all.winstreak':':fire: **Heck yea, {1} in a row! (+{2}XP)**',
 
     'render.casino.win':'WINS {1}',
     'render.casino.loss':'{1} LOSS',
@@ -220,7 +222,11 @@ const LANGUAGE_EN: Language = {
     'item.casino_pass.small':':credit_card: Casino Pass (10 min)',
     'item.casino_pass.large':':credit_card: Casino Pass (30 min)',
     'item.casino_pass.largest':':credit_card: Casino Pass (60 min)',
-    'item.sticker': ':crystal_ball: Sticker Kit'
+    'item.sticker': ':crystal_ball: Sticker Kit',
+    'item.black_market_token': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`,
+    'item.black_market_token_shard': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`,
+    'item.hacking_tool': `${GetEmoji(EMOJI.HACKING_TOOL)} Hacking Tool`,
+    'item.bank_robbery_tool': `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`,
 };
 
 const LANGUAGE_ES: Language = {
@@ -341,7 +347,11 @@ const LANGUAGE_JA: Language = {
     'item.casino_pass.small':':credit_card: ブラックジャックパス（10分）',
     'item.casino_pass.large':':credit_card: ブラックジャックパス（30分）',
     'item.casino_pass.largest':':credit_card: ブラックジャックパス（60分）',
-    'item.sticker': ':crystal_ball: スティカーキット'
+    'item.sticker': ':crystal_ball: スティカーキット',
+    'item.black_market_token': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} ブラックマーケットコイン`,
+    'item.black_market_token_shard': `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} ブラックマーケットコインのかけら`,
+    'item.hacking_tool': `${GetEmoji(EMOJI.HACKING_TOOL)} ハックツール`,
+    'item.bank_robbery_tool': `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} 銀行強盗ツール`,
     
 }
 

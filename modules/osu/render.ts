@@ -1,4 +1,12 @@
-import {ChatInputCommandInteraction, Message, MessageFlags, SlashCommandBuilder, TextChannel} from "discord.js";
+import {
+    ApplicationIntegrationType,
+    ChatInputCommandInteraction,
+    InteractionContextType,
+    Message,
+    MessageFlags,
+    SlashCommandBuilder,
+    TextChannel
+} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import * as osu from 'osu-api-v2-js';
 import {BASE_DIRNAME, CONFIG} from "../../index";
@@ -114,7 +122,8 @@ export const OsuConfigSlashCommand = new SlashCommandBuilder()
         .setName('username')
         .setDescription('Your osu! username')
         .setRequired(true)
-    );
+    )
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);
 
 export const OsuMultiSlashCommand = new SlashCommandBuilder()
     .setName('osu-multi')
@@ -123,4 +132,5 @@ export const OsuMultiSlashCommand = new SlashCommandBuilder()
         .setName('scores')
         .setDescription('A comma separated list of scores (ex: "12345,67890")')
         .setRequired(true)
-    );
+    )
+    .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);

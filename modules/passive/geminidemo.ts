@@ -36,7 +36,7 @@ const ConversationChainReplyPointers: {
 export async function GeminiDemoRespondToInquiry(message: Message, disable_search: boolean = false, send_to_minecraft: boolean = false) {
     if (!CONFIG.gemini.enable) return;
     if (!message.channel.isDMBased() && !CheckFeatureAvailability(message.guild!.id, ServerFeature.gemini)) return message.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
     if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
     // if (!openai) openai = new OpenAI({apiKey:CONFIG.OPENAI_API_KEY});

@@ -22,7 +22,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
     use_on = use_on.toLowerCase();
     let profile = GetUserProfile(interaction.user.id);
 
-    if (!profile.inventory.includes(ITEMS.TRACKED_CONVERTER)) return interaction.editReply({
+    if (!profile.inventory.some(i => i.item_id == ITEMS.TRACKED_CONVERTER)) return interaction.editReply({
         content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have a **Tracking Device** to use!`
     });
 

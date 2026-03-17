@@ -12,6 +12,7 @@ import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
 import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_INTERMEDIATE} from "../tasks/dailyMissions";
 
 const XPCooldown: Map<string, number> = new Map<string, number>();
 
@@ -43,6 +44,8 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
     let target_xp = CalculateTargetXP(profile.leveling.level);
 
+    // console.debug(`${user_id} gained ${amount} xp`)
+
     const leveled_up = profile.leveling.current_xp >= target_xp;
     while (profile.leveling.current_xp >= target_xp) {
         profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP
@@ -71,11 +74,20 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
         // `Congrats, <@${user_id}>! You're now level **${LEVEL_NAMES_EN[profile.leveling.level - 1]}** (${profile.leveling.level})!\nYou earned ${GetEmoji(EMOJI.OKASH)} OKA**${okash_reward}** and 1x **${earned_item}**!\nYour next level will be in **${target_xp}XP**.`,
 
-        if (CheckFeatureAvailability(channel.guild!.id, ServerFeature.levelup_msg))
+        if (CheckFeatureAvailability(channel.guild!.id, ServerFeature.levelup_msg)) {
             channel.send({
                 content: await LangGetAutoTranslatedString(LANG_INTERACTION.LEVEL_LEVELUP, GetLastLocale(user_id), user.displayName, LEVEL_NAMES_EN[profile.leveling.level - 1], profile.leveling.level, okash_reward, earned_item, target_xp),
                 flags: [MessageFlags.SuppressNotifications]
             });
+
+            if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.LEVEL_UP) {
+                const user = client.users.cache.get(user_id);
+                if (user)
+                    CompleteDailyMission(user, 'i', channel);
+                else
+                    console.error('Daily mission completion: user is undefined. How did we get here? This should not be possible unless Discord.js has imploded!');
+            }
+        }
     
         UpdateUserProfile(user_id, profile);
 

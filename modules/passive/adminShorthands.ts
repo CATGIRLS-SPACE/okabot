@@ -1,4 +1,4 @@
-import {EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
+import {AttachmentBuilder, EmbedBuilder, Message, MessageFlags, TextChannel} from "discord.js";
 // import {Logger} from "okayulogger";
 import {
     BASE_DIRNAME,
@@ -10,9 +10,8 @@ import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {
-    DumpProfileCache,
+    DumpProfileCache, GetProfileLowDB,
     GetUserProfile,
-    ReloadProfile,
     RestrictUser,
     UpdateUserProfile,
     USER_PROFILE
@@ -30,6 +29,10 @@ import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
+import {GLOBAL_ITEM_SHORTHANDS_IDS} from "../okash/items";
+import {exec} from "child_process";
+import {existsSync} from "fs";
+import axios from "axios";
 
 
 interface ShorthandList {
@@ -258,7 +261,12 @@ export function RegisterAllShorthands() {
     RegisterShorthand('oka insert', async (message: Message, params: string[]) => {
         if (params.length < 4) throw new Error("not enough parameters. usage: oka insert [Snowflake | them | me] [itemID] [count?]");
         if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
-        if (Number.isNaN(parseInt(params[3]))) throw new Error('invalid item ID');
+        if (Number.isNaN(parseInt(params[3]))) {
+            if (!GLOBAL_ITEM_SHORTHANDS_IDS[params[3]])
+                throw new Error('invalid item ID');
+
+            params[3] = GLOBAL_ITEM_SHORTHANDS_IDS[params[3]].toString();
+        }
         if (params.length > 4 && Number.isNaN(parseInt(params[4]))) throw new Error("invalid number at params[4]");
 
         const user = client.users.cache.get(params[2]);
@@ -407,7 +415,7 @@ export function RegisterAllShorthands() {
         message.react('📈');
         if (params[3] && !isNaN(parseInt(params[3]))) {
             for (let i = 0; i < parseInt(params[3]); i++) UpdateMarkets(message.client);
-        } else UpdateMarkets(message.client);
+        } else UpdateMarkets(message.client, params[3] == 'event');
     });
 
     // dmdata management
@@ -434,10 +442,9 @@ export function RegisterAllShorthands() {
         });
     });
 
-    RegisterShorthand('oka reload ', async (message: Message, params: string[]) => {
-        ReloadProfile(params[2]);
+    RegisterShorthand('oka reload ', async (message: Message) => {
         message.reply({
-            content:':white_check_mark: Dropped user profile from cache and reloaded from file.',
+            content:':x: This command is deprecated in place of `oka export <user>` and `oka import <user>` and has no effect.',
             flags: [MessageFlags.SuppressNotifications]
         });
     });
@@ -470,6 +477,41 @@ export function RegisterAllShorthands() {
         message.reply(`\`\`\`${results}\`\`\``);
     });
 
+    RegisterShorthand('oka export', async (message: Message, params: string[]) => {
+        if (isNaN(parseInt(params[2]))) throw new Error('invalid user ID');
+
+        const profile = GetProfileLowDB(params[2]);
+        writeFileSync(join(BASE_DIRNAME, 'temp', `${params[2]}.json`), JSON.stringify(profile), 'utf-8');
+
+        exec(`gpg --encrypt --recipient okawaffles@gmail.com ${join(BASE_DIRNAME, 'temp', `${params[2]}.json`)}`).on("exit", () => {
+             if (!existsSync(join(BASE_DIRNAME, 'temp', `${params[2]}.json.gpg`))) throw new Error('gpg failed to encrypt file');
+             const attachment = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `${params[2]}.json.gpg`));
+             message.reply({
+                 content: `Profile data for ${params[2]}\n# Warning: malforming this file and re-importing can cause a whole host of issues.\n### For the sake of the user's privacy, do not import in a public channel, decryption of imported data is not supported.`,
+                 files: [attachment]
+             });
+        });
+    });
+
+    RegisterShorthand('oka import', async (message: Message, params: string[]) => {
+        if (isNaN(parseInt(params[2]))) throw new Error('invalid user ID');
+        const attachment = message.attachments.first();
+        if (!attachment) throw new Error('no attachments found');
+        const response = await axios.get(attachment.url, {responseType: 'arraybuffer'});
+        const decoder = new TextDecoder('utf-8');
+        let data: USER_PROFILE;
+
+        try {
+            data = JSON.parse(decoder.decode(response.data));
+        } catch {
+            return message.reply({
+                content: 'malformed JSON file or invalid profile data. please check the file and try again.'
+            });
+        }
+
+        UpdateUserProfile(params[2], data);
+    })
+
     RegisterShorthand('oka status', (message: Message, params: string[]) => {
         const type = parseInt(params[2]);
         const activity = params[3];
@@ -478,6 +520,13 @@ export function RegisterAllShorthands() {
 
     RegisterShorthand('oka twitch start', (message: Message) => {
         ActivateTwitchIntegration(message);
+    });
+
+    RegisterShorthand('oka reset-daily', (message: Message, params: string[]) => {
+        const user = GetUserProfile(params[2]);
+        user.daily.last_claimed = new Date().getTime() - (24 * 60 * 60 * 1000);
+        UpdateUserProfile(params[2], user);
+        message.reply(`Daily was reset for <@!${params[2]}>, the last claimed time was set to <t:${Math.floor(user.daily.last_claimed/1000)}>`);
     });
 }
 

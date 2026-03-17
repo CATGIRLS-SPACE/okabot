@@ -1,6 +1,5 @@
 import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashCommandBuilder} from "discord.js";
-import { GetInventory } from "../okash/wallet";
-import { GetUserProfile } from "../user/prefs";
+import {GetUserProfile, ItemData} from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
@@ -8,12 +7,12 @@ import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
 } = {
-    0: {name:':package: Common Lootbox',desc:'A box containing a random item!'},
-    1: {name:':package: Rare Lootbox',desc:'A box containing some better items!'},
-    2: {name:':package: EX Lootbox',desc:'An extremely rare box that contains the finest of items!'},
-    3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:'Slightly increases your chances at winning your next coinflip.'},
-    4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Restores your streak to its last amount if it is larger than your current streak.'},
-    5: {name:'Tracking Device', desc:'Turn a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic.'},
+    0: {name:':package: Common Lootbox',desc:'An old cardboard box containing some common items.'},
+    1: {name:':package: Rare Lootbox',desc:'Not too shabby, a wooden box with a few rare items in it.'},
+    2: {name:':package: EX Lootbox',desc:`Woah, it's so sparkly! Looks like a metal box with a bunch of super rare items in it!`},
+    3: {name:`${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} Weighted Coin`,desc:`Sometimes life isn't fair, and neither is gambling. Use this to get around that fact.`},
+    4: {name:`${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} Streak Restore`,desc:'Forgot your streak (or ended up in jail for a few days)? Use this to repair your broken streak!'},
+    5: {name:'Tracking Device', desc:'A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it\'s pretty popular amongst Spotify users.'},
     6: {name:`${GetEmoji(EMOJI.SHOP_VOUCHER)} Shop Voucher`,desc:'A voucher that can be redeemed for a free customization (with some exceptions)'},
     7: {name:`Scratch Card`,desc:'Test your luck with this scratch card and have a chance to win a load of okash!'},
     8: {name:`Drop Boost (15 min)`,desc:'Mysteriously, using this item seems to increase your luck at finding lootboxes.'},
@@ -21,7 +20,11 @@ export const ITEM_NAMES: {
     10: {name:`:credit_card: Casino Pass (10 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas10".'},
     11: {name:`:credit_card: Casino Pass (30 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas30".'},
     12: {name:`:credit_card: Casino Pass (60 min)`,desc:'Skip the queue and bypass any cooldowns while you\'ve got this active! Activate with shorthand "cas60".'},
-    18: {name:`:crystal_ball: Sticker Kit`,desc:'A kit to apply a sticker for your level banner.'},
+    18: {name:`:crystal_ball: Sticker Kit`,desc:'Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it *yours*!'},
+    19: {name: `${GetEmoji(EMOJI.HACKING_TOOL)} Hacking Tool`, desc: `Hacking tool. This item is not currently used.`},
+    20: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`, desc: `It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.`},
+    21: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`, desc: `Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to hack together a token.`},
+    22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
 }
 
 const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
@@ -45,10 +48,10 @@ const UNLOCK_NAMES: {
     [key: number]: {name: string, desc: string, hide?: boolean}
 } = {
     0:  {name:`${GetEmoji(EMOJI.COIN_DEFAULT_STATIONARY)} Default Coin`,desc:'The definitely-not-biased classic yellow coin everyone has, but you\'re still convinced it\'s biased.'},
-    1:  {name:`${GetEmoji(EMOJI.COIN_RED_STATIONARY)} Red Coin`,desc:'A red coin. It resembles strawberries. Using this coin makes you feel like you can do anything, maybe even climbing a mountain?'},
-    2:  {name:`${GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY)} Dark Blue Coin`,desc:'A dark blue coin. This coin has a deep color resembling the ocean. Hopefully you can make your pockets just as deep using this!'},
-    3:  {name:`${GetEmoji(EMOJI.COIN_BLUE_STATIONARY)} Light Blue Coin`,desc:'A light blue coin. Even the sky struggles to reach this shade of pure blue. Just like waffles struggles to win her coinflips.'},
-    4:  {name:`${GetEmoji(EMOJI.COIN_PINK_STATIONARY)} Pink Coin`,desc:'A pink coin. You feel rich just looking at it. Or maybe you\'re feeling more feminine. Oh well, basically the same thing, right?'},
+    1:  {name:`${GetEmoji(EMOJI.COIN_RED_STATIONARY)} Red Coin`,desc:'Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!'},
+    2:  {name:`${GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY)} Dark Blue Coin`,desc:'This coin has a deep color resembling the ocean. Hopefully this can make your pockets just as deep.'},
+    3:  {name:`${GetEmoji(EMOJI.COIN_BLUE_STATIONARY)} Light Blue Coin`,desc:'Even the sky struggles to reach this shade of blue. Just like you\'re struggling to win your flips.'},
+    4:  {name:`${GetEmoji(EMOJI.COIN_PINK_STATIONARY)} Pink Coin`,desc:'"Pink is for girls"? I\'ll do you one better: Pink is for rich people. Beat that.'},
     5:  {name:`${GetEmoji(EMOJI.COIN_PURPLE_STATIONARY)} Purple Coin`,desc:'A purple coin. It\'s the slightly-less-rich man\'s pink coin, but you don\'t care because it still looks cool anyways.'},
     6:  {name:'CV_LEVEL_BANNER_DEF',desc:'',hide:true},
     7:  {name:'Red Level Bar',desc:'Sets your level bar color to red'},
@@ -57,8 +60,8 @@ const UNLOCK_NAMES: {
     10: {name:'Pink Level Bar',desc:'Sets your level bar color to pink'},
     11: {name:'CV_LEVEL_THEME_OKABOT',desc:'',hide:true},
     12: {name:`${GetEmoji(EMOJI.CARD_BACK)} Default Card Deck`,desc:'The classic card deck. It\'s not unique in terms of design, but it gets the job done.'},
-    13: {name:`${GetEmoji('cb_t')} Trans-themed Card Deck`,desc:'A card deck no different than the rest, but it lets you know that being trans is OK!'},
-    14: {name:`${GetEmoji('cb_s')} Cherry Blossom Card Deck`,desc:'A card deck with pretty flowers and pink numbers on it.'},
+    13: {name:`${GetEmoji('cb_t')} Trans-themed Card Deck`,desc:'A card deck that\'s a little bit different, but being different is okay!'},
+    14: {name:`${GetEmoji('cb_s')} Cherry Blossom Card Deck`,desc:'A card deck with some pretty sakura flowers and pink numbers on it.'},
     15: {name:'UNUSED_CUST_ID_15',desc:'this item should not be visible in the customize listing', hide:true},
     16: {name:`${GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY)} Dark Green Coin`,desc:'A dark green coin. Even though it\'s not weighted, you still feel luckier using it.'},
     17: {name:`${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} Rainbow Coin`,desc:'This Mythical coin, said to be gifted from the gods, is almost useless, however it looks extremely cool.'},
@@ -97,18 +100,14 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             })
         }
     } else if (page == 'items') {
-        const inventory = GetInventory(interaction.user.id);
-        const counts: {[key: string]: number} = {};
-
-        for (const item in inventory) {
-            if (counts[inventory[item]]) counts[inventory[item]]++;
-            else counts[inventory[item]] = 1;
-        }
-
-        Object.keys(counts).forEach(item => {
+        const profile = GetUserProfile(interaction.user.id);
+        let c = 0;
+        profile.inventory.forEach((item: ItemData) => {
+            c++;
             fields.push({
-                name: `**${counts[item]}x ${(ITEM_NAMES[parseInt(item)] || {name:'Unknown Item'}).name}**`,
-                value: (ITEM_NAMES[parseInt(item)] || {desc:'I don\'t know what this is!'}).desc
+                name: `${item.amount}x ${(ITEM_NAMES[item.item_id] || {name: `Unknown Item (id: ${item.item_id})`}).name}`,
+                value: (ITEM_NAMES[item.item_id] || {desc:'I don\'t know what this is...\n(this is a bug, please report it!)'}).desc,
+                inline: c % 2 == 1
             })
         });
     } else if (page == 'tracked') {
@@ -136,21 +135,6 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                         break;
                 }
             }
-        }
-    } else if (page == 'scraps') {
-        const profile = GetUserProfile(interaction.user.id);
-        const scrap_names: {[key: string]: string} = {
-            'plastic':`${GetEmoji(EMOJI.SCRAP_PLASTIC)} Plastic`,
-            'metal':`${GetEmoji(EMOJI.SCRAP_METAL)} Metal`,
-            'wood':`${GetEmoji(EMOJI.SCRAP_WOOD)} Wood`,
-            'rubber':`${GetEmoji(EMOJI.SCRAP_RUBBER)} Rubber`,
-            'electrical':`${GetEmoji(EMOJI.SCRAP_ELECTRICAL)} Electrical`,
-        };
-        for (const scrap of Object.keys(profile.inventory_scraps)) {
-            fields.push({
-                name: `** ${profile.inventory_scraps[scrap as 'plastic'|'metal'|'wood'|'rubber'|'electrical']}x ${scrap_names[scrap]}**`,
-                value: 'Scraps you can use to craft items'
-            });
         }
     }
 
@@ -182,5 +166,4 @@ export const PocketsSlashCommand = new SlashCommandBuilder()
             {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
             {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}},
             {name:'Tracked Items',value:'tracked'},
-            {name:'Scraps',value:'scraps'}
     ).setRequired(true));

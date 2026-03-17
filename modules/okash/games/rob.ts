@@ -7,6 +7,12 @@ import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
 import {GetUserProfile} from "../../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
+import {
+    CompleteDailyMission,
+    CurrentMissions,
+    DAILY_MISSIONS_EASY,
+    DAILY_MISSIONS_INTERMEDIATE
+} from "../../tasks/dailyMissions";
 // import { createCanvas, loadImage } from "canvas";
 // import axios from "axios";
 
@@ -39,7 +45,7 @@ export function GetCurrentFines(): number {
 export async function HandleCommandRob(interaction: ChatInputCommandInteraction) {
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
 
     const d = new Date();
@@ -84,6 +90,9 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
                 .replace('#USER', interaction.user.displayName)
                 .replace('#OKASH', `${GetEmoji(EMOJI.OKASH)} OKA**${robbed_amount}**`)
         });
+
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.ROB_BANK && robbed_amount >= 500)
+            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
         
         return;
     } 
@@ -180,6 +189,9 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
     interaction.reply({
         content: `:bangbang: ${msg}`
     });
+
+    if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.ROB_USER)
+        CompleteDailyMission(interaction.user, 'i', interaction.channel as TextChannel);
 
     if (BANK_ROBS.has(robbed_user.id)) {
         if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(robbed_user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);

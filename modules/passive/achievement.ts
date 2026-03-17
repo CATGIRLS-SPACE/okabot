@@ -7,6 +7,7 @@ import { fetchImage } from "../levels/levels";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import {AddXP} from "../levels/onMessage";
 
 
 interface Achievement {
@@ -76,6 +77,9 @@ export enum Achievements {
     PIXELGAME_5 = 'pixelstreak5',
     PIXELGAME_10 = 'pixelstreak10',
     PIXELGAME_25 = 'pixelstreak25',
+    TASK_COMPLETE = 'taskdone',
+    TASK_COMPLETE_FIRST = 'taskfirstdone',
+    TASK_COMPLETE_ALL = 'alltasksdone',
 }
 
 export const ACHIEVEMENTS: {
@@ -124,7 +128,7 @@ export const ACHIEVEMENTS: {
     'sticker':{name:'Adhesive',description:'What are these things made of?!',class:'fun',diff:'t'},
     'pocketaces':{name:'Wait, this isn\'t Poker!',description:'Dude, wrong game!',class:'gamble',diff:'h'},
     'dealt21both':{name:'Competitive Teamwork',description:'It\'s amazing what we can do when we work together!',class:'gamble',diff:'ex'},
-    'levelbar':{name:'Useless Exchange',description:'We are back to where we started.',class:'fun2',diff:'e'},
+    'levelbar':{name:'Useless Exchange',description:'We are back to where we started... which was right here.',class:'fun2',diff:'e'},
     'uselessrobbery':{name:'Dealer\'s Intervention',description:'Well, that\'s one way to get your fix.',class:'fun2',diff:'e'},
     '2x4':{name:'The House is Structurally Sound Now',description:'It was sound before, but now it\'s extra sound!',class:'gamble',diff:'h'},
     'stats':{name:'Statistics Major',description:'I didn\'t study statistics, but my calculations point to addiction.',class:'gamble',diff:'t'},
@@ -133,6 +137,9 @@ export const ACHIEVEMENTS: {
     'pixelstreak5':{name:'Sensei',description:'Guess the correct student 5 times in a row.',class:'fun2',diff:'t'},
     'pixelstreak10':{name:'Addict Sensei',description:'Guess the correct student 10 times in a row.',class:'fun2',diff:'h'},
     'pixelstreak25':{name:'True Sensei',description:'Guess the correct student 25 times in a row.',class:'fun2',diff:'ex'},
+    'taskdone':{name:'No Sweat',description:'That was pretty easy!',class:'okabot',diff:'e'},
+    'taskfirstdone':{name:'Podium Start',description:'You\'re pretty quick with it!',class:'okabot',diff:'t'},
+    'alltasksdone':{name:'Okay, Maybe a Little Sweat',description:'Can you do it again tomorrow?',class:'okabot',diff:'h'},
 }
 
 export const TITLES: {
@@ -188,6 +195,9 @@ export const TITLES: {
     'pixelstreak5':'relationship lvl 5',
     'pixelstreak10':'relationship level 10',
     'pixelstreak25':'relationship level MAX',
+    'taskdone':'hard worker',
+    'taskfirstdone':'quick like a fox',
+    'alltasksdone':'model student',
 }
 
 
@@ -201,7 +211,7 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     const profile = GetUserProfile(user.id);
 
     if (profile.achievements.indexOf(achievement as Achievements) != -1) {
-        console.log(`user ${user.username} already has achievement ${achievement}`);
+        // console.log(`user ${user.username} already has achievement ${achievement}`);
         return;
     }
 
@@ -216,8 +226,11 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
         'na':''
     };
 
+    const gained_xp = {'e':25,'t':50,h:100,ex:500,na:10}[a.diff];
+    AddXP(user.id, channel, gained_xp);
+
     channel.send({
-        content: `<:trophy:0> Congrats, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**!\n-# ${a.description}`
+        content: `<:trophy:0> Yaay, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**! **(+${gained_xp}XP)**\nYou can now use the title "**${TITLES[achievement]}**" on your profile!\n-# ${a.description}`
     });
 
     UpdateUserProfile(user.id, profile);

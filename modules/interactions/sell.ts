@@ -1,12 +1,12 @@
 import {ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items";
+import {CUSTOMIZATION_UNLOCKS, GLOBAL_SHORTHANDS, ITEMS} from "../okash/items";
 import {AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
-import {GetEmoji} from "../../util/emoji";
-import {format} from "util";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 import {LootboxRecentlyDropped} from "../okash/lootboxes";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -39,22 +39,9 @@ const SELL_PRICES: {
     'casino pass 60 minute':{price:90_000,type:'item',itemID:ITEMS.CASINO_PASS_1_HOUR},
 }
 
-const STRINGS: {
-    [key:string]: {[key: string]: string}
-} = {
-    'bad_item':{
-        'en-US':":crying_cat_face: Looks like either you don't have that or I don't buy it, **%s**!",
-        'ja':":crying_cat_face: **%s**さん、あのアイテムを売りません"
-    },
-    'success':{
-        'en-US':`${GetEmoji('cat_money')} **%s**, you sold your \`%s\` for OKA**%s**!`,
-        'ja':`${GetEmoji('cat_money')} **%s**さん, あなたの\`%s\`をOKA**%s**で売りました!`
-    },
-}
-
 export async function HandleCommandSell(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Mabye ask a server admin to enable it?'
+        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
     
     await interaction.deferReply();
@@ -67,27 +54,27 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     const pockets = GetInventory(interaction.user.id);
     const item = interaction.options.getString('item', true).toLowerCase();
 
-    if (!SELL_PRICES[item]) return interaction.editReply({
-        content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
+    if (!SELL_PRICES[item] && !SELL_PRICES[GLOBAL_SHORTHANDS[item]]) return interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
     });
 
-    switch (SELL_PRICES[item].type) {
+    switch ((SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).type) {
         case 'item':
-            if (!pockets.includes(SELL_PRICES[item].itemID!)) return interaction.editReply({
-                content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
+            if (!pockets.some(i => i.item_id == (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!)) return interaction.editReply({
+                content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
             });
-            RemoveOneFromInventory(interaction.user.id, SELL_PRICES[item].itemID!);
+            RemoveOneFromInventory(interaction.user.id, (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!);
 
             // achievement for selling it right after dropped
             if (LootboxRecentlyDropped.has(interaction.user.id) && 
-                LootboxRecentlyDropped.get(interaction.user.id)!.item == SELL_PRICES[item].itemID! &&
+                LootboxRecentlyDropped.get(interaction.user.id)!.item == (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID! &&
                 LootboxRecentlyDropped.get(interaction.user.id)!.time + 180 >= Math.round(new Date().getTime() / 1000) // has 3 minutes to sell or no achievment!
             ) GrantAchievement(interaction.user, Achievements.SELLDROPITEM, interaction.channel as TextChannel);
             break;
     
         case 'cust':
             if (!profile.customization.unlocked.includes(NAMES[item])) return interaction.editReply({
-                content: format(STRINGS['bad_item'][locale], interaction.user.displayName)
+                content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
             });
             // splice from inventory
             profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(NAMES[item]), 1);
@@ -102,11 +89,14 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     }
 
     // sell prices are 70% of the original price
-    AddToWallet(interaction.user.id, SELL_PRICES[item].price);
+    AddToWallet(interaction.user.id, (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).price);
 
     interaction.editReply({
-        content:format(STRINGS['success'][locale], interaction.user.displayName, item, SELL_PRICES[item].price)
+        content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, you sold your \`${GLOBAL_SHORTHANDS[item] || item}\` for ${GetEmoji(EMOJI.OKASH)} OKA**${(SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).price}**!`
     });
+
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SELL_ITEM)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 }
 
 

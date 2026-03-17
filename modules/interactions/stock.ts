@@ -1,4 +1,14 @@
-import { ActionRowBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ChatInputCommandInteraction, Interaction, Locale, SlashCommandBuilder } from "discord.js";
+import {
+    ActionRowBuilder, ApplicationIntegrationType,
+    AttachmentBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Interaction,
+    InteractionContextType,
+    Locale,
+    SlashCommandBuilder, TextChannel
+} from "discord.js";
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { BuyShares, CheckUserShares, GetLastPrices, GetSharePrice, SellShares, Stocks } from "../okash/stock";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
@@ -8,6 +18,7 @@ import { createCanvas, loadImage } from "canvas";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { BASE_DIRNAME } from "../../index";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 
 const STRINGS: { [key: string]: { en: string, ja: string } } = {
@@ -204,6 +215,9 @@ export async function HandleCommandStock(interaction: ChatInputCommandInteractio
         RemoveFromWallet(interaction.user.id, Math.round(amount * share_price));
         BuyShares(interaction.user.id, stock as Stocks, amount);
 
+        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.BUY_STOCK)
+            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+
         interaction.editReply({
             content: `${GetEmoji(EMOJI.CAT_MONEY_EYES)} ${format(STRINGS.buy_ok[locale], amount, stock == 'catgirl' ? 'NEKO' : stock == 'doggirl' ? 'DOGY' : 'FXGL', `${GetEmoji(EMOJI.OKASH)} OKA**${Math.round(amount * share_price)}**`)}`
         });
@@ -338,7 +352,7 @@ export const StockSlashCommand = new SlashCommandBuilder()
             .setDescription('Use the classic text-based renderer instead of the new image-based renderer')
             .setRequired(false)
         )
-    )
+    ).setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall)
     // .addSubcommand(sc => sc
     //     .setName('link')
     //     .setDescription('Link a browser session to your account')

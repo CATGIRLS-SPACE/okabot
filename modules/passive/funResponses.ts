@@ -5,6 +5,7 @@ import {BASE_DIRNAME, client} from "../../index";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 
 const TYO_RESPONSE: Array<string> = [
     'of course!',
@@ -21,6 +22,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             message.reply({
                 content: TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
             });
+            if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.THANK_OKABOT) CompleteDailyMission(message.author, 'e', message.channel as TextChannel);
             return GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
         }
 
@@ -66,7 +68,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
 
         if (/^d#\d+$/.test(message.content)) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
-                content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
+                content: 'Your server has access to this feature, but it is disabled by default. Maybe ask a server admin to enable it?'
             });
             let force_general = false;
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;
@@ -103,7 +105,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
         }
         if (message.content.startsWith('d$')) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
-                content: 'Your server has access to this feature, but it is disabled by default. Mabye ask a server admin to enable it?'
+                content: 'Your server has access to this feature, but it is disabled by default. Maybe ask a server admin to enable it?'
             });
             let force_general = false;
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;

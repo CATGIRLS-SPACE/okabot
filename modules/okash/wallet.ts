@@ -107,13 +107,25 @@ export function GetInventory(user_id: string) {
 
 export function RemoveOneFromInventory(user_id: string, item: ITEMS) {
     const profile = GetUserProfile(user_id);
-    profile.inventory.splice(profile.inventory.indexOf(item), 1);
+    if (!profile.inventory.some(i => i.item_id == item)) return;
+    profile.inventory.find(i => i.item_id == item)!.amount -= 1;
+
+    if (profile.inventory.find(i => i.item_id == item)!.amount <= 0)
+        profile.inventory.splice(profile.inventory.indexOf(profile.inventory.find(i => i.item_id == item)!), 1);
+
     UpdateUserProfile(user_id, profile);
 }
 
 export function AddOneToInventory(user_id: string, item: ITEMS) {
     const profile = GetUserProfile(user_id);
-    profile.inventory.push(item);
+    if (profile.inventory.some(i => i.item_id == item)) {
+        profile.inventory.find(i => i.item_id == item)!.amount += 1;
+    } else {
+        profile.inventory.push({
+            item_id: item,
+            amount: 1
+        });
+    }
     UpdateUserProfile(user_id, profile);
 }
 

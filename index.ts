@@ -100,6 +100,7 @@ export let LISTENING = true;
 // non-exported
 const NO_LAUNCH = process.argv.includes('--no-launch');
 const DEPLOY_COMMANDS = process.argv.includes('--deploy');
+const MIGRATE_PROFILES = process.argv.includes('--migrate')
 
 import {HandleCommandOkash} from "./modules/interactions/okash";
 import {HandleCommandDaily} from "./modules/interactions/daily";
@@ -109,8 +110,7 @@ import {HandleCommandPay} from "./modules/interactions/pay";
 import {GetMostRecent, StartEarthquakeMonitoring} from "./modules/earthquakes/earthquakes";
 import {HandleCommandLeaderboard} from "./modules/interactions/leaderboard";
 import {HandleCommandUse} from "./modules/interactions/use";
-import {HandleCommandShop} from "./modules/interactions/shop";
-import {HandleCommandBuy} from "./modules/interactions/buy";
+import {HandleCommandShopV2, HandleModalShopSubmit} from "./modules/interactions/shop";
 import {HandleCommandSell} from "./modules/interactions/sell";
 import {HandleCommandPockets} from "./modules/interactions/pockets";
 import {HandleCommandCustomize} from "./modules/interactions/customize";
@@ -138,7 +138,13 @@ import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminS
 import {DoRandomDrops} from "./modules/passive/onMessage";
 import {LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
-import {CheckUserIdOkashRestriction, DumpProfileCache, GetUserProfile, SetupPrefs} from "./modules/user/prefs";
+import {
+    CheckUserIdOkashRestriction,
+    DumpProfileCache,
+    GetUserProfile,
+    MigrateProfilesToLowDB,
+    SetupPrefs
+} from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
 import {ScheduleJob} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
@@ -148,7 +154,6 @@ import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGem
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
-import {HandleCommandCraft} from "./modules/interactions/craft";
 import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
@@ -163,6 +168,9 @@ import {ParseAsTextFromInput} from "./modules/system/parseAsTextFromInput";
 // import {EnableHoneypots} from "./modules/thecattree/honeypot";
 import {AddBookmark, HandleCommandBookmark, LoadBookmarkDB} from "./modules/contextmenu/bookmarks";
 import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
+import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
+import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
+import {HandleCommandDig} from "./modules/okash/games/dig";
 
 
 export const client = new Client({
@@ -221,7 +229,7 @@ async function StartBot() {
         RunPostStartupTasks();
     });
 
-    if (!NO_LAUNCH) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
+    if (!NO_LAUNCH && !MIGRATE_PROFILES) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 }
 
 /**
@@ -235,7 +243,7 @@ async function RunPreStartupTasks() {
 
     LoadCasinoDB(); // load casino games stats
     RegisterAllShorthands(); // register all "oka [etc...]" shorthands
-    SetupPrefs(__dirname); // setup user profiles
+    await SetupPrefs(__dirname); // setup user profiles
     LoadVoiceData(); // load voice data that might have been lost on restart
     LoadReminders(); // load daily reminders
     LoadUserReminders(); // o.remind reminders
@@ -248,6 +256,12 @@ async function RunPreStartupTasks() {
     SetupGeminiDemo();
     SetupStocks(__dirname);
     LoadBookmarkDB();
+    LoadDailyMissions();
+
+    if (MIGRATE_PROFILES) {
+        await MigrateProfilesToLowDB();
+        process.exit();
+    }
 
     setInterval(() => {
         UpdateMarkets(client);
@@ -319,8 +333,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'recent-eq': GetMostRecent,
     'leaderboard': HandleCommandLeaderboard,
     'use': HandleCommandUse,
-    'shop': HandleCommandShop,
-    'buy': HandleCommandBuy,
+    'shop': HandleCommandShopV2,
     'sell': HandleCommandSell,
     'pockets': HandleCommandPockets,
     'customize': HandleCommandCustomize,
@@ -339,7 +352,6 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'trade': HandleCommandTrade,
     '8ball': HandleCommand8Ball,
     'catgirl': HandleCommandCatgirl,
-    'craft': HandleCommandCraft,
     'server-preferences': HandleServerPrefsCommand,
     'recent-error':async (interaction: ChatInputCommandInteraction) => {
         if (last_errors.length == 0) return interaction.reply({content:'nope, no recently recorded errors...'});
@@ -350,7 +362,9 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'osu-config': HandleCommandOsuConfig,
     'osu-multi': HandleCommandOsuMulti,
     'emulate-message': ParseAsTextFromInput,
-    'bookmark': HandleCommandBookmark
+    'bookmark': HandleCommandBookmark,
+    'challenges': HandleCommandChallenges,
+    'dig': HandleCommandDig,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
@@ -371,6 +385,11 @@ client.on(Events.InteractionCreate, async interaction => {
         else console.log(interaction.commandName);
         return;
     }
+    if (interaction.isModalSubmit()) {
+        if (interaction.customId == 'blackMarketTokenModal') return item_bmToken_modal(interaction);
+        if (['shopModalItems', 'shopModalCoin', 'shopModalCards', 'shopModalProfile'].includes(interaction.customId)) return HandleModalShopSubmit(interaction);
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
     // if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
@@ -470,7 +489,7 @@ client.on(Events.MessageCreate, async message => {
         return StartDataDeletionRequest(message.channel as DMChannel);
     }
 
-    if (CheckUserIdOkashRestriction(message.author.id, '')) return; // dont worry about banned users
+    if (CheckUserIdOkashRestriction(message.author.id)) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
