@@ -107,7 +107,7 @@ export const ACHIEVEMENTS: {
     'okashdrop': {name:'What\'s This?',description:'No, you can\'t be a good samaritan and turn it in.', class:'fun', diff:'t'},
     'lootboxdrop': {name:'Ow, My Foot!',description:'Wonder what\'s inside of it...', class:'fun', diff:'t'},
     'notadmin': {name:'Get Outta Here!',description:'After I spent half an hour on my hair?!',class:'fun', diff:'e'},
-    // 'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
+    'voicemin300xp': {name:'Talkative',description:'Earn at least 300 XP from VC XP rewards',class:'fun', diff:'t'},
     'remindmetwice': {name:'I Get It!',description:'One can never be too sure.',class:'fun', diff:'e'},
     'quickclaim': {name:'Quick Draw',description:'Do you even do anything outside?',class:'okabot', diff:'h'},
     'slots10x': {name:'Shiny!',description:'Don\'t push your luck.',class:'gamble', diff:'ex'},

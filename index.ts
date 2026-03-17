@@ -130,7 +130,7 @@ import {HandleCommandTrade} from "./modules/interactions/trade";
 import {EMOJI, GetEmoji} from "./util/emoji";
 import {StartHTTPServer} from "./modules/http/server";
 import {CheckForFunMessages} from "./modules/passive/funResponses";
-import {LoadVoiceData} from "./modules/levels/voicexp";
+import {HandleVoiceEvent, LoadVoiceData} from "./modules/levels/voicexp";
 import {DoLeveling} from "./modules/levels/onMessage";
 import {CheckForRuleReact, CheckForRulesSimple, CheckRuleAgreement, TextBasedRules} from "./modules/user/rules";
 import {WordleCheck} from "./modules/extra/wordle";
@@ -589,6 +589,8 @@ client.on(Events.MessageReactionAdd, async (reaction, reactor) => {
         GrantAchievement(message.author, Achievements.DANGO, channel);
     }
 });
+
+client.on(Events.VoiceStateUpdate, async (oldState, newState) => HandleVoiceEvent(client, oldState, newState));
 
 // Error Handlers
 
