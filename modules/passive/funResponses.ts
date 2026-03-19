@@ -53,10 +53,6 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             content: '',
             files: [new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'assets', 'var', 'koharu.webp')))]
         });
-
-        if (message.content.toLowerCase().includes('nozomi') || message.content.toLowerCase().includes('hikari')) message.reply({
-            content: 'https://cdn.discordapp.com/attachments/633444420297031682/1421993693258317907/81b49a72a78b48c6b4e54cb40f56a86f.mov'
-        })
     }
 
     // FAS-exclusive starts here
