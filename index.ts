@@ -113,7 +113,7 @@ import {HandleCommandUse} from "./modules/interactions/use";
 import {HandleCommandShopV2, HandleModalShopSubmit} from "./modules/interactions/shop";
 import {HandleCommandSell} from "./modules/interactions/sell";
 import {HandleCommandPockets} from "./modules/interactions/pockets";
-import {HandleCommandCustomize} from "./modules/interactions/customize";
+import {HandleCommandCustomize, HandleCustomizeTitleModalSubmit} from "./modules/interactions/customize";
 import {HandleCommandToggle} from "./modules/interactions/toggle";
 import {HandleCommandLevel} from "./modules/levels/levels";
 import {HandleCommandRender} from "./modules/extra/datarenderer";
@@ -388,6 +388,7 @@ client.on(Events.InteractionCreate, async interaction => {
     if (interaction.isModalSubmit()) {
         if (interaction.customId == 'blackMarketTokenModal') return item_bmToken_modal(interaction);
         if (['shopModalItems', 'shopModalCoin', 'shopModalCards', 'shopModalProfile'].includes(interaction.customId)) return HandleModalShopSubmit(interaction);
+        if (interaction.customId == 'title') return HandleCustomizeTitleModalSubmit(interaction);
     }
 
     if (!interaction.isChatInputCommand()) return;

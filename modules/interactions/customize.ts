@@ -1,4 +1,7 @@
-import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "discord.js";
+import {
+    ChatInputCommandInteraction, LabelBuilder, ModalBuilder, ModalSubmitInteraction, SlashCommandBuilder,
+    StringSelectMenuBuilder, StringSelectMenuOptionBuilder, TextChannel
+} from "discord.js";
 import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
@@ -8,16 +11,16 @@ import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tas
 
 
 export async function HandleCommandCustomize(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-
     const sub = interaction.options.getSubcommand();
 
     switch (sub) {
         case 'coinflip':
+            await interaction.deferReply();
             CustomizeCoinflip(interaction);
             break;
 
         case 'levelbar':
+            await interaction.deferReply();
             CustomizeLevelBar(interaction);
             break;
 
@@ -26,6 +29,7 @@ export async function HandleCommandCustomize(interaction: ChatInputCommandIntera
             break;
 
         case 'cards':
+            await interaction.deferReply();
             CustomizeCardDeck(interaction);
             break;
     }
@@ -206,53 +210,56 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
     });
 }
 
+// TODO: Add daily challenge check!
 async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
-    const entry = interaction.options.getString('achievement', true);
+    const category = interaction.options.getString('category', true);
     const profile = GetUserProfile(interaction.user.id);
 
-    if (Object.keys(TITLES).includes(entry)) {
-        if (!profile.achievements.includes(entry as Achievements)) return interaction.editReply({
-            content: `Your don't have the achievement **${ACHIEVEMENTS[entry as Achievements].name}**!`,
-        });
+    const modal = new ModalBuilder()
+    modal.setCustomId('title').setTitle('Change your title');
 
-        profile.customization.level_banner.selected_title = entry;
-        UpdateUserProfile(interaction.user.id, profile);
-        interaction.editReply({
-            content: `Your title has been updated to **${TITLES[entry]}**!`,
-        });
+    const picks = new LabelBuilder().setLabel('Which one do you wanna use?');
+    const selectMenu = new StringSelectMenuBuilder().setCustomId('picked');
 
-        if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SWITCH_TITLE)
-            CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+    const achievement_keys = Object.keys(ACHIEVEMENTS);
 
-        return;
+    for (const key of achievement_keys) {
+        const achievement = ACHIEVEMENTS[key];
+        if (achievement.class != category) continue;
+
+        selectMenu.addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel(TITLES[key] || 'Get Title Error')
+                .setDescription(achievement.name || 'Achievement Error')
+                .setValue(key || 'badkey')
+                .setEmoji(profile.achievements.includes(key as Achievements) ? '✅' : '❌')
+        )
     }
 
-    // loop thru
-    for (const key of Object.keys(TITLES)) {
-        console.log(`checking ${key} == ${entry}?`)
-        const achievement = ACHIEVEMENTS[key] || {name:''};
-        if (achievement.name.toLowerCase() == entry.toLowerCase()) {
-            if (!profile.achievements.includes(key as Achievements)) return interaction.editReply({
-                content: `Your don't have the achievement **${ACHIEVEMENTS[key].name}**!`,
-            });
+    picks.setStringSelectMenuComponent(selectMenu);
+    modal.addLabelComponents(picks);
 
-            profile.customization.level_banner.selected_title = key;
-            UpdateUserProfile(interaction.user.id, profile);
-            interaction.editReply({
-                content: `Your title has been updated to **${TITLES[key]}**!`,
-            });
+    interaction.showModal(modal);
+}
 
-            if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SWITCH_TITLE)
-                CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
+export async function HandleCustomizeTitleModalSubmit(interaction: ModalSubmitInteraction) {
+    await interaction.deferReply();
+    const profile = GetUserProfile(interaction.user.id);
+    const wanted_title = interaction.fields.getStringSelectValues('picked')[0];
 
-            return;
-        }
-    }
-    interaction.editReply({
-        content: `That's not a valid achievement!`,
+    if (!profile.achievements.includes(wanted_title as Achievements)) return interaction.editReply({
+        content: `:crying_cat_face: Sorry, **${interaction.user.displayName}**, you need the achievement **${ACHIEVEMENTS[wanted_title].name}** for this title!`
     });
-    // not valid
-    
+
+    profile.customization.level_banner.selected_title = wanted_title;
+    UpdateUserProfile(interaction.user.id, profile);
+
+    interaction.editReply({
+        content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, updated your title to **${TITLES[wanted_title]}**!`
+    });
+
+    if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SWITCH_TITLE)
+        CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 }
 
 
@@ -283,8 +290,30 @@ export const CustomizeSlashCommand = new SlashCommandBuilder()
             .setName('title')
             .setDescription('Choose your banner title')
             .addStringOption(option => option
-                .setName('achievement')
-                .setDescription('The achievement ID to use')
+                .addChoices(
+                    {
+                        name: 'okabot',
+                        value: 'okabot'
+                    },
+                    {
+                        name: 'Gambling',
+                        value: 'gamble'
+                    },
+                    {
+                        name: 'Fun (1/2)',
+                        value: 'fun'
+                    },
+                    {
+                        name: 'Fun (2/2)',
+                        value: 'fun2'
+                    },
+                    {
+                        name: 'okash',
+                        value: 'okash'
+                    }
+                )
+                .setName('category')
+                .setDescription('The achievement category to view')
                 .setRequired(true))
     )
     .addSubcommand(subcommand =>

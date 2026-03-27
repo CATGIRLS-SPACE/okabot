@@ -198,6 +198,7 @@ export const TITLES: {
     'taskdone':'hard worker',
     'taskfirstdone':'quick like a fox',
     'alltasksdone':'model student',
+    'autobanned':'caught red handed'
 }
 
 
