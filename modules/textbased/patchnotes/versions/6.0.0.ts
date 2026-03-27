@@ -36,7 +36,7 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
         new TextDisplayBuilder().setContent([
             "## Minor Changes/Bugfixes",
             "- Fixed a bug where Blackjack did not display streaks properly.",
-            "- Fixed a bug where shorthands did not work properly in some commands.",
+            "- Fixed a bug where shorthands did not work properly in some commands. (#52)",
             "- Fixed a typo where all configuration error messages said \"Mabye\".",
             "- Fixed a bug where a drop string was not fully finished.",
             "- Fixed a bug where you could `/use` a sticker kit and cause an uncaught exception.",
@@ -53,6 +53,8 @@ export const PATCHNOTES_COMPONENT = new ContainerBuilder()
             "- `oka peek` shorthand has been deprecated in place of `oka export`. This returns a gpg-encrypted copy of a user's profile data.",
             "- `oka reload` and `oka dump profile cache` have been deprecated in place of `oka import` for modification of user profile data.",
             "- Removed nozomi/hikari easter egg due to the fact I completely missed it being offensive.",
+            "- Fixed a bug where if the bot master was banned, they could not unban themselves. (#61)",
+            "- Fixed a bug where roulette colors were not accurate. (#60)",
             "- Scolded okabot for looking at ogutama images while on the clock.\n-# okay, fine, I'll admit it: I do it too..."
         ].join('\n'))
     )

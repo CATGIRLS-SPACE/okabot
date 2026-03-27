@@ -66,6 +66,48 @@ interface RouletteGame {
 
 const GAMES_ACTIVE = new Map<string, RouletteGame>();
 
+const NUMBER_COLORS: Array<RouletteColor> = [
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+
+    RouletteColor.BLACK,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+
+    RouletteColor.BLACK,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+    RouletteColor.BLACK,
+    RouletteColor.RED,
+]
+
 /**
  * Determine whether a user has won a game based on their RouletteGame and the rolled number
  * @param game user's game object
@@ -80,8 +122,8 @@ function DetermineWinCase(game: RouletteGame, number_picked: number): {win: bool
     switch (game.game_type) {
         case RouletteGameType.COLOR:
             // RED if has remainder, BLACK if no remainder
-            { const rolled_color = number_picked%2==0?RouletteColor.BLACK:RouletteColor.RED;
-            console.log(`rolled color is ${rolled_color}, user picked ${game.selection}`)
+            { const rolled_color = NUMBER_COLORS[number_picked - 1];
+            console.log(`rolled color is ${rolled_color}, user picked ${game.selection}, rolled number was ${number_picked}`)
             win = rolled_color == game.selection;
             multiplier = 2;
             break; }
@@ -172,7 +214,7 @@ async function StartRoulette(game: RouletteGame) {
             AddToWallet(game.interaction.user.id, game.bet * win.multiplier);
             AddCasinoWin(game.interaction.user.id, game.bet * win.multiplier, 'roulette');
             await game.interaction.editReply({
-                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
+                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${NUMBER_COLORS[roll - 1]==RouletteColor.BLACK?':black_large_square: B':':red_square: R'}${roll}**, winning ${GetEmoji(EMOJI.OKASH)} OKA**${Math.floor(game.bet * win.multiplier)}**! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+${earned_xp}XP)**`
             });
             if (game.bet == 50000) {
                 GrantAchievement(game.interaction.user, Achievements.MAX_WIN, game.interaction.channel as TextChannel);
@@ -189,7 +231,7 @@ async function StartRoulette(game: RouletteGame) {
             if (GetWallet(game.interaction.user.id) == 0 && GetBank(game.interaction.user.id) == 0) GrantAchievement(game.interaction.user, Achievements.NO_MONEY, game.interaction.channel as TextChannel);
             AddCasinoLoss(game.interaction.user.id, game.bet, 'roulette');
             await game.interaction.editReply({
-                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${roll%2==0?':black_large_square: B':':red_square: R'}${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
+                content:`:fingers_crossed: **${game.interaction.user.displayName}** spins the roulette wheel, ${second_half} and it lands on **${NUMBER_COLORS[roll - 1]==RouletteColor.BLACK?':black_large_square: B':':red_square: R'}${roll}**, losing the money! :crying_cat_face: **(+${earned_xp}XP)**`
             });
         }
 
@@ -223,13 +265,13 @@ const InitialTypePicker = new StringSelectMenuBuilder()
             .setLabel('Red or Black (pays 2:1)')
             .setValue('color')
             .setEmoji(GetEmojiID(EMOJI.ROULETTE_COLORS))
-            .setDescription('The lowest risk, but lowest reward option. The ball must land on either odds or evens, or you lose.'),
+            .setDescription('The lowest risk, but lowest reward. The ball must land on the color you choose, or you lose.'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('A large section (pays 2:1)')
             .setValue('large-section')
             .setEmoji('🔆')
-            .setDescription('The lowest risk but lowest reward. The ball must land within your chosen section or you lose.'),
+            .setDescription('The lowest risk, but lowest reward. The ball must land within your chosen section or you lose.'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('A small section (pays 3:1)')
@@ -245,13 +287,13 @@ const ColorPick = new StringSelectMenuBuilder()
     .addOptions(
         new StringSelectMenuOptionBuilder()
             .setLabel('Red')
-            .setDescription('The ball landing on any red number will win (odds)')
+            .setDescription('The ball landing on any red number will win.')
             .setEmoji('🟥')
             .setValue('red'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel('Black')
-            .setDescription('The ball landing on any black number will win (evens)')
+            .setDescription('The ball landing on any black number will win.')
             .setEmoji('⬛')
             .setValue('black'),
     )
@@ -482,7 +524,7 @@ export async function HandleCommandRoulette(interaction: ChatInputCommandInterac
             
             case RouletteGameType.COLOR:
                 { i.update({
-                    content:`${GetEmoji(EMOJI.ROULETTE_COLORS)} Please choose the color to bet on.`,
+                    content:`${GetEmoji(EMOJI.ROULETTE_COLORS)} Please choose the color to bet on.\n-# Red: 1, 3, 5, 7, 9, 12, 14, 16, 18, 21, 23, 25, 27, 28, 30, 32, 34, 36\n-# Black: 2, 4, 6, 8, 10, 11, 13, 15, 17, 19, 20, 22, 24, 26, 29, 31, 33, 35`,
                     components: [ColorRow]
                 });
                 const color_collector = response.createMessageComponentCollector({componentType: ComponentType.StringSelect, time: 60_000, filter: collectorFilter});

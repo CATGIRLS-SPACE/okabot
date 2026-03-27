@@ -210,7 +210,6 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
     });
 }
 
-// TODO: Add daily challenge check!
 async function CustomizeTitle(interaction: ChatInputCommandInteraction) {
     const category = interaction.options.getString('category', true);
     const profile = GetUserProfile(interaction.user.id);
