@@ -89,7 +89,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         BookmarkSlashCommand,
         BookmarkContextMenuOption,
         ChallengesSlashCommand,
-        DigSlashCommand,
+        // DigSlashCommand,
     ];
 
 

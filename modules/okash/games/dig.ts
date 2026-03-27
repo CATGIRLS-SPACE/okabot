@@ -150,10 +150,6 @@ export async function HandleCommandDig(interaction: ChatInputCommandInteraction)
         const g = ActiveDigs.get(interaction.user.id)!;
 
         if (id == 'yes' || id == 'no') {
-            if (id == 'yes') {
-
-            }
-
             return;
         }
 
