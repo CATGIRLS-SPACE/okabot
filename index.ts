@@ -490,7 +490,7 @@ client.on(Events.MessageCreate, async message => {
         return StartDataDeletionRequest(message.channel as DMChannel);
     }
 
-    if (CheckUserIdOkashRestriction(message.author.id)) return; // dont worry about banned users
+    if (CheckUserIdOkashRestriction(message.author.id) && message.author.id != CONFIG.bot_master) return; // dont worry about banned users
 
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
