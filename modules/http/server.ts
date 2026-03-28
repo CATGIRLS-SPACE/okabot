@@ -354,3 +354,21 @@ server.post('/gmod/event', urlencoded, async (req, res) => {
 
     res.sendStatus(200);
 });
+
+// @ts-expect-error shut up
+server.post('/webhook/reolink', (req, res) => {
+    console.log('webhook post got');
+    if (!req.query.key || req.query.key != CONFIG.minecraft_relay_key) {
+        console.warn('did not pass key test!');
+        return res.status(401).json({success: false, reason: 'invalid key'});
+    }
+    res.status(200).end();
+    console.log('passed!')
+
+    console.log(req.body)
+
+    // this is such a stupid idea i love it
+    const channel = client.channels.cache.get(DEV?'941843973641736253':'1487379682411417610');
+    if (!channel) return console.warn('did not find doorbell channel :(');
+    (channel as TextChannel).send(`# :door: There is someone at the **${req.body.alarm.channelName}**!\n## ${req.body.alarm.title}\n${req.body.alarm.name}: ${req.body.alarm.message}`);
+})
