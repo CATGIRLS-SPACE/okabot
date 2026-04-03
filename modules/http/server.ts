@@ -376,7 +376,7 @@ server.post('/webhook/reolink', async (req, res) => {
     const channel = client.channels.cache.get(DEV?'941843973641736253':'1487379682411417610');
     if (!channel) return console.warn('did not find doorbell channel :(');
     (channel as TextChannel).send({
-        content: `# :door: There is someone at the **${req.body.alarm.channelName}**!\n## ${req.body.alarm.title}\n${req.body.alarm.name}: ${req.body.alarm.message}`,
+        content: `# :door: There is someone at the **${req.body.alarm.channelName}**!\n## ${req.body.alarm.title}\n${req.body.alarm.message}`,
         files: [new AttachmentBuilder(img).setName('snapshot.jpg')]
     });
 })
