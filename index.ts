@@ -88,6 +88,11 @@ export let CONFIG: {
     twitch: {
         client_id: string,
         secret: string,
+    },
+    reolink?: {
+        ip: string,
+        username: string,
+        password: string,
     }
 } = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
 // eslint-disable-next-line no-var

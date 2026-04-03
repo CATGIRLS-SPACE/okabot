@@ -1,7 +1,7 @@
 import { json } from 'body-parser';
 import express, { Request, Response } from 'express';
 import {client, CONFIG, DEV} from '../../index';
-import {Client, MessageFlags, Snowflake, TextChannel} from 'discord.js';
+import {AttachmentBuilder, Client, MessageFlags, Snowflake, TextChannel} from 'discord.js';
 import { join } from 'path';
 import { createServer } from 'http';
 import { Logger } from 'okayulogger';
@@ -11,6 +11,8 @@ import {GeminiDemoRespondToInquiry} from "../passive/geminidemo";
 import { AuthorizeUser, PostToNyt, StartAddLink } from './goodluckle';
 import {TwitchSetOauthAndStartBot} from "../integrations/twitch";
 import {urlencoded} from 'body-parser';
+import {fetchImage} from "../levels/levels";
+import {randomUUID} from "node:crypto";
 export const server = express();
 
 const channelId = "1321639990383476797";
@@ -356,7 +358,7 @@ server.post('/gmod/event', urlencoded, async (req, res) => {
 });
 
 // @ts-expect-error shut up
-server.post('/webhook/reolink', (req, res) => {
+server.post('/webhook/reolink', async (req, res) => {
     console.log('webhook post got');
     if (!req.query.key || req.query.key != CONFIG.minecraft_relay_key) {
         console.warn('did not pass key test!');
@@ -365,10 +367,16 @@ server.post('/webhook/reolink', (req, res) => {
     res.status(200).end();
     console.log('passed!')
 
-    console.log(req.body)
+    // console.log(req.body)
+
+    // get snapshot
+    const img = await fetchImage(`http://${CONFIG.reolink!.ip}/cgi-bin/api.cgi?cmd=Snap&channel=0&rs=${randomUUID()}&user=${CONFIG.reolink!.username}&password=${CONFIG.reolink!.password}`)
 
     // this is such a stupid idea i love it
     const channel = client.channels.cache.get(DEV?'941843973641736253':'1487379682411417610');
     if (!channel) return console.warn('did not find doorbell channel :(');
-    (channel as TextChannel).send(`# :door: There is someone at the **${req.body.alarm.channelName}**!\n## ${req.body.alarm.title}\n${req.body.alarm.name}: ${req.body.alarm.message}`);
+    (channel as TextChannel).send({
+        content: `# :door: There is someone at the **${req.body.alarm.channelName}**!\n## ${req.body.alarm.title}\n${req.body.alarm.name}: ${req.body.alarm.message}`,
+        files: [new AttachmentBuilder(img).setName('snapshot.jpg')]
+    });
 })
