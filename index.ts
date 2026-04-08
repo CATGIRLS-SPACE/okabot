@@ -523,7 +523,7 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
         // if (!CONFIG.gemini.enable) return;
-        if (message.guild.id != '1348652647963561984' && message.guild.id != '748284249487966282') return message.reply({
+        if (message.guild.id != '1348652647963561984' && message.guild.id != '748284249487966282' && message.guild.id != '1019089377705611294') return message.reply({
             content: `**${message.author.displayName}**, sorry... Gemini isn't enabled for this server. Please contact a bot admin if you'd like to apply for access.`,
         });
         else GeminiDemoRespondToInquiry(message);
