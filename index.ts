@@ -164,7 +164,6 @@ import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { CheckForTextCommands } from "./util/textCommandMappings";
 import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
-import {ConnectToN4Network} from "./modules/earthquakes/n4";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
@@ -176,6 +175,7 @@ import {StartDataDeletionRequest} from "./modules/system/dataDeletionRequest";
 import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToken";
 import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
 import {HandleCommandDig} from "./modules/okash/games/dig";
+import {ps} from "./modules/http/panel/core";
 
 
 export const client = new Client({
@@ -283,8 +283,9 @@ async function RunPostStartupTasks() {
 
     StartHTTPServer(client);
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
-    ConnectToN4Network();
+    // ConnectToN4Network();
     // EnableHoneypots();
+    ps.listen(2775);
 
 
     client.user!.setActivity({
