@@ -59,6 +59,7 @@ export let CONFIG: {
     devtoken: string,
     clientId: Snowflake,
     devclientId: Snowflake,
+    client_secret: string,
     status: Array<{
         type: number,
         activity: string,

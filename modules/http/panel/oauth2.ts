@@ -1,7 +1,7 @@
 import {JSONFilePreset} from "lowdb/node";
 import {join} from "path";
 import {ps} from "./core";
-import {BASE_DIRNAME} from "../../../index";
+import {BASE_DIRNAME, CONFIG, DEV} from "../../../index";
 import {randomUUID} from "node:crypto";
 import {Low} from "lowdb";
 
@@ -23,7 +23,19 @@ export async function SaveCodeAndGetSession(code: string) {
     const uuid = randomUUID();
     const expiry = new Date().getTime() + (1_000 * 60 * 60 * 24 * 7); // 7 day expiry time
 
-    const exch = await fetch(`https://discord.com/api/v10/oauth2/token?grant_type=authorization_code&code=${code}`, {method: 'POST'})
+    const exch = await fetch(`https://discord.com/api/v10/oauth2/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code,
+            client_id: !DEV?CONFIG.clientId:CONFIG.devclientId,
+            client_secret: CONFIG.client_secret,
+            redirect_uri: 'http://localhost:2775/auth/final'
+        })
+    })
     if (!exch.ok) {
         console.log(`get token error: ${exch.status} ${await exch.text()}`);
         return undefined;
