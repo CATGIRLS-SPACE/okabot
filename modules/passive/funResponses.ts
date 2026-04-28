@@ -56,8 +56,8 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
     }
 
     // FAS-exclusive starts here
-    if (['748284249487966282', '1019089377705611294', '1348652647963561984'].includes(message.guildId || '') || emulated) {
-        if (message.content.toLocaleLowerCase().includes('quit horsing around') && message.guildId != '1348652647963561984') message.reply({
+    if (['748284249487966282', '1019089377705611294'].includes(message.guildId || '') || emulated) {
+        if (message.content.toLocaleLowerCase().includes('quit horsing around')) message.reply({
             content: 'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
         });
 

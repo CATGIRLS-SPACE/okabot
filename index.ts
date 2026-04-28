@@ -457,7 +457,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         .setThumbnail(client.user!.avatarURL())
 
     interaction.editReply({
-        content:['1387213389083709590','1019089377705611294','1348652647963561984'].includes(interaction.guildId || '0')?`This server has full access to okabot features! ${GetEmoji(EMOJI.NEKOHEART)}`:'This server is using basic okabot features.',
+        content:['1387213389083709590','1019089377705611294'].includes(interaction.guildId || '0')?`This server has full access to okabot features! ${GetEmoji(EMOJI.NEKOHEART)}`:'This server is using basic okabot features.',
         embeds:[info_embed]
     });
 }
@@ -522,9 +522,9 @@ client.on(Events.MessageCreate, async message => {
         await message.reply(`Heads up, **${message.author.displayName}**! Any message that pings me is relayed to Millie's private server. No other context can be seen, so if you are reporting a bug, please send as much context as possible.`);
     }
 
-    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) {
+    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '748284249487966282')) {
         // if (!CONFIG.gemini.enable) return;
-        if (message.guild.id != '1348652647963561984' && message.guild.id != '748284249487966282' && message.guild.id != '1019089377705611294') return message.reply({
+        if (message.guild.id != '748284249487966282' && message.guild.id != '1019089377705611294') return message.reply({
             content: `**${message.author.displayName}**, sorry... Gemini isn't enabled for this server. Please contact a bot admin if you'd like to apply for access.`,
         });
         else GeminiDemoRespondToInquiry(message);
@@ -534,7 +534,7 @@ client.on(Events.MessageCreate, async message => {
         // let reference = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId);
         const reference = await (message.channel as TextChannel).messages.fetch(message.reference!.messageId!);
         if (!reference) return;
-        if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
+        if (reference.content.includes('-# GenAI') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '748284249487966282')) GeminiDemoReplyToConversationChain(message);
     }
 
     // minecraft server

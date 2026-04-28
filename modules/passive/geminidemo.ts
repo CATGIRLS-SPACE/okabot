@@ -45,19 +45,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     if (message.channel.isDMBased() && ConversationChains[message.channel.id] && ConversationChains[message.channel.id].last_update + 3600000 > new Date().getTime()) return GeminiDemoReplyToConversationChain(message);
 
-    if (!message.channel.isThread()) {
-        if (message.guild?.id == '1348652647963561984' && message.channel.id != '1407602200586485800') return message.reply({
-            content:'Not available here, go to <#1407602200586485800>.',
-            flags:[MessageFlags.SuppressEmbeds]
-        });
-    } else {
-        // console.log('this query is in a thread', message.channel.parent)
-        if (message.guild?.id == '1348652647963561984' && message.channel!.parent!.id != '1407602200586485800') return message.reply({
-            content:'Not available here, go to <#1407602200586485800>.',
-            flags:[MessageFlags.SuppressEmbeds]
-        });
-    }
-
     const inline_data = [];
     let has_images = false;
 
@@ -121,11 +108,6 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
 
     const has_custom_emojis = (/<a?:[a-zA-Z0-9_]+:\d+>/g).test(message.content);
     let prompt = prompt_data.replace('$NAME', (user as GuildMember).nickname || user.displayName).replace('$CONTENT', message.content.replace(/<a?:[a-zA-Z0-9_]+:\d+>/g, "")).replace('$EXTRA', extra).replace('$LOCALE', GetLastLocale(message.author.id));
-
-    if (message.guild?.id == '1348652647963561984' || message.guild?.id == '748284249487966282') {
-        const fsg_data = new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('FSG'))));
-        prompt += ' ' + fsg_data;
-    }
 
     prompt += ` The current date and time is: ${new Date().toString()}.\n`
     prompt += 'Current Global Memories: [\n-' + GlobalMemories.join('\n- ') + '\n]\n';

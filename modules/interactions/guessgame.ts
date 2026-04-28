@@ -13,7 +13,6 @@ import {existsSync, readdirSync, readFileSync, writeFileSync} from "fs";
 import {join} from "path";
 // import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BASE_DIRNAME} from "../../index";
-import {GetUserSupportStatus} from "../../util/users";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 
 async function pixelateImage(input: Buffer, pixelSize = 10): Promise<Buffer> {
@@ -71,7 +70,6 @@ export async function GuessBlueArchive(interaction: ChatInputCommandInteraction)
         has_loaded_db = true;
     }
 
-    if (interaction.guild && interaction.guild.id == '1348652647963561984' && GetUserSupportStatus(interaction.user.id) == 'none') return interaction.reply({content:':warning: Something went wrong while starting the game:\n```(OkabotAccessError) This guild is not eligible for this interaction when used in the default user context.```'});
     if (current_games.has(interaction.user.id)) return interaction.reply({content:'You\'ve already got a guessing game going!',flags:[MessageFlags.Ephemeral]});
 
     await interaction.deferReply();

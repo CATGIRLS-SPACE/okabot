@@ -44,6 +44,7 @@ ps.get('/auth', (req, res) => {
 });
 ps.get('/auth/final', async (req, res) => {
     const uuid = await SaveCodeAndGetSession(req.query.code as string);
+    if (!uuid) return <never> res.json({success: false, reason: 'Failed to get OAuth2 token.'});
     res.json({success: true, session:uuid});
 });
 

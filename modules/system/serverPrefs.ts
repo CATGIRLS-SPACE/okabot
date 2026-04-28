@@ -102,15 +102,6 @@ const FORCED_ELLIGIBILITY_LIST: {[key: Snowflake]: {[key: string]: boolean}} = {
     '961833542491463720': {
         'earthquakes': true
     },
-    '1348652647963561984': {
-        // pixel guessing game is disabled in fsg because it was totally copied from that horse bot
-        // and i would feel pretty bad allowing it to be used.
-        // if fsg member reading this and thinks it should be otherwise, open an issue.
-        'pixel_guess': false
-    },
-    '748284249487966282': {
-        'pixel_guess': false
-    }
 }
 
 
