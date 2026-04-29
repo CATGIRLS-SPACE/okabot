@@ -2,6 +2,7 @@ import express from 'express';
 import {CONFIG, DEV} from "../../../index";
 import {Logger} from "okayulogger";
 import {RegisterOAuthPaths, SaveCodeAndGetSession} from "./oauth2";
+import {RegisterUserConfigurationPaths} from "./configuration/user";
 
 // Panel Server
 export const ps = express();
@@ -38,9 +39,10 @@ ps.get('/', (req, res) => {
     });
 });
 
+export const REDIRECT_URI = !DEV?'http://localhost:2775/auth/final':'https://panel.oka.bot/login';
 
 ps.get('/auth', (req, res) => {
-    res.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${DEV?CONFIG.devclientId:CONFIG.clientId}&scope=identify%20guilds%20guilds.members.read&state=abcdef&prompt=consent&redirect_uri=http%3A%2F%2Flocalhost:2775/auth/final`)
+    res.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${DEV?CONFIG.devclientId:CONFIG.clientId}&scope=identify%20guilds%20guilds.members.read&state=abcdef&prompt=consent&redirect_uri=${REDIRECT_URI}`)
 });
 ps.get('/auth/final', async (req, res) => {
     const uuid = await SaveCodeAndGetSession(req.query.code as string);
@@ -49,6 +51,7 @@ ps.get('/auth/final', async (req, res) => {
 });
 
 RegisterOAuthPaths();
+RegisterUserConfigurationPaths();
 
 ps.on('listening', () => {
     L.info('panel api server listening!');

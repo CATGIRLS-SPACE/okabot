@@ -29,11 +29,9 @@ import {CatgirlSlashCommand} from "../interactions/catgirl";
 import {GuessGameSlashCommand} from "../interactions/guessgame";
 import {ServerPreferencesSlashCommand} from "../system/serverPrefs";
 import { StockSlashCommand } from "../interactions/stock";
-import {OsuConfigSlashCommand, OsuMultiSlashCommand} from "../osu/render";
 import {EmulateMessageSlashCommand} from "../system/parseAsTextFromInput";
 import {BookmarkContextMenuOption, BookmarkSlashCommand} from "../contextmenu/bookmarks";
 import {ChallengesSlashCommand} from "../tasks/dailyMissions";
-import {DigSlashCommand} from "../okash/games/dig";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -82,8 +80,8 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         ServerPreferencesSlashCommand,
         was_there_an_error,
         StockSlashCommand,
-        OsuConfigSlashCommand,
-        OsuMultiSlashCommand,
+        // OsuConfigSlashCommand,
+        // OsuMultiSlashCommand,
         EmulateMessageSlashCommand,
     //     bookmarks
         BookmarkSlashCommand,
