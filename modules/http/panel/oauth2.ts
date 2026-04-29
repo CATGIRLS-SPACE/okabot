@@ -113,7 +113,7 @@ export function RegisterOAuthPaths() {
         if (!PanelDB.data.sessions[session]) return res.status(401).json({success:false}) as never;
         if (PanelDB.data.sessions[session].expiry < new Date().getTime()) return res.status(401).json({success:false}) as never;
 
-        if (PanelDB.data.sessions[session].token.expires_in >= Date.now()) {
+        if (PanelDB.data.sessions[session].token.expires_in <= Date.now()) {
             const refreshed = await GetRefreshedToken(PanelDB.data.sessions[session].token.refresh_token);
             if (!refreshed.success) return <never> res.status(401).json({success:false,reason:'Could not refresh authorization.'});
             PanelDB.data.sessions[session].token = refreshed.token;
