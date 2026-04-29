@@ -39,7 +39,7 @@ ps.get('/', (req, res) => {
     });
 });
 
-export const REDIRECT_URI = !DEV?'http://localhost:2775/auth/final':'https://panel.oka.bot/login';
+export const REDIRECT_URI = DEV?'http://localhost:2775/auth/final':'https://panel.oka.bot/login';
 
 ps.get('/auth', (req, res) => {
     res.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${DEV?CONFIG.devclientId:CONFIG.clientId}&scope=identify%20guilds%20guilds.members.read&state=abcdef&prompt=consent&redirect_uri=${REDIRECT_URI}`)

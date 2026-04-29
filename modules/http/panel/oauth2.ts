@@ -130,11 +130,9 @@ export function RegisterOAuthPaths() {
             return res.status(500).json({success:false,reason:'Internal server error'}) as never;
         }
         const guilds = await resp.json();
-        const MANAGE_GUILD = 0x20n;
 
-        const managable = guilds.filter((g: {permissions:string}) => {
-            const permissions = BigInt(g.permissions);
-            return (permissions & MANAGE_GUILD) === MANAGE_GUILD;
+        const managable = guilds.filter((g: {owner:boolean}) => {
+            return g.owner;
         });
 
         res.json(managable);
