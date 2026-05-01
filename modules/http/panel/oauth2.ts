@@ -99,6 +99,10 @@ export function CheckSessionValidity(session: string) {
     return PanelDB.data.sessions[session].expiry >= new Date().getTime();
 }
 
+
+const ServerCache = new Map<string, {stored: number, data: Object}>();
+
+
 export function RegisterOAuthPaths() {
     ps.get('/validate', (req, res): never => {
         if (!req.query.session) return res.status(400).json({success:false}) as never;
@@ -120,6 +124,9 @@ export function RegisterOAuthPaths() {
             PanelDB.data.sessions[session].token = refreshed.token;
         }
 
+        if (ServerCache.has(req.query.session as string) && ServerCache.get(req.query.session as string)!.stored + 1000 * 60 * 10 > Date.now()) 
+            return <never> res.json(ServerCache.get(req.query.session as string)!.data);
+
         const resp = await fetch('https://discord.com/api/v10/users/@me/guilds', {
             headers: {
                 'Authorization': `Bearer ${PanelDB.data.sessions[session].token.access_token}`,
@@ -134,6 +141,11 @@ export function RegisterOAuthPaths() {
 
         const managable = guilds.filter((g: {owner:boolean}) => {
             return g.owner;
+        });
+
+        ServerCache.set(req.query.session as string, {
+            data: managable,
+            stored: Date.now()
         });
 
         res.json(managable);
