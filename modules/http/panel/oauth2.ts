@@ -33,6 +33,7 @@ export function GetUserBySession(session: string): TokenUserData | undefined {
  * @returns The session if successful, undefined otherwise.
  */
 export async function SaveCodeAndGetSession(code: string, uri?: string) {
+    console.log([code, uri]);
     const uuid = randomUUID();
     const expiry = new Date().getTime() + (1_000 * 60 * 60 * 24 * 7); // 7 day expiry time
 
