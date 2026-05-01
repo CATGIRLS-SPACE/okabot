@@ -11,7 +11,7 @@ export interface TokenUserData {
 }
 
 export function RegisterUserConfigurationPaths() {
-    ps.get('/cfg/user/pronouns', (req, res) => {
+    ps.patch('/cfg/user/pronouns', (req, res) => {
         if (!req.query || !req.query.selection || !req.query.session) {
             res.status(400).end();
             return;

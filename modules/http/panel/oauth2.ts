@@ -32,7 +32,7 @@ export function GetUserBySession(session: string): TokenUserData | undefined {
  * @param code The returned OAuth2 code
  * @returns The session if successful, undefined otherwise.
  */
-export async function SaveCodeAndGetSession(code: string) {
+export async function SaveCodeAndGetSession(code: string, uri?: string) {
     const uuid = randomUUID();
     const expiry = new Date().getTime() + (1_000 * 60 * 60 * 24 * 7); // 7 day expiry time
 
@@ -46,7 +46,7 @@ export async function SaveCodeAndGetSession(code: string) {
             code,
             client_id: !DEV?CONFIG.clientId:CONFIG.devclientId,
             client_secret: CONFIG.client_secret,
-            redirect_uri: REDIRECT_URI
+            redirect_uri: uri ?? REDIRECT_URI
         })
     })
     if (!exch.ok) {

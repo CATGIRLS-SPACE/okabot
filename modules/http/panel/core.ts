@@ -45,7 +45,7 @@ ps.get('/auth', (req, res) => {
     res.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${DEV?CONFIG.devclientId:CONFIG.clientId}&scope=identify%20guilds%20guilds.members.read&state=abcdef&prompt=consent&redirect_uri=${REDIRECT_URI}`)
 });
 ps.get('/auth/final', async (req, res) => {
-    const uuid = await SaveCodeAndGetSession(req.query.code as string);
+    const uuid = await SaveCodeAndGetSession(req.query.code as string, req.query.uri ? req.query.uri as string : undefined);
     if (!uuid) return <never> res.json({success: false, reason: 'Failed to get OAuth2 token.'});
     res.json({success: true, session:uuid});
 });
