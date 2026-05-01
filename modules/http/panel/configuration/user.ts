@@ -11,6 +11,25 @@ export interface TokenUserData {
 }
 
 export function RegisterUserConfigurationPaths() {
+    // pronouns
+
+    ps.get('/cfg/user/pronouns', (req, res) => {
+        if (!req.query || !req.query.session) {
+            res.status(400).end();
+            return;
+        }
+
+        if (!CheckSessionValidity(req.query.session as string)) return <never> res.status(401).end();
+
+        const user_data = GetUserBySession(req.query.session as string)!;
+        const profile = GetUserProfile(user_data.id);
+
+        return <never> res.json({
+            success: true,
+            selection: profile.customization.global.pronouns.subjective
+        });
+    });
+
     ps.patch('/cfg/user/pronouns', (req, res) => {
         if (!req.query || !req.query.selection || !req.query.session) {
             res.status(400).end();
