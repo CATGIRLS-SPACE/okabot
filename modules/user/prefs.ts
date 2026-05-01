@@ -239,11 +239,7 @@ export function ReloadProfile(user_id: Snowflake) {
 }
 
 export function CheckForProfile(user_id: string): boolean {
-    if (!PROFILES_DIR) PROFILES_DIR = join(BASE_DIRNAME, 'profiles');
-    const profile_path = join(PROFILES_DIR, `${user_id}.oka`);
-
-    // check if it exists
-    if (!existsSync(profile_path)) return false;
+    if (!ProfilesDB.data.profiles[user_id]) return false;
 
     const profile = GetUserProfile(user_id);
     return !(profile.restriction.active && profile.restriction.until < new Date().getTime());
