@@ -4,13 +4,15 @@ import {Logger} from "okayulogger";
 import {RegisterOAuthPaths, SaveCodeAndGetSession} from "./oauth2";
 import {RegisterUserConfigurationPaths} from "./configuration/user";
 
+export const PANEL_API_VERSION = '1.0.0';
+
 // Panel Server
 export const ps = express();
 const L = new Logger('panel server');
 
 ps.get('/', (req, res) => {
     res.json({
-        panel_api_version: '1.0.0',
+        panel_api_version: PANEL_API_VERSION,
         enable_subscriptions: false,
         free_props: [
             'basic.okash',

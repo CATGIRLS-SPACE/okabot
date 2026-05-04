@@ -1,7 +1,7 @@
 import {JSONFilePreset} from "lowdb/node";
 import {join} from "path";
-import {ps, REDIRECT_URI} from "./core";
-import {BASE_DIRNAME, CONFIG, DEV} from "../../../index";
+import {PANEL_API_VERSION, ps, REDIRECT_URI} from "./core";
+import {BASE_DIRNAME, client, CONFIG, DEV} from "../../../index";
 import {randomUUID} from "node:crypto";
 import {Low} from "lowdb";
 import {TokenUserData} from "./configuration/user";
@@ -145,7 +145,7 @@ export function RegisterOAuthPaths() {
         const resp = await fetch('https://discord.com/api/v10/users/@me/guilds', {
             headers: {
                 'Authorization': `Bearer ${PanelDB.data.sessions[session].token.access_token}`,
-                'User-Agent': `okabot (https://oka.bot, 1.0.0)`
+                'User-Agent': `okabot (https://oka.bot, ${PANEL_API_VERSION})`
             }
         });
         if (!resp.ok) {
@@ -154,9 +154,14 @@ export function RegisterOAuthPaths() {
         }
         const guilds = await resp.json();
 
-        const managable = guilds.filter((g: {owner:boolean}) => {
-            return g.owner;
+        const managable = guilds.filter((g: {permissions:string}) => {
+            const permissions = BigInt(g.permissions);
+            return (permissions & 0x20n) === 0x20n; // 0x20n = MANAGE_GUILD
         });
+
+        for (const server of managable) {
+            server.okabot_is_available = client.guilds.cache.has(server.id);
+        }
 
         ServerCache.set(req.query.session as string, {
             data: managable,
