@@ -81,6 +81,7 @@ const HardMissionDescriptions: Array<string> = [
     "Play a roulette game, selecting the \"Single Number\" bet, and win",
     "Win at least 5x your bet in slots",
     "Play a blackjack game and get a blackjack",
+    "Get the minimum/maximum coinflip float for the current day",
     "Flip a coin and get a float that is at most 0.01",
     "Flip a coin and get a float that is at least 0.99",
     "Win a gambling game which you bet the max allowed amount of okash on",
