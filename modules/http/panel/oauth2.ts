@@ -89,8 +89,23 @@ export async function SaveCodeAndGetSession(code: string, uri?: string) {
  * @returns an object which contains the new token if success is true, otherwise it only returns false with no token.
  */
 async function GetRefreshedToken(refresh_token: string): Promise<{success: false} | {success: true, token: OAuth2Token }> {
-    const exch = await fetch(`https://discord.com/api/v10/oauth2/token?grant_type=refresh_token&refresh_token=${refresh_token}`)
-    if (!exch.ok) return {success:false};
+    const exch = await fetch(`https://discord.com/api/v10/oauth2/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': ''
+        },
+        body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token,
+            client_id: !DEV?CONFIG.clientId:CONFIG.devclientId,
+            client_secret: CONFIG.client_secret,
+        })
+    });
+    if (!exch.ok) {
+        console.error(await exch.text());
+        return {success: false};
+    }
     return {success: true, token: await exch.json()};
 }
 
@@ -100,7 +115,7 @@ export function CheckSessionValidity(session: string) {
 }
 
 
-const ServerCache = new Map<string, {stored: number, data: Object}>();
+const ServerCache = new Map<string, {stored: number, data: object}>();
 
 
 export function RegisterOAuthPaths() {
@@ -135,7 +150,7 @@ export function RegisterOAuthPaths() {
         });
         if (!resp.ok) {
             console.log(`Discord API Error ${resp.status} ${await resp.text()}`);
-            return res.status(500).json({success:false,reason:'Internal server error'}) as never;
+            return res.status(500).json({success:false,reason:'Internal server error: oauth2:0'}) as never;
         }
         const guilds = await resp.json();
 
