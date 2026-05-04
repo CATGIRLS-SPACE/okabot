@@ -140,7 +140,25 @@ export function open_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
     }, 10000);
 }
 
+let is_reconnecting = false;
+
 function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
+    if (is_reconnecting) {
+        L.debug('reconnect already in progress, ignoring duplicate call');
+        return;
+    }
+
+    is_reconnecting = true;
+    reconnect_tries = 0;
+
+    attempt_reconnect(SOCKET, channel);
+}
+
+function attempt_reconnect(SOCKET: DMDataWebSocket, channel: TextChannel) {
+    reconnect_tries++;
+
+    L.debug(`reconnect attempt ${reconnect_tries}`);
+
     SOCKET.OpenSocket({
         classifications: [
             Classification.EEW_FORECAST,
@@ -150,27 +168,35 @@ function reopen_socket(SOCKET: DMDataWebSocket, channel: TextChannel) {
     });
 
     setTimeout(() => {
-        if (!SOCKET.is_active) {
-            L.debug('failed to reconnect!');
-            reconnect_tries++;
-            if (reconnect_tries < 6) {
-                channel.send({
-                    content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds, retrying...`,
-                    flags: [MessageFlags.SuppressNotifications]
-                });
-                reopen_socket(SOCKET, channel);
-            } else {
-                channel.send({
-                    content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds. i have given up reconnecting. manually run "oka dmdata connect" to retry`,
-                    flags: [MessageFlags.SuppressNotifications]
-                });
-            }
-        } else {
+        if (SOCKET.is_active) {
             channel.send({
-                content: `ok, i reconnected after ${reconnect_tries} tries.`
+                content: `ok, i reconnected after ${reconnect_tries} ${reconnect_tries === 1 ? 'try' : 'tries'}.`
             });
+
             reconnect_tries = 0;
+            is_reconnecting = false;
+            return;
         }
+
+        L.debug('failed to reconnect!');
+
+        if (reconnect_tries < 6) {
+            channel.send({
+                content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds, retrying...`,
+                flags: MessageFlags.SuppressNotifications
+            });
+
+            attempt_reconnect(SOCKET, channel);
+            return;
+        }
+
+        channel.send({
+            content: `attempt ${reconnect_tries} failed to reconnect after 10 seconds. i have given up reconnecting. manually run "oka dmdata connect" to retry`,
+            flags: MessageFlags.SuppressNotifications
+        });
+
+        reconnect_tries = 0;
+        is_reconnecting = false;
     }, 10000);
 }
 
