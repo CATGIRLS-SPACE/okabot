@@ -483,7 +483,7 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
 
         await i.editReply({
             content: `Place this sticker? It will cost you ${GetEmoji(EMOJI.OKASH)} OKA**${cost}**. You will not be able to move it once placed.\n-# Sticker removal is not implemented yet, but will be implemented in the future.`,
-            files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', 'level-banner.png')))],
+            files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`)))],
             components: [new ActionRowBuilder().addComponents(button_yes,button_no) as never]
         });
 
