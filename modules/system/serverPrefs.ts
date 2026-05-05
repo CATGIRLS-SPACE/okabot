@@ -299,6 +299,15 @@ export function CheckFeatureAvailability(guild_id: Snowflake, feature: ServerFea
     return SERVER_PREFERENCES_DB[guild_id].allowed_features[feature];
 }
 
+export function GetPreferencesFor(guild_id: Snowflake): ServerPreferences | undefined {
+    if (!DB_LOADED_YET) LoadServerPreferencesDB();
+    if (!SERVER_PREFERENCES_DB[guild_id]) {
+        SERVER_PREFERENCES_DB[guild_id] = DEFAULT_PREFERENCES;
+        return DEFAULT_PREFERENCES;
+    }
+    return SERVER_PREFERENCES_DB[guild_id];
+}
+
 //
 // CONFIG HANDLER START
 //
@@ -376,8 +385,7 @@ function ChangeSettingTo(i: ButtonInteraction) {
             break;
         case 'danbooru':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru = enabled;
-            if (!enabled)
-                SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru_sqe = false;
+            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru_sqe = false;
             break;
         case 'danbooru_sqe':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.danbooru = enabled;
