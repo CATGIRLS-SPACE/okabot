@@ -3,6 +3,7 @@ import {CONFIG, DEV} from "../../../index";
 import {Logger} from "okayulogger";
 import {RegisterOAuthPaths, SaveCodeAndGetSession} from "./oauth2";
 import {RegisterUserConfigurationPaths} from "./configuration/user";
+import {RegisterServerConfigurationPaths} from "./configuration/guild";
 
 export const PANEL_API_VERSION = '1.0.0';
 
@@ -10,7 +11,7 @@ export const PANEL_API_VERSION = '1.0.0';
 export const ps = express();
 const L = new Logger('panel server');
 
-ps.get('/', (req, res) => {
+ps.get('/', (_req, res) => {
     res.json({
         panel_api_version: PANEL_API_VERSION,
         enable_subscriptions: false,
@@ -34,6 +35,7 @@ ps.get('/', (req, res) => {
             'moderation.commands'
         ],
         subscribed_props: [
+            'okash.stockmarket',
             'passive.ai',
             'liveservice.emergency',
             'liveservice.dmdata'
@@ -43,17 +45,18 @@ ps.get('/', (req, res) => {
 
 export const REDIRECT_URI = DEV?'http://localhost:2775/auth/final':'https://panel.oka.bot/login';
 
-ps.get('/auth', (req, res) => {
+ps.get('/auth', (_req, res) => {
     res.redirect(`https://discord.com/oauth2/authorize?response_type=code&client_id=${DEV?CONFIG.devclientId:CONFIG.clientId}&scope=identify%20guilds%20guilds.members.read&state=abcdef&prompt=consent&redirect_uri=${REDIRECT_URI}`)
 });
 ps.get('/auth/final', async (req, res) => {
     const uuid = await SaveCodeAndGetSession(req.query.code as string, req.query.uri ? req.query.uri as string : undefined);
-    if (!uuid) return <never> res.json({success: false, reason: 'Failed to get OAuth2 token.'});
+    if (!uuid) return <never> res.json({success: false, reason: 'Failed to get OAuth2 token.',code:'oauth2:1'});
     res.json({success: true, session:uuid});
 });
 
 RegisterOAuthPaths();
 RegisterUserConfigurationPaths();
+RegisterServerConfigurationPaths();
 
 ps.on('listening', () => {
     L.info('panel api server listening!');

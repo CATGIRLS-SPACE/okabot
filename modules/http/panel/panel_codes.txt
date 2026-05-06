@@ -1,0 +1,32 @@
+This is a list of possible error codes that can be returned by the okabot Panel API server.
+"Generic" errors are used when specific error cases are not handled.
+
+core codes:
+- core:0 - Generic core error
+- core:1 - A required query parameter was not specified
+- core:2 - A specified query parameter is not allowed
+- core:3 - A required URL parameter was not specified
+- core:4 - A specified URL parameter is not allowed
+
+oauth2 codes:
+- oauth2:0 - Generic OAuth2 error
+- oauth2:1 - Failed to finalize OAuth2 authorization
+- oauth2:2 - Failed to refresh OAuth2 authorization
+
+auth codes:
+- auth:0 - Generic authentication error
+- auth:1 - Provided session token is invalid
+- auth:2 - The provided session token cannot manage this server
+
+configuration error codes:
+- cfg:0 / cfgu:0 / cfgs:0 - Generic configuration error
+
+- cfgu:1 - The user is not eligible for this setting
+- cfgu:2 - The user does not have permission to use this setting
+- cfgu:3 - The session user does not have permission to change another user's settings (admin panel)
+- cfgu:4 - The session user does not have permission to set this setting (admin panel)
+- cfgu:5 - The session user does not have permission to set this value (admin panel)
+
+- cfgs:1 - The server is not eligible for this setting (forced-eligibility list)
+- cfgs:2 - The server is not eligible for this setting (requires premium/full-access permission)
+- cfgs:3 - okabot is not present in this server.

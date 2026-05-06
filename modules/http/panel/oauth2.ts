@@ -5,6 +5,7 @@ import {BASE_DIRNAME, client, CONFIG, DEV} from "../../../index";
 import {randomUUID} from "node:crypto";
 import {Low} from "lowdb";
 import {TokenUserData} from "./configuration/user";
+import {Snowflake} from "discord.js";
 
 interface OAuth2Token {
     access_token: string,
@@ -76,7 +77,8 @@ export async function SaveCodeAndGetSession(code: string, uri?: string) {
             id: user.id,
             username: user.username,
             avatar: user.avatar,
-            global_name: user.global_name
+            global_name: user.global_name,
+            can_manage: []
         }
     };
     await PanelDB.write();
@@ -93,7 +95,7 @@ async function GetRefreshedToken(refresh_token: string): Promise<{success: false
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent': ''
+            'User-Agent': `okabot (https://oka.bot, ${PANEL_API_VERSION})`
         },
         body: new URLSearchParams({
             grant_type: 'refresh_token',
@@ -128,14 +130,14 @@ export function RegisterOAuthPaths() {
     });
 
     ps.get('/discord/managable', async (req, res) => {
-        if (!req.query.session) return res.status(400).json({success:false}) as never;
+        if (!req.query.session) return res.status(400).json({success:false,code:'core:1'}) as never;
         const session = req.query.session as string;
-        if (!PanelDB.data.sessions[session]) return res.status(401).json({success:false}) as never;
-        if (PanelDB.data.sessions[session].expiry < new Date().getTime()) return res.status(401).json({success:false}) as never;
+        if (!PanelDB.data.sessions[session]) return res.status(401).json({success:false,code:'auth:1'}) as never;
+        if (PanelDB.data.sessions[session].expiry < new Date().getTime()) return res.status(401).json({success:false,code:'auth:1'}) as never;
 
         if (PanelDB.data.sessions[session].token.expires_in <= Date.now()) {
             const refreshed = await GetRefreshedToken(PanelDB.data.sessions[session].token.refresh_token);
-            if (!refreshed.success) return <never> res.status(401).json({success:false,reason:'Could not refresh authorization.'});
+            if (!refreshed.success) return <never> res.status(401).json({success:false,reason:'Could not refresh authorization.',code:'oauth2:2'});
             PanelDB.data.sessions[session].token = refreshed.token;
         }
 
@@ -150,7 +152,7 @@ export function RegisterOAuthPaths() {
         });
         if (!resp.ok) {
             console.log(`Discord API Error ${resp.status} ${await resp.text()}`);
-            return res.status(500).json({success:false,reason:'Internal server error: oauth2:0'}) as never;
+            return res.status(500).json({success:false,reason:'Internal server error',code:'oauth2:0'}) as never;
         }
         const guilds = await resp.json();
 
@@ -158,6 +160,8 @@ export function RegisterOAuthPaths() {
             const permissions = BigInt(g.permissions);
             return (permissions & 0x20n) === 0x20n; // 0x20n = MANAGE_GUILD
         });
+
+        PanelDB.data.sessions[session].user.can_manage = managable.map((m: {id: Snowflake}) => m.id);
 
         for (const server of managable) {
             server.okabot_is_available = client.guilds.cache.has(server.id);
@@ -167,6 +171,9 @@ export function RegisterOAuthPaths() {
             data: managable,
             stored: Date.now()
         });
+
+        managable.success = true;
+        await PanelDB.write();
 
         res.json(managable);
     });

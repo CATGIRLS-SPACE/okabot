@@ -8,6 +8,7 @@ export interface TokenUserData {
     username: string,
     avatar: string,
     global_name: string,
+    can_manage: Array<Snowflake>
 }
 
 export function RegisterUserConfigurationPaths() {
@@ -32,14 +33,14 @@ export function RegisterUserConfigurationPaths() {
 
     ps.patch('/cfg/user/pronouns', (req, res) => {
         if (!req.query || !req.query.selection || !req.query.session) {
-            res.status(400).end();
+            res.status(400).json({success: false, reason:'Missing parameters', code:'core:1'});
             return;
         }
 
-        if (!CheckSessionValidity(req.query.session as string)) return <never> res.status(401).end();
+        if (!CheckSessionValidity(req.query.session as string)) return <never> res.status(401).json({success:false,code:'auth:1'});
 
         const pronoun_choice = req.query.selection as string;
-        if (!['they','she','he'].includes(pronoun_choice)) return <never> res.status(400).end();
+        if (!['they','she','he'].includes(pronoun_choice)) return <never> res.status(400).json({success:false,code:'core:2'});
 
         const user_data = GetUserBySession(req.query.session as string)!;
         const profile = GetUserProfile(user_data.id);

@@ -259,7 +259,7 @@ export async function HandleServerPrefsCommand(interaction: ChatInputCommandInte
     }
 
     const reply = await interaction.editReply({
-        content: '# Server Configurator Tool\nThis tool will allow you to customize okabot in your server to your liking.\nThis configurator will expire in 3 minutes.\nPlease choose your category:',
+        content: '# Server Configurator Tool\nThis tool will allow you to customize okabot in your server to your liking.\nThis configurator will expire in 3 minutes.\nPlease choose your category:\n\n**HEADS UP!** This command will soon be replaced in favor of https://panel.oka.bot.',
         components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(dropdown_section)]
     });
 
@@ -299,6 +299,10 @@ export function CheckFeatureAvailability(guild_id: Snowflake, feature: ServerFea
     return SERVER_PREFERENCES_DB[guild_id].allowed_features[feature];
 }
 
+/**
+ * Get all preferences for a Guild ID
+ * @param guild_id The Guild to get preferences of
+ */
 export function GetPreferencesFor(guild_id: Snowflake): ServerPreferences | undefined {
     if (!DB_LOADED_YET) LoadServerPreferencesDB();
     if (!SERVER_PREFERENCES_DB[guild_id]) {
@@ -307,6 +311,15 @@ export function GetPreferencesFor(guild_id: Snowflake): ServerPreferences | unde
     }
     return SERVER_PREFERENCES_DB[guild_id];
 }
+
+export function SetPreference(guild_id: Snowflake, feature: ServerFeature, enabled: boolean): boolean {
+    if (!DB_LOADED_YET) LoadServerPreferencesDB();
+    if (FORCED_ELLIGIBILITY_LIST[guild_id] && FORCED_ELLIGIBILITY_LIST[guild_id][feature] != enabled) return false;
+    if (!SERVER_PREFERENCES_DB[guild_id]) SERVER_PREFERENCES_DB[guild_id] = DEFAULT_PREFERENCES;
+    SERVER_PREFERENCES_DB[guild_id].allowed_features[feature] = enabled;
+    return true;
+}
+
 
 //
 // CONFIG HANDLER START
