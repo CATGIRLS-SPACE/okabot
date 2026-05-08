@@ -103,7 +103,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
     ctx.fillText('Doggirl - DOGY', 10, 139);
     ctx.fillText('Foxgirl - FXGL', 10, 199);
     // price changes
-    console.log(prices, last_prices)
+    // console.log(prices, last_prices)
     ctx.textAlign = 'right';
     ctx.fillStyle = last_prices.neko<=prices.neko?'#54d672':'#f76571';
     ctx.fillText((last_prices.neko<=prices.neko?'+':'-') + Math.abs(prices.neko - last_prices.neko), width - 12, 74);
@@ -120,7 +120,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
     if (user_shares.neko != 0) {
         ctx.font = '16px azuki_font';
         ctx.fillText(`OKA${prices.neko} per share`, 45, 97);
-        ctx.fillText(`You have ${user_shares.neko} shares, worth OKA${user_shares.neko * prices.neko}`, 45, 113);
+        ctx.fillText(`You have ~${Math.floor(user_shares.neko * 100) / 100} shares, worth ~OKA${Math.floor((user_shares.neko * prices.neko)*100)/100}`, 45, 113);
     } else {
         ctx.font = '24px azuki_font';
         ctx.fillText(`OKA${prices.neko} per share`, 45, 109);
@@ -130,7 +130,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
     if (user_shares.dogy != 0) {
         ctx.font = '16px azuki_font';
         ctx.fillText(`OKA${prices.dogy} per share`, 45, 157);
-        ctx.fillText(`You have ${user_shares.dogy} shares, worth OKA${user_shares.dogy * prices.dogy}`, 45, 173);
+        ctx.fillText(`You have ~${Math.floor(user_shares.dogy * 100) / 100} shares, worth ~OKA${Math.floor((user_shares.dogy * prices.dogy)*100)/100}`, 45, 173);
     } else {
         ctx.font = '24px azuki_font';
         ctx.fillText(`OKA${prices.dogy} per share`, 45, 169);
@@ -140,7 +140,7 @@ async function RenderImage(interaction: ChatInputCommandInteraction, user_shares
     if (user_shares.fxgl != 0) {
         ctx.font = '16px azuki_font';
         ctx.fillText(`OKA${prices.fxgl} per share`, 45, 217);
-        ctx.fillText(`You have ${user_shares.fxgl} shares, worth OKA${user_shares.fxgl * prices.fxgl}`, 45, 233);
+        ctx.fillText(`You have ~${Math.floor(user_shares.fxgl * 100) / 100} shares, ~worth OKA${Math.floor((user_shares.fxgl * prices.fxgl)*100)/100}`, 45, 233);
     } else {
         ctx.font = '24px azuki_font';
         ctx.fillText(`OKA${prices.fxgl} per share`, 45, 229);
