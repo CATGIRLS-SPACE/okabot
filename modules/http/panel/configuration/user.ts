@@ -12,6 +12,27 @@ export interface TokenUserData {
 }
 
 export function RegisterUserConfigurationPaths() {
+    ps.get('/session/me', (req, res) => {
+        if (!req.query || !req.query.session) {
+            res.status(400).end();
+            return;
+        }
+
+        if (!CheckSessionValidity(req.query.session as string)) return <never> res.status(401).end();
+
+        const user_data = GetUserBySession(req.query.session as string)!;
+        
+        res.json({
+            success: true,
+            user: {
+                username: user_data.username,
+                displayName: user_data.global_name,
+                id: user_data.id,
+                avatar: user_data.avatar,
+            }
+        });
+    });
+
     // pronouns
 
     ps.get('/cfg/user/pronouns', (req, res) => {
