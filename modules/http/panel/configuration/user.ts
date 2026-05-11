@@ -2,6 +2,8 @@ import {ps} from "../core";
 import {CheckSessionValidity, GetUserBySession} from "../oauth2";
 import {Snowflake} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../../../user/prefs";
+import { CONFIG } from "../../../..";
+import { GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus } from "../../../../util/users";
 
 export interface TokenUserData {
     id: Snowflake,
@@ -21,6 +23,7 @@ export function RegisterUserConfigurationPaths() {
         if (!CheckSessionValidity(req.query.session as string)) return <never> res.status(401).end();
 
         const user_data = GetUserBySession(req.query.session as string)!;
+        const profile = GetUserProfile(user_data.id);
         
         res.json({
             success: true,
@@ -29,6 +32,19 @@ export function RegisterUserConfigurationPaths() {
                 displayName: user_data.global_name,
                 id: user_data.id,
                 avatar: user_data.avatar,
+                is_admin: CONFIG.permitted_to_use_shorthands.includes(user_data.id),
+                profile: {
+                    support_type: GetUserSupportStatus(user_data.id),
+                    dev_type: GetUserDevStatus(user_data.id),
+                    tester_type: GetUserTesterStatus(user_data.id),
+                    bot_data: {
+                        okash_total: profile.okash.bank + profile.okash.wallet,
+                        daily: profile.daily.streak,
+                        is_banned: profile.restriction.active,
+                        ban_reason: profile.restriction.active ? profile.restriction.reason : undefined,
+                        ban_until: profile.restriction.active ? profile.restriction.until : undefined
+                    }
+                }
             }
         });
     });
