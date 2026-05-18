@@ -6,8 +6,9 @@ import numpy as np
 new_width = 600
 
 banner = Image.open(sys.argv[1])
-overlay = Image.open(sys.argv[2])
+overlay = Image.open(sys.argv[2]).convert('RGBA')
 frames = []
+durations = []
 
 print(banner, overlay)
 
@@ -22,6 +23,9 @@ for frame in range(banner.n_frames):
     banner.seek(frame)
     banner_frame = banner.copy().convert('RGBA')
 
+    duration = banner.info.get('duration', 100)
+    durations.append(duration)
+
     w, h = banner_frame.size
     new_height = int(h * (new_width / w))
     banner_resized = banner_frame.resize((new_width, new_height), Image.LANCZOS)
@@ -35,4 +39,20 @@ for frame in range(banner.n_frames):
     canvas.paste(overlay, (0, 0), overlay)
     frames.append(np.array(canvas))  # convert each frame to numpy array
 
-imageio.mimsave(sys.argv[3], frames, loop=0)
+# imageio.mimsave(
+#     sys.argv[3], 
+#     frames,
+#     duration=[d / 1000 for d in durations]
+#     loop=0
+# )
+
+pil_frames = [Image.fromarray(frame) for frame in frames]
+
+pil_frames[0].save(
+    sys.argv[3],
+    save_all=True,
+    append_images=pil_frames[1:],
+    duration=durations,
+    loop=0,
+    disposal=2
+)
