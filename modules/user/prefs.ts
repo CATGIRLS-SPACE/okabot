@@ -233,18 +233,30 @@ function GetProfilesDir(): string {
 export function DumpProfileCache() {
     ProfileCache.clear();
 }
+
 export function ReloadProfile(user_id: Snowflake) {
     if (ProfileCache.has(user_id)) return ProfileCache.delete(user_id);
     GetUserProfile(user_id);
 }
 
-export function CheckForProfile(user_id: string): boolean {
+/**
+ * Check if a user ID exists in the current profile database
+ * @param user_id The user ID to check
+ * @param override_ban Generally, if the user is banned, this function will return false. If `override_ban` is set, then it will return true regardless of ban.
+ * @returns true if exists and not banned, false otherwise
+ */
+export function CheckForProfile(user_id: string, override_ban: boolean = false): boolean {
     if (!ProfilesDB.data.profiles[user_id]) return false;
 
     const profile = GetUserProfile(user_id);
-    return !(profile.restriction.active && profile.restriction.until < new Date().getTime());
+    return override_ban ? true : !(profile.restriction.active && profile.restriction.until < new Date().getTime());
 }
 
+/**
+ * Get a user's profile. You should call `CheckForProfile(user_id)` before you call this.
+ * @param user_id The ID of the user profile to get
+ * @returns The user's profile if it exists, otherwise it returns the default profile data.
+ */
 export function GetUserProfile(user_id: string): USER_PROFILE {
     // check if it exists
     if (!ProfilesDB.data.profiles[user_id]) {
@@ -255,11 +267,21 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
     return ProfilesDB.data.profiles[user_id];
 }
 
+/**
+ * Replaces existing user profile data with new/updated profile data and syncs the database.
+ * @param user_id The user ID to update
+ * @param new_data The new profile data to replace the current data
+ */
 export function UpdateUserProfile(user_id: string, new_data: USER_PROFILE) {
     ProfilesDB.data.profiles[user_id] = new_data;
     ProfilesDB.write();
 }
 
+/**
+ * Migrates old profile data files to the new LowDB scheme, as old profiles were
+ * a unique file for each user. This will also check for missing properties and
+ * add them if needed.
+ */
 export async function MigrateProfilesToLowDB() {
     console.log('\n\n\n');
     L.fatal('!!! THIS WILL DELETE THE CURRENT PROFILE DATABASE IF IT EXISTS !!!');

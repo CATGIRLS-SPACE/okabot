@@ -30,3 +30,12 @@ configuration error codes:
 - cfgs:1 - The server is not eligible for this setting (forced-eligibility list)
 - cfgs:2 - The server is not eligible for this setting (requires premium/full-access permission)
 - cfgs:3 - okabot is not present in this server.
+
+admin panel codes:
+- admin:0 - Generic admin error
+- admin:u-1 - User profile does not exist
+- admin:u-2 - User profile is malformed/cannot be read
+- admin:u-3 - User profile permission tier is above that of the current session user
+- admin:m-1 - User profile could not be modified
+- admin:m-2 - User profile is locked and cannot be modified
+- admin:m-3 - Property does not exist on profile

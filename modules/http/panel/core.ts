@@ -4,6 +4,8 @@ import {Logger} from "okayulogger";
 import {RegisterOAuthPaths, SaveCodeAndGetSession} from "./oauth2";
 import {RegisterUserConfigurationPaths} from "./configuration/user";
 import {RegisterServerConfigurationPaths} from "./configuration/guild";
+import { CURRENT_RULES_VERSION } from '../../user/rules';
+import { RegisterUserAdminRoutes } from './admin/userAdmin';
 
 export const PANEL_API_VERSION = '1.0.0';
 
@@ -11,9 +13,15 @@ export const PANEL_API_VERSION = '1.0.0';
 export const ps = express();
 const L = new Logger('panel server');
 
+ps.use('*', (req, res, next) => {
+    res.setHeader('X-Powered-By', 'okabot');
+    next();
+});
+
 ps.get('/', (_req, res) => {
     res.json({
         panel_api_version: PANEL_API_VERSION,
+        rules_version: CURRENT_RULES_VERSION,
         enable_subscriptions: false,
         free_props: [
             'basic.okash',
@@ -57,6 +65,7 @@ ps.get('/auth/final', async (req, res) => {
 RegisterOAuthPaths();
 RegisterUserConfigurationPaths();
 RegisterServerConfigurationPaths();
+RegisterUserAdminRoutes();
 
 ps.on('listening', () => {
     L.info('panel api server listening!');

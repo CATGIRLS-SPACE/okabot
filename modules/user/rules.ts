@@ -14,7 +14,7 @@ import {
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 
-const CURRENT_RULES_VERSION = '2026-03-12';
+export const CURRENT_RULES_VERSION = '2026-03-12';
 
 const agreement = new EmbedBuilder()
     .setAuthor({name:'okabot'})
@@ -26,8 +26,11 @@ const agreement = new EmbedBuilder()
         {name:'3. No multiaccounting',value:'You are allowed one account and one account only for okabot.'},
         {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot. Trading okash to trade items is OK.'},
         {name:'5. No public discussion of achievement solutions',value:'I can\'t control what you do in your private chats, but please don\'t discuss achievement solutions publicly, that ruins the fun of figuring them out yourself!'},
-        {name:'Disclaimer',value:'By using okabot, you are consenting to having select data collected about you/your usage of okabot. This information may be linked to your Discord user ID or other identifying information. This information is not shared with third-parties. If this is not your first time using okabot, and you wish to have all data pertaining to your account deleted, please DM okabot "data deletion request" and the rest of the process can be handled from there.'},
-    );
+        {name:'Disclaimer',value:'By using okabot, you are consenting to having select data collected about you/your usage of okabot. This information may be linked to your Discord user ID or other identifying information. This information is not, and never will be, shared with third-parties. If this is not your first time using okabot, and you wish to have all data pertaining to your account deleted, please DM okabot "data deletion request" and the rest of the process can be handled from there.'},
+    )
+    /*.setFooter({
+        text:'You can read about okabot\'s privacy policy at https://oka.bot/privacy'
+    })*/;
 
 
 const AcceptButton = new ButtonBuilder()
