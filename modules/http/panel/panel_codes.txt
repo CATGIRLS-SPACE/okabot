@@ -4,9 +4,9 @@ This is a list of possible error codes that can be returned by the okabot Panel 
 core codes:
 - core:0 - Generic core error
 - core:1 - A required query parameter was not specified
-- core:2 - A specified query parameter is not allowed
+- core:2 - A specified query parameter is not allowed/invalid
 - core:3 - A required URL parameter was not specified
-- core:4 - A specified URL parameter is not allowed
+- core:4 - A specified URL parameter is not allowed/invalid
 
 oauth2 codes:
 - oauth2:0 - Generic OAuth2 error

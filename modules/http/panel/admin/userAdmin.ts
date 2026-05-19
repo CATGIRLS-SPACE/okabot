@@ -23,6 +23,25 @@ const NeedsAdminSession = (req: Request, res: Response, next: CallableFunction) 
     next();
 }
 
+
+function setNestedProperty(obj: any, path: string, value: string | boolean | number): boolean {
+    const keys = path.split('.');
+    const lastKey = keys.pop(); // The final property to update
+    
+    // Traverse to the second-to-last level
+    const lastObj = keys.reduce((current, key) => {
+        if (!current[key]) return false; // property doesnt exist
+        return current[key];
+    }, obj);
+
+    if (lastKey) {
+        lastObj[lastKey] = value;
+    }
+
+    return true;
+}
+
+
 export function RegisterUserAdminRoutes() {
     ps.get('/admin/user/:id', NeedsValidSession, NeedsAdminSession, (req, res) => {
         if (!CheckForProfile(req.params.id, true)) return <never> res.status(404).json({success:false,code:'admin:u-1'});
@@ -30,31 +49,35 @@ export function RegisterUserAdminRoutes() {
     });
 
     ps.patch('/admin/user/:id/set-prop', NeedsValidSession, NeedsAdminSession, (req, res) => {
-        if (!req.query.prop || !req.query.value) return <never> res.status(401).json({success:false,code:'core:1'});
+        if (!req.query.prop || !req.query.value || !req.query.type) return <never> res.status(400).json({success:false,code:'core:1'});
+        let value: string | number | boolean = req.query.value as string;
+        switch (req.query.type as string) {
+            case 'number':
+                value = value.includes('.') ? parseFloat(value) : parseInt(value);
+                break;
+
+            case 'boolean':
+                value = value.toLowerCase() == 'true';
+                break;
+
+            case 'string': default:
+                break;
+        }
 
         if (!CheckForProfile(req.params.id, true)) return <never> res.status(404).json({success:false,code:'admin:u-1'});
         const user = GetUserBySession(req.query.session as string)!;
         const profile = GetUserProfile(req.params.id);
-
-        // woo nested properties!
-        // there are a TON of @ts-expect-errors because I'm too lazy to 
-        // make USER_PROFILE a proper string-indexable interface
-        const keys = req.query.prop.toString().split('.');
-
-        for (let i = 0; i < keys.length - 1; i++) {
-            const key = keys[i];
-            // @ts-expect-error it absolutely CAN!
-            if (!profile[key] || typeof profile[key] !== 'object') return <never> res.status(401).json({success:false,code:'admin:m-3'});
-            // @ts-expect-error it absolutely CAN!
-            profile = profile[key];
-        }
-
-        // @ts-expect-error it absolutely CAN!
-        profile[keys[keys.length - 1]] = req.query.value.toString();
+        
+        const return_value = setNestedProperty(profile, req.query.prop as string, value);
+        if (!return_value) return <never> res.status(400).json({success:false,code:'core:2'});
+        
         UpdateUserProfile(req.params.id, profile);
 
+        const modded_user = client.users.cache.get(req.params.id);
         const channel = client.channels.cache.get('1318329592095703060');
-        if (channel && channel.isSendable()) channel.send(`(audit) ${user.username} (${user.id})`)
+        if (channel && channel.isSendable()) channel.send(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) PROP \`${req.query.prop}\` NOW IS \`${value}\``);
+
+        console.log(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) PROP "${req.query.prop}" NOW IS "${value}"`)
 
         res.json({success:true,prop:req.query.prop as string,value:req.query.value as string});
     });

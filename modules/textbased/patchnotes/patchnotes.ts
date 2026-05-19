@@ -17,7 +17,7 @@ export function ShowPatchnotes(message: Message) {
         PATCHNOTES_COMPONENT = require(join(__dirname, 'versions', VERSION)).PATCHNOTES_COMPONENT;
     } catch {
         return message.reply({
-            content: `sorry, i couldn't find \`${VERSION}.js\` in the patch notes versions folder :crying_cat_face:`
+            content: `Seems like there's no patchnotes provided for this release. It's likely just a bugfix/internal update only.`
         });
     }
 
