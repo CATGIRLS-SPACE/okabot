@@ -43,9 +43,13 @@ function setNestedProperty(obj: any, path: string, value: string | boolean | num
 
 
 export function RegisterUserAdminRoutes() {
-    ps.get('/admin/user/:id', NeedsValidSession, NeedsAdminSession, (req, res) => {
+    ps.get('/admin/user/:id', NeedsValidSession, NeedsAdminSession, async (req, res) => {
         if (!CheckForProfile(req.params.id, true)) return <never> res.status(404).json({success:false,code:'admin:u-1'});
-        res.json(GetUserProfile(req.params.id));
+        const user = await client.users.fetch(req.params.id);
+        res.json({
+            username: user.username,
+            profile: GetUserProfile(req.params.id)
+        });
     });
 
     ps.patch('/admin/user/:id/set-prop', NeedsValidSession, NeedsAdminSession, (req, res) => {
