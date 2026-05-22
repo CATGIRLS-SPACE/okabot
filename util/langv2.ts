@@ -1,4 +1,5 @@
-import { EMOJI, GetEmoji } from "./emoji";
+import {EMOJI, GetEmoji} from "./emoji";
+import {LangGetAutoTranslatedStringRaw} from "./language";
 
 
 export enum LANGV2_INTERACTION {
@@ -9,10 +10,6 @@ const LANG_EN: {[key: string]: string} = {
     'interaction.okash':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **{1}**, you've got ${GetEmoji(EMOJI.OKASH)} OKA**{2}** in your wallet.\nYour bank balance is ${GetEmoji(EMOJI.OKASH)} OKA**{3}**.\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in the bank's fines.`,
 }
 
-// const LANG_ES: {[key: string]: string} = {
-//     'interaction.okash':`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **{1}**, you've got ${GetEmoji(EMOJI.OKASH)} OKA**{2}** in your wallet.\nYour bank balance is ${GetEmoji(EMOJI.OKASH)} OKA**{3}**.\nThere's currently ${GetEmoji(EMOJI.OKASH)} OKA**{4}** in the bank's fines.`,
-// }
-
 
 /**
  * Get a formatted string in a desired locale (if available)
@@ -21,7 +18,7 @@ const LANG_EN: {[key: string]: string} = {
  * @param params Replacement values for string value placeholders
  * @returns The localized string in the desired locale
  */
-export function LangV2GetFormatted(item: LANGV2_INTERACTION, locale: 'en' | 'es', ...params: string[]): string {
+export async function LangV2GetFormatted(item: LANGV2_INTERACTION, locale: string, ...params: string[]): Promise<string> {
     let str = LANG_EN[item];
     if (!str) return `[language error: ID \`${item}\` not found]`;
 
@@ -30,5 +27,14 @@ export function LangV2GetFormatted(item: LANGV2_INTERACTION, locale: 'en' | 'es'
         i++;
         str = str.replaceAll(`{${i}}`, param);
     }
-    return str;
+
+    if (locale == 'en') return str;
+
+    // placeholder
+    try {
+        return await LangGetAutoTranslatedStringRaw(str, locale);
+    } catch (err) {
+        console.error(err);
+        return `${str}\n-# *TL Error: ${err}`;
+    }
 }

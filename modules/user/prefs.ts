@@ -1,8 +1,17 @@
 import {existsSync, mkdirSync, readdirSync, readFileSync} from "fs"
 import {CUSTOMIZATION_UNLOCKS, ITEMS} from "../okash/items"
 import {join} from "path"
-import {BASE_DIRNAME, client} from "../../index"
-import {ChatInputCommandInteraction, Client, EmbedBuilder, Snowflake} from "discord.js"
+import {client} from "../../index"
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChatInputCommandInteraction,
+    Client,
+    EmbedBuilder,
+    Interaction,
+    Snowflake
+} from "discord.js"
 import {Logger} from "okayulogger"
 import {Achievements} from "../passive/achievement"
 // console.log('achievements is', Achievements)
@@ -10,13 +19,15 @@ import {UserPet} from "../pet/pet";
 import {BannerSticker} from "../levels/levels"
 import {Low} from "lowdb";
 import {JSONFilePreset} from "lowdb/node";
+import {AUTO_TRANSLATE_LANGUAGES, t} from "../i18n/translation";
 
 const L = new Logger('profiles');
 
 export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
     CASINO_PASS,
-    DROP_BOOST
+    DROP_BOOST,
+    TRANSLATION_NOTICE_SEEN
 }
 
 export interface ItemData {
@@ -74,7 +85,8 @@ export interface USER_PROFILE {
                 subjective: string,
                 possessive: string,
                 objective: string,
-            }
+            },
+            allow_translation: boolean
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS,
@@ -145,7 +157,8 @@ const DEFAULT_DATA: USER_PROFILE = {
                 subjective: 'they',
                 possessive: 'their',
                 objective: 'them',
-            }
+            },
+            allow_translation: true
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,
@@ -420,6 +433,50 @@ export async function GetAllLevels(): Promise<Array<{user_id: string, level: {le
     return all;
 }
 
+
+export async function CheckForTranslationFlag(interaction: ChatInputCommandInteraction) {
+    if (!AUTO_TRANSLATE_LANGUAGES.includes(interaction.locale)) return true;
+    const profile = GetUserProfile(interaction.user.id);
+    if (profile.flags.includes(FLAG.TRANSLATION_NOTICE_SEEN)) return true;
+    await interaction.deferReply();
+
+    const yes_button = new ButtonBuilder().setEmoji('✅').setLabel(await t('system.translate_yes', interaction.locale)).setCustomId('yes').setStyle(ButtonStyle.Success);
+    const no_button = new ButtonBuilder().setEmoji('❌').setLabel(await t('system.translate_no', 'en-US')).setCustomId('no').setStyle(ButtonStyle.Secondary);
+
+    const reply = await interaction.editReply({
+        content: await t('system.translate_notice', interaction.locale) + '\n\n' + await t('system.translate_notice', 'en-US'),
+        components: [ new ActionRowBuilder().addComponents(yes_button, no_button) as never ]
+    });
+
+    const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
+    const collector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 120_000 });
+
+    collector.on('collect', async (i) => {
+        const profile = GetUserProfile(interaction.user.id);
+
+        if (i.customId == 'yes') {
+            profile.customization.global.allow_translation = true;
+            i.update({
+                content: await t('system.translate_yes_final', interaction.locale),
+                components: []
+            });
+        } else {
+            profile.customization.global.allow_translation = false;
+            i.update({
+                content: await t('system.translate_no_final', 'en-US'),
+                components: []
+            });
+        }
+
+        profile.flags.push(FLAG.TRANSLATION_NOTICE_SEEN);
+        UpdateUserProfile(interaction.user.id, profile);
+    });
+    collector.on('end', async (_c, reason) => {
+        if (reason == 'time') await interaction.deleteReply();
+    })
+
+    return false;
+}
 
 export function RestrictUser(client: Client, user_id: string, until: string, reason: string) {
     const d = new Date(until);

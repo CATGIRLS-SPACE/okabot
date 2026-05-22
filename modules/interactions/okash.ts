@@ -2,30 +2,32 @@ import {ChatInputCommandInteraction, Message, SlashCommandBuilder, TextChannel} 
 import {GetBank, GetWallet} from "../okash/wallet";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {GetCurrentFines} from "../okash/games/rob";
-import {LANGV2_INTERACTION, LangV2GetFormatted} from "../../util/langv2";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {t} from "../i18n/translation";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 
 export async function HandleCommandOkash(interaction: ChatInputCommandInteraction) {
-    // await interaction.deferReply();
-
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
         content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
     });
+
+    await interaction.deferReply();
 
     const bank = GetBank(interaction.user.id);
     const wallet = GetWallet(interaction.user.id);
 
     if (bank >= 1_000_000) GrantAchievement(interaction.user, Achievements.CAPITALISM, interaction.channel as TextChannel);
 
-    await interaction.reply({
-        content: LangV2GetFormatted(LANGV2_INTERACTION.OKASH,
-            'en',
-            interaction.user.displayName,
-            wallet.toString(),
-            bank.toString(),
-            GetCurrentFines().toString()
-        )
+    await interaction.editReply({
+        content: await t('interactions.okash', interaction.okabot.translateable_locale, {
+            cat_money: GetEmoji(EMOJI.CAT_MONEY_EYES),
+            okash: GetEmoji(EMOJI.OKASH),
+            bank,
+            wallet,
+            fines: GetCurrentFines(),
+            name: interaction.user.displayName
+        })
     });
 }
 
@@ -41,13 +43,14 @@ export async function TextBasedOkash(message: Message) {
     if (bank >= 1e6) GrantAchievement(message.author, Achievements.CAPITALISM, message.channel as TextChannel)
 
     await message.reply({
-        content: LangV2GetFormatted(LANGV2_INTERACTION.OKASH,
-            'en',
-            message.author.displayName,
-            wallet.toString(),
-            bank.toString(),
-            GetCurrentFines().toString()
-        )
+        content: await t('interactions.okash', 'en-US', {
+            cat_money: GetEmoji(EMOJI.CAT_MONEY_EYES),
+            okash: GetEmoji(EMOJI.OKASH),
+            bank,
+            wallet,
+            fines: GetCurrentFines(),
+            name: message.author.displayName
+        })
     })
 }
 

@@ -145,6 +145,7 @@ import {DoRandomDrops} from "./modules/passive/onMessage";
 import {LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
 import {
+    CheckForTranslationFlag,
     CheckUserIdOkashRestriction,
     DumpProfileCache,
     GetUserProfile,
@@ -177,6 +178,7 @@ import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToke
 import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
 import {HandleCommandDig} from "./modules/okash/games/dig";
 import {ps} from "./modules/http/panel/core";
+import {InitLanguage} from "./modules/i18n/translation";
 
 
 export const client = new Client({
@@ -259,6 +261,7 @@ async function RunPreStartupTasks() {
     LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
     SetupGoodluckle();
     SetupTranslate();
+    InitLanguage();
     SetupGeminiDemo();
     SetupStocks(__dirname);
     LoadBookmarkDB();
@@ -328,7 +331,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'debug': async (interaction: ChatInputCommandInteraction) => {
         const d = new Date();
         await interaction.reply({
-            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/okawaffles/okabot/commit/${COMMIT}))\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
+            content:`You are running okabot v${VERSION} (commit [${COMMIT}](https://github.com/CATGIRLS-SPACE/okabot/commit/${COMMIT}))\nYour locale is ${interaction.locale}\nUp since <t:${Math.floor(d.getTime()/1000 - process.uptime())}:R>\nLaunch command: \`${process.argv.join(' ')}\`\n${process.argv.join(' ').includes('bun')?"You're using Bun! This may not work 100% correctly!":"You're using NodeJS."}`,
             flags:[MessageFlags.Ephemeral]
         });
     },
@@ -408,9 +411,12 @@ client.on(Events.InteractionCreate, async interaction => {
 
     if (!(await CheckRequiredPermissions(interaction))) return;
 
+    if (!(await CheckForTranslationFlag(interaction))) return;
+
+    const profile = GetUserProfile(interaction.user.id);
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
-        translateable_locale: interaction.locale
+        translateable_locale: profile.customization.global.allow_translation ? interaction.locale : 'en-US'
     };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
@@ -449,7 +455,7 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         .setDescription(`A bot that "serves zero purpose" and exists "just because it can."`)
         .addFields(
             {name:'Development', value: 'okawaffles, tacobella03', inline: true},
-            {name:'Testing', value:'okawaffles, tacobella03, pampers2, kbgkaden', inline: true},
+            {name:'Testing', value:'okawaffles, tacobella03', inline: true},
             {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
             {name:'Donators', value:'tacobella03, flyer.', inline: false},

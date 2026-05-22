@@ -30,6 +30,7 @@
     "emoji-regex": "^10.5.0",
     "express": "^4.22.1",
     "gifuct-js": "^2.1.2",
+    "i18next": "^26.2.0",
     "json": "^11.0.0",
     "lily-dmdata": "^0.1.7-beta",
     "lowdb": "^7.0.1",

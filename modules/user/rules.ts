@@ -13,40 +13,42 @@ import {
 } from "discord.js";
 import { GetUserProfile, UpdateUserProfile } from "./prefs";
 import {EMOJI, GetEmoji} from "../../util/emoji";
+import {t} from "../i18n/translation";
 
 export const CURRENT_RULES_VERSION = '2026-03-12';
 
-const agreement = new EmbedBuilder()
-    .setAuthor({name:'okabot'})
-    .setTitle('okabot Rules')
-    .setDescription(`You must read and agree to these rules before using okabot (updated ${CURRENT_RULES_VERSION}). If this is suddenly appearing again, the rules have updated and you must agree to the new rules.`)
-    .setFields(
-        {name:'1. No Exploiting',value:'Any abuse of bugs or manipulation will cause your account to be irreversibly **reset without warning**. Alongside, you may potentially be banned from using okabot entirely.'},
-        {name:'2. No Macros!!!!!!!',value:'Effortless gambling isn\'t fair to others. Don\'t use macros/scripts.'},
-        {name:'3. No multiaccounting',value:'You are allowed one account and one account only for okabot.'},
-        {name:'4. No illegal okash activities',value:'You are prohibited from trading okash/items for real-world currencies or items in any other bot. Trading okash to trade items is OK.'},
-        {name:'5. No public discussion of achievement solutions',value:'I can\'t control what you do in your private chats, but please don\'t discuss achievement solutions publicly, that ruins the fun of figuring them out yourself!'},
-        {name:'Disclaimer',value:'By using okabot, you are consenting to having select data collected about you/your usage of okabot. This information may be linked to your Discord user ID or other identifying information. This information is not, and never will be, shared with third-parties. If this is not your first time using okabot, and you wish to have all data pertaining to your account deleted, please DM okabot "data deletion request" and the rest of the process can be handled from there.'},
-    )
-    /*.setFooter({
-        text:'You can read about okabot\'s privacy policy at https://oka.bot/privacy'
-    })*/;
-
-
-const AcceptButton = new ButtonBuilder()
-    .setLabel('Accept')
-    .setCustomId('accept')
-    .setStyle(ButtonStyle.Success)
-    .setEmoji('✅')
-
-const AgreementComponentBar = new ActionRowBuilder()
-    .addComponents(AcceptButton);
 
 export async function CheckRuleAgreement(interaction: ChatInputCommandInteraction): Promise<boolean> {
     const profile = GetUserProfile(interaction.user.id);
     if (profile.accepted_rules && profile.rules_accepted_version == CURRENT_RULES_VERSION) return true;
 
     // hasn't agreed to rules
+
+    const agreement = new EmbedBuilder()
+        .setAuthor({name:'okabot'})
+        .setTitle(await t('system.rules.title', interaction.okabot.translateable_locale))
+        .setDescription(await t('system.rules.desc', interaction.okabot.translateable_locale, {version: CURRENT_RULES_VERSION}))
+        .setFields(
+            {name:await t('system.rules.name.one', interaction.okabot.translateable_locale),value:await t('system.rules.value.one', interaction.okabot.translateable_locale)},
+            {name:await t('system.rules.name.two', interaction.okabot.translateable_locale),value:await t('system.rules.value.two', interaction.okabot.translateable_locale)},
+            {name:await t('system.rules.name.three', interaction.okabot.translateable_locale),value:await t('system.rules.value.three', interaction.okabot.translateable_locale)},
+            {name:await t('system.rules.name.four', interaction.okabot.translateable_locale),value:await t('system.rules.value.four', interaction.okabot.translateable_locale)},
+            {name:await t('system.rules.name.five', interaction.okabot.translateable_locale),value:await t('system.rules.value.five', interaction.okabot.translateable_locale)},
+            {name:await t('system.rules.name.disclaimer', interaction.okabot.translateable_locale),value:await t('system.rules.value.disclaimer', interaction.okabot.translateable_locale)},
+        )
+        /*.setFooter({
+            text:'You can read about okabot\'s privacy policy at https://oka.bot/privacy'
+        })*/;
+
+
+    const AcceptButton = new ButtonBuilder()
+        .setLabel(await t('system.rules.accept', interaction.okabot.translateable_locale))
+        .setCustomId('accept')
+        .setStyle(ButtonStyle.Success)
+        .setEmoji('✅')
+
+    const AgreementComponentBar = new ActionRowBuilder()
+        .addComponents(AcceptButton);
 
     const reply = await interaction.reply({
         embeds: [agreement],
@@ -65,7 +67,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
             UpdateUserProfile(interaction.user.id, profile);
 
             i.update({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} You agreed to the rules! Thank you for using okabot! Have fun!`,
+                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} ${t('system.rules.agreed', interaction.okabot.translateable_locale)}`,
                 components: [],
                 embeds: []
             });
@@ -86,7 +88,23 @@ export async function CheckForRulesSimple(user_id: Snowflake): Promise<boolean> 
 const rule_messages = new Map<Snowflake, Snowflake>();
 
 export async function TextBasedRules(message: Message) {
-    if (await CheckForRulesSimple(message.author.id)) return message.reply({content:'You\'ve already agreed to the rules!',embeds:[agreement]});
+    const agreement = new EmbedBuilder()
+        .setAuthor({name:'okabot'})
+        .setTitle(await t('system.rules.title', 'en-US'))
+        .setDescription(await t('system.rules.desc', 'en-US', {version: CURRENT_RULES_VERSION}))
+        .setFields(
+            {name:await t('system.rules.name.one', 'en-US'),value:await t('system.rules.value.one', 'en-US')},
+            {name:await t('system.rules.name.two', 'en-US'),value:await t('system.rules.value.two', 'en-US')},
+            {name:await t('system.rules.name.three', 'en-US'),value:await t('system.rules.value.three', 'en-US')},
+            {name:await t('system.rules.name.four', 'en-US'),value:await t('system.rules.value.four', 'en-US')},
+            {name:await t('system.rules.name.five', 'en-US'),value:await t('system.rules.value.five', 'en-US')},
+            {name:await t('system.rules.name.disclaimer', 'en-US'),value:await t('system.rules.value.disclaimer', 'en-US')},
+        )
+        /*.setFooter({
+            text:'You can read about okabot\'s privacy policy at https://oka.bot/privacy'
+        })*/;
+
+    if (await CheckForRulesSimple(message.author.id)) return message.reply({content:await t('system.rules.already_agreed'),embeds:[agreement]});
 
     const reply = await message.reply({embeds:[agreement]});
     reply.react('🆗');
@@ -101,7 +119,7 @@ export async function CheckForRuleReact(reaction: MessageReaction, reactor: User
         profile.rules_accepted_version = CURRENT_RULES_VERSION;
         UpdateUserProfile(reactor.id, profile);
         (await reaction.message.fetch()).edit({
-            content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${reactor.displayName}**, you've agreed to the rules! Have fun with okabot!\nYou can run this command again at any time to see the rules.`,
+            content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} ${t('system.rules.agreed_text', 'en-US', {name: reactor.displayName})}`,
             embeds:[]
         });
         rule_messages.delete(reactor.id);
