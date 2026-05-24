@@ -8,11 +8,11 @@ import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
 import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN } from "./levels";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {client, GetLastLocale} from "../../index";
-import {ITEM_NAMES} from "../interactions/pockets";
 import {ITEMS} from "../okash/items";
-import {LANG_INTERACTION, LangGetAutoTranslatedString} from "../../util/language";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_INTERMEDIATE} from "../tasks/dailyMissions";
+import {t} from "../i18n/translation";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 const XPCooldown: Map<string, number> = new Map<string, number>();
 
@@ -60,15 +60,15 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
         if (profile.leveling.level % 10 == 0) {
             // 10, 20, 30 etc. will give an exlb
-            earned_item = ITEM_NAMES[ITEMS.LOOTBOX_EX].name;
+            earned_item = await t('items.lootbox.ex.name', GetLastLocale(user_id));
             AddOneToInventory(user_id, ITEMS.LOOTBOX_EX);
         } else if (profile.leveling.level % 5 == 0) {
             // 5, 15, 25, etc will give a rlb
-            earned_item = ITEM_NAMES[ITEMS.LOOTBOX_RARE].name;
+            earned_item = await t('items.lootbox.rare.name', GetLastLocale(user_id));
             AddOneToInventory(user_id, ITEMS.LOOTBOX_RARE);
         } else {
             // other levels just give a common lootbox
-            earned_item = ITEM_NAMES[ITEMS.LOOTBOX_COMMON].name;
+            earned_item = await t('items.lootbox.common.name', GetLastLocale(user_id));
             AddOneToInventory(user_id, ITEMS.LOOTBOX_COMMON);
         }
 
@@ -76,7 +76,15 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
 
         if (CheckFeatureAvailability(channel.guild!.id, ServerFeature.levelup_msg)) {
             channel.send({
-                content: await LangGetAutoTranslatedString(LANG_INTERACTION.LEVEL_LEVELUP, GetLastLocale(user_id), user.displayName, LEVEL_NAMES_EN[profile.leveling.level - 1], profile.leveling.level, okash_reward, earned_item, target_xp),
+                content: await t('level.levelup', GetLastLocale(user_id), {
+                    name: user.displayName,
+                    level_name: LEVEL_NAMES_EN[profile.leveling.level - 1],
+                    level: profile.leveling.level,
+                    okash: GetEmoji(EMOJI.OKASH),
+                    amount: okash_reward,
+                    lootbox: earned_item,
+                    xp: target_xp
+                }),
                 flags: [MessageFlags.SuppressNotifications]
             });
 
@@ -90,19 +98,6 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         }
     
         UpdateUserProfile(user_id, profile);
-
-        // achievements
-        // if (profile.leveling.level >= 10) GrantAchievement(user, Achievements.LEVEL_10, channel);
-        // if (profile.leveling.level >= 20) GrantAchievement(user, Achievements.LEVEL_20, channel);
-        // if (profile.leveling.level >= 30) GrantAchievement(user, Achievements.LEVEL_30, channel);
-        // if (profile.leveling.level >= 40) GrantAchievement(user, Achievements.LEVEL_40, channel);
-        // if (profile.leveling.level >= 50) GrantAchievement(user, Achievements.LEVEL_50, channel);
-        // if (profile.leveling.level >= 60) GrantAchievement(user, Achievements.LEVEL_60, channel);
-        // if (profile.leveling.level >= 70) GrantAchievement(user, Achievements.LEVEL_70, channel);
-        // if (profile.leveling.level >= 80) GrantAchievement(user, Achievements.LEVEL_80, channel);
-        // if (profile.leveling.level >= 90) GrantAchievement(user, Achievements.LEVEL_90, channel);
-        // if (profile.leveling.level >= 100) GrantAchievement(user, Achievements.LEVEL_100, channel);
-        // if (profile.leveling.level >= 101) GrantAchievement(user, Achievements.LEVEL_BEYOND, channel);
     }
 
     if (leveled_up) return;

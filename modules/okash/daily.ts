@@ -4,7 +4,8 @@ import {ITEMS} from "./items"
 import {AddXP} from "../levels/onMessage"
 import {Achievements, GrantAchievement} from "../passive/achievement"
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {LANG_INTERACTION, LangGetFormattedString} from "../../util/language";
+import {t} from "../i18n/translation";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 const ONE_DAY = 86400000;
 
@@ -81,7 +82,9 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
 
     if (profile.daily.streak >= profile.daily.restore_to) {
         await interaction.editReply({
-            content: LangGetFormattedString(LANG_INTERACTION.DAILY_SR_FAIL_HIGHER, interaction.okabot.locale, interaction.user.displayName)
+            content: await t('items.sr.on_use_fail', interaction.okabot.translateable_locale, {
+                name: interaction.user.displayName
+            })
         });
         return false;
     }
@@ -90,7 +93,11 @@ export async function RestoreLastDailyStreak(interaction: ChatInputCommandIntera
     profile.daily.restored = true;
 
     await interaction.editReply({
-        content: LangGetFormattedString(LANG_INTERACTION.DAILY_SR_OK, interaction.okabot.locale, interaction.user.displayName, profile.daily.restore_to)
+        content: await t('items.sr.on_use', interaction.okabot.translateable_locale, {
+            sr: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
+            name: interaction.user.displayName,
+            length: profile.daily.streak
+        })
     });
 
         GrantAchievement(interaction.user, Achievements.DAILY_SR, interaction.channel as TextChannel);
