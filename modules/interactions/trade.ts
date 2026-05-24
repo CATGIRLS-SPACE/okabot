@@ -52,6 +52,10 @@ const tradable_items: {[key: string]: {type:'item'|'cust', id: ITEMS | CUSTOMIZA
     'td': {type:'item',id:ITEMS.TRACKED_CONVERTER},
     'streak restore': {type:'item',id:ITEMS.STREAK_RESTORE},
     'sr': {type:'item',id:ITEMS.STREAK_RESTORE},
+    'black market token': {type:'item',id:ITEMS.BLACKMARKET_TOKEN},
+    'bmt': {type:'item',id:ITEMS.BLACKMARKET_TOKEN},
+    'black market token shard': {type:'item',id:ITEMS.BLACKMARKET_TOKEN_SHARD},
+    'bmts': {type:'item',id:ITEMS.BLACKMARKET_TOKEN_SHARD},
 }
 
 export async function HandleCommandTrade(interaction: ChatInputCommandInteraction) {

@@ -86,7 +86,8 @@ export interface USER_PROFILE {
                 possessive: string,
                 objective: string,
             },
-            allow_translation: boolean
+            allow_translation: boolean,
+            preferred_locale: string,
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS,
@@ -158,7 +159,8 @@ const DEFAULT_DATA: USER_PROFILE = {
                 possessive: 'their',
                 objective: 'them',
             },
-            allow_translation: true
+            allow_translation: true,
+            preferred_locale: 'en-US'
         },
         games: {
             coin_color: CUSTOMIZATION_UNLOCKS.COIN_DEF,

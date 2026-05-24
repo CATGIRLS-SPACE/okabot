@@ -236,6 +236,16 @@ async function StartBot() {
     client.once(Events.ClientReady, () => {
         RunPostStartupTasks();
     });
+    client.on(Events.ShardDisconnect, () => {
+        L.warn('This shard has disconnected!');
+    });
+    client.on(Events.ShardReady, () => {
+        L.info('This shard is ready!');
+    });
+    client.on(Events.Error, (err) => {
+        L.error('okabot encountered a Discord.js client error!');
+        console.error(err);
+    })
 
     if (!NO_LAUNCH && !MIGRATE_PROFILES) await client.login(CONFIG.extra.includes('use dev token')?CONFIG.devtoken:CONFIG.token);
 }

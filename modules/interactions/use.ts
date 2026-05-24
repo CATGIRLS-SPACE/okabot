@@ -38,6 +38,7 @@ import {join} from "path";
 import {BASE_DIRNAME} from "../../index";
 import {scratch_ticket} from "./usables/scratchTicket";
 import {item_bmToken} from "./usables/blackMarketToken";
+import {item_bank_robbery_tool} from "./usables/bankRobberyTool";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -91,6 +92,10 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
 
         case 'black market token': case 'bmt':
             item_bmToken(interaction);
+            break;
+
+        case 'hacking tool': case 'ht':
+            item_bank_robbery_tool(interaction);
             break;
 
         default:
@@ -520,15 +525,20 @@ export async function item_sticker(interaction: ChatInputCommandInteraction) {
 
 
 export const UseSlashCommand = new SlashCommandBuilder()
-    .setName('use').setNameLocalization('ja', '使う')
-    .setDescription('Use an item from your pockets!').setDescriptionLocalization('ja', 'ポケットでアイテムを使う')
-    .addStringOption(option => 
-        option.setName('item').setNameLocalization('ja', 'アイテム')
-        .setDescription('The item to use').setDescriptionLocalization('ja', 'どのアイテムを使う')
+    .setName('use')
+    .setDescription('Use an item from your pockets!')
+    .addStringOption(option => option
+        .setName('item')
+        .setDescription('The item to use')
         .setRequired(true)
     )
     .addStringOption(option => option
-        .setName('on')
+        .setName('on-item')
         .setDescription('What to use the item on, if applicable')
+        .setRequired(false)
+    )
+    .addUserOption(option => option
+        .setName('on-user')
+        .setDescription('Who to use the item on, if applicable')
         .setRequired(false)
     )

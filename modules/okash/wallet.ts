@@ -126,6 +126,20 @@ export function AddOneToInventory(user_id: string, item: ITEMS) {
             amount: 1
         });
     }
+
+    // if a user has 25+ BMTS then turn them into tokens
+    // a user will 99% most likely never get over 25 bmts during one check since usually adds are recursive.
+    if (item == ITEMS.BLACKMARKET_TOKEN_SHARD && profile.inventory.find(i => i.item_id == item)!.amount == 25) {
+        profile.inventory.splice(profile.inventory.indexOf(profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN_SHARD)!), 1);
+        if (profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)) {
+            profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)!.amount += 1;
+        } else {
+            profile.inventory.push({
+                item_id: ITEMS.BLACKMARKET_TOKEN,
+                amount: 1
+            });
+        }
+    }
     UpdateUserProfile(user_id, profile);
 }
 

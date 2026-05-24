@@ -33,6 +33,39 @@
     },
 
     "interactions": {
-        "okash": "{{cat_money}} **{{name}}**, you've got {{okash}} OKA**{{wallet}}** in your wallet.\nYour bank balance is {{okash}} OKA**{{bank}}**.\nThere's currently {{okash}} OKA**{{fines}}** in the bank's fines."
+        "okash": "{{cat_money}} **{{name}}**, you've got {{okash}} OKA**{{wallet}}** in your wallet.\nYour bank balance is {{okash}} OKA**{{bank}}**.\nThere's currently {{okash}} OKA**{{fines}}** in the bank's fines.",
+        "daily": {
+            "init": "{{cat_sunglasses}} You got your daily reward of {{okash}} OKA**1500** and a **{{coin}}**!",
+            "streak": ":chart_with_upwards_trend: Wow! You've got a streak of {{length}} days, keep it up! You get a streak bonus of {{okash}} OKA**{{bonus}}**! **(+{{xp}}XP)**",
+            "got_shard": ":scream_cat: Woah! You also got a rare 1x {{token}} **Black Market Token Shard**!",
+            "too_early": ":crying_cat_face: It's too early to get your daily reward, **{{name}}**! Come back <t:{{time}}:R> to claim it!\nYour current daily streak is {{days}} day(s).",
+            "reminder": {
+                "now": ":clock3: {{ping}}, you can now claim your daily reward! Come get it!",
+                "scheduled": "{{cat_sunglasses}} Got it, I'll ping you here when your daily reward is ready to claim!",
+                "not_premium": ":crying_cat_face: Sorry, **{{name}}**, but you need to either be in a Premium-enabled server or have donated to okabot to use a reminder for more than 6 hours...",
+                "already_scheduled": ":pouting_cat: **{{name}}**, I already told you that I'd remind you!!",
+                "buttons": {
+                    "remind_soon": "Remind Me",
+                    "remind_next": "Remind Me Tomorrow"
+                }
+            }
+        }
+    },
+
+    "level": {
+        "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**."
+    },
+
+    "items": {
+        "sr": {
+            "name": "Streak Restore",
+            "description": "Restores your streak if you miss a day.",
+            "on_use": "{{sr}} **{{name}}**, you've restored your daily reward streak to **{{length}} days**!",
+            "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
+        },
+        "wc": {
+            "name": "{{coin}} Weighted Coin",
+            "description": "Increases your chances of winning a coinflip."
+        }
     }
 }
