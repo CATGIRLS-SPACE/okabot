@@ -9,6 +9,7 @@ import {Logger} from "okayulogger";
 
 import enUS from '../../assets/i18n/translations/en-US.json';
 import ru from '../../assets/i18n/translations/ru.json';
+import {GetUserSupportStatus} from "../../util/users";
 
 const L = new Logger('i18n');
 
@@ -72,9 +73,13 @@ export async function t(
     lang?: SupportedLanguage | string | undefined,
     vars?: Record<string, unknown>
 ): Promise<string> {
-    const dont_translate = SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage) ||
+    let dont_translate = SUPPORTED_LANGUAGES.includes(lang as SupportedLanguage) ||
         !AUTO_TRANSLATE_LANGUAGES.includes(lang as AutoTranslateLanguage) ||
-        i18next.t(key, {lng: lang, fallbackLng: lang}) != key;
+        i18next.t(key, {lng: lang, fallbackLng: lang}) != key ||
+        CONFIG.translate_api_key == '';
+
+
+    if (key.includes('achievements.') && GetUserSupportStatus((vars as {[key: string]: string})?.__user_id__ || '') == 'none') dont_translate = true;
 
     if (dont_translate) return i18next.t(key, {
         lng: lang,
@@ -94,7 +99,8 @@ export async function t(
 
         const data = await translateClient.translate(i18next.t(key), {from:'en',to:lang});
         const translated = data[0];
-        // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner.
+        // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner,
+        // while not spamming tf out of my api key lol
         AutoTranslateDB.data[lang as AutoTranslateLanguage][key] = {translation: translated, expires: Date.now() + (1000*60*60*24*14)};
         AutoTranslateDB.write();
         return i18next.services.interpolator.interpolate(translated, vars || {}, lang as AutoTranslateLanguage, {});

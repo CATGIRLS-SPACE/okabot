@@ -393,7 +393,8 @@ const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [
 
 const LAST_USER_LOCALE = new Map<Snowflake, string>();
 export function GetLastLocale(user_id: Snowflake) {
-    return LAST_USER_LOCALE.get(user_id) || 'en';
+    const profile = GetUserProfile(user_id);
+    return LAST_USER_LOCALE.get(user_id) || profile.customization.global.preferred_locale;
 }
 export function SetLastLocale(user_id: Snowflake, locale: string) {
     LAST_USER_LOCALE.set(user_id, locale);

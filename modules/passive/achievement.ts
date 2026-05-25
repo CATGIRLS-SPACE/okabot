@@ -2,12 +2,13 @@ import { ApplicationIntegrationType, AttachmentBuilder, ChatInputCommandInteract
 import { GetUserProfile, UpdateUserProfile } from "../user/prefs"
 import { EMOJI, GetEmoji } from "../../util/emoji";
 import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
-import { BASE_DIRNAME, client } from "../../index";
+import {BASE_DIRNAME, client, GetLastLocale} from "../../index";
 import { fetchImage } from "../levels/levels";
 import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import {AddXP} from "../levels/onMessage";
+import {t} from "../i18n/translation";
 
 
 interface Achievement {
@@ -208,7 +209,7 @@ export const TITLES: {
  * @param achievement The achievement to give
  * @param channel The channel to send the announcement to
  */
-export function GrantAchievement(user: User, achievement: Achievements | string, channel: TextChannel) {
+export async function GrantAchievement(user: User, achievement: Achievements | string, channel: TextChannel) {
     const profile = GetUserProfile(user.id);
 
     if (profile.achievements.indexOf(achievement as Achievements) != -1) {
@@ -231,7 +232,15 @@ export function GrantAchievement(user: User, achievement: Achievements | string,
     AddXP(user.id, channel, gained_xp);
 
     channel.send({
-        content: `<:trophy:0> Yaay, **${user.displayName}**! You've unlocked the achievement ${diff[a.diff]} **${a.name}**! **(+${gained_xp}XP)**\nYou can now use the title "**${TITLES[achievement]}**" on your profile!\n-# ${a.description}`
+        content: await t('achievements.on_unlock', GetLastLocale(user.id), {
+            name: user.displayName,
+            diff: diff[a.diff],
+            achievement: await t(`achievements.${achievement}.name`, GetLastLocale(user.id), {__user_id__: user.id}),
+            xp: gained_xp,
+            title: await t(`achievements.${achievement}.title`, GetLastLocale(user.id), {__user_id__: user.id}),
+            desc: await t(`achievements.${achievement}.desc`, GetLastLocale(user.id), {__user_id__: user.id}),
+            __user_id__: user.id
+        })
     });
 
     UpdateUserProfile(user.id, profile);
@@ -251,7 +260,6 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
 
     const profile = GetUserProfile(interaction.user.id);
     const sub = interaction.options.getString('page', true);
-    const spoil = interaction.options.getBoolean('show-all', false) || false;
 
     // make sure that there aren't any lingering removed achievements
     const keys = Object.keys(ACHIEVEMENTS);
@@ -267,23 +275,11 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
         return await interaction.editReply({
             files:[new AttachmentBuilder(readFileSync(join(BASE_DIRNAME, 'temp', 'achievement-banner.png')))]
         });
-
-        // const bar = CreateProgressBar(real_achievement_count);
-        
-        // if (real_achievement_count == 0) return interaction.reply({
-        //     content:`**${interaction.user.displayName}**, you haven't unlocked any achievements yet!`,
-        //     flags: []
-        // });
-
-        // const extra = (real_achievement_count == Object.keys(ACHIEVEMENTS).length)?'**You have unlocked all achievements! Congratulations!**\n\n':'';
-        
-        // return interaction.reply({
-        //     content:`${extra}**${interaction.user.displayName}**, you've got ${real_achievement_count} / ${Object.keys(ACHIEVEMENTS).length} achievements.\n${bar}\nMost recent achievement: **${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {name:'Unknown Achievement'}).name}** - ${(ACHIEVEMENTS[profile.achievements.at(-1)!] || {description:'I don\'t know what this acheivement is, was it removed?'}).description}`,
-        //     flags: []
-        // });
     }
 
-    let list = `## Achievements\n`;
+    await interaction.deferReply();
+
+    let list = `## ${await t('achievements.title', interaction.okabot.translateable_locale)}\n`;
     const selected_achievements = [];
     const difficulty = {
         'e': GetEmoji(EMOJI.DIFF_EASY),
@@ -300,19 +296,14 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     for (const i in selected_achievements) {
         const locked = profile.achievements.indexOf(<Achievements> selected_achievements[i].key) == -1;
         let line = difficulty[selected_achievements[i].a.diff] + (locked?'🔒 ':'🔓 ');
-    
-        if (spoil) {
-            line += (locked?selected_achievements[i].a.name:`**${selected_achievements[i].a.name}**`) + ` - ${selected_achievements[i].a.description}`; 
-        } else {
-            line += locked?`${selected_achievements[i].a.name} - ???`:`**${selected_achievements[i].a.name}** - ${selected_achievements[i].a.description}`;
-        }
+
+        line += (locked?await t(`achievements.${selected_achievements[i].key}.name`, interaction.okabot.translateable_locale, {__user_id__: interaction.user.id}):`**${await t(`achievements.${selected_achievements[i].key}.name`, interaction.okabot.translateable_locale, {__user_id__: interaction.user.id})}**`) + ` - ${await t(`achievements.${selected_achievements[i].key}.desc`, interaction.okabot.translateable_locale, {__user_id__: interaction.user.id})}`;
         
         list += `${line}\n`;
     }
 
-    interaction.reply({
-        content: list + `-# ${GetEmoji(EMOJI.DIFF_EASY)} Easy | ${GetEmoji(EMOJI.DIFF_TRICKY)} Tricky | ${GetEmoji(EMOJI.DIFF_HARD)} Hard | ${GetEmoji(EMOJI.DIFF_EXHARD)} Extra Hard`,
-        flags: []
+    interaction.editReply({
+        content: list + `-# ${await t('achievements.diffs', interaction.okabot.translateable_locale, {ade: GetEmoji(EMOJI.DIFF_EASY), adt: GetEmoji(EMOJI.DIFF_TRICKY), adh: GetEmoji(EMOJI.DIFF_HARD), adex: GetEmoji(EMOJI.DIFF_EXHARD)})}`
     });
 }
 
@@ -465,9 +456,4 @@ export const AchievementsSlashCommand = new SlashCommandBuilder()
             {name:'okash', value:'okash'},
         )
         .setRequired(true)
-    )
-    .addBooleanOption(option => option
-        .setName('show-all')
-        .setDescription('Show all achievement descriptions, even if locked')
-        .setRequired(false)
     );

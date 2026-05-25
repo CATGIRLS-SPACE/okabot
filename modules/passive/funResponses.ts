@@ -1,26 +1,29 @@
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {AttachmentBuilder, Message, TextChannel} from "discord.js";
 import {Achievements, GrantAchievement} from "./achievement";
-import {BASE_DIRNAME, client} from "../../index";
+import {BASE_DIRNAME, client, GetLastLocale} from "../../index";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
+import {t} from "../i18n/translation";
 
 const TYO_RESPONSE: Array<string> = [
-    'of course!',
-    'no problem!',
-    '<3',
-    `${GetEmoji(EMOJI.NEKOHEART)}`,
-    'thank you too!',
-    'i do my best!'
+    'eastereggs.thankyou.of_course',
+    'eastereggs.thankyou.no_problem',
+    'eastereggs.thankyou.heart',
+    `eastereggs.thankyou.nekoheart`,
+    'eastereggs.thankyou.thank_you_too',
+    'eastereggs.thankyou.doing_best'
 ]
 
 export async function CheckForFunMessages(message: Message, emulated: boolean = false) {
     if (emulated || (!message.channel.isDMBased() && CheckFeatureAvailability(message.guild!.id, ServerFeature.easter_eggs))) {
         if (message.content.toLocaleLowerCase().includes('thank you') && message.content.toLocaleLowerCase().includes('okabot')) {
             message.reply({
-                content: TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)]
+                content: await t(TYO_RESPONSE[Math.floor(Math.random() * TYO_RESPONSE.length)], GetLastLocale(message.author.id), {
+                    nekoheart: GetEmoji(EMOJI.NEKOHEART)
+                })
             });
             if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.THANK_OKABOT) CompleteDailyMission(message.author, 'e', message.channel as TextChannel);
             return GrantAchievement(message.author, Achievements.THANK_OKABOT, message.channel as TextChannel);
@@ -57,11 +60,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
 
     // FAS-exclusive starts here
     if (['748284249487966282', '1019089377705611294'].includes(message.guildId || '') || emulated) {
-        if (message.content.toLocaleLowerCase().includes('quit horsing around')) message.reply({
-            content: 'https://cdn.discordapp.com/attachments/796206588284895272/1422450172159463504/IMG_0266.gif', // store locally sometime
-        });
-
-
+        // Danbooru
         if (/^d#\d+$/.test(message.content)) {
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru) && !emulated) return message.reply({
                 content: 'Your server has access to this feature, but it is disabled by default. Maybe ask a server admin to enable it?'
