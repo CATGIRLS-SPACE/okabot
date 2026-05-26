@@ -97,6 +97,7 @@
         "title": "Achievements",
         "diffs": "{{ade}} Easy | {{adt}} Tricky | {{adh}} Hard | {{adex}} Extra Hard",
         "on_unlock": ":trophy: Yaay, **{{name}}**! You've unlocked the achievement {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nYou can now use the title \"**{{title}}**\" on your profile!\n-# {{desc}}",
+        "default_title": "new okabot user",
 
         "lowcf": {
             "name": "That's Low...",
@@ -321,7 +322,7 @@
         "pixelstreak5": {
             "name": "Sensei",
             "desc": "Guess the correct student 5 times in a row.",
-            "title": "relationship lvl 5"
+            "title": "relationship level 5"
         },
         "pixelstreak10": {
             "name": "Addict Sensei",
