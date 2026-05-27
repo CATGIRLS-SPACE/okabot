@@ -17,11 +17,11 @@ import {
     StringSelectMenuOptionBuilder,
     TextChannel
 } from "discord.js";
-import { AddToWallet, GetBank, GetWallet, RemoveFromWallet } from "../wallet";
-import { EMOJI, GetEmoji, GetEmojiID } from "../../../util/emoji";
-import { AddXP } from "../../levels/onMessage";
-import { CheckOkashRestriction, OKASH_ABILITY } from "../../user/prefs";
-import { Achievements, GrantAchievement } from "../../passive/achievement";
+import {AddToWallet, GetBank, GetWallet, RemoveFromWallet} from "../wallet";
+import {EMOJI, GetEmoji, GetEmojiID} from "../../../util/emoji";
+import {AddXP} from "../../levels/onMessage";
+import {CheckOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY} from "../../user/prefs";
+import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
 import {CheckGambleLock, SetGambleLock} from "./_lock";
 import {client} from "../../../index";
@@ -32,6 +32,7 @@ import {
     DAILY_MISSIONS_HARD,
     DAILY_MISSIONS_INTERMEDIATE
 } from "../../tasks/dailyMissions";
+import {t} from "../../i18n/translation";
 
 enum RouletteGameType {
     COLOR = 'color',
@@ -239,6 +240,17 @@ async function StartRoulette(game: RouletteGame) {
 
         GAMES_ACTIVE.delete(game.interaction.user.id);
         SetGambleLock(game.interaction.user.id, false);
+
+        // splatoon easter egg
+        if (game.game_type == RouletteGameType.NUMBER_MULTIPLE && (game.selection as Array<number>).join('/') == '7/21/20/17') {
+            const profile = GetUserProfile(game.interaction.user.id);
+            if (!profile.flags.includes(FLAG.TRIGGER_SPLATOON_EASTER_EGG)) {
+                profile.flags.push(FLAG.TRIGGER_SPLATOON_EASTER_EGG);
+                (game.interaction.channel as TextChannel).send({
+                    content: await t('eastereggs.pearl')
+                })
+            }
+        }
     }, 5000);
 }
 

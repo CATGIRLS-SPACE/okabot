@@ -11,10 +11,12 @@ If you don't already have one, some good options are:
 - [WebStorm](https://www.jetbrains.com/webstorm/) (free for non-commercial use) -- This is the IDE I use for okabot development.
 - [Sublime Text](https://www.sublimetext.com/) (license required)
 
-You will git installed, and optionally a git desktop client. VSCode and WebStorm come with these.
+You will need git installed, and optionally a git desktop client. VSCode and WebStorm come with these.
 [Git for Windows](https://git-scm.com/install/windows) / [Git for Linux](https://git-scm.com/install/linux) (your Linux distro likely comes with git preinstalled!)
 
 This guide will assume you are using VSCode, as it has the easiest support for GitHub beginners.
+
+If you don't know how to commit to things on GitHub, read the "Extra: Git for newbies" section at the bottom.
 
 ## How do translations work?
 okabot pulls his language data from the JSON files in this directory. 
@@ -64,6 +66,9 @@ Due to this limitation, when translating into non-English, please feel free to r
 - {{objective}}
 
 as these pronouns will *not* be translated before inserted.
+If your language has a gender-neutral pronoun, such as English's "they, their, them",
+use that pronoun. Otherwise, use whichever pronoun is most natural to the language.
+
 
 Please begin by setting the "lang_contributors" key to the name(s) (preferrably Discord usernames) of who is translating.
 
@@ -73,9 +78,11 @@ The guidelines for translating are as follows:
 - You are allowed to move the bracketed variables as neccessary.
 - okabot is not a "serious" bot. His translations should be kept fun and playful. This means no harsh language that is not used humorously.
 - Do not translate names.
+- Do not translate slash commands (i.e. "/profile level" or "/okash") as these do not have locale translations as of now.
 - If you are contributing to an existing file, please add your (and other's if necessary) username(s) to the "lang_contributors" key.
-- If your language uses gendered verbs (such as Russian, «Я сказал» vs «Я сказалa»), please use the male- (or, if possible, neutral-) gendered form.
+- If your language uses gendered verbs (such as Russian, «Я сказал» vs «Я сказалa»), please use the male- (or, if possible, neutral-) gendered form for text which is "spoken" by okabot.
 - If a pun/joke does not work in your language, feel free to replace it with a better-suited joke for your language. Please make sure it does not sound out-of-place.
+- Text which is used in an embed (i.e. /pockets) **CANNOT** exceed 100 characters in length.
 
 **IF YOU DO NOT FINISH AN ENTIRE LANGUAGE, PLEASE REMOVE THE KEYS WHICH ARE STILL IN ENGLISH!**
 okabot will automatically machine-translate any missing keys if the user chooses to allow it.
@@ -103,6 +110,12 @@ You may now start the bot. If you have done everything successfully, okabot shou
 pick your translations if your Discord locale is set to said language.
 
 ## Extra: Git for newbies
+The process of contributing to okabot looks like:
+1. Fork
+2. Clone
+3. Edit
+4. Commit and Push
+5. Create a Pull Request
 ### Forking okabot
 Forking is the process of creating an identical repository within your own account.
 This allows you to contribute freely, and then create a Pull Request when you are finished.

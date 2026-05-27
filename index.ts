@@ -425,9 +425,11 @@ client.on(Events.InteractionCreate, async interaction => {
     if (!(await CheckForTranslationFlag(interaction))) return;
 
     const profile = GetUserProfile(interaction.user.id);
+    const allows_translation = profile.customization.global.allow_translation; // allow_translation = should I follow the user's Discord locale?
+    const manual_locale = profile.customization.global.preferred_locale;
     interaction.okabot = {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
-        translateable_locale: profile.customization.global.allow_translation ? interaction.locale : 'en-US'
+        translateable_locale: allows_translation ? interaction.locale : manual_locale
     };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 

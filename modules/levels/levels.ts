@@ -1,16 +1,26 @@
 import {
     ApplicationIntegrationType,
     AttachmentBuilder,
-    ChatInputCommandInteraction, InteractionContextType,
+    ChatInputCommandInteraction,
+    InteractionContextType,
     MessageFlags,
     SlashCommandBuilder,
-    Snowflake, User
+    Snowflake,
+    User
 } from "discord.js";
-import { CheckForProfile, GetUserProfile, UpdateUserProfile, USER_PROFILE } from "../user/prefs";
+import {CheckForProfile, FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/prefs";
 import {BASE_DIRNAME, CONFIG, DEV} from "../../index";
-import { join } from "path";
+import {join} from "path";
 import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from "fs";
-import { createCanvas, loadImage } from "canvas";
+import {createCanvas, loadImage} from "canvas";
+import axios from 'axios';
+import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
+import {GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus} from "../../util/users";
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {item_sticker} from "../interactions/use";
+import {CheckCompletionist} from "../passive/achievement";
+import {spawn} from "child_process";
+import {t} from "../i18n/translation";
 
 
 const BAR_COLORS: {
@@ -24,22 +34,22 @@ const BAR_COLORS: {
 };
 
 const LEVEL_DICTIONARY = [
-    {name:{en:'Kitten',ja:'子猫'},levels:5},
-    {name:{en:'Catgirl',ja:'ネコ'},levels:5},
-    {name:{en:'Silver Bell Trainee',ja:'銀色のベル訓練生'},levels:10},
-    {name:{en:'Silver Bell Holder',ja:'銀色のベル持ち'},levels:10},
-    {name:{en:'Gold Bell Trainee',ja:'金色のベル訓練生'},levels:10},
-    {name:{en:'Gold Bell Holder',ja:'金色のベル持ち'},levels:10},
-    {name:{en:'Waitress First',ja:'ウェイトレス A'},levels:10},
-    {name:{en:'Waitress Second',ja:'ウェイトレス B'},levels:10},
-    {name:{en:'Delivery Maine Coon',ja:'配達員のメインクーン'},levels:10},
-    {name:{en:'Tea-Brewing American Curl',ja:'お茶のアメリカンカール'},levels:10},
-    {name:{en:'Custard Munchkin',ja:'カスタードのマンチカン'},levels:10},
-    {name:{en:'Strawberry Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
-    {name:{en:'Blogger',ja:''},levels:25},
-    {name:{en:'Chinchilla Persian',ja:''},levels:25},
-    {name:{en:'Bakery Mentor',ja:''},levels:25},
-    {name:{en:'I don\'t know what to call this level, but no one has this level yet, so I don\'t care yet',ja:''},levels:25},
+    {name:{key:'level.names.kitten',en:'Kitten',ja:'子猫'},levels:5},
+    {name:{key:'level.names.catgirl',en:'Catgirl',ja:'ネコ'},levels:5},
+    {name:{key:'level.names.silver_bell_trainee',en:'Silver Bell Trainee',ja:'銀色のベル訓練生'},levels:10},
+    {name:{key:'level.names.silver_bell_holder',en:'Silver Bell Holder',ja:'銀色のベル持ち'},levels:10},
+    {name:{key:'level.names.gold_bell_trainee',en:'Gold Bell Trainee',ja:'金色のベル訓練生'},levels:10},
+    {name:{key:'level.names.gold_bell_holder',en:'Gold Bell Holder',ja:'金色のベル持ち'},levels:10},
+    {name:{key:'level.names.waitress_i',en:'Waitress First',ja:'ウェイトレス A'},levels:10},
+    {name:{key:'level.names.waitress_ii',en:'Waitress Second',ja:'ウェイトレス B'},levels:10},
+    {name:{key:'level.names.mainecoon',en:'Delivery Maine Coon',ja:'配達員のメインクーン'},levels:10},
+    {name:{key:'level.names.americancurl',en:'Tea-Brewing American Curl',ja:'お茶のアメリカンカール'},levels:10},
+    {name:{key:'level.names.munchkin',en:'Custard Munchkin',ja:'カスタードのマンチカン'},levels:10},
+    {name:{key:'level.names.scottishfold',en:'Strawberry Polishing Scottish Fold',ja:'イチゴのスコティッシュフォールド'},levels:10},
+    {name:{key:'level.names.blogger',en:'Blogger',ja:''},levels:25},
+    {name:{key:'level.names.persian',en:'Chinchilla Persian',ja:''},levels:25},
+    {name:{key:'level.names.mentor',en:'Bakery Mentor',ja:''},levels:25},
+    {name:{key:'level.names.notsure',en:'I don\'t know what to call this level, but no one has this level yet, so I don\'t care yet',ja:''},levels:25},
 ];
 
 // create appropriate level names on boot
@@ -50,10 +60,16 @@ const ROMAN_NUMERALS = [
 ]; // im lazy
 export const LEVEL_NAMES_EN: Array<string> = [];
 export const LEVEL_NAMES_JA: Array<string> = [];
+export const LEVEL_NAMES_KEYS: Array<string> = [];
+const ROMAN_NUMERAL_KEYS: Array<string> = [];
 
 LEVEL_DICTIONARY.forEach(item => {
     for (let i = 1; i <= item.levels; i++) LEVEL_NAMES_EN.push(`${item.name.en} ${ROMAN_NUMERALS[i-1]}`);
     for (let i = 1; i <= item.levels; i++) LEVEL_NAMES_JA.push(`${item.name.ja} ${ROMAN_NUMERALS[i-1]}`);
+    for (let i = 1; i <= item.levels; i++) {
+        LEVEL_NAMES_KEYS.push(item.name.key);
+        ROMAN_NUMERAL_KEYS.push(ROMAN_NUMERALS[i-1]);
+    }
 });
 
 export function CalculateTargetXP(level: number): number {
@@ -97,7 +113,9 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     const d = new Date();
     if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV && !preview_sticker) {
         interaction.reply({
-            content: `:hourglass: Slow down, **${interaction.user.displayName}**! You *just* ran this command!`
+            content: await t('system.errors.interaction.rate_limit', interaction.okabot.translateable_locale, {
+                user: interaction.user.displayName
+            })
         });
         return true;
     }
@@ -114,14 +132,17 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     const dev_status = GetUserDevStatus(interaction.user.id);
     const tester_status = GetUserTesterStatus(interaction.user.id);
 
-    // if (profile.leveling.level > 100) profile.leveling.prestige = 1;
+    let trigger_splatoon = false;
 
-    const LEVEL_NAMES = {'en-US':LEVEL_NAMES_EN,'en-GB':LEVEL_NAMES_EN,'ja':LEVEL_NAMES_JA}[interaction.okabot.translateable_locale];
-    let LEVEL_NAME;
-    if (!LEVEL_NAMES) LEVEL_NAME = await LangGetAutoTranslatedStringRaw(LEVEL_NAMES_EN[profile.leveling.level - 1], interaction.okabot.translateable_locale);
-    else LEVEL_NAME = LEVEL_NAMES[profile.leveling.level - 1];
+    if (profile.flags.includes(FLAG.TRIGGER_SPLATOON_EASTER_EGG) && interaction.okabot.translateable_locale.includes('en')) {
+        trigger_splatoon = true;
+        profile.flags.splice(profile.flags.indexOf(FLAG.TRIGGER_SPLATOON_EASTER_EGG), 1);
+        UpdateUserProfile(interaction.user.id, profile);
+    }
 
-    const USER_TITLE = TITLES[profile.customization.level_banner.selected_title];
+    const LEVEL_NAME = `${await t(LEVEL_NAMES_KEYS[profile.leveling.level - 1], interaction.okabot.translateable_locale)}`;
+
+    const USER_TITLE = await t(`achievements.${profile.customization.level_banner.selected_title}.title`, interaction.okabot.translateable_locale);
 
     const width = 600; // Banner width
     const height = 150; // Banner height
@@ -184,7 +205,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
     else ctx.fillRect(0, 0, width, height);
 
-    // User profile photo because we're gangsta like that
+    // User profile photo because we're gangsta like that <- why did i ever write this?
     const pfp_url = interaction.user.avatarURL({extension:'png', size:128})!;
     const pfp_buffer = await fetchImage(pfp_url);
     const pfp_img = await loadImage(pfp_buffer);
@@ -284,7 +305,8 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
         ctx.fillStyle = '#2a422cff';
         ctx.font = 'bold italic 12px Arial'
         ctx.fillText('SPECIAL', offset_width + 6, 68);
-        offset_width += 94-5;
+        // offset_width += 94-5;
+        offset_width += 73-5;
     }
     if (user_is_booster) {
         ctx.fillStyle = '#fa9de4bb';
@@ -327,15 +349,17 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
 
     // Level
     ctx.font = "20px azuki_font, Arial, 'Segoe UI Emoji'";
+    if (trigger_splatoon) ctx.font = "16px 'Splatoon - Square Script'";
     // bg
     ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, PFP_OFFSET + 9, 103);
+    ctx.fillText(`🌠 ${LEVEL_NAME} ${ROMAN_NUMERAL_KEYS[profile.leveling.level - 1]} (${profile.leveling.level})`, PFP_OFFSET + 9, 103);
     // fg
     ctx.fillStyle = '#f0c4ff';
-    ctx.fillText(`🌠 ${LEVEL_NAME} (${profile.leveling.level})`, PFP_OFFSET + 6, 100);
+    ctx.fillText(`🌠 ${LEVEL_NAME} ${ROMAN_NUMERAL_KEYS[profile.leveling.level - 1]} (${profile.leveling.level})`, PFP_OFFSET + 6, 100);
 
     // User title
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
+    if (trigger_splatoon) ctx.font = "20px 'Splatoon - Square Script'";
     // bg
     ctx.fillStyle = '#3d3d3d';
     ctx.fillText(USER_TITLE, 23 + 3, 132);
@@ -368,6 +392,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
 
     // XP Text
     ctx.font = '16px azuki_font, bold Arial';
+    if (trigger_splatoon) ctx.font = "12px 'Splatoon - Square Script'";
     ctx.fillStyle = num_color;
     ctx.textAlign = 'right';
     ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXP(profile.leveling.level)} XP`, width - 10, height - 20);
@@ -437,14 +462,14 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     const user_to_get = interaction.options.getUser('user') || interaction.user;
 
     if (!CheckForProfile(user_to_get.id)) return interaction.reply({
-        content:':x: That user doesn\'t exist.'
+        content: await t('system.errors.user.nonexistent', interaction.okabot.translateable_locale)
     });
 
     const profile = GetUserProfile(user_to_get.id);
 
     if (interaction.options.getSubcommand(true) == 'background') {
         if (!profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) return interaction.reply({
-            content:':crying_cat_face: Sorry, but you need to buy the User Banner Level Background customization before you can use this!',
+            content: await t('level.custom_link.needs_ublb', interaction.okabot.translateable_locale),
             flags: [MessageFlags.SuppressNotifications]
         });
 
@@ -452,7 +477,9 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         UpdateUserProfile(interaction.user.id, profile);
 
         return interaction.reply({
-            content:`${GetEmoji(EMOJI.CAT_SUNGLASSES)} Updated your profile accordingly!`,
+            content: await t('level.custom_link.on_set', interaction.okabot.translateable_locale, {
+                cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES)
+            }),
             flags: [MessageFlags.SuppressNotifications]
         });
     }
@@ -477,7 +504,7 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`));
 
     interaction.editReply({
-        content: `-# XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.`,
+        content: await t('level.xp_gain', interaction.okabot.translateable_locale),
         files: [image]
     });
 }
@@ -486,15 +513,6 @@ export function CalculateOkashReward(level: number): number {
     return Math.floor((500 * level + 500) * 3/5);
 }
 
-
-import axios from 'axios';
-import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import { LangGetAutoTranslatedStringRaw } from "../../util/language";
-import { GetUserDevStatus, GetUserSupportStatus, GetUserTesterStatus } from "../../util/users";
-import { EMOJI, GetEmoji } from "../../util/emoji";
-import { item_sticker } from "../interactions/use";
-import { CheckCompletionist, TITLES } from "../passive/achievement";
-import { spawn } from "child_process";
 
 export async function fetchImage(url: string) {
     const response = await axios.get(url, {responseType: 'arraybuffer'});

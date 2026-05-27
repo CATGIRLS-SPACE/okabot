@@ -6,13 +6,14 @@ import { Achievements, GrantAchievement } from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
 import {EMOJI, GetEmoji} from "../../util/emoji";
+import {t} from "../i18n/translation";
 
 const L = new Logger('payment');
 const PAYMENT_HISTORY = new Map<Snowflake, {paid: string, time: number}>();
 
 export async function HandleCommandPay(interaction: ChatInputCommandInteraction, client: Client) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
+        content: await t('system.errors.command.disabled', interaction.okabot.translateable_locale)
     });
     
     const has_restriction = await CheckOkashRestriction(interaction, OKASH_ABILITY.TRANSFER);
@@ -27,26 +28,26 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
 
     if (receiver_id == client.user!.id) {
         return interaction.editReply({
-            content: `:bangbang: **${interaction.user.displayName}**... I'm flattered, but I don't accept payments...`,
+            content: await t('interactions.pay.errors.paid_okabot', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
 
     if (sender_id == receiver_id) {
         return interaction.editReply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, do you need a friend..?`,
+            content: await t('interactions.pay.errors.paid_self', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
 
     if (interaction.options.getUser('user')!.bot) {
         return interaction.editReply({
-            content: `:rotating_light: **${interaction.user.displayName}**, what do you think you're doing?!`,
+            content: await t('interactions.pay.errors.paid_bot', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
 
     const receiver_has_restriction = CheckUserIdOkashRestriction(receiver_id);
     if (receiver_has_restriction) {
         return interaction.editReply({
-            content: `:x: **${interaction.user.displayName}**, failed to transfer money to this person.`,
+            content: await t('interactions.pay.errors.paid_banned', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
 
@@ -62,13 +63,13 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
 
     if (pay_amount == 0) {
         return interaction.editReply({
-            content: `:interrobang: **${interaction.user.displayName}**! That's just plain mean!`,
+            content: await t('interactions.pay.errors.paid_zero', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
     
     if (sender_bank_amount < pay_amount) {
         return interaction.editReply({
-            content: ':crying_cat_face: You don\'t have that much money!',
+            content: await t('interactions.pay.errors.paid_too_much', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
     }
 
@@ -85,23 +86,28 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     PAYMENT_HISTORY.set(sender_id, {paid: receiver_id, time:d.getTime()});
 
     interaction.editReply({
-        content: `:handshake: **${interaction.user.displayName}** paid **${receiver_user.displayName}** ${GetEmoji(EMOJI.OKASH)} OKA**${pay_amount}**! You should say thanks!`
+        content: await t('interactions.pay.errors.paid_okabot', interaction.okabot.translateable_locale, {
+            user: interaction.user.displayName,
+            receiver: receiver_user.displayName,
+            okash: GetEmoji(EMOJI.OKASH),
+            amount: pay_amount
+        })
     });
 }
 
 
 export const PaySlashCommand = 
     new SlashCommandBuilder()
-        .setName('pay').setNameLocalization('ja', '払う')
+        .setName('pay')
         .setDescription('Pay someone some okash')
         .addUserOption(option => 
-            option.setName('user').setNameLocalization('ja', 'ユーザ')
-            .setDescription('The person to pay').setDescriptionLocalization('ja', '誰を払う')
+            option.setName('user')
+            .setDescription('The person to pay')
             .setRequired(true)
         )
         .addNumberOption(option => 
-            option.setName('amount').setNameLocalization('ja', '高')
-            .setDescription('The amount to pay them').setDescriptionLocalization('ja', 'okashの分量を払う')
+            option.setName('amount')
+            .setDescription('The amount to pay them')
             .setRequired(true)
             .setMaxValue(1_000_000)
         );

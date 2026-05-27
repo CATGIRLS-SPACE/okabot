@@ -30,6 +30,18 @@
             "agreed": "You agreed to the rules! Thank you for using okabot! Have fun!",
             "agreed_text": "**{{name}}**, you've agreed to the rules! Have fun with okabot!\nYou can run this command again at any time to see the rules.",
             "already_agreed": "You've already agreed to the okabot rules! Thanks!"
+        },
+        "errors": {
+            "user": {
+                "nonexistent": ":x: Hmm.. that user doesn't exist!"
+            },
+            "command": {
+                "rate_limit": ":hourglass: Slow down, **{{name}}**! You *just* ran this command!",
+                "disabled": ":x: This feature isn't available in this server. Maybe ask a server admin to enable it?"
+            },
+            "language": {
+                "eng_only": "Sorry, this feature is only available when your okabot language is set so English!"
+            }
         }
     },
     "interactions": {
@@ -49,10 +61,49 @@
                     "remind_next": "Remind Me Tomorrow"
                 }
             }
+        },
+        "toggle": {
+            "on_pronouns_set": "{{cat_sunglasses}} Okaaaay, I'll refer to you by {{pronouns}} from now on!",
+            "on_lang_set": "{{cat_sunglasses}} Got it, I'll use this language from now on!",
+            "on_lang_set_follow": "{{cat_sunglasses}} Got it, I'll use whatever language your Discord is set to!\n-# Not all translations will be accurate in machine-translated languages."
+        },
+        "pay": {
+            "errors": {
+                "paid_okabot": ":bangbang: **{{user}}**... I'm flattered, but I don't accept payments...",
+                "paid_self": ":crying_cat_face: **{{user}}**, do you need a friend..?",
+                "paid_bot": ":rotating_light: **{{user}}**, what do you think you're doing?!",
+                "paid_banned": ":x: **{{user}}**, failed to transfer okash to this person.",
+                "paid_zero": ":interrobang: **{{user}}**! That's just mean!",
+                "paid_too_much": ":crying_cat_face: **{{user}}**, you don't have that much okash available!"
+            },
+            "success": ":handshake: **{{user}}** paid **{{receiver}}** {{okash}} OKA**{{amount}}**! You should say thanks!"
         }
     },
     "level": {
-        "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**."
+        "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
+        "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
+        "custom_link": {
+            "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
+            "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
+        },
+        "names": {
+            "kitten": "Kitten",
+            "catgirl": "Catgirl",
+            "silver_bell_trainee": "Silver Bell Trainee",
+            "silver_bell_holder": "Silver Bell Holder",
+            "gold_bell_trainee": "Gold Bell Trainee",
+            "gold_bell_holder": "Gold Bell Holder",
+            "waitress_i": "Cook in Training",
+            "waitress_ii": "Waitress",
+            "mainecoon": "Maine Coon",
+            "americancurl": "American Curl",
+            "munchkin": "Custard Munchkin",
+            "scottishfold": "Scottish Fold",
+            "blogger": "Blogger",
+            "persian": "Chinchilla Persian",
+            "mentor": "Bakery Mentor",
+            "notsure": "?"
+        }
     },
     "items": {
         "sr": {
@@ -83,6 +134,12 @@
             "on_use_item": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... a **{{item}}**!"
         }
     },
+    "customizations": {
+        "ublb": {
+            "name": "User Banner Level Background",
+            "desc": "Allows you to show off your Discord profile banner in /profile level!"
+        }
+    },
     "eastereggs": {
         "thankyou": {
             "of_course": "of course!",
@@ -91,7 +148,8 @@
             "nekoheart": "{{nekoheart}}",
             "thank_you_too": "thank you too!",
             "doing_best": "i do my best!"
-        }
+        },
+        "pearl": "wawawawa wannochai!"
     },
     "achievements": {
         "title": "Achievements",
