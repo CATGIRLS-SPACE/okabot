@@ -155,7 +155,10 @@
         "title": "Achievements",
         "diffs": "{{ade}} Easy | {{adt}} Tricky | {{adh}} Hard | {{adex}} Extra Hard",
         "on_unlock": ":trophy: Yaay, **{{name}}**! You've unlocked the achievement {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nYou can now use the title \"**{{title}}**\" on your profile!\n-# {{desc}}",
-        "default_title": "new okabot user",
+
+        "none": {
+            "title": "new okabot user"
+        },
 
         "lowcf": {
             "name": "That's Low...",
