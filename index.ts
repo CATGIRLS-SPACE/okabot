@@ -49,7 +49,11 @@ if (!existsSync(join(__dirname, 'config.json'))) {
             "<not required, but recommended: your user id here>"
         ],
         minecraft_relay_key: "<not required>",
-        pose_as_user_token: "<not required, only used when gemini enabled to get user profile info>",
+        bluesky: {
+            enable: false,
+            username: "<not required>",
+            password: "<not required>",
+        }
     }));
     L.fatal('A template configuration file has been created. Please modify it with your bot information before launching again.');
     process.exit(-1);
@@ -92,6 +96,11 @@ export let CONFIG: {
     },
     reolink?: {
         ip: string,
+        username: string,
+        password: string,
+    },
+    bluesky: {
+        enable: boolean,
         username: string,
         password: string,
     }
@@ -179,6 +188,8 @@ import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyM
 import {HandleCommandDig} from "./modules/okash/games/dig";
 import {ps} from "./modules/http/panel/core";
 import {InitLanguage} from "./modules/i18n/translation";
+import {SetupBlueskyJob} from "./modules/bluesky/autoposter";
+import {AddMessageToRecord} from "./modules/bluesky/contentRecord";
 
 
 export const client = new Client({
@@ -299,6 +310,7 @@ async function RunPostStartupTasks() {
     StartEarthquakeMonitoring(client, CONFIG.extra.includes('disable jma fetching'));
     // ConnectToN4Network();
     // EnableHoneypots();
+    if (CONFIG.bluesky.enable) SetupBlueskyJob();
     ps.listen(2775);
 
 
@@ -575,6 +587,13 @@ client.on(Events.MessageCreate, async message => {
                 message: final_message
             })
         });
+    }
+
+    // bsky
+    if (!message.guild) return;
+    if (message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282') {
+        if (message.author.bot) return;
+        AddMessageToRecord(`${message.author.username}: "${message.content}"`);
     }
 });
 

@@ -14,7 +14,7 @@ export async function item_tracking_device(interaction: ChatInputCommandInteract
 
     await interaction.deferReply();
 
-    let use_on = interaction.options.getString('on', false);
+    let use_on = interaction.options.getString('on-item', false);
     if (!use_on) return interaction.editReply({
          content:`:crying_cat_face: **${interaction.user.displayName}**, please tell me what you want to use your **Tracking Device** on!`
     });

@@ -2,7 +2,7 @@ import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashC
 import {GetUserProfile, ItemData} from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
-import {LANG_ITEMS, LangGetFormattedString} from "../../util/language";
+import {t} from "../i18n/translation";
 
 export const ITEM_NAMES: {
     [key: number]: {name: string, desc: string}
@@ -25,23 +25,6 @@ export const ITEM_NAMES: {
     20: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`, desc: `It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.`},
     21: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`, desc: `Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to hack together a token.`},
     22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
-}
-
-const LOCALIZED_ITEM_NAME_IDS: {[key: number]: string} = {
-    0: LANG_ITEMS.COMMON_LOOTBOX,
-    1: LANG_ITEMS.RARE_LOOTBOX,
-    2: LANG_ITEMS.EX_LOOTBOX,
-    3: LANG_ITEMS.WEIGHTED_COIN,
-    4: LANG_ITEMS.STREAK_RESTORE,
-    5: LANG_ITEMS.TRACKING_DEVICE,
-    6: LANG_ITEMS.SHOP_VOUCHER,
-    7: LANG_ITEMS.SCRATCH_TICKET,
-    8: LANG_ITEMS.DROP_BOOST_15,
-    9: LANG_ITEMS.DROP_BOOST_30,
-    10: LANG_ITEMS.CASINO_PASS_10,
-    11: LANG_ITEMS.CASINO_PASS_30,
-    12: LANG_ITEMS.CASINO_PASS_60,
-    18: LANG_ITEMS.STICKER_NOT_APPLIED
 }
 
 const UNLOCK_NAMES: {
@@ -69,20 +52,27 @@ const UNLOCK_NAMES: {
     19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
 }
 
-export function GetProperItemName(shop_id: string, locale: 'en' | 'ja' = 'en'): string {
-    const keys: {[key: string]: number} = {
-        'streak restore': 4,
-        'tracking device': 5,
-        'scratch ticket': 7,
-        'drop boost 15 minute': 8,
-        'drop boost 30 minute': 9,
-        'casino pass 10 minute': 10,
-        'casino pass 30 minute': 11,
-        'casino pass 60 minute': 12,
-        'sticker kit': 18,
-    }
-
-    return LangGetFormattedString(LOCALIZED_ITEM_NAME_IDS[keys[shop_id]] as LANG_ITEMS, locale);
+const UNLOCK_I18N_KEYS: {[key: number]: string} = {
+    0: 'customizations.dc',
+    1: 'customizations.rc',
+    2: 'customizations.dbc',
+    3: 'customizations.lbc',
+    4: 'customizations.pc',
+    5: 'customizations.ppc',
+    6: '',
+    7: 'customizations.rlb',
+    8: 'customizations.glb',
+    9: 'customizations.blb',
+    10: 'customizations.plb',
+    11: '',
+    12: 'customizations.dcd',
+    13: 'customizations.tcd',
+    14: 'customizations.cbcd',
+    15: '',
+    16: 'customizations.dgc',
+    17: 'customizations.rbc',
+    18: 'customizations.ublb',
+    19: ''
 }
 
 export async function HandleCommandPockets(interaction: ChatInputCommandInteraction) {
@@ -96,17 +86,17 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
         for (const unlock of profile.customization.unlocked) {
             if (!UNLOCK_NAMES[unlock].hide) fields.push({
-                name: (UNLOCK_NAMES[unlock] || {name:'Unknown Item'}).name, value: (UNLOCK_NAMES[unlock] || {name:'I dunno what this is!'}).desc
+                name: (UNLOCK_NAMES[unlock] || {name:await t('items.missing.name', interaction.okabot.translateable_locale)}).name, value: (UNLOCK_NAMES[unlock] || {name:await t('items.missing.desc', interaction.okabot.translateable_locale)}).desc
             })
         }
     } else if (page == 'items') {
         const profile = GetUserProfile(interaction.user.id);
         let c = 0;
-        profile.inventory.forEach((item: ItemData) => {
+        profile.inventory.forEach(async (item: ItemData) => {
             c++;
             fields.push({
-                name: `${item.amount}x ${(ITEM_NAMES[item.item_id] || {name: `Unknown Item (id: ${item.item_id})`}).name}`,
-                value: (ITEM_NAMES[item.item_id] || {desc:'I don\'t know what this is...\n(this is a bug, please report it!)'}).desc,
+                name: `${item.amount}x ${(ITEM_NAMES[item.item_id] || {name: `${await t('items.missing.name', interaction.okabot.translateable_locale)} (id: ${item.item_id})`}).name}`,
+                value: (ITEM_NAMES[item.item_id] || {desc:await t('items.missing.desc', interaction.okabot.translateable_locale)}).desc,
                 inline: c % 2 == 1
             })
         });
@@ -119,18 +109,18 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
             if (tracked_item) {
                 switch (tracked_item.type) {
                     case "coin":
-                        name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                        name = await t('customizations.tracked.name', interaction.okabot.translateable_locale, {item: await t(`${UNLOCK_I18N_KEYS[tracked_item.data.base]}.name`)});
                         fields.push({
                             name,
-                            value: `This item is unique. It counts how many times it's been flipped. Serial no: **\`${tracked_item.serial}\`**. Flip count: ${(tracked_item.data as TrackableCoin).flips}.`
+                            value: await t('customizations.tracked.coin', interaction.okabot.translateable_locale, {serial: tracked_item.serial, flips: (tracked_item.data as TrackableCoin).flips})
                         })
                         break;
 
                     case "deck":
-                        name = `**Tracked:tm: ${UNLOCK_NAMES[tracked_item.data.base].name}**`;
+                        name = await t('customizations.tracked.name', interaction.okabot.translateable_locale, {item: await t(`${UNLOCK_I18N_KEYS[tracked_item.data.base]}.name`)});
                         fields.push({
                             name,
-                            value: `This item is unique. It counts how many cards it has dealt. Serial no: **\`${tracked_item.serial}\`**. Dealt cards: ${(tracked_item.data as TrackableCardDeck).dealt_cards}.`
+                            value: await t('customizations.tracked.coin', interaction.okabot.translateable_locale, {serial: tracked_item.serial, cards: (tracked_item.data as TrackableCardDeck).dealt_cards})
                         })
                         break;
                 }
@@ -140,7 +130,9 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
     if (fields.length == 0) {
         return interaction.editReply({
-            content:`:crying_cat_face: **${interaction.user.displayName}**, you have nothing in your pockets!`
+            content: page == 'tracked' ?
+                await t('interactions.pockets.tracked.nothing', interaction.okabot.translateable_locale, {user: interaction.user.displayName}) :
+                await t('interactions.pockets.items.nothing', interaction.okabot.translateable_locale, {user: interaction.user.displayName})
         });
     }
 
@@ -157,13 +149,13 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
 
 export const PocketsSlashCommand = new SlashCommandBuilder()
-    .setName('pockets').setNameLocalization('ja', 'ポケット')
-    .setDescription('See what you\'ve got on you!').setDescriptionLocalization('ja', 'ポケットにアイテムとカスタマイズ化を見る')
+    .setName('pockets')
+    .setDescription('See what you\'ve got on you!')
     .addStringOption(option => option
-        .setName('page').setNameLocalization('ja', 'カテゴリー')
-        .setDescription('The pockets category to display').setDescriptionLocalization('ja', 'ポケットのカテゴリー')
+        .setName('page')
+        .setDescription('The pockets category to display')
         .addChoices(
-            {name:'Items', value:'items', name_localizations:{ja:'アイテム'}},
-            {name:'Customization Unlocks', value:'customize', name_localizations:{ja:'カスタマイズ化'}},
+            {name:'Items', value:'items'},
+            {name:'Customization Unlocks', value:'customize'},
             {name:'Tracked Items',value:'tracked'},
     ).setRequired(true));

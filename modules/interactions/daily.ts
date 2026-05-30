@@ -125,7 +125,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
         let reply_content = await t('interactions.daily.init', interaction.okabot.translateable_locale, {
             cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
             okash: GetEmoji(EMOJI.OKASH),
-            coin: `${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} ${await t('items.wc.name', interaction.okabot.translateable_locale)}`
+            coin: await t('items.wc.name', interaction.okabot.translateable_locale)
         });
         reply_content += ` **(+250XP)**\n`;
 
@@ -176,9 +176,7 @@ export async function HandleCommandDaily(interaction: ChatInputCommandInteractio
     let content = await t('interactions.daily.init', interaction.okabot.translateable_locale, {
         cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
         okash: GetEmoji(EMOJI.OKASH),
-        coin: await t('items.wc.name', interaction.okabot.translateable_locale, {
-            coin: GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)
-        })
+        coin: await t('items.wc.name', interaction.okabot.translateable_locale)
     }) + '\n' + await t('interactions.daily.streak', interaction.okabot.translateable_locale, {
         length: streak_count,
         okash: GetEmoji(EMOJI.OKASH),

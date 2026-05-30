@@ -10,6 +10,7 @@ import {Logger} from "okayulogger";
 import enUS from '../../assets/i18n/translations/en-US.json';
 import ru from '../../assets/i18n/translations/ru.json';
 import {GetUserSupportStatus} from "../../util/users";
+import {EMOJI, GetEmoji} from "../../util/emoji";
 
 const L = new Logger('i18n');
 
@@ -60,7 +61,24 @@ export async function InitLanguage() {
             }
         },
         interpolation: {
-            escapeValue: false
+            escapeValue: false,
+            defaultVariables: {
+                default_coin: GetEmoji(EMOJI.COIN_DEFAULT_STATIONARY),
+                red_coin: GetEmoji(EMOJI.COIN_RED_STATIONARY),
+                dark_blue_coin: GetEmoji(EMOJI.COIN_DARK_BLUE_STATIONARY),
+                light_blue_coin: GetEmoji(EMOJI.COIN_BLUE_STATIONARY),
+                pink_coin: GetEmoji(EMOJI.COIN_PINK_STATIONARY),
+                purple_coin: GetEmoji(EMOJI.COIN_PURPLE_STATIONARY),
+                dark_green_coin: GetEmoji(EMOJI.COIN_DARK_GREEN_STATIONARY),
+                weighted_coin: GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY),
+                rainbow_coin: GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY),
+                default_card_deck: GetEmoji(EMOJI.CARD_BACK),
+                trans_card_deck: GetEmoji(EMOJI.CARD_BACK_TRANS),
+                cherry_card_deck: GetEmoji(EMOJI.CARD_BACK_SAKURA),
+                okash: GetEmoji(EMOJI.OKASH),
+                cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
+                streak_restore: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
+            }
         }
     });
 

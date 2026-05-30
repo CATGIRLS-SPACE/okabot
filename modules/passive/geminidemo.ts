@@ -510,3 +510,31 @@ export async function DumpConversationChain(message: Message, id: string) {
         ]
     });
 }
+
+
+// for other modules:
+
+export async function GeneratePostForBsky(past_chat_data: string, last_posts: string): Promise<string> {
+    if (!CONFIG.gemini.enable) return '';
+    if (!ai) ai = new GoogleGenAI({ apiKey: CONFIG.gemini.api_key });
+
+    const mesy = new MESYFile(join(BASE_DIRNAME, 'assets', 'ai', 'prompts.mesy'));
+    const prompt =
+`${new TextDecoder().decode((await DecryptAESString(mesy.getValueOfKey('BSKY'))))}
+You will be posting the response to this query to BlueSky. **The character limit is 300 characters. Anything over will be truncated.**
+Your last few posts include:
+${last_posts}
+You have access to data from CATGIRL CENTRAL.
+Some chat data:
+${past_chat_data}
+`;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-pro',
+        contents: prompt
+    });
+
+    console.log(response);
+
+    return response.text || '';
+}

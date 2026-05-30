@@ -77,11 +77,30 @@
                 "paid_too_much": ":crying_cat_face: **{{user}}**, you don't have that much okash available!"
             },
             "success": ":handshake: **{{user}}** paid **{{receiver}}** {{okash}} OKA**{{amount}}**! You should say thanks!"
+        },
+        "pockets": {
+            "items": {
+                "title": "Items in your pockets",
+                "nothing": ":crying_cat_face: **{{name}}**, you have nothing in your pockets!"
+            },
+            "customizations": {
+                "title": "Your Unlocked Customizations"
+            },
+            "tracked": {
+                "title": "Your Tracked:tm: Customizations",
+                "nothing": ":crying_cat_face: **{{name}}**, you haven't crafted any Tracked:tm: items yet!"
+            }
+        },
+        "danbooru": {
+            "search_results": "Most recent posts with those tags:\n{{ids}}\nView one with \"d#<post id>\".",
+            "search_display": "Most recent {{num}} post(s) for your search. Lower quality is chosen to prevent oversize.\nIDs: {{ids}}",
+            "no_posts": "No posts for tag list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` *do not* count towards the two-tag limit!)"
         }
     },
     "level": {
         "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
         "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
+        "xp_modernization": "Heads up! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
         "custom_link": {
             "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
             "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
@@ -106,6 +125,10 @@
         }
     },
     "items": {
+        "missing": {
+            "name": "Unknown Item",
+            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+        },
         "sr": {
             "name": "Streak Restore",
             "description": "Restores your streak if you miss a day.",
@@ -113,7 +136,7 @@
             "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
         },
         "wc": {
-            "name": "{{coin}} Weighted Coin",
+            "name": "{{weighted_coin}} Weighted Coin",
             "description": "Increases your chances of winning a coinflip."
         },
         "lootbox": {
@@ -132,12 +155,117 @@
             "on_use_first": "**{{name}}** opens {{possessive}} {{lootbox}} and finds...",
             "on_use_okash": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... {{okash}} OKA**{{amount}}**!",
             "on_use_item": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... a **{{item}}**!"
+        },
+        "td": {
+            "name": "Tracking Device",
+            "desc": "A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it's pretty popular amongst Spotify users."
+        },
+        "st": {
+            "name": "Scratch Ticket",
+            "desc": "Test your luck with this scratch card and have a chance at winning a load of okash!"
+        },
+        "db15": {
+            "name": "Drop Boost (15 min)",
+            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+        },
+        "db30": {
+            "name": "Drop Boost (30 min)",
+            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+        },
+        "cas10": {
+            "name": ":credit_card: Casino Pass (10 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas10)"
+        },
+        "cas30": {
+            "name": ":credit_card: Casino Pass (30 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas30)"
+        },
+        "cas60": {
+            "name": ":credit_card: Casino Pass (60 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas60)"
+        },
+        "sk": {
+            "name": ":crystal_ball: Sticker Kit",
+            "desc": "Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it *yours*!"
+        },
+        "ht": {
+            "name": "Hacking Tool",
+            "desc": "Unused Item."
+        },
+        "bmt": {
+            "name": "Black Market Token",
+            "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy."
+        },
+        "bmts": {
+            "name": "Black Market Token Shard",
+            "desc": "Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to make a token."
+        },
+        "brt": {
+            "name": "Bank Robbery Tool",
+            "desc": "Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!"
         }
     },
     "customizations": {
+        "missing": {
+            "name": "Unknown Item",
+            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+        },
+        "tracked": {
+            "name": "**Tracked:tm: {{item}}**",
+            "coin": "This item is unique. It counts how many times it's been flipped. Serial no: **`{{serial}}`**. It's been flipped {{flips}} time(s).",
+            "deck": "This item is unique. It counts how many cards it has dealt. Serial no: **`{{serial}}`**. It's dealt {{cards}} card(s)."
+        },
         "ublb": {
             "name": "User Banner Level Background",
             "desc": "Allows you to show off your Discord profile banner in /profile level!"
+        },
+        "dc": {
+            "name": "{{default_coin}} Default Coin",
+            "desc": "The definitely-not-biased classic yellow coin everyone has. You're still convinced it's biased."
+        },
+        "rc": {
+            "name": "{{red_coin}} Red Coin",
+            "desc": "Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!"
+        },
+        "dbc": {
+            "name": "{{dark_blue_coin}} Dark Blue Coin",
+            "desc": "This coin has a deep color resembling the ocean. Hopefully it can make your pockets just as deep."
+        },
+        "lbc": {
+            "name": "{{light_blue_coin}} Light Blue Coin",
+            "desc": "Even the sky struggles to reach this shade of blue. Just like you're struggling to win your flips."
+        },
+        "pc": {
+            "name": "{{pink_coin}} Pink Coin",
+            "desc": "\"Pink is for girls\"? I'll do you one better: Pink is for rich people. Beat that."
+        },
+        "ppc": {
+            "name": "{{purple_coin}} Purple Coin",
+            "desc": "A purple coin. It's the slightly-less-rich man's pink coin, but you don't care, because it still looks cool anyway."
+        },
+        "dgc": {
+            "name": "{{dark_green_coin}} Dark Green Coin",
+            "desc": "A dark green coin. Even though it's not weighted, you still feel luckier using it."
+        },
+        "rbc": {
+            "name": "{{rainbow_coin}} Rainbow Coin",
+            "desc": "This mythical coin, said to be gifted from the gods, is almost useless, but looks extremely cool."
+        },
+        "rlb": {
+            "name": "Red Level Bar",
+            "desc": "Sets your level bar's color to red."
+        },
+        "glb": {
+            "name": "Green Level Bar",
+            "desc": "Sets your level bar's color to green."
+        },
+        "blb": {
+            "name": "Blue Level Bar",
+            "desc": "Sets your level bar's color to blue."
+        },
+        "plb": {
+            "name": "Pink Level Bar",
+            "desc": "Sets your level bar's color to pink."
         }
     },
     "eastereggs": {

@@ -38,41 +38,6 @@ export interface ItemData {
     item_specific_data?: never // reserved for items that might need extra data saved to them
 }
 
-export interface LEGACY_USER_PROFILE {
-    has_agreed_to_rules: boolean,
-    okash_restriction?: {
-        is_restricted: boolean,
-        reason: string,
-        until: number,
-        abilities: string
-    },
-    flags: Array<FLAG>, // keeping this as an array so i dont have to painfully upgrade later on <-- recent lily here what the fuck am i on about?
-    customization: {
-        coin_color: CUSTOMIZATION_UNLOCKS,
-        unlocked: Array<CUSTOMIZATION_UNLOCKS>,
-        level_banner: {
-            hex_bg: string,
-            hex_fg: string,
-            hex_num: string
-        },
-        pronoun: {
-            // she/he/they
-            subjective: string,
-            // her/him/them
-            objective: string,
-            // her/his/their
-            possessive: string,
-        }
-    },
-    okash_notifications: boolean,
-    level: {
-        level: number,
-        current_xp: number,
-        prestige?: number
-    },
-    achievements: Array<Achievements>,
-}
-
 export interface USER_PROFILE {
     version: number,
     accepted_rules: boolean,
@@ -151,7 +116,9 @@ const DEFAULT_DATA: USER_PROFILE = {
     version: 3,
     accepted_rules: false,
     rules_accepted_version: '',
-    flags: [],
+    flags: [
+        FLAG.LEVELING_MODERNIZED,
+    ],
     customization: {
         unlocked: [CUSTOMIZATION_UNLOCKS.COIN_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_DEF, CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_OKABOT, CUSTOMIZATION_UNLOCKS.DECK_DEFAULT],
         global: {

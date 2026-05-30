@@ -33,6 +33,7 @@ import {GLOBAL_ITEM_SHORTHANDS_IDS} from "../okash/items";
 import {exec} from "child_process";
 import {existsSync} from "fs";
 import axios from "axios";
+import {CreateRegularPost, CreateTestPost} from "../bluesky/autoposter";
 
 
 interface ShorthandList {
@@ -527,6 +528,14 @@ export function RegisterAllShorthands() {
         user.daily.last_claimed = new Date().getTime() - (24 * 60 * 60 * 1000);
         UpdateUserProfile(params[2], user);
         message.reply(`Daily was reset for <@!${params[2]}>, the last claimed time was set to <t:${Math.floor(user.daily.last_claimed/1000)}>`);
+    });
+
+    RegisterShorthand('oka bs-ctp', (message: Message) => {
+        CreateTestPost(message);
+    });
+
+    RegisterShorthand('oka bs-crp', (message: Message) => {
+        CreateRegularPost(false, message);
     });
 }
 

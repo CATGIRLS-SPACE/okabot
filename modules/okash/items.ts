@@ -170,6 +170,7 @@ export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
     'rlb': 1,
     'exlb': 2,
     'wc': 3,
+    'td': ITEMS.TRACKED_CONVERTER,
     // black market items
     'ht': 19,
     'bmt': 20,
