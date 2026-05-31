@@ -1,5 +1,5 @@
-import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, Locale, SlashCommandBuilder} from "discord.js";
-import {GetUserProfile, ItemData} from "../user/prefs";
+import {APIEmbedField, ChatInputCommandInteraction, EmbedBuilder, SlashCommandBuilder} from "discord.js";
+import {GetUserProfile} from "../user/prefs";
 import { GetEmoji, EMOJI } from "../../util/emoji";
 import {GetItemFromSerial, TrackableCardDeck, TrackableCoin} from "../okash/trackedItem";
 import {t} from "../i18n/translation";
@@ -25,6 +25,29 @@ export const ITEM_NAMES: {
     20: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} Black Market Token`, desc: `It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.`},
     21: {name: `${GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)} Black Market Token Shard`, desc: `Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to hack together a token.`},
     22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
+}
+
+const ITEM_I18N_KEYS: {
+    [key: number]: string
+} = {
+    0: 'items.lootbox.common',
+    1: 'items.lootbox.rare',
+    2: 'items.lootbox.ex',
+    3: 'items.wc',
+    4: 'items.sr',
+    5: 'items.td',
+    6: 'items.sv',
+    7: 'items.st',
+    8: 'items.db15',
+    9: 'items.db30',
+    10: 'items.cas10',
+    11: 'items.cas30',
+    12: 'items.cas60',
+    18: 'items.sk',
+    19: 'items.ht',
+    20: 'items.bmt',
+    21: 'items.bmts',
+    22: 'items.brt',
 }
 
 const UNLOCK_NAMES: {
@@ -86,20 +109,26 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
 
         for (const unlock of profile.customization.unlocked) {
             if (!UNLOCK_NAMES[unlock].hide) fields.push({
-                name: (UNLOCK_NAMES[unlock] || {name:await t('items.missing.name', interaction.okabot.translateable_locale)}).name, value: (UNLOCK_NAMES[unlock] || {name:await t('items.missing.desc', interaction.okabot.translateable_locale)}).desc
+                name: UNLOCK_NAMES[unlock] ? (await t(`${UNLOCK_I18N_KEYS[unlock]}.name`, interaction.okabot.translateable_locale)) :
+                    await t('customizations.missing.name', interaction.okabot.translateable_locale),
+
+                value: UNLOCK_NAMES[unlock] ? await t(`${UNLOCK_I18N_KEYS[unlock]}.desc`, interaction.okabot.translateable_locale) :
+                    await t('customizations.missing.desc', interaction.okabot.translateable_locale),
             })
         }
     } else if (page == 'items') {
         const profile = GetUserProfile(interaction.user.id);
         let c = 0;
-        profile.inventory.forEach(async (item: ItemData) => {
+        for (const item of profile.inventory) {
             c++;
             fields.push({
-                name: `${item.amount}x ${(ITEM_NAMES[item.item_id] || {name: `${await t('items.missing.name', interaction.okabot.translateable_locale)} (id: ${item.item_id})`}).name}`,
-                value: (ITEM_NAMES[item.item_id] || {desc:await t('items.missing.desc', interaction.okabot.translateable_locale)}).desc,
+                name: (ITEM_I18N_KEYS[item.item_id] ? `${item.amount}x ${await t(ITEM_I18N_KEYS[item.item_id] + '.name', interaction.okabot.translateable_locale)}` :
+                    `${await t('items.missing.name', interaction.okabot.translateable_locale)} (id: ${item.item_id})`),
+                value: (ITEM_I18N_KEYS[item.item_id] ? await t(ITEM_I18N_KEYS[item.item_id] + '.desc', interaction.okabot.translateable_locale) :
+                    await t('items.missing.desc', interaction.okabot.translateable_locale)),
                 inline: c % 2 == 1
             })
-        });
+        }
     } else if (page == 'tracked') {
         const inventory = GetUserProfile(interaction.user.id).trackedInventory;
 
@@ -131,15 +160,19 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
     if (fields.length == 0) {
         return interaction.editReply({
             content: page == 'tracked' ?
-                await t('interactions.pockets.tracked.nothing', interaction.okabot.translateable_locale, {user: interaction.user.displayName}) :
-                await t('interactions.pockets.items.nothing', interaction.okabot.translateable_locale, {user: interaction.user.displayName})
+                await t('interactions.pockets.tracked.nothing', interaction.okabot.translateable_locale, {name: interaction.user.displayName}) :
+                await t('interactions.pockets.items.nothing', interaction.okabot.translateable_locale, {name: interaction.user.displayName})
         });
     }
 
-    // console.log(fields);
+    let title = 'Embed Title';
+
+    if (page == 'items') title = await t('interactions.pockets.items.title', interaction.okabot.translateable_locale);
+    if (page == 'tracked') title = await t('interactions.pockets.tracked.title', interaction.okabot.translateable_locale);
+    if (page == 'customizations') title = await t('interactions.pockets.customizations.title', interaction.okabot.translateable_locale);
 
     const embed = new EmbedBuilder()
-        .setTitle(page=='items'||page=='scraps'?'Your pockets':`Your unlocked ${interaction.locale==Locale.EnglishGB?'customisations':'customizations'}`)
+        .setTitle(title)
         .setColor(0x9d60cc)
         .setFields(fields)
         .setAuthor({iconURL: interaction.user.displayAvatarURL(), name: interaction.user.displayName});

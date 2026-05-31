@@ -40,7 +40,7 @@
                 "disabled": ":x: This feature isn't available in this server. Maybe ask a server admin to enable it?"
             },
             "language": {
-                "eng_only": "Sorry, this feature is only available when your okabot language is set so English!"
+                "eng_only": "Sorry, this feature is only available when your okabot language is set to English!"
             }
         }
     },
@@ -131,13 +131,13 @@
         },
         "sr": {
             "name": "Streak Restore",
-            "description": "Restores your streak if you miss a day.",
+            "desc": "Restores your streak if you miss a day.",
             "on_use": "{{sr}} **{{name}}**, you've restored your daily reward streak to **{{length}} days**!",
             "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
         },
         "wc": {
             "name": "{{weighted_coin}} Weighted Coin",
-            "description": "Increases your chances of winning a coinflip."
+            "desc": "Increases your chances of winning a coinflip."
         },
         "lootbox": {
             "common": {
@@ -159,6 +159,10 @@
         "td": {
             "name": "Tracking Device",
             "desc": "A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it's pretty popular amongst Spotify users."
+        },
+        "sv": {
+            "name": "Shop Voucher",
+            "desc": "A voucher that can be redeemed for a free customization (with some exceptions)"
         },
         "st": {
             "name": "Scratch Ticket",
@@ -193,11 +197,11 @@
             "desc": "Unused Item."
         },
         "bmt": {
-            "name": "Black Market Token",
+            "name": "{{bmt}} Black Market Token",
             "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy."
         },
         "bmts": {
-            "name": "Black Market Token Shard",
+            "name": "{{bmts}} Black Market Token Shard",
             "desc": "Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to make a token."
         },
         "brt": {
@@ -266,6 +270,18 @@
         "plb": {
             "name": "Pink Level Bar",
             "desc": "Sets your level bar's color to pink."
+        },
+        "dcd": {
+            "name": "{{dcd_back}} Default Card Deck",
+            "desc": "The classic card deck. It's not unique in terms of design, but it gets the job done."
+        },
+        "tcd": {
+            "name": "{{tcd_back}} Trans Card Deck",
+            "desc": "A card deck that's a little bit different, but being different is okay!"
+        },
+        "cbcd": {
+            "name": "{{cbcd_back}} Cherry Blossom Card Deck",
+            "desc": "A card deck with some pretty sakura flowers and pink numbers on it."
         }
     },
     "eastereggs": {

@@ -7,8 +7,8 @@ import {JSONFilePreset} from "lowdb/node";
 import {join} from "path";
 import {Logger} from "okayulogger";
 
-import enUS from '../../assets/i18n/translations/en-US.json';
-import ru from '../../assets/i18n/translations/ru.json';
+import enUS from '../../assets/i18n/translations/en-US/all.json';
+import ru from '../../assets/i18n/translations/ru/all.json';
 import {GetUserSupportStatus} from "../../util/users";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 
@@ -78,6 +78,11 @@ export async function InitLanguage() {
                 okash: GetEmoji(EMOJI.OKASH),
                 cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
                 streak_restore: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
+                cbcd_back: GetEmoji(EMOJI.CARD_BACK_SAKURA),
+                dcd_back: GetEmoji(EMOJI.CARD_BACK),
+                tcd_back: GetEmoji(EMOJI.CARD_BACK_TRANS),
+                bmt: GetEmoji(EMOJI.BLACK_MARKET_TOKEN),
+                bmts: GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)
             }
         }
     });
@@ -118,7 +123,7 @@ export async function t(
         const data = await translateClient.translate(i18next.t(key), {from:'en',to:lang});
         const translated = data[0];
         // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner,
-        // while not spamming tf out of my api key lol
+    // while not spamming tf out of my api key lol
         AutoTranslateDB.data[lang as AutoTranslateLanguage][key] = {translation: translated, expires: Date.now() + (1000*60*60*24*14)};
         AutoTranslateDB.write();
         return i18next.services.interpolator.interpolate(translated, vars || {}, lang as AutoTranslateLanguage, {});

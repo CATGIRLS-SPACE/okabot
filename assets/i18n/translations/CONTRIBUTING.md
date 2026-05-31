@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> This guide, despite being made like 5 days ago, is a little outdated.
+> Crowdin will likely be used going forward. 
+> If you still know what you're doing, you *can* use this guide if you'd like.
+> https://crowdin.com/project/okabot
+
 # So, you wanna help translate!
 Community translations are always welcome! You must be fluent in the language you are translating to.
 Machine translations are not allowed in official language files.

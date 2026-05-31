@@ -102,7 +102,7 @@ export const ToggleSlashCommand = new SlashCommandBuilder()
                 {name: 'Español (España)', value: 'es-ES'},
                 {name: 'Español (LATAM)', value: 'es-419'},
                 {name: 'Deutsch', value: 'de'},
-                {name: 'Русский', value: 'ru'},
+                {name: 'Русский (Перевела Linatto)', value: 'ru'},
                 {name: 'Français', value: 'fr'},
                 {name: 'ελληνικά', value: 'el'},
                 {name: 'Polski', value: 'pl'},
