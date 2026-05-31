@@ -1,6 +1,573 @@
 {
-    "lang_contributors": "",
-    "words": {
-        "cute": "Милашка"
+    "lang_contributors": "Linatto",
+    "system": {
+        "translate_notice": "Один момент! Ваш Discord не на Английском языке! okabot поддерживает автоматический перевод, и доступен на вашем языке! Это машинный перевод, и может быть не на 100% верным. Вы хотите разрешить okabot перевести совместимые функции?\n-# Хотите помочь с переводом на другие языки? Свяжитесь с okawaffles! Мы всегда вам рады!",
+        "translate_yes": "Включить перевод",
+        "translate_no": "Use Default English",
+        "translate_yes_final": "Понятно, я буду автоматически переводить ваши команды!",
+        "translate_no_final": "Got it, i'll just use the default English translations for you!",
+        "rules": {
+            "title": "Правила okabot",
+            "desc": "Вы должны прочитать и согласиться c правилами перед началом использования okabot (updated {{version}}). Если это сообщение появилось снова, правила были обновлены и вы должны согласиться с новыми правилами.",
+            "name": {
+                "one": "1. Запрещено использовать эксплойты",
+                "two": "2. Запрещены макросы",
+                "three": "3. Запрещены мультиаккаунты",
+                "four": "4. Запрещены незаконные операции с okash",
+                "five": "5. Не обсуждать решения достижений публично",
+                "disclaimer": "Дисклеймер"
+            },
+            "value": {
+                "one": "Любое использование багов или манипуляций приведет к **безвозвратному сбросу аккаунта без предупреждения**. А так же вы можете быть полностью заблокированы в okabot.",
+                "two": "Читерство несправедливо по отношению к другим игрокам. Не используйте макросы/скрипты.",
+                "three": "Вам разрешён только один аккаунт и исключительно один аккаунт для okabot.",
+                "four": "Вам запрещено обменивать okash/предметы на реальные деньги или предметы в любом другом боте. Использовать okash для торговли предметами — разрешено.",
+                "five": "Я не могу контролировать то, что вы обсуждаете в личных чатах, но пожалуйста, не обсуждайте решения достижений публично, это портит удовольствие от самостоятельного их прохождения!",
+                "disclaimer": "Используя okabot, вы соглашаетесь на сбор определённых данных о вас и вашем использовании okabot. Эта информация может быть связана с вашим Discord ID или другими идентифицирующими данными. Данная информация не передаётся и никогда не будет передана третьим лицам. Если вы уже использовали okabot ранее и хотите удалить все данные, связанные с вашим аккаунтом, отправьте okabot личное сообщение с текстом \"data deletion request\", дальнейший процесс будет осуществлён через него."
+            },
+            "privacy": "Вы можете прочитать о политике конфиденциальности okabot на сайте https://oka.bot/privacy",
+            "accept": "Принять",
+            "agreed": "Вы согласились с правилами! Спасибо за использование okabot! Удачи!",
+            "agreed_text": "**{{name}}**, Вы согласились с правилами! Удачи с использованием okabot! Вы можете использовать эту команду снова в любое время, чтобы увидеть правила.",
+            "already_agreed": "Вы уже согласились с правилами okabot! Спасибо!"
+        },
+        "errors": {
+            "user": {
+                "nonexistent": ":x: Хмм... этого пользователя не существует!"
+            },
+            "command": {
+                "rate_limit": ":hourglass: Помедленнее, **{{name}}**! Вы *только что* использовали эту команду!",
+                "disabled": ":x: Эта функция недоступна на этом сервере. Может потребовать администратора сервера включить её?"
+            },
+            "language": {
+                "eng_only": "Извините, эта функция доступна только если язык okabot установлен на English!"
+            }
+        }
+    },
+    "interactions": {
+        "okash": "{{cat_money}} **{{name}}**, у вас есть {{okash}} OKA**{{wallet}}** в кошельке.\nБаланс вашего банка составляет {{okash}} OKA**{{bank}}**.\nНа данный момент {{okash}} OKA**{{fines}}** находится в штрафах банка.",
+        "daily": {
+            "init": "{{cat_sunglasses}} Вы получили ежедневную награду в размере {{okash}} OKA**1500** и **{{coin}}**!",
+            "streak": ":chart_with_upwards_trend: Вау! У вас серия из **{{length}}** дней, так держать!\nВы получаете бонус за серию в размере {{okash}} OKA**{{bonus}}**! **(+{{xp}}XP)**",
+            "got_shard": ":scream_cat: Вау! Вы также получили редкий 1x {{token}} **Black Market Token Shard**!",
+            "too_early": ":crying_cat_face: Ещё слишком рано для получения ежедневной награды, **{{name}}**! Возвращайтесь <t:{{time}}:R>, чтобы забрать её!\nВаша текущая серия: {{days}} дн.",
+            "reminder": {
+                "now": ":clock3: {{ping}}, вы уже можете забрать ежедневную награду! Скорее получите её!",
+                "scheduled": "{{cat_sunglasses}} Понял, я упомяну вас здесь, когда ваша ежедневная награда будет готова к получению!",
+                "not_premium": ":crying_cat_face: Извините, **{{name}}**, но вам нужно находиться на сервере с Premium или сделать донат для okabot, чтобы установить напоминание более чем на 6 часов...",
+                "already_scheduled": ":pouting_cat: **{{name}}**, я уже сказал, что напомню вам!!",
+                "buttons": {
+                    "remind_soon": "Напомнить скоро",
+                    "remind_next": "Напомнить завтра"
+                }
+            }
+        },
+        "toggle": {
+            "on_pronouns_set": "{{cat_sunglasses}} Понял, теперь я буду обращаться к вам как {{pronouns}}!",
+            "on_lang_set": "{{cat_sunglasses}} Понял, теперь я буду использовать этот язык!",
+            "on_lang_set_follow": "{{cat_sunglasses}} Понял, я буду использовать тот язык, который установлен в вашем Discord!\n-# Не все переводы могут быть точными для машинно-переведённых языков."
+        },
+        "pay": {
+            "errors": {
+                "paid_okabot": ":bangbang: **{{user}}**... Мне льстит, но я не принимаю платежи...",
+                "paid_self": ":crying_cat_face: **{{user}}**, вам нужен друг..?",
+                "paid_bot": ":rotating_light: **{{user}}**, что вы себе позволяете?!",
+                "paid_banned": ":x: **{{user}}**, не удалось перевести okash этому пользователю.",
+                "paid_zero": ":interrobang: **{{user}}**! Это просто жестоко!",
+                "paid_too_much": ":crying_cat_face: **{{user}}**, у вас недостаточно okash для этого!"
+            },
+            "success": ":handshake: **{{user}}** перевёл **{{receiver}}** {{okash}} OKA**{{amount}}**! Не забудьте сказать спасибо!"
+        },
+        "pockets": {
+            "items": {
+                "title": "Предметы в ваших карманах",
+                "nothing": ":crying_cat_face: **{{name}}**, у вас нет ничего в кармане!"
+            },
+            "customizations": {
+                "title": "Ваши разблокированные модификации"
+            },
+            "tracked": {
+                "title": "Ваши Tracked:tm: Кастомизации",
+                "nothing": ":crying_cat_face: **{{name}}**, вы ещё не создали ни одного Tracked:tm: предмета!"
+            }
+        },
+        "danbooru": {
+            "search_results": "Most recent posts with those tags:\n{{ids}}\nView one with \"d#<post id>\".",
+            "search_display": "Most recent {{num}} post(s) for your search. Lower quality is chosen to prevent oversize.\nIDs: {{ids}}",
+            "no_posts": "No posts for tag list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` *do not* count towards the two-tag limit!)"
+        }
+    },
+    "level": {
+        "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
+        "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
+        "xp_modernization": "Heads up! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
+        "custom_link": {
+            "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
+            "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
+        },
+        "names": {
+            "kitten": "Kitten",
+            "catgirl": "Catgirl",
+            "silver_bell_trainee": "Silver Bell Trainee",
+            "silver_bell_holder": "Silver Bell Holder",
+            "gold_bell_trainee": "Gold Bell Trainee",
+            "gold_bell_holder": "Gold Bell Holder",
+            "waitress_i": "Cook in Training",
+            "waitress_ii": "Waitress",
+            "mainecoon": "Maine Coon",
+            "americancurl": "American Curl",
+            "munchkin": "Custard Munchkin",
+            "scottishfold": "Scottish Fold",
+            "blogger": "Blogger",
+            "persian": "Chinchilla Persian",
+            "mentor": "Bakery Mentor",
+            "notsure": "?"
+        }
+    },
+    "items": {
+        "missing": {
+            "name": "Unknown Item",
+            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+        },
+        "sr": {
+            "name": "Streak Restore",
+            "desc": "Restores your streak if you miss a day.",
+            "on_use": "{{sr}} **{{name}}**, you've restored your daily reward streak to **{{length}} days**!",
+            "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
+        },
+        "wc": {
+            "name": "{{weighted_coin}} Weighted Coin",
+            "desc": "Increases your chances of winning a coinflip."
+        },
+        "lootbox": {
+            "common": {
+                "name": ":package: Common Lootbox",
+                "desc": "An old cardboard box containing some common items."
+            },
+            "rare": {
+                "name": ":package: Common Lootbox",
+                "desc": "Not too shabby... A wooden box with a few rare items in it."
+            },
+            "ex": {
+                "name": ":package: EX Lootbox",
+                "desc": "Woah, it's so sparkly! A metal box with a bunch of super rare items in it!"
+            },
+            "on_use_first": "**{{name}}** opens {{possessive}} {{lootbox}} and finds...",
+            "on_use_okash": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... {{okash}} OKA**{{amount}}**!",
+            "on_use_item": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... a **{{item}}**!"
+        },
+        "td": {
+            "name": "Tracking Device",
+            "desc": "A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it's pretty popular amongst Spotify users."
+        },
+        "sv": {
+            "name": "Shop Voucher",
+            "desc": "A voucher that can be redeemed for a free customization (with some exceptions)"
+        },
+        "st": {
+            "name": "Scratch Ticket",
+            "desc": "Test your luck with this scratch card and have a chance at winning a load of okash!"
+        },
+        "db15": {
+            "name": "Drop Boost (15 min)",
+            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+        },
+        "db30": {
+            "name": "Drop Boost (30 min)",
+            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+        },
+        "cas10": {
+            "name": ":credit_card: Casino Pass (10 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas10)"
+        },
+        "cas30": {
+            "name": ":credit_card: Casino Pass (30 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas30)"
+        },
+        "cas60": {
+            "name": ":credit_card: Casino Pass (60 min)",
+            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas60)"
+        },
+        "sk": {
+            "name": ":crystal_ball: Sticker Kit",
+            "desc": "Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it *yours*!"
+        },
+        "ht": {
+            "name": "Hacking Tool",
+            "desc": "Unused Item."
+        },
+        "bmt": {
+            "name": "{{bmt}} Black Market Token",
+            "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy."
+        },
+        "bmts": {
+            "name": "{{bmts}} Black Market Token Shard",
+            "desc": "Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to make a token."
+        },
+        "brt": {
+            "name": "Bank Robbery Tool",
+            "desc": "Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!"
+        }
+    },
+    "customizations": {
+        "missing": {
+            "name": "Unknown Item",
+            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+        },
+        "tracked": {
+            "name": "**Tracked:tm: {{item}}**",
+            "coin": "This item is unique. It counts how many times it's been flipped. Serial no: **`{{serial}}`**. It's been flipped {{flips}} time(s).",
+            "deck": "This item is unique. It counts how many cards it has dealt. Serial no: **`{{serial}}`**. It's dealt {{cards}} card(s)."
+        },
+        "ublb": {
+            "name": "User Banner Level Background",
+            "desc": "Allows you to show off your Discord profile banner in /profile level!"
+        },
+        "dc": {
+            "name": "{{default_coin}} Default Coin",
+            "desc": "The definitely-not-biased classic yellow coin everyone has. You're still convinced it's biased."
+        },
+        "rc": {
+            "name": "{{red_coin}} Red Coin",
+            "desc": "Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!"
+        },
+        "dbc": {
+            "name": "{{dark_blue_coin}} Dark Blue Coin",
+            "desc": "This coin has a deep color resembling the ocean. Hopefully it can make your pockets just as deep."
+        },
+        "lbc": {
+            "name": "{{light_blue_coin}} Light Blue Coin",
+            "desc": "Even the sky struggles to reach this shade of blue. Just like you're struggling to win your flips."
+        },
+        "pc": {
+            "name": "{{pink_coin}} Pink Coin",
+            "desc": "\"Pink is for girls\"? I'll do you one better: Pink is for rich people. Beat that."
+        },
+        "ppc": {
+            "name": "{{purple_coin}} Purple Coin",
+            "desc": "A purple coin. It's the slightly-less-rich man's pink coin, but you don't care, because it still looks cool anyway."
+        },
+        "dgc": {
+            "name": "{{dark_green_coin}} Dark Green Coin",
+            "desc": "A dark green coin. Even though it's not weighted, you still feel luckier using it."
+        },
+        "rbc": {
+            "name": "{{rainbow_coin}} Rainbow Coin",
+            "desc": "This mythical coin, said to be gifted from the gods, is almost useless, but looks extremely cool."
+        },
+        "rlb": {
+            "name": "Red Level Bar",
+            "desc": "Sets your level bar's color to red."
+        },
+        "glb": {
+            "name": "Green Level Bar",
+            "desc": "Sets your level bar's color to green."
+        },
+        "blb": {
+            "name": "Blue Level Bar",
+            "desc": "Sets your level bar's color to blue."
+        },
+        "plb": {
+            "name": "Pink Level Bar",
+            "desc": "Sets your level bar's color to pink."
+        },
+        "dcd": {
+            "name": "{{dcd_back}} Default Card Deck",
+            "desc": "The classic card deck. It's not unique in terms of design, but it gets the job done."
+        },
+        "tcd": {
+            "name": "{{tcd_back}} Trans Card Deck",
+            "desc": "A card deck that's a little bit different, but being different is okay!"
+        },
+        "cbcd": {
+            "name": "{{cbcd_back}} Cherry Blossom Card Deck",
+            "desc": "A card deck with some pretty sakura flowers and pink numbers on it."
+        }
+    },
+    "eastereggs": {
+        "thankyou": {
+            "of_course": "of course!",
+            "no_problem": "no problem!",
+            "heart": "<3",
+            "nekoheart": "{{nekoheart}}",
+            "thank_you_too": "thank you too!",
+            "doing_best": "i do my best!"
+        },
+        "pearl": "wawawawa wannochai!"
+    },
+    "achievements": {
+        "title": "Achievements",
+        "diffs": "{{ade}} Easy | {{adt}} Tricky | {{adh}} Hard | {{adex}} Extra Hard",
+        "on_unlock": ":trophy: Yaay, **{{name}}**! You've unlocked the achievement {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nYou can now use the title \"**{{title}}**\" on your profile!\n-# {{desc}}",
+        "not_allowed": "Your account is not allowed to unlock achievements. This is likely because you broke rule #5 (No Public Sharing of Achievement Solutions).",
+        "none": {
+            "title": "new okabot user"
+        },
+        "lowcf": {
+            "name": "That's Low...",
+            "desc": "I hope you picked tails.",
+            "title": "unlucky but still lucky"
+        },
+        "highcf": {
+            "name": "No Doubt",
+            "desc": "Ha! I win!",
+            "title": "undoubtedly lucky"
+        },
+        "autobanned": {
+            "name": "Kicked Out",
+            "desc": "You never learn, do you?",
+            "title": "caught red handed"
+        },
+        "usewc": {
+            "name": "Backup Plan",
+            "desc": "The dealer can't win if the odds are in my favor!",
+            "title": "casino cheater"
+        },
+        "get21": {
+            "name": "Blackjack!",
+            "desc": "Not to be confused with Jack Black.",
+            "title": "perfectionist"
+        },
+        "newcf_daily": {
+            "name": "Making History... temporarily",
+            "desc": "Well, history *is* made every day!",
+            "title": "first come first served"
+        },
+        "land36": {
+            "name": "I Just Knew",
+            "desc": "It's bound to happen at some point.",
+            "title": "fortune teller"
+        },
+        "landmulti": {
+            "name": "Lottery",
+            "desc": "A fine selection!",
+            "title": "lucky guesser"
+        },
+        "capitalism": {
+            "name": "Capitalism at its Finest",
+            "desc": "Now most of the world hates you.",
+            "title": "filthy capitalist"
+        },
+        "gamble_gobroke": {
+            "name": "Gamble Irresponsibly",
+            "desc": "Yikes, hope you aren't in debt...",
+            "title": "irresponsible gambler"
+        },
+        "maxbetwin": {
+            "name": "High Risk, High Reward",
+            "desc": "At some point, money becomes useless.",
+            "title": "risk taker"
+        },
+        "getdaily": {
+            "name": "The Beginning",
+            "desc": "The start of something great?",
+            "title": "okabot beginner"
+        },
+        "dailyweek": {
+            "name": "New Habit",
+            "desc": "A great habit was formed!",
+            "title": "committed"
+        },
+        "restorestreak": {
+            "name": "Deciduous Arborist",
+            "desc": "We're all a little forgetful sometimes.",
+            "title": "a little forgetful"
+        },
+        "robmin25000": {
+            "name": "Wallet Weight Loss",
+            "desc": "You plan on giving it back... right?",
+            "title": "kleptomaniac"
+        },
+        "robfined": {
+            "name": "Uhhh... Oops?",
+            "desc": "Let's just pretend this never happened...",
+            "title": "convicted criminal"
+        },
+        "thankokabot": {
+            "name": "Nice List",
+            "desc": "I have feelings too!",
+            "title": "loved by okabot"
+        },
+        "okabotcry": {
+            "name": "Naughty List",
+            "desc": "Trying your best sometimes isn't good enough.",
+            "title": "hated by okabot"
+        },
+        "begenerous": {
+            "name": "Generosity",
+            "desc": "Better say thanks.",
+            "title": "generous"
+        },
+        "okashdrop": {
+            "name": "What's This?",
+            "desc": "No, you can't be a good samaritan and turn it in.",
+            "title": "finders keepers"
+        },
+        "lootboxdrop": {
+            "name": "Ow, My Foot!",
+            "desc": "Wonder what's inside of it...",
+            "title": "clumsy"
+        },
+        "notadmin": {
+            "name": "Get Outta Here!",
+            "desc": "After I spent half an hour on my hair?!",
+            "title": "fake moderator"
+        },
+        "voicemin300xp": {
+            "name": "Talkative",
+            "desc": "Earn at least 300 XP from VC XP rewards",
+            "title": "talkative"
+        },
+        "remindmetwice": {
+            "name": "I Get It!",
+            "desc": "One can never be too sure.",
+            "title": "annoying"
+        },
+        "quickclaim": {
+            "name": "Quick Draw",
+            "desc": "Do you even do anything outside?",
+            "title": "never late"
+        },
+        "slots10x": {
+            "name": "Shiny!",
+            "desc": "Don't push your luck.",
+            "title": "lucky jeweler"
+        },
+        "bankrob50000": {
+            "name": "I Hate Debt Collectors",
+            "desc": "They have enough already anyway.",
+            "title": "okash hoarder"
+        },
+        "bankrob5percent": {
+            "name": "7-Eleven Big Gulp",
+            "desc": "At least you succeeded?",
+            "title": "all bark no bite"
+        },
+        "casinopass": {
+            "name": "No Time To Waste",
+            "desc": "I CAN'T STOP!!!",
+            "title": "impatient"
+        },
+        "dropboost": {
+            "name": "Drop Please",
+            "desc": "FOMO hits hard.",
+            "title": "always attentive"
+        },
+        "selldrop": {
+            "name": "Ungrateful",
+            "desc": "That's kinda rude...",
+            "title": "ungrateful"
+        },
+        "streak2": {
+            "name": "Twice or it's Luck",
+            "desc": "Statistically possible.",
+            "title": "lucky gambler"
+        },
+        "streak5": {
+            "name": "On a Roll",
+            "desc": "Wait, you might just...!",
+            "title": "super lucky gambler"
+        },
+        "streak10": {
+            "name": "Suspiciously Lucky",
+            "desc": "...get kicked out.",
+            "title": "hunted by the casino"
+        },
+        "dango": {
+            "name": "Yum!",
+            "desc": "My favorite!",
+            "title": "patissier"
+        },
+        "bankdep": {
+            "name": "A Visit From the IRS",
+            "desc": "These auditors do NOT play around.",
+            "title": "tax evader"
+        },
+        "robchain": {
+            "name": "Convoluted Indirect Deposit",
+            "desc": "This doesn't make you innocent, now.",
+            "title": "black market proxy"
+        },
+        "sticker": {
+            "name": "Adhesive",
+            "desc": "What are these things made of?!",
+            "title": "customization enjoyer"
+        },
+        "pocketaces": {
+            "name": "Wait, this isn't Poker!",
+            "desc": "Dude, wrong game!",
+            "title": "card counter"
+        },
+        "dealt21both": {
+            "name": "Competitive Teamwork",
+            "desc": "It's amazing what we can do when we work together!",
+            "title": "card magician"
+        },
+        "levelbar": {
+            "name": "Useless Exchange",
+            "desc": "We are back to where we started... which was right here.",
+            "title": "experimenter"
+        },
+        "uselessrobbery": {
+            "name": "Dealer's Intervention",
+            "desc": "Well, that's one way to get your fix.",
+            "title": "too cocky"
+        },
+        "2x4": {
+            "name": "The House is Structurally Sound Now",
+            "desc": "It was sound before, but now it's extra sound!",
+            "title": "construction worker"
+        },
+        "stats": {
+            "name": "Statistics Major",
+            "desc": "I didn't study statistics, but my calculations point to addiction.",
+            "title": "statistics major"
+        },
+        "pixelstreak5": {
+            "name": "Sensei",
+            "desc": "Guess the correct student 5 times in a row.",
+            "title": "relationship level 5"
+        },
+        "pixelstreak10": {
+            "name": "Addict Sensei",
+            "desc": "Guess the correct student 10 times in a row.",
+            "title": "relationship level 10"
+        },
+        "pixelstreak25": {
+            "name": "True Sensei",
+            "desc": "Guess the correct student 25 times in a row.",
+            "title": "relationship level MAX"
+        },
+        "taskdone": {
+            "name": "No Sweat",
+            "desc": "That was pretty easy!",
+            "title": "hard worker"
+        },
+        "taskfirstdone": {
+            "name": "Podium Start",
+            "desc": "You're pretty quick with it!",
+            "title": "quick like a fox"
+        },
+        "alltasksdone": {
+            "name": "Okay, Maybe a Little Sweat",
+            "desc": "Can you do it again tomorrow?",
+            "title": "model student"
+        }
+    },
+    "games": {
+        "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
+        "not_enough_okash": ":crying_cat_face: **{{name}}**, you don't have enough okash for that!",
+        "coinflip": {
+            "flipping": "**{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
+            "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
+            "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
+            "heads": "heads",
+            "tails": "tails",
+            "already_flipping": ":bangbang: Woah there, **{{name}}**! You can only flip one coin at a time!",
+            "new_daily_float_high": "**New Daily Highest:** `{{float}}` is the highest float someone has rolled today!",
+            "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
+            "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
+            "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
+        }
     }
 }
