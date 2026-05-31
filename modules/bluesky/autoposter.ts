@@ -22,7 +22,7 @@ interface LastPostDB {
 
 let LAST_POSTS: LastPostDB = {posts:[]};
 
-const POST_FREQUENCY = '0 0,4,12,6 * * *';
+const POST_FREQUENCY = '0 6,10,18,12 * * *';
 const ANNOUNCE_CHANNEL = DEV?'941843973641736253':'1510111491460956321';
 
 async function authenticate() {
