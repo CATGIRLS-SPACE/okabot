@@ -6,11 +6,12 @@ import {Low} from "lowdb";
 import {JSONFilePreset} from "lowdb/node";
 import {join} from "path";
 import {Logger} from "okayulogger";
-
-import enUS from '../../assets/i18n/translations/en-US/all.json';
-import ru from '../../assets/i18n/translations/ru/all.json';
 import {GetUserSupportStatus} from "../../util/users";
 import {EMOJI, GetEmoji} from "../../util/emoji";
+
+import enUS from '../../assets/i18n/translations/en-US/all.json';
+import autoTranslateAlternatives from '../../assets/i18n/translations/en-US/auto-mt.json';
+import ru from '../../assets/i18n/translations/ru/all.json';
 
 const L = new Logger('i18n');
 
@@ -56,6 +57,9 @@ export async function InitLanguage() {
             'en-US': {
                 translation: enUS
             },
+            'auto-mt': { // removes pronoun variables in some strings, autotranslate will pick these over en-US
+                translation: autoTranslateAlternatives
+            },
             'ru': {
                 translation: ru
             }
@@ -77,6 +81,7 @@ export async function InitLanguage() {
                 cherry_card_deck: GetEmoji(EMOJI.CARD_BACK_SAKURA),
                 okash: GetEmoji(EMOJI.OKASH),
                 cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
+                cat_money_eyes: GetEmoji(EMOJI.CAT_MONEY_EYES),
                 streak_restore: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
                 cbcd_back: GetEmoji(EMOJI.CARD_BACK_SAKURA),
                 dcd_back: GetEmoji(EMOJI.CARD_BACK),
@@ -120,7 +125,7 @@ export async function t(
 
         L.debug(`${lang} translation for ${key} is not cached`);
 
-        const data = await translateClient.translate(i18next.t(key), {from:'en',to:lang});
+        const data = await translateClient.translate(i18next.t(key, 'auto-mt'), {from:'en',to:lang});
         const translated = data[0];
         // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner,
     // while not spamming tf out of my api key lol

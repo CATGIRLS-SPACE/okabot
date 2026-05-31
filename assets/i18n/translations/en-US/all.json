@@ -559,8 +559,9 @@
 
     "games": {
         "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
+        "not_enough_okash": ":crying_cat_face: **{{name}}**, you don't have enough okash for that!",
         "coinflip": {
-            "flipping": "{{coin}} **{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
+            "flipping": "**{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
             "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
             "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
             "heads": "heads",

@@ -75,7 +75,7 @@ const UNLOCK_NAMES: {
     19: {name:'CV_LEVEL_BAR_CUSTOM',desc:'',hide:true}
 }
 
-const UNLOCK_I18N_KEYS: {[key: number]: string} = {
+export const UNLOCK_I18N_KEYS: {[key: number]: string} = {
     0: 'customizations.dc',
     1: 'customizations.rc',
     2: 'customizations.dbc',

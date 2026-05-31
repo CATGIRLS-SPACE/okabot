@@ -1,6 +1,5 @@
 import {
     ChatInputCommandInteraction,
-    MessageFlags,
     SlashCommandBuilder,
     Snowflake,
     TextChannel
@@ -19,7 +18,6 @@ import {AddXP} from "../../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {AddCasinoLoss, AddCasinoWin} from "../casinodb";
-import {CUSTOMIZTAION_ID_NAMES} from "../items";
 import {UpdateTrackedItem} from "../trackedItem";
 import {CoinFloats} from "../../tasks/cfResetBonus";
 import {DoRandomDrops} from "../../passive/onMessage";
@@ -33,6 +31,8 @@ import {
     DAILY_MISSIONS_EASY, DAILY_MISSIONS_HARD,
     DAILY_MISSIONS_INTERMEDIATE, TrackedItemCounters
 } from "../../tasks/dailyMissions";
+import {t} from "../../i18n/translation";
+import {UNLOCK_I18N_KEYS} from "../../interactions/pockets";
 
 const ActiveFlips: Array<string> = [];
 const UIDViolationTracker = new Map<string, number>();
@@ -70,11 +70,12 @@ const WinStreaks = new Map<Snowflake, number>();
 // probably finish this sometime else
 // current function is messy af, needs a makeover
 export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInteraction) {
-    // interaction.deferReply();
 
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.coinflip)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
+        content: await t('system.errors.command.disabled', interaction.okabot.translateable_locale)
     });
+
+    await interaction.deferReply();
 
     if (ActiveFlips.indexOf(interaction.user.id) != -1 || CheckGambleLock(interaction.user.id)) {
         const violations = UIDViolationTracker.get(interaction.user.id)! + 1 || 1;
@@ -91,13 +92,12 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
             GrantAchievement(interaction.user, Achievements.COINFLIP_BAN, interaction.channel as TextChannel);
         } 
         
-        return interaction.reply({
-            content: `:bangbang: Woah there, **${interaction.user.displayName}**! You can only flip one coin at a time!`,
-            flags: [MessageFlags.SuppressNotifications]
+        return interaction.editReply({
+            content: await t('games.coinflip.already_flipping', interaction.okabot.translateable_locale, {name: interaction.user.displayName})
         });
     }
         
-    // return interaction.reply({
+    // return interaction.editReply({
     //     content: `:x: You can only flip one coin at a time, **${interaction.user.displayName}**!`,
     //     flags: [MessageFlags.SuppressNotifications]
     // });
@@ -111,8 +111,8 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // checking conditions
     if (await CheckOkashRestriction(interaction, OKASH_ABILITY.GAMBLE)) return;
 
-    if (profile.okash.wallet < bet) return interaction.reply({
-        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough okash for that!`,
+    if (profile.okash.wallet < bet) return interaction.editReply({
+        content: await t('games.not_enough_okash', interaction.okabot.translateable_locale, {name: interaction.user.displayName}),
     });
 
     // remove okash (and wc if applicable) from their profile
@@ -162,9 +162,17 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // initial reply
     const coin_flipping = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_FLIPPING):GetEmoji(COIN_EMOJIS_FLIP[profile.customization.games.coin_color]);
     const coin_flipped = weighted?GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY):GetEmoji(COIN_EMOJIS_DONE[profile.customization.games.coin_color]);
-    const reply = await interaction.reply({
-        flags: [MessageFlags.SuppressNotifications],
-        content:`${coin_flipping} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**...`
+
+    const init_message = await t('games.coinflip.flipping', interaction.okabot.translateable_locale, {
+        name: interaction.user.displayName,
+        possessive: profile.customization.global.pronouns.possessive,
+        coin_name: await t(`${UNLOCK_I18N_KEYS[profile.customization.games.coin_color]}.name`, interaction.okabot.translateable_locale),
+        side: await t(`games.coinflip.${side}`, interaction.okabot.translateable_locale),
+        bet,
+    })
+
+    const reply = await interaction.editReply({
+        content: coin_flipping + ' ' + init_message
     });
 
     const reply_as_message = await reply.fetch();
@@ -174,29 +182,32 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     // const roll = 1;
     // const win = ((weighted?roll>=0.3:roll>=0.5)?'heads':'tails')==side;
 
-    let win = false;
+    let win: boolean;
 
     if (weighted) win = side=='heads' ? (roll >= WEIGHTED_WIN_CHANCE) : (roll < WEIGHTED_WIN_CHANCE_TAILS);
     else win = side=='heads' ? (roll >= WIN_CHANCE) : (roll < WIN_CHANCE);
 
+    const result_message = await t(`games.coinflip.landed_${win ? 'win' : 'loss'}`, interaction.okabot.translateable_locale, {
+        side: win ? side : {heads:'tails',tails:'heads'}[side], // i guess bro
+        possessive: profile.customization.global.pronouns.possessive,
+        xp: win ? 15 : 5
+    })
+
     // wait 3 seconds
     await new Promise((resolve) => setTimeout(resolve, 3_000));
 
-    // update message accordingly
-    const final = win?`doubling ${profile.customization.global.pronouns.possessive} bet! ${GetEmoji(EMOJI.CAT_MONEY_EYES)} **(+15XP)**`:`losing ${profile.customization.global.pronouns.possessive} bet! :crying_cat_face: **(+5XP)**`
-
     // check if we need to show a new float message
-    const nfm = CheckFloatRecords(roll, interaction);
+    const new_float_message = await CheckFloatRecords(roll, interaction);
 
     let streak = WinStreaks.get(interaction.user.id) || 0;
     if (win) streak++;
     console.log(`Coinflip winstreak is now ${streak}.`);
 
     const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
-    const streak_msg = streak>1 && win?'\n:fire: **Heck yea, ' + streak + ` in a row! (+${streak_bonus}XP)**`:'';
+    const streak_message = streak > 1 && win ? `\n`+await t('games.streak', interaction.okabot.translateable_locale, {streak, xp: streak_bonus}) : '';
 
     interaction.editReply({
-        content: `${coin_flipped} **${interaction.user.displayName}** flips ${profile.customization.global.pronouns.possessive} ${weighted?'weighted coin':CUSTOMIZTAION_ID_NAMES[profile.customization.games.coin_color]} for ${GetEmoji(EMOJI.OKASH)} OKA**${bet}** on **${side}**... and it lands on **${win ? side : {heads:'tails',tails:'heads'}[side]}**, ${final}${streak_msg}\n-# ${roll}${nfm}`
+        content: `${coin_flipped} ${init_message}${result_message}${streak_message}\n-# ${roll}${new_float_message}`
     });
 
     if (weighted && CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.USE_WEIGHTED_COIN)
@@ -260,7 +271,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     ActiveFlips.splice(ActiveFlips.indexOf(interaction.user.id), 1);
 }
 
-function CheckFloatRecords(float: number, interaction: ChatInputCommandInteraction) {
+async function CheckFloatRecords(float: number, interaction: ChatInputCommandInteraction) {
     const stats_file = join(BASE_DIRNAME, 'stats.oka');
 
     let message = '';
@@ -271,7 +282,7 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     // daily
     if (float > stats.coinflip.daily!.high.value) {
         stats.coinflip.daily!.high = {value:float,user_id:interaction.user.id};
-        message += `\n**New Daily Highest:** \`${float}\` is the highest float someone has rolled today!`
+        message += '\n' + await t('games.coinflip.new_daily_float_high', interaction.okabot.translateable_locale, {float})
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
 
         if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.DAILY_FLOAT_MINMAX)
@@ -279,7 +290,7 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     }
     if (float < stats.coinflip.daily!.low.value) {
         stats.coinflip.daily!.low = {value:float,user_id:interaction.user.id};
-        message += `\n**New Daily Lowest:** \`${float}\` is the lowest float someone has rolled today!`
+        message += '\n' + await t('games.coinflip.new_daily_float_low', interaction.okabot.translateable_locale, {float})
         GrantAchievement(interaction.user, Achievements.NEW_CF_DAILY, interaction.channel as TextChannel);
 
         if (CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.DAILY_FLOAT_MINMAX)
@@ -289,12 +300,12 @@ function CheckFloatRecords(float: number, interaction: ChatInputCommandInteracti
     // all-time
     if (float > stats.coinflip.high.value) {
         stats.coinflip.high = {value:float,user_id:interaction.user.id};
-        message += `\n**New All-Time Highest:** \`${float}\` is the highest float someone has rolled on okabot!`
+        message += '\n' + await t('games.coinflip.new_alltime_float_high', interaction.okabot.translateable_locale, {float})
         // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
     }
     if (float < stats.coinflip.low.value) {
         stats.coinflip.low = {value:float,user_id:interaction.user.id};
-        message += `\n**New All-Time Lowest:** \`${float}\` is the lowest float someone has rolled on okabot!`
+        message += '\n' + await t('games.coinflip.new_alltime_float_low', interaction.okabot.translateable_locale, {float})
         // GrantAchievement(interaction.user, Achievements.NEW_CF_ALLTIME, interaction.channel as TextChannel);
     }
 
