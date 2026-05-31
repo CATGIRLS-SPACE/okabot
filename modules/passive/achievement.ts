@@ -1,12 +1,20 @@
-import { ApplicationIntegrationType, AttachmentBuilder, ChatInputCommandInteraction, SlashCommandBuilder, Snowflake, TextChannel, User } from "discord.js"
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs"
-import { EMOJI, GetEmoji } from "../../util/emoji";
-import { CanvasRenderingContext2D, createCanvas, loadImage } from "canvas";
+import {
+    ApplicationIntegrationType,
+    AttachmentBuilder,
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+    Snowflake,
+    TextChannel,
+    User
+} from "discord.js"
+import {FLAG, GetUserProfile, UpdateUserProfile} from "../user/prefs"
+import {EMOJI, GetEmoji} from "../../util/emoji";
+import {CanvasRenderingContext2D, createCanvas, loadImage} from "canvas";
 import {BASE_DIRNAME, client, GetLastLocale} from "../../index";
-import { fetchImage } from "../levels/levels";
-import { CUSTOMIZATION_UNLOCKS } from "../okash/items";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
+import {fetchImage} from "../levels/levels";
+import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from "fs";
+import {join} from "path";
 import {AddXP} from "../levels/onMessage";
 import {t} from "../i18n/translation";
 
@@ -212,6 +220,8 @@ export const TITLES: {
 export async function GrantAchievement(user: User, achievement: Achievements | string, channel: TextChannel) {
     const profile = GetUserProfile(user.id);
 
+    if (profile.flags.includes(FLAG.NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS)) return console.log(`user ${user.username} is not allowed to unlock achievements.`);
+
     if (profile.achievements.indexOf(achievement as Achievements) != -1) {
         // console.log(`user ${user.username} already has achievement ${achievement}`);
         return;
@@ -259,6 +269,15 @@ export async function HandleCommandAchievements(interaction: ChatInputCommandInt
     // await interaction.deferReply();
 
     const profile = GetUserProfile(interaction.user.id);
+
+    // check if they're achievement banned
+    if (profile.flags.includes(FLAG.NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS)) {
+        await interaction.deferReply();
+        return interaction.editReply({
+            content: await t('achievements.not_allowed', interaction.okabot.translateable_locale)
+        });
+    }
+
     const sub = interaction.options.getString('page', true);
 
     // make sure that there aren't any lingering removed achievements

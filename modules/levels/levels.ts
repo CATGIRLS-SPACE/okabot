@@ -361,11 +361,13 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
     if (trigger_splatoon) ctx.font = "20px 'Splatoon - Square Script'";
     // bg
-    ctx.fillStyle = '#3d3d3d';
-    ctx.fillText(USER_TITLE, 23 + 3, 132);
-    // fg
-    ctx.fillStyle = '#ffffffff';
-    ctx.fillText(USER_TITLE, 23, 129);
+    if (!profile.flags.includes(FLAG.NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS)) {
+        ctx.fillStyle = '#3d3d3d';
+        ctx.fillText(USER_TITLE, 23 + 3, 132);
+        // fg
+        ctx.fillStyle = '#ffffffff';
+        ctx.fillText(USER_TITLE, 23, 129);
+    }
 
     // XP Bar Background
     // const barX = 20;

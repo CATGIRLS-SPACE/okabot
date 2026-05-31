@@ -299,6 +299,7 @@
         "title": "Achievements",
         "diffs": "{{ade}} Easy | {{adt}} Tricky | {{adh}} Hard | {{adex}} Extra Hard",
         "on_unlock": ":trophy: Yaay, **{{name}}**! You've unlocked the achievement {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nYou can now use the title \"**{{title}}**\" on your profile!\n-# {{desc}}",
+        "not_allowed": "Your account is not allowed to unlock achievements. This is likely because you broke rule #5 (No Public Sharing of Achievement Solutions).",
 
         "none": {
             "title": "new okabot user"
@@ -553,6 +554,22 @@
             "name": "Okay, Maybe a Little Sweat",
             "desc": "Can you do it again tomorrow?",
             "title": "model student"
+        }
+    },
+
+    "games": {
+        "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
+        "coinflip": {
+            "flipping": "{{coin}} **{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
+            "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
+            "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
+            "heads": "heads",
+            "tails": "tails",
+            "already_flipping": ":bangbang: Woah there, **{{name}}**! You can only flip one coin at a time!",
+            "new_daily_float_high": "**New Daily Highest:** `{{float}}` is the highest float someone has rolled today!",
+            "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
+            "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
+            "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
         }
     }
 }

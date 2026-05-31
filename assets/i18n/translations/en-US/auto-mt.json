@@ -1,0 +1,9 @@
+{
+    "games": {
+        "coinflip": {
+            "flipping": "{{coin}} **{{name}}** flips their {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
+            "landed_win": "and it lands on **{{side}}**, doubling their bet! **(+{{xp}}XP)**",
+            "landed_loss": "and it lands on **{{side}}**, losing their bet! :crying_cat_face: **(+{{xp}}XP)**"
+        }
+    }
+}
