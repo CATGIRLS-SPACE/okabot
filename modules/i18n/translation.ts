@@ -10,6 +10,7 @@ import {GetUserSupportStatus} from "../../util/users";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 
 import enUS from '../../assets/i18n/translations/en-US/all.json';
+import enUS_help from '../../assets/i18n/translations/en-US/help.json';
 import autoTranslateAlternatives from '../../assets/i18n/translations/en-US/auto-mt.json';
 import ru from '../../assets/i18n/translations/ru/all.json';
 
@@ -55,7 +56,10 @@ export async function InitLanguage() {
         fallbackLng: 'en-US',
         resources: {
             'en-US': {
-                translation: enUS
+                translation: {
+                    ...enUS,
+                    help: enUS_help
+                }
             },
             'auto-mt': { // removes pronoun variables in some strings, autotranslate will pick these over en-US
                 translation: autoTranslateAlternatives
@@ -87,7 +91,10 @@ export async function InitLanguage() {
                 dcd_back: GetEmoji(EMOJI.CARD_BACK),
                 tcd_back: GetEmoji(EMOJI.CARD_BACK_TRANS),
                 bmt: GetEmoji(EMOJI.BLACK_MARKET_TOKEN),
-                bmts: GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD)
+                bmts: GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD),
+
+                en_contributors: enUS.lang_contributors,
+                ru_contributors: ru.lang_contributors
             }
         }
     });
@@ -109,11 +116,14 @@ export async function t(
 
     if (key.includes('achievements.') && GetUserSupportStatus((vars as {[key: string]: string})?.__user_id__ || '') == 'none') dont_translate = true;
 
-    if (dont_translate) return i18next.t(key, {
-        lng: lang,
-        fallbackLng: 'en-US',
-        ...vars
-    });
+    if (dont_translate) {
+        return i18next.t(key, {
+            lng: lang,
+            fallbackLng: 'en-US',
+            joinArrays: '\n',
+            ...vars,
+        });
+    }
 
     // cloud translation API
     try {
@@ -125,7 +135,7 @@ export async function t(
 
         L.debug(`${lang} translation for ${key} is not cached`);
 
-        const data = await translateClient.translate(i18next.t(key, 'auto-mt'), {from:'en',to:lang});
+        const data = await translateClient.translate(i18next.t(key, 'auto-mt', {joinArrays: '\n'}), {from:'en',to:lang});
         const translated = data[0];
         // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner,
     // while not spamming tf out of my api key lol
@@ -137,6 +147,7 @@ export async function t(
         return i18next.t(key, {
             lng: lang,
             fallbackLng: 'en-US',
+            joinArrays: '\n',
             ...vars
         }) + `\n-# **Translation Error:** ${(err as Error).name} ${(err as Error).message}`;
     }

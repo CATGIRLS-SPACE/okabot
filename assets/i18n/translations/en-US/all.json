@@ -571,6 +571,10 @@
             "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
             "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
             "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
+        },
+
+        "blackjack": {
+
         }
     }
 }

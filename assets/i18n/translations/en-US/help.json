@@ -1,0 +1,137 @@
+{
+    "menu": {
+        "select": "Select a page",
+        "okash": {
+            "name": "okash",
+            "desc": "Everything you need to know about okabot's currency!"
+        },
+        "earthquakes": {
+            "name": "Earthquakes",
+            "desc": "What do all these numbers mean?!"
+        },
+        "games": {
+            "name": "Games",
+            "desc": "Help, I don't understand this game!"
+        },
+        "dailies": {
+            "name": "Daily Rewards",
+            "desc": "Come back daily to get cool stuff!"
+        },
+        "levels": {
+            "name": "Leveling",
+            "desc": "Level up for cool rewards and stuff!"
+        },
+        "drops": {
+            "name": "Drops",
+            "desc": "Sometimes you might just get something cool for chatting!"
+        },
+        "language": {
+            "name": "Language and Translation",
+            "desc": "Everything about languages and their contributors!"
+        },
+        "extra": {
+            "name": "Extra Info",
+            "desc": "Just some extra info I wanted to share!"
+        }
+    },
+    "first": [
+        "# Welcome to okabot!",
+        "Choose a menu below to see information!\n",
+        ":grey_exclamation: okabot recently started being publicly available! There may be some bugs!",
+        "If you encounter any, please report them [here](<https://github.com/CATGIRLS-SPACe/okabot/issues/new>)!"
+    ],
+    "okash": [
+        "# The okash Currency",
+        "{{okash}} okash is okabot's currency. It can be earned by playing games, leveling up, claiming your daily rewards, and more!",
+        "You can use okash in the shop to buy items or cosmetics."
+    ],
+    "games_1": [
+        "# okash Games (page 1)",
+        "## Coinflip",
+        "Bet some okash and flip a coin for a 50/50 chance at doubling your money.",
+        "You can earn a one-time-use weighted coin from claiming your daily,",
+        "which gives you a 70/30 chance of landing on heads!",
+        "## Blackjack",
+        "Bet some okash on a game of Blackjack for a chance at doubling or tripling your money.",
+        "In Blackjack, you and okabot start with two cards each. Your goal is to get to 21.",
+        "But be careful! If you go over 21, you lose!",
+        "okabot must draw to at least 17 and then stand. You have these options:",
+        "- Hit: Get another card (unavailable if you have a Blackjack).",
+        "- Stand: Finish drawing and show the game results.",
+        "- Double Down: Only available on the first hit. You will double your money and draw one card, then you must stand.",
+        "Winning will double your bet, winning with a Blackjack hand will give you 3x your bet, and tying will refund you."
+    ],
+    "games_2": [
+        " # okash Games (page 2)",
+        "## Roulette",
+        " Bet some okash on a roulette spin.",
+        " You can bet on numbers, sections, or a color.",
+        " The lower the chance of winning, the higher the reward!",
+        "## Slots",
+        " Bet some okash on a slots game.",
+        " This is by far the most profitable gambling game.",
+        " You can win up to a 50x your bet if you get lucky!"
+    ],
+    "dailies": [
+        "# Daily Rewards",
+        "Every 24 hours, you can claim your daily reward.",
+        "In your daily reward, you are guaranteed {{okash}} OKA**1500** and a weighted coin.",
+        "For each day in your daily reward streak, you gain 5% more okash, up to 200%."
+    ],
+    "levels": [
+        "# The okabot Level System",
+        "Talking in the server and playing games all give you XP.",
+        "This XP will help you level up.",
+        "Levels 1-100 have unlockable titles which show on your /level banner.",
+        "When you level up, you will get a small okash reward and a lootbox, increasing with each level.",
+        "Levels such as 1, 2, 3... give a :package: **Common Lootbox**",
+        "Levels such as 5, 15, 25... give a :package: **Rare Lootbox**",
+        "Levels such as 10, 20, 30... give a :package: :sparkle: **EX Lootbox** :sparkle:"
+    ],
+    "drops": [
+        "# Drops",
+        "Each message you send in the server has a chance of gaining you a random drop.",
+        "These drops include:",
+        "- Lootboxes",
+        "- okash Drops",
+        "Lootboxes include okash rewards, customizations, and Shop Vouchers, which can be used to get a free customization\\*",
+        "okash Drops are either small or large. Small drops are less okash but more common,",
+        "whereas large drops are more okash but less common.",
+        "-# \\*Some rarer customizations cannot be unlocked via Shop Vouchers."
+    ],
+    "earthquakes": [
+        "# Earthquakes",
+        "## Auto Reports (CATGIRL CENTRAL-exclusive feature):",
+        "okabot is connected to [Project DM-D.S.S](<https://dmdata.jp>) to get live earthquake information.",
+        "When a new one is detected, a message is sent in <#1313343448354525214>",
+        "## Magnitude vs Shindo (try /recent-eq)",
+        "okabot shows both the earthquake magnitude and Shindo level. So what's the difference?",
+        "The magnitude of an earthquake is the educated estimation of the intensity at the epicenter.",
+        "The Shindo level is a recorded intensity felt at a station (listed as \"Maximum Intensity\").",
+        "okabot will show the maxmimum recorded Shindo intensity on the embed. Shindo is the most",
+        "common method of showing intensity in Japanese earthquake research.",
+        "You see the difference between the levels [here](<https://www.data.jma.go.jp/multi/quake/quake_advisory.html>)."
+    ],
+    "language": [
+        "# Language and Translation",
+        "okabot is translated willingly by the community.",
+        "Currently, okabot natively supports English and Russian.",
+        "All other languages use machine translation to provide translations.",
+        "These translations may not be accurate.",
+        "Want to contribute? okabot has a [Crowdin page](<https://crowdin.com/project/okabot>)!",
+        "# Translation Credits",
+        "- English (base): {{en_contributors}}",
+        "- Russian: {{ru_contributors}}"
+    ],
+    "extra": [
+        "# Extra info",
+        "okabot is created with the intent to be free and fun.",
+        "If you want to support me and his development, you can do so [here](<https://ko-fi.com/okawaffles>).",
+        "You can run /info to check if your server has Full Access or not.",
+        "Servers with \"full access\" are given exclusive extra nonessential features, and are designated as such if the server",
+        "either has enough donating members or meets some other criteria. These features are locked due to either high API costs",
+        "or instability, whether it be due to it being an early build or just my incompetence.",
+        "If there are any bugs you encounter, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!",
+        "Thanks for using okabot, it really does mean a lot to me {{nekoheart}}"
+    ]
+}
