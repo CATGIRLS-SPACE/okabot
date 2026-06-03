@@ -190,6 +190,7 @@ import {ps} from "./modules/http/panel/core";
 import {InitLanguage} from "./modules/i18n/translation";
 import {SetupBlueskyJob} from "./modules/bluesky/autoposter";
 import {AddMessageToRecord} from "./modules/bluesky/contentRecord";
+import {HandleCommandESL} from "./modules/catgirlcentral/esl/command";
 
 
 export const client = new Client({
@@ -397,6 +398,7 @@ const HANDLERS: {[key:string]: CallableFunction} = {
     'bookmark': HandleCommandBookmark,
     'challenges': HandleCommandChallenges,
     'dig': HandleCommandDig,
+    'esl': HandleCommandESL,
 }
 
 const TEMPORARILY_DISABLED_COMMANDS: Array<string> = [

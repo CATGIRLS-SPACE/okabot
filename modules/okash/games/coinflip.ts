@@ -123,7 +123,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
 
     ActiveFlips.push(interaction.user.id);
 
-    if (profile.customization.games.equipped_trackable_coin != 'none') {
+    if (profile.customization.games.equipped_trackable_coin != 'none' && !weighted) {
         UpdateTrackedItem(profile.customization.games.equipped_trackable_coin, {property:'flips',amount:1}, interaction.channel as TextChannel);
 
         if (CurrentMissions.intermediate.selected == DAILY_MISSIONS_INTERMEDIATE.USE_TRACKED_ITEM_10 || CurrentMissions.hard.selected == DAILY_MISSIONS_HARD.USE_TRACKED_ITEM_30) {
@@ -166,7 +166,7 @@ export async function HandleCommandCoinflipV2(interaction: ChatInputCommandInter
     const init_message = await t('games.coinflip.flipping', interaction.okabot.translateable_locale, {
         name: interaction.user.displayName,
         possessive: profile.customization.global.pronouns.possessive,
-        coin_name: await t(`${UNLOCK_I18N_KEYS[profile.customization.games.coin_color]}.name`, interaction.okabot.translateable_locale),
+        coin_name: await t(`${weighted ? 'items.wc' : UNLOCK_I18N_KEYS[profile.customization.games.coin_color]}.name`, interaction.okabot.translateable_locale),
         side: await t(`games.coinflip.${side}`, interaction.okabot.translateable_locale),
         bet,
     })

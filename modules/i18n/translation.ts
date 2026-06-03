@@ -9,14 +9,17 @@ import {Logger} from "okayulogger";
 import {GetUserSupportStatus} from "../../util/users";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 
+import autoTranslateAlternatives from '../../assets/i18n/translations/en-US/auto-mt.json';
 import enUS from '../../assets/i18n/translations/en-US/all.json';
 import enUS_help from '../../assets/i18n/translations/en-US/help.json';
-import autoTranslateAlternatives from '../../assets/i18n/translations/en-US/auto-mt.json';
+import enUS_games from '../../assets/i18n/translations/en-US/games.json';
 import ru from '../../assets/i18n/translations/ru/all.json';
+import ru_help from '../../assets/i18n/translations/ru/help.json';
+import ru_games from '../../assets/i18n/translations/ru/games.json';
 
 const L = new Logger('i18n');
 
-export const SUPPORTED_LANGUAGES = ['en-US', 'en-GB'] as const;
+export const SUPPORTED_LANGUAGES = ['en-US', 'en-GB', 'ru'] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 
 export const AUTO_TRANSLATE_LANGUAGES = [
@@ -58,14 +61,19 @@ export async function InitLanguage() {
             'en-US': {
                 translation: {
                     ...enUS,
-                    help: enUS_help
+                    help: enUS_help,
+                    games: enUS_games,
                 }
             },
             'auto-mt': { // removes pronoun variables in some strings, autotranslate will pick these over en-US
                 translation: autoTranslateAlternatives
             },
             'ru': {
-                translation: ru
+                translation: {
+                    ...ru,
+                    help: ru_help,
+                    games: ru_games,
+                }
             }
         },
         interpolation: {
@@ -86,6 +94,7 @@ export async function InitLanguage() {
                 okash: GetEmoji(EMOJI.OKASH),
                 cat_sunglasses: GetEmoji(EMOJI.CAT_SUNGLASSES),
                 cat_money_eyes: GetEmoji(EMOJI.CAT_MONEY_EYES),
+                cat_raised: GetEmoji(EMOJI.CAT_RAISED_EYEBROWS),
                 streak_restore: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
                 cbcd_back: GetEmoji(EMOJI.CARD_BACK_SAKURA),
                 dcd_back: GetEmoji(EMOJI.CARD_BACK),
@@ -100,6 +109,7 @@ export async function InitLanguage() {
     });
 
     translateClient = new Translate({key: CONFIG.translate_api_key, apiKey: CONFIG.translate_api_key});
+    L.debug(`languages loaded: ${i18next.languages.join(', ')}`);
     L.info('i18n is ready!');
 }
 
@@ -138,7 +148,7 @@ export async function t(
         const data = await translateClient.translate(i18next.t(key, 'auto-mt', {joinArrays: '\n'}), {from:'en',to:lang});
         const translated = data[0];
         // translations expire after 14 days to ensure inaccurate translations that may have been fixed are replaced in a reasonably timely manner,
-    // while not spamming tf out of my api key lol
+        // while not spamming tf out of my api key lol
         AutoTranslateDB.data[lang as AutoTranslateLanguage][key] = {translation: translated, expires: Date.now() + (1000*60*60*24*14)};
         AutoTranslateDB.write();
         return i18next.services.interpolator.interpolate(translated, vars || {}, lang as AutoTranslateLanguage, {});

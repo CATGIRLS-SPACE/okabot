@@ -49,7 +49,7 @@
         "daily": {
             "init": "{{cat_sunglasses}} You got your daily reward of {{okash}} OKA**1500** and a **{{coin}}**!",
             "streak": ":chart_with_upwards_trend: Wow! You've got a streak of {{length}} days, keep it up! You get a streak bonus of {{okash}} OKA**{{bonus}}**! **(+{{xp}}XP)**",
-            "got_shard": ":scream_cat: Woah! You also got a rare 1x {{token}} **Black Market Token Shard**!",
+            "got_shard": ":scream_cat: Woah! You also got a rare 1x {{bmts}}!",
             "too_early": ":crying_cat_face: It's too early to get your daily reward, **{{name}}**! Come back <t:{{time}}:R> to claim it!\nYour current daily streak is {{days}} day(s).",
             "reminder": {
                 "now": ":clock3: {{ping}}, you can now claim your daily reward! Come get it!",
@@ -554,27 +554,6 @@
             "name": "Okay, Maybe a Little Sweat",
             "desc": "Can you do it again tomorrow?",
             "title": "model student"
-        }
-    },
-
-    "games": {
-        "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
-        "not_enough_okash": ":crying_cat_face: **{{name}}**, you don't have enough okash for that!",
-        "coinflip": {
-            "flipping": "**{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
-            "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
-            "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
-            "heads": "heads",
-            "tails": "tails",
-            "already_flipping": ":bangbang: Woah there, **{{name}}**! You can only flip one coin at a time!",
-            "new_daily_float_high": "**New Daily Highest:** `{{float}}` is the highest float someone has rolled today!",
-            "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
-            "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
-            "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
-        },
-
-        "blackjack": {
-
         }
     }
 }

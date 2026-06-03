@@ -1,0 +1,40 @@
+{
+    "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
+    "not_enough_okash": ":crying_cat_face: **{{name}}**, you don't have enough okash for that!",
+    "gamble_locked": "{{cat_raised}} Hmm, looks like you're already playing a game, **{{name}}**!",
+    "coinflip": {
+        "flipping": "**{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
+        "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
+        "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
+        "heads": "heads",
+        "tails": "tails",
+        "already_flipping": ":bangbang: Woah there, **{{name}}**! You can only flip one coin at a time!",
+        "new_daily_float_high": "**New Daily Highest:** `{{float}}` is the highest float someone has rolled today!",
+        "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
+        "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
+        "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
+    },
+    "blackjack": {
+        "cooldown": ":zzz: waiting for your cooldown to end...",
+        "bet_float": ":x: **{{name}}**, I don't have change!",
+        "top": "# {{royalty}}{{ace}} Blackjack",
+        "bet": "You bet {{okash}} OKA**{{bet}}**",
+        "okabot_cards": "## okabot: {{cards}}",
+        "okabot_total": "*he's got **{{total}}**...*",
+        "you_cards": "## you: {{cards}}",
+        "you_total": "*...and you've got **{{total}}***",
+        "buttons": {
+            "hit": "Hit!",
+            "stand": "Stand!",
+            "double": "Double Down!"
+        },
+        "result": {
+            "bust": "### :crying_cat_face: You busted! (+10XP)",
+            "tie": "### :crying_cat_face: You tied! (+10XP)",
+            "lost": "### :crying_cat_face: You lost! (+10XP)",
+            "win": "### {{cat_money_eyes}} You won {{okash}} OKA{{amount}}! (+15XP)",
+            "blackjack": "### {{cat_money_eyes}} Blackjack! You won {{okash}} OKA{{amount}}! (+20XP)"
+        },
+        "game_expired": ":hourglass: This Blackjack game has expired. Your bet has been refunded, but your streak has been reset to prevent abuse."
+    }
+}

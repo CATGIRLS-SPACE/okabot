@@ -32,6 +32,7 @@ import { StockSlashCommand } from "../interactions/stock";
 import {EmulateMessageSlashCommand} from "../system/parseAsTextFromInput";
 import {BookmarkContextMenuOption, BookmarkSlashCommand} from "../contextmenu/bookmarks";
 import {ChallengesSlashCommand} from "../tasks/dailyMissions";
+import {ESLSlashCommand} from "../catgirlcentral/esl/command";
 
 
 // these two don't have dedicated interactions files, and are handled by index.ts
@@ -88,6 +89,7 @@ export async function DeployCommands(token: string, client_id: string): Promise<
         BookmarkContextMenuOption,
         ChallengesSlashCommand,
         // DigSlashCommand,
+        // ESLSlashCommand // not ready
     ];
 
 
