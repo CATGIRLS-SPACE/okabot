@@ -86,7 +86,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     PAYMENT_HISTORY.set(sender_id, {paid: receiver_id, time:d.getTime()});
 
     interaction.editReply({
-        content: await t('interactions.pay.errors.paid_okabot', interaction.okabot.translateable_locale, {
+        content: await t('interactions.pay.success', interaction.okabot.translateable_locale, {
             user: interaction.user.displayName,
             receiver: receiver_user.displayName,
             okash: GetEmoji(EMOJI.OKASH),
