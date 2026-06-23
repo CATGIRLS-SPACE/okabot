@@ -26,7 +26,7 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     const sender_id = interaction.user.id;
     const receiver_id = interaction.options.getUser('user')!.id;
 
-    if (receiver_id == client.user!.id) {
+    if (receiver_id == interaction.client.user.id) {
         return interaction.editReply({
             content: await t('interactions.pay.errors.paid_okabot', interaction.okabot.translateable_locale, {user: interaction.user.displayName}),
         });
