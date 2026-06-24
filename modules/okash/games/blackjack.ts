@@ -643,7 +643,7 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
         BlackjackContainer.addTextDisplayComponents(
             new TextDisplayBuilder().setContent(gameover=='value'?
                 (tie?
-                    await t('games.blackjack.result.tied', game.language!)
+                    await t('games.blackjack.result.tie', game.language!)
                     :
                     await t('games.blackjack.result.lost', game.language!)
                 ) :
