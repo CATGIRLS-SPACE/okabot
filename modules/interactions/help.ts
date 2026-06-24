@@ -40,7 +40,7 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
         new StringSelectMenuOptionBuilder()
             .setLabel(await t('help.menu.levels.name', interaction.okabot.translateable_locale))
             .setDescription(await t('help.menu.levels.desc', interaction.okabot.translateable_locale))
-            .setValue('levels ')
+            .setValue('levels')
             .setEmoji('⬆️'),
 
         new StringSelectMenuOptionBuilder()
