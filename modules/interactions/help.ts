@@ -23,24 +23,24 @@ export async function HandleCommandHelp(interaction: ChatInputCommandInteraction
         new StringSelectMenuOptionBuilder()
             .setLabel(`${await t('help.menu.games.name', interaction.okabot.translateable_locale)} (1/2)`)
             .setDescription(await t('help.menu.games.desc', interaction.okabot.translateable_locale))
-            .setValue('games')
+            .setValue('games_1')
             .setEmoji('🎲'),
         new StringSelectMenuOptionBuilder()
             .setLabel(`${await t('help.menu.games.name', interaction.okabot.translateable_locale)} (2/2)`)
             .setDescription(await t('help.menu.games.desc', interaction.okabot.translateable_locale))
-            .setValue('games2')
+            .setValue('games_2')
             .setEmoji('🎲'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel(await t('help.menu.dailies.name', interaction.okabot.translateable_locale))
             .setDescription(await t('help.menu.dailies.desc', interaction.okabot.translateable_locale))
-            .setValue('daily')
+            .setValue('dailies')
             .setEmoji('📅'),
 
         new StringSelectMenuOptionBuilder()
             .setLabel(await t('help.menu.levels.name', interaction.okabot.translateable_locale))
             .setDescription(await t('help.menu.levels.desc', interaction.okabot.translateable_locale))
-            .setValue('level')
+            .setValue('levels ')
             .setEmoji('⬆️'),
 
         new StringSelectMenuOptionBuilder()
