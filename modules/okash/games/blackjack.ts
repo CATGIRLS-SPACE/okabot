@@ -254,7 +254,7 @@ export async function HandleCommandBlackjackV2(interaction: ChatInputCommandInte
 
     const profile = GetUserProfile(interaction.user.id);
     const wallet = profile.okash.wallet;
-    if (wallet < bet) return interaction.reply({
+    if (wallet < bet) return interaction.editReply({
         content: await t('games.not_enough_okash', interaction.okabot.translateable_locale)
     });
 
