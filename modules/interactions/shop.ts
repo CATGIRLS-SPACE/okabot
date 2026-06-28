@@ -16,7 +16,7 @@ import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {AddOneToInventory, RemoveFromWallet, RemoveOneFromInventory} from "../okash/wallet";
 import {AddXP} from "../levels/onMessage";
-import {CalculateTargetXP} from "../levels/levels";
+import {CalculateTargetXPV2} from "../levels/levels";
 import {UnlockOneTimeCustomization} from "./buy";
 
 
@@ -504,7 +504,7 @@ async function HandleModalItemPurchase(interaction: ModalSubmitInteraction) {
 
     if (selected_item == ITEMS.VIRTUAL_ITEM_XP_LEVEL_UP) {
         RemoveFromWallet(interaction.user.id, okash_requirement, true);
-        AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level));
+        AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXPV2(profile.leveling.level));
         return interaction.editReply({
             content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you bought 1x **XP Level Up** for ${GetEmoji(EMOJI.OKASH)} OKA**${okash_requirement}**!`
         });

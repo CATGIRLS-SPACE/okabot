@@ -9,7 +9,7 @@ import {ITEMS} from "../../okash/items";
 import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {AddOneToInventory, RemoveOneFromInventory} from "../../okash/wallet";
 import {AddXP} from "../../levels/onMessage";
-import {CalculateTargetXP} from "../../levels/levels";
+import {CalculateTargetXPV2} from "../../levels/levels";
 
 const ITEM_SELECT_COMPONENT = new StringSelectMenuBuilder()
     .setCustomId('blackMarketTokenItemSelect')
@@ -100,7 +100,7 @@ export async function item_bmToken_modal(interaction: ModalSubmitInteraction) {
             break;
 
         case 'xpl':
-            AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level));
+            AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXPV2(profile.leveling.level));
             interaction.reply({
                 content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Token** for an :nazar_amulet: **XP Level Up**!`
             });

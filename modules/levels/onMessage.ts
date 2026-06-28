@@ -60,6 +60,10 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
             level: new_level,
             current_xp,
             total_xp,
+            legacy: { // for just in case purposes
+                level: profile.leveling.level,
+                xp: profile.leveling.current_xp
+            }
         }
 
         profile.flags.push(FLAG.LEVELING_MODERNIZED);

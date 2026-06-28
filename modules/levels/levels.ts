@@ -388,7 +388,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.fill();
 
     // XP Bar Progress
-    const progressRatio = profile.leveling.current_xp / CalculateTargetXP(profile.leveling.level);
+    const progressRatio = profile.leveling.current_xp / CalculateTargetXPV2(profile.leveling.level);
     if (progressRatio * barWidth > 16) {
         ctx.fillStyle = bar_color.fg;
         ctx.beginPath();
@@ -401,7 +401,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     if (trigger_splatoon) ctx.font = "12px 'Splatoon - Square Script'";
     ctx.fillStyle = num_color;
     ctx.textAlign = 'right';
-    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXP(profile.leveling.level)} XP`, width - 10, height - 20);
+    ctx.fillText(`${Math.floor(profile.leveling.current_xp)} XP of ${CalculateTargetXPV2(profile.leveling.level)} XP`, width - 10, height - 20);
 
     const stickers = [
         "cherry-blossom.png",

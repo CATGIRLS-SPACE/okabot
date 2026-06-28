@@ -76,6 +76,10 @@ export interface USER_PROFILE {
         level: number,
         current_xp: number,
         total_xp: number,
+        legacy?: {
+            level: number,
+            xp: number
+        }
     },
     okash: {
         wallet: number,

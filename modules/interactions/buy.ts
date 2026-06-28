@@ -2,7 +2,7 @@ import {ChatInputCommandInteraction, SlashCommandBuilder, TextChannel} from "dis
 import {RemoveFromWallet} from "../okash/wallet";
 import {CUSTOMIZATION_UNLOCKS} from "../okash/items";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {CalculateTargetXP} from "../levels/levels";
+import {CalculateTargetXPV2} from "../levels/levels";
 import {AddXP} from "../levels/onMessage";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import { Achievements, GrantAchievement } from "../passive/achievement";
@@ -70,7 +70,7 @@ function AddXPLevel(interaction: ChatInputCommandInteraction) {
     RemoveFromWallet(interaction.user.id, 10000+(profile.leveling.level * 2500), true);
     interaction.editReply({content:`:cat: **${interaction.user.displayName}**, you purchased one XP Level for ${GetEmoji(EMOJI.OKASH)} OKA**${10000+(profile.leveling.level * 2500)}**!`});
     
-    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXP(profile.leveling.level));
+    AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXPV2(profile.leveling.level));
 }
 
 
