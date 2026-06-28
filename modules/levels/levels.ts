@@ -74,7 +74,11 @@ LEVEL_DICTIONARY.forEach(item => {
 
 export function CalculateTargetXP(level: number): number {
     const amount = Math.floor(100+(35*(level-1)));
-    return amount<100?100:amount; // start at 100
+    return Math.max(100, amount); // start at 100
+}
+
+export function CalculateTargetXPV2(level: number): number {
+    return Math.floor(100 + 20 * level + 0.5 * level * level);
 }
 
 // -- new things --
@@ -113,7 +117,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     const d = new Date();
     if (d.getTime()/1000 < (COOLDOWNS.get(interaction.user.id) || 0) && !DEV && !preview_sticker) {
         interaction.reply({
-            content: await t('system.errors.interaction.rate_limit', interaction.okabot.translateable_locale, {
+            content: await t('system.errors.command.rate_limit', interaction.okabot.translateable_locale, {
                 user: interaction.user.displayName
             })
         });
@@ -491,7 +495,8 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     if (!profile.leveling) {
         profile.leveling = {
             level: 1,
-            current_xp: 0
+            current_xp: 0,
+            total_xp: 0,
         }
         UpdateUserProfile(user_to_get.id, profile);
     }

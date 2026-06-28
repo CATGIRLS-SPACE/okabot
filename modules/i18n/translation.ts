@@ -23,7 +23,6 @@ export const SUPPORTED_LANGUAGES = ['en-US', 'en-GB', 'ru'] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 
 export const AUTO_TRANSLATE_LANGUAGES = [
-    Locale.Russian,
     Locale.German,
     Locale.SpanishES,
     Locale.SpanishLATAM,
@@ -101,6 +100,7 @@ export async function InitLanguage() {
                 tcd_back: GetEmoji(EMOJI.CARD_BACK_TRANS),
                 bmt: GetEmoji(EMOJI.BLACK_MARKET_TOKEN),
                 bmts: GetEmoji(EMOJI.BLACK_MARKET_TOKEN_SHARD),
+                nekoheart: GetEmoji(EMOJI.NEKOHEART),
 
                 en_contributors: enUS.lang_contributors,
                 ru_contributors: ru.lang_contributors

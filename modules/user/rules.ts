@@ -59,7 +59,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
     const collectorFilter = (i: Interaction) => i.user.id === interaction.user.id;
     const collector = reply.createMessageComponentCollector({ filter: collectorFilter, time: 120_000 });
 
-    collector.on('collect', (i => {
+    collector.on('collect', (async i => {
         if (i.customId == 'accept') {
             const profile = GetUserProfile(interaction.user.id);
             profile.accepted_rules = true;
@@ -67,7 +67,7 @@ export async function CheckRuleAgreement(interaction: ChatInputCommandInteractio
             UpdateUserProfile(interaction.user.id, profile);
 
             i.update({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} ${t('system.rules.agreed', interaction.okabot.translateable_locale)}`,
+                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} ${await t('system.rules.agreed', interaction.okabot.translateable_locale)}`,
                 components: [],
                 embeds: []
             });

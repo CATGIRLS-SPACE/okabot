@@ -100,7 +100,7 @@
     "level": {
         "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
         "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
-        "xp_modernization": "Heads up! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
+        "xp_modernization": ":scream_cat: Heads up, **{{name}}**! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
         "custom_link": {
             "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
             "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
@@ -145,7 +145,7 @@
                 "desc": "An old cardboard box containing some common items."
             },
             "rare": {
-                "name": ":package: Common Lootbox",
+                "name": ":package: Rare Lootbox",
                 "desc": "Not too shabby... A wooden box with a few rare items in it."
             },
             "ex": {

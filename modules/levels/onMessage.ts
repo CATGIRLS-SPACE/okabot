@@ -4,8 +4,8 @@ import {
     Snowflake,
     TextChannel
 } from "discord.js";
-import { GetUserProfile, UpdateUserProfile } from "../user/prefs";
-import { CalculateOkashReward, CalculateTargetXP, LEVEL_NAMES_EN } from "./levels";
+import { FLAG, GetUserProfile, UpdateUserProfile } from "../user/prefs";
+import { CalculateOkashReward, CalculateTargetXP, CalculateTargetXPV2, LEVEL_NAMES_EN } from "./levels";
 import {AddOneToInventory, AddToWallet} from "../okash/wallet";
 import {client, GetLastLocale} from "../../index";
 import {ITEMS} from "../okash/items";
@@ -41,8 +41,38 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
     if (!user) user = await client.users.fetch(user_id);
     if (!user) throw new Error('Cannot award XP to a nonexistent user');
 
-    profile.leveling.current_xp += amount || Math.floor(Math.random() * 7) + 3; // anywhere between 3-10 xp per message
-    let target_xp = CalculateTargetXP(profile.leveling.level);
+    if (!profile.flags.includes(FLAG.LEVELING_MODERNIZED)) {
+        // for each level, we must calculate what the original target_xp was
+        let current_xp = 0;
+        for (let i = 0; i < profile.leveling.level - 1; i++) {
+            current_xp += CalculateTargetXP(i);
+        }
+        const total_xp = current_xp;
+
+        // now calculate what the new level should be
+        let new_level = 1;
+        while (current_xp >= CalculateTargetXPV2(new_level + 1)) {
+            current_xp -= CalculateTargetXPV2(new_level + 1);
+            new_level++;
+        }
+
+        profile.leveling = {
+            level: new_level,
+            current_xp,
+            total_xp,
+        }
+
+        profile.flags.push(FLAG.LEVELING_MODERNIZED);
+
+        channel.send({
+            content: await t('level.xp_modernization', GetLastLocale(user_id), {name: user.displayName})
+        });
+    }
+
+    const random_xp_amount = Math.floor(Math.random() * 7) + 3;
+    profile.leveling.current_xp += amount || random_xp_amount; // anywhere between 3-10 xp per message
+    profile.leveling.total_xp += amount || random_xp_amount;
+    let target_xp = CalculateTargetXPV2(profile.leveling.level);
 
     // console.debug(`${user_id} gained ${amount} xp`)
 
@@ -51,7 +81,7 @@ export async function AddXP(user_id: Snowflake, channel: TextChannel, amount?: n
         profile.leveling.current_xp = profile.leveling.current_xp - target_xp; // carry over extra XP
         profile.leveling.level++;
 
-        target_xp = CalculateTargetXP(profile.leveling.level);
+        target_xp = CalculateTargetXPV2(profile.leveling.level);
 
         const okash_reward = CalculateOkashReward(profile.leveling.level);
         AddToWallet(user_id, okash_reward);

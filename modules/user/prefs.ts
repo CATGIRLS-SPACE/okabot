@@ -75,6 +75,7 @@ export interface USER_PROFILE {
     leveling: {
         level: number,
         current_xp: number,
+        total_xp: number,
     },
     okash: {
         wallet: number,
@@ -150,6 +151,7 @@ const DEFAULT_DATA: USER_PROFILE = {
     leveling: {
         level: 1,
         current_xp: 0,
+        total_xp: 0
     },
     okash: {
         wallet: 0,
@@ -249,7 +251,9 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
         ProfilesDB.write();
     }
 
-    return ProfilesDB.data.profiles[user_id];
+    let profile = ProfilesDB.data.profiles[user_id];
+
+    return profile;
 }
 
 /**
