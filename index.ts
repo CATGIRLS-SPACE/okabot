@@ -556,7 +556,7 @@ client.on(Events.MessageCreate, async message => {
         await message.reply(`Heads up, **${message.author.displayName}**! Any message that pings me is relayed to Millie's private server. No other context can be seen, so if you are reporting a bug, please send as much context as possible.`);
     }
 
-    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '748284249487966282')) {
+    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '748284249487966282' || message.guild?.id == '1486807815023493173')) {
         // if (!CONFIG.gemini.enable) return;
         if (message.guild.id != '748284249487966282' && message.guild.id != '1019089377705611294') return message.reply({
             content: `**${message.author.displayName}**, sorry... Gemini isn't enabled for this server. Please contact a bot admin if you'd like to apply for access.`,
