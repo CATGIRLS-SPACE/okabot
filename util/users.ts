@@ -40,8 +40,8 @@ export function LoadSpecialUsers(dirname: string) {
 }
 
 export function GetUserSupportStatus(user_id: Snowflake): 'none' | 'ko-fi' | 'booster' | 'granted' {
-    if (CONFIG.permitted_to_use_shorthands.includes(user_id)) return 'granted';
-    if (!SUPPORTERS.has(user_id)) return 'none';
+    if (SUPPORTERS.has(user_id)) return SUPPORTERS.get(user_id)!;
+    if (!CONFIG.permitted_to_use_shorthands.includes(user_id) && !SUPPORTERS.has(user_id)) return 'none';
     return SUPPORTERS.get(user_id)!;
 }
 
