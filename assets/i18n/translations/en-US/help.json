@@ -38,7 +38,8 @@
         "# Welcome to okabot!",
         "Choose a menu below to see information!\n",
         ":grey_exclamation: okabot recently started being publicly available! There may be some bugs!",
-        "If you encounter any, please report them [here](<https://github.com/CATGIRLS-SPACe/okabot/issues/new>)!"
+        "If you encounter any, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!",
+        "Need support or want okabot updates? Join [CATGIRL CENTRAL](https://discord.gg/jAMCGD5p9A)!"
     ],
     "okash": [
         "# The okash Currency",
@@ -132,6 +133,7 @@
         "either has enough donating members or meets some other criteria. These features are locked due to either high API costs",
         "or instability, whether it be due to it being an early build or just my incompetence.",
         "If there are any bugs you encounter, please report them [here](<https://github.com/CATGIRLS-SPACE/okabot/issues/new>)!",
+        "If you would like to receive updates about okabot or need support, you can join [here](https://discord.gg/jAMCGD5p9A)!",
         "Thanks for using okabot, it really does mean a lot to me {{nekoheart}}"
     ]
 }

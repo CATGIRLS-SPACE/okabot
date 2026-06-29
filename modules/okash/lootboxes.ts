@@ -31,7 +31,10 @@ export function lootboxRewardCommon(user_id: Snowflake): LootboxRewardsOkash | L
             return {type: LOOTBOX_REWARD_TYPE.OKASH, amount:okash_reward}; }
 
         case 2:
-            { const item = Math.random()<0.5?ITEMS.WEIGHTED_COIN_ONE_USE:ITEMS.STREAK_RESTORE;
+            { let item: ITEMS; let item_roll = Math.random();
+                if (item_roll < 0.3) item = ITEMS.WEIGHTED_COIN_ONE_USE;
+                else if (item_roll > 0.3 && item_roll < 0.6) item = ITEMS.STREAK_RESTORE;
+                else item = ITEMS.LOT_SCRATCH;
             LootboxRecentlyDropped.set(user_id, {item:item, time:Math.floor((new Date()).getTime()/1000)});
             return {type:LOOTBOX_REWARD_TYPE.ITEM, item_id:item}; }
 
@@ -90,7 +93,6 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
 
     if (roll >= 900 && roll < 950) {
         const item = [
-            ITEMS.CASINO_PASS_10_MIN,
             ITEMS.CASINO_PASS_30_MIN,
             ITEMS.CASINO_PASS_1_HOUR,
             ITEMS.LOOTBOX_INCREASE_15_MIN,

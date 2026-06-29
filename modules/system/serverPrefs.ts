@@ -16,6 +16,39 @@ import {
     StringSelectMenuOptionBuilder
 } from "@discordjs/builders";
 
+export enum SubscriptionLevel {
+    FREE = -1,
+    GRANTED = 0,
+    VXCP_ONLY = 1,
+    FULL_ACCESS = 2,
+    DONATING_MEMBERS_THRESHOLD = 3,
+};
+export enum PaymentMethod {
+    STRIPE, // most likely
+    LEMON_SQUEEZY,
+    PAYPAL, // last resort, fuck paypal
+    PADDLE, // less likely but a possibility
+};
+export interface PaymentData {
+    current: {
+        active: boolean,
+        next_payment: number,
+        amount: number,
+        method: PaymentMethod,
+        by_user: Snowflake,
+        email: string
+    },
+    
+    transaction_history: Array<{
+        date: string,
+        tendered: number,
+        tier: ServerPreferences,
+        by_user: Snowflake,
+        processor: PaymentMethod,
+        id: string,
+    }>
+}
+
 /**
  * A configuration interface that allows server administrators to define
  * which features their server members can use on okabot.
@@ -44,6 +77,21 @@ export interface ServerPreferences {
         danbooru: boolean,
         danbooru_sqe: boolean,
         moderation: boolean,
+    },
+    premium: {
+        version: number,
+        is_subscribed: true,
+        tier: SubscriptionLevel,
+        expires: number,
+        by_user: Snowflake,
+        payment_data: PaymentData
+    } | {
+        version: number,
+        is_subscribed: false,
+    } | {
+        version: number,
+        is_subscribed: false,
+        payment_data: PaymentData
     }
 }
 
@@ -95,6 +143,10 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         danbooru: false,
         danbooru_sqe: false,
         moderation: false,
+    },
+    premium: {
+        version: 1,
+        is_subscribed: false
     }
 };
 

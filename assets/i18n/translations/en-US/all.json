@@ -37,7 +37,8 @@
             },
             "command": {
                 "rate_limit": ":hourglass: Slow down, **{{name}}**! You *just* ran this command!",
-                "disabled": ":x: This feature isn't available in this server. Maybe ask a server admin to enable it?"
+                "disabled": ":x: This feature isn't available in this server. Maybe ask a server admin to enable it?",
+                "limited_channel": ":x: okabot isn't allowed in this channel. Ask the admins which channel okabot is allowed in!"
             },
             "language": {
                 "eng_only": "Sorry, this feature is only available when your okabot language is set to English!"
@@ -95,6 +96,9 @@
             "search_results": "Most recent posts with those tags:\n{{ids}}\nView one with \"d#<post id>\".",
             "search_display": "Most recent {{num}} post(s) for your search. Lower quality is chosen to prevent oversize.\nIDs: {{ids}}",
             "no_posts": "No posts for tag list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` *do not* count towards the two-tag limit!)"
+        },
+        "use": {
+            "dont_have": "**{{name}}**, you don't have any {{item}}!"
         }
     },
     "level": {
@@ -126,11 +130,11 @@
     },
     "items": {
         "missing": {
-            "name": "Unknown Item",
+            "name": ":question: Unknown Item",
             "desc": "I dunno what this item is! (This is a bug, please report it!)"
         },
         "sr": {
-            "name": "Streak Restore",
+            "name": "{{sr}} Streak Restore",
             "desc": "Restores your streak if you miss a day.",
             "on_use": "{{sr}} **{{name}}**, you've restored your daily reward streak to **{{length}} days**!",
             "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
@@ -157,7 +161,7 @@
             "on_use_item": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... a **{{item}}**!"
         },
         "td": {
-            "name": "Tracking Device",
+            "name": ":electric_plug: Tracking Device",
             "desc": "A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it's pretty popular amongst Spotify users."
         },
         "sv": {
@@ -165,15 +169,15 @@
             "desc": "A voucher that can be redeemed for a free customization (with some exceptions)"
         },
         "st": {
-            "name": "Scratch Ticket",
+            "name": ":ticket: Scratch Ticket",
             "desc": "Test your luck with this scratch card and have a chance at winning a load of okash!"
         },
         "db15": {
-            "name": "Drop Boost (15 min)",
+            "name": ":magic_wand: Drop Boost (15 min)",
             "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
         },
         "db30": {
-            "name": "Drop Boost (30 min)",
+            "name": ":magic_wand: Drop Boost (30 min)",
             "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
         },
         "cas10": {
@@ -206,7 +210,15 @@
         },
         "brt": {
             "name": "Bank Robbery Tool",
-            "desc": "Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!"
+            "desc": "Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!",
+            "on_use": {
+                "success": ":scream_cat: **{{name}}** used their {{brt}} to hack into {{victim}}'s bank account and steal {{okash}} OKA**{{amount}}**! How will they recover from such an event?!",
+
+                "fail_self": ":x: **{{name}}**, you can't rob yourself!",
+                "fail_bot": ":x: **{{name}}**, you can't rob a bot!",
+                "fail_not_enough": ":crying_cat_face: **{{name}}**, **{{victim}}** doesn't have enough okash in {{possessive}} bank to rob, {{subjective}} need at least {{okash}} OKA**10,000** to make it worthwhile!",
+                "fail_not_in_server": ":x: **{{name}}**, looks like that person is off in another server..."
+            }
         }
     },
     "customizations": {
@@ -220,7 +232,7 @@
             "deck": "This item is unique. It counts how many cards it has dealt. Serial no: **`{{serial}}`**. It's dealt {{cards}} card(s)."
         },
         "ublb": {
-            "name": "User Banner Level Background",
+            "name": ":ribbon: User Banner Level Background",
             "desc": "Allows you to show off your Discord profile banner in /profile level!"
         },
         "dc": {
@@ -256,19 +268,19 @@
             "desc": "This mythical coin, said to be gifted from the gods, is almost useless, but looks extremely cool."
         },
         "rlb": {
-            "name": "Red Level Bar",
+            "name": ":red_circle: Red Level Bar",
             "desc": "Sets your level bar's color to red."
         },
         "glb": {
-            "name": "Green Level Bar",
+            "name": ":green_circle: Green Level Bar",
             "desc": "Sets your level bar's color to green."
         },
         "blb": {
-            "name": "Blue Level Bar",
+            "name": ":blue_circle: Blue Level Bar",
             "desc": "Sets your level bar's color to blue."
         },
         "plb": {
-            "name": "Pink Level Bar",
+            "name": ":pink_circle: Pink Level Bar",
             "desc": "Sets your level bar's color to pink."
         },
         "dcd": {

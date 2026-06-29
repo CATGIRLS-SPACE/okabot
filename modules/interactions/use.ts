@@ -94,7 +94,7 @@ export async function HandleCommandUse(interaction: ChatInputCommandInteraction)
             item_bmToken(interaction);
             break;
 
-        case 'hacking tool': case 'ht':
+        case 'bank robbery tool': case 'brt':
             item_bank_robbery_tool(interaction);
             break;
 

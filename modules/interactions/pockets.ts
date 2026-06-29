@@ -149,7 +149,7 @@ export async function HandleCommandPockets(interaction: ChatInputCommandInteract
                         name = await t('customizations.tracked.name', interaction.okabot.translateable_locale, {item: await t(`${UNLOCK_I18N_KEYS[tracked_item.data.base]}.name`)});
                         fields.push({
                             name,
-                            value: await t('customizations.tracked.coin', interaction.okabot.translateable_locale, {serial: tracked_item.serial, cards: (tracked_item.data as TrackableCardDeck).dealt_cards})
+                            value: await t('customizations.tracked.deck', interaction.okabot.translateable_locale, {serial: tracked_item.serial, cards: (tracked_item.data as TrackableCardDeck).dealt_cards})
                         })
                         break;
                 }

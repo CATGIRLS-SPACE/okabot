@@ -151,7 +151,7 @@ export const GLOBAL_SHORTHANDS: {[key: string]: string} = {
     // black market items
     'bmt': 'black market token',
     'bmts': 'black market token shard',
-    'brk': 'bank robbery kit',
+    'brt': 'bank robbery tool',
     'ht': 'hacking tool',
 }
 
@@ -175,7 +175,7 @@ export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
     'ht': 19,
     'bmt': 20,
     'bmts': 21,
-    'brk': 22,
+    'brt': 22,
 }
 
 export enum ITEM_TYPE {

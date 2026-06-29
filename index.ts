@@ -479,13 +479,13 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
         .setAuthor({
             name:okawaffles.displayName, iconURL:okawaffles.displayAvatarURL()
         })
-        .setDescription(`A bot that "serves zero purpose" and exists "just because it can."`)
+        .setDescription(`A bot that "serves zero purpose" and exists "just because it can." At least, that's what it used to be.`)
         .addFields(
             {name:'Development', value: 'okawaffles, tacobella03', inline: true},
             {name:'Testing', value:'okawaffles, tacobella03', inline: true},
             {name:'Assets',value:'Twemoji, okawaffles, tacobella03, and whoever made that coinflip animation.', inline: false},
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
-            {name:'Donators', value:'tacobella03, flyer.', inline: false},
+            {name:'Donators', value:'tacobella03, flyer., jemu_', inline: false},
         )
         .setFooter({text: 'read if cute | thanks for using my bot <3'})
         .setThumbnail(client.user!.avatarURL())
