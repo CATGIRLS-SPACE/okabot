@@ -29,7 +29,7 @@ import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
-import {CUSTOMIZTAION_ID_NAMES, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS} from "../okash/items";
+import {CUSTOMIZTAION_ID_NAMES, GLOBAL_CUST_SHORTHANDS_IDS, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS} from "../okash/items";
 import {exec} from "child_process";
 import {existsSync} from "fs";
 import axios from "axios";
@@ -290,13 +290,13 @@ export function RegisterAllShorthands() {
             if (!GLOBAL_SHORTHANDS[params[3]])
                 throw new Error('invalid item ID');
 
-            params[3] = GLOBAL_SHORTHANDS[params[3]].toString();
+            params[3] = GLOBAL_CUST_SHORTHANDS_IDS[params[3]].toString();
         }
 
         const user = client.users.cache.get(params[2]);
         if (user) throw new Error('invalid user');
         const profile = GetUserProfile(user!.id);
-        profile.customization.unlocked.push(GLOBAL_ITEM_SHORTHANDS_IDS[params[3]]);
+        profile.customization.unlocked.push(parseInt(params[3]));
         UpdateUserProfile(user!.id, profile);
     });
 
