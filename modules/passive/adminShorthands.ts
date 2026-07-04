@@ -29,11 +29,12 @@ import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
-import {GLOBAL_ITEM_SHORTHANDS_IDS} from "../okash/items";
+import {CUSTOMIZTAION_ID_NAMES, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS} from "../okash/items";
 import {exec} from "child_process";
 import {existsSync} from "fs";
 import axios from "axios";
 import {CreateRegularPost, CreateTestPost} from "../bluesky/autoposter";
+import { SetPremiumStatus, SubscriptionLevel } from "../system/serverPrefs";
 
 
 interface ShorthandList {
@@ -280,6 +281,23 @@ export function RegisterAllShorthands() {
         } else AddOneToInventory(params[2], parseInt(params[3]));
 
         message.reply(`:inbox_tray: Inserted one **${ITEM_NAMES[parseInt(params[3])].name}** into **${user?.displayName}**'s pockets`);
+    });
+
+    RegisterShorthand('oka cust', async (message: Message, params: string[]) => {
+        if (params.length < 3) throw new Error("not enough parameters. usage: oka cust [Snowflake | them | me] [custId]");
+        if (Number.isNaN(parseInt(params[2]))) throw new Error("invalid user ID in params[2]");
+        if (Number.isNaN(parseInt(params[3]))) {
+            if (!GLOBAL_SHORTHANDS[params[3]])
+                throw new Error('invalid item ID');
+
+            params[3] = GLOBAL_SHORTHANDS[params[3]].toString();
+        }
+
+        const user = client.users.cache.get(params[2]);
+        if (user) throw new Error('invalid user');
+        const profile = GetUserProfile(user!.id);
+        profile.customization.unlocked.push(GLOBAL_ITEM_SHORTHANDS_IDS[params[3]]);
+        UpdateUserProfile(user!.id, profile);
     });
 
     // bans
@@ -536,6 +554,28 @@ export function RegisterAllShorthands() {
 
     RegisterShorthand('oka bs-crp', (message: Message) => {
         CreateRegularPost(false, message);
+    });
+
+    // server management
+    RegisterShorthand('oka set-premium', (message: Message, params: string[]) => {
+        if (params.length < 4) {
+            throw new Error('A minimum of 4 arguments is required. Usage: `oka set-premium <this | id> <yes | no> [(if yes) until-date]');
+        }
+        if (params[2] == 'this') params[2] = message.guild!.id;
+        let enabled = params[3]=='yes';
+
+        if (enabled) {
+            let until = new Date('2099-12-31');
+            if (params[5]) until = new Date(params[5]);
+            else message.reply('No "until-date" parameter provided, assuming you mean indefinitely!');
+
+            SetPremiumStatus(params[2], {
+                enabled,
+                expires: until.getDate(),
+                tier: SubscriptionLevel.GRANTED,
+                user: message.author.id
+            })
+        }
     });
 }
 

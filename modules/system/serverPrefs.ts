@@ -77,6 +77,7 @@ export interface ServerPreferences {
         danbooru: boolean,
         danbooru_sqe: boolean,
         moderation: boolean,
+        linkclean: boolean,
     },
     premium: {
         version: number,
@@ -92,6 +93,15 @@ export interface ServerPreferences {
         version: number,
         is_subscribed: false,
         payment_data: PaymentData
+    },
+    config: {
+        lock_to_channels: boolean,
+        approved_channels: Array<Snowflake>,
+        block_channels: boolean,
+        blocked_channels: Array<Snowflake>,
+        permit_roles: boolean,
+        allowed_roles: Array<Snowflake>
+        disallowed_roles: Array<Snowflake>
     }
 }
 
@@ -117,6 +127,7 @@ export enum ServerFeature {
     danbooru = 'danbooru',
     danbooru_nsfw = 'danbooru_sqe',
     mod_shorthands = 'moderation',
+    link_cleansing = 'linkclean'
 }
 
 const DEFAULT_PREFERENCES: ServerPreferences = {
@@ -136,17 +147,29 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         pixel_guess: true,
         earthquakes: true,
         easter_eggs: true,
-        voice_xp: true,
         ai_responses: true,
         reminders: true,
         catgirl: true,
         danbooru: false,
         danbooru_sqe: false,
         moderation: false,
+        linkclean: true,
+
+        // premium only
+        voice_xp: false,
     },
     premium: {
         version: 1,
         is_subscribed: false
+    },
+    config: {
+        permit_roles: false,
+        allowed_roles: [],
+        disallowed_roles: [],
+        lock_to_channels: true,
+        approved_channels: [],
+        block_channels: false,
+        blocked_channels: []
     }
 };
 
@@ -399,8 +422,10 @@ function ChangeSettingTo(i: ButtonInteraction) {
             break;
         case 'leveling':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.msg_xp = enabled;
-            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.voice_xp = enabled;
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.levelup_msg = enabled;
+            break;
+        case 'voicexp':
+            SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.voice_xp = enabled;
             break;
         case 'levelup_msg':
             SERVER_PREFERENCES_DB[i.guild!.id].allowed_features.levelup_msg = enabled;
@@ -687,3 +712,32 @@ export const ServerPreferencesSlashCommand = new SlashCommandBuilder()
     .setName('server-preferences')
     .setDescription('(admin only) change okabot server preferences')
     .setContexts(InteractionContextType.Guild).setIntegrationTypes(ApplicationIntegrationType.GuildInstall);
+
+
+//
+// PREMIUM START
+//
+
+// This is for granting manual status. Other payment functions will be used for real premium subscriptions.
+export function SetPremiumStatus(guild: Snowflake, data: {user: Snowflake, expires: number, enabled: boolean, tier: SubscriptionLevel}) {
+    SERVER_PREFERENCES_DB[guild].premium = {
+        version: 1,
+        by_user: data.user,
+        expires: data.expires,
+        is_subscribed: data.enabled,
+        tier: data.tier,
+        payment_data: {
+            current: {
+                active: false,
+                amount: 0,
+                by_user: data.user,
+                email: '',
+                method: PaymentMethod.STRIPE,
+                next_payment: -1
+            },
+            transaction_history: []
+        }
+    }
+
+    SaveServerPreferencesDB();
+}

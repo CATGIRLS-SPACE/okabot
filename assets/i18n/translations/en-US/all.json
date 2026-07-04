@@ -38,7 +38,10 @@
             "command": {
                 "rate_limit": ":hourglass: Slow down, **{{name}}**! You *just* ran this command!",
                 "disabled": ":x: This feature isn't available in this server. Maybe ask a server admin to enable it?",
-                "limited_channel": ":x: okabot isn't allowed in this channel. Ask the admins which channel okabot is allowed in!"
+                "limited_channel": ":x: okabot is only allowed in specific channels here! Ask the admins which channels okabot is allowed in!",
+                "blocked_channel": ":x: okabot isn't allowed in this channel! Check with the admins which channels okabot is allowed in!",
+                "limited_role": ":x: You don't have a required role to use okabot in this server!",
+                "blocked_role": ":x: Sorry, one of your roles disallows you from using okabot here..."
             },
             "language": {
                 "eng_only": "Sorry, this feature is only available when your okabot language is set to English!"

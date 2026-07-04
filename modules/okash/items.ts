@@ -178,6 +178,12 @@ export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
     'brt': 22,
 }
 
+
+// finish later
+export const GLOBAL_CUST_SHORTHANDS_IDS: {[key: string]: number} = {
+    'ublb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER
+}
+
 export enum ITEM_TYPE {
     ITEM,
     GEM,
