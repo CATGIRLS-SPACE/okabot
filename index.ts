@@ -174,7 +174,7 @@ import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { CheckForTextCommands } from "./util/textCommandMappings";
-import {HandleServerPrefsCommand} from "./modules/system/serverPrefs";
+import {CheckChannelAvailability, HandleServerPrefsCommand} from "./modules/system/serverPrefs";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
@@ -187,7 +187,7 @@ import {item_bmToken_modal} from "./modules/interactions/usables/blackMarketToke
 import {HandleCommandChallenges, LoadDailyMissions} from "./modules/tasks/dailyMissions";
 import {HandleCommandDig} from "./modules/okash/games/dig";
 import {ps} from "./modules/http/panel/core";
-import {InitLanguage} from "./modules/i18n/translation";
+import {InitLanguage, t} from "./modules/i18n/translation";
 import {SetupBlueskyJob} from "./modules/bluesky/autoposter";
 import {AddMessageToRecord} from "./modules/bluesky/contentRecord";
 import {HandleCommandESL} from "./modules/catgirlcentral/esl/command";
@@ -428,6 +428,19 @@ client.on(Events.InteractionCreate, async interaction => {
 
     if (!interaction.isChatInputCommand()) return;
 
+    const profile = GetUserProfile(interaction.user.id);
+    const allows_translation = profile.customization.global.allow_translation; // allow_translation = should I follow the user's Discord locale?
+    const manual_locale = profile.customization.global.preferred_locale;
+    interaction.okabot = {
+        locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
+        translateable_locale: allows_translation ? interaction.locale : manual_locale
+    };
+
+    if (interaction.guild && !CheckChannelAvailability(interaction.guild.id, interaction.channel!.id)) return interaction.reply({
+        flags: [MessageFlags.Ephemeral],
+        content: await t('system.errors.command.blocked_channel', interaction.okabot.translateable_locale)
+    });
+
     // if (interaction.guild && !(interaction.guild.id == '1019089377705611294' || interaction.guild.id == '748284249487966282')) return;
 
     if (!interaction.channel?.isTextBased()) return;
@@ -438,13 +451,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
     if (!(await CheckForTranslationFlag(interaction))) return;
 
-    const profile = GetUserProfile(interaction.user.id);
-    const allows_translation = profile.customization.global.allow_translation; // allow_translation = should I follow the user's Discord locale?
-    const manual_locale = profile.customization.global.preferred_locale;
-    interaction.okabot = {
-        locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
-        translateable_locale: allows_translation ? interaction.locale : manual_locale
-    };
     LAST_USER_LOCALE.set(interaction.user.id, interaction.locale);
 
     // if a user is super banned, okabot will stop here <--- hey past millie, what the hell does "super banned" even mean?
@@ -506,6 +512,8 @@ client.on(Events.MessageCreate, async message => {
     // if (message.guild && !(message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282')) return;
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
+    if (!CheckChannelAvailability(message.guild!.id, message.channel.id)) return;
+
     const rules = await CheckForRulesSimple(message.author.id);
     if ((message.content.startsWith('okabot, ') || message.channel.isDMBased()) && !rules) {
         const reply = await message.reply({

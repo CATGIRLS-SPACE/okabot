@@ -375,6 +375,21 @@ export function CheckFeatureAvailability(guild_id: Snowflake, feature: ServerFea
 }
 
 /**
+ * Check if okabot is allowed in a specific channel of a server.
+ * @param guild_id The server ID
+ * @param channel_id The channel ID
+ * @returns true if allowed, false if disallowed
+ */
+export function CheckChannelAvailability(guild_id: Snowflake, channel_id: Snowflake): boolean {
+    const preferences = SERVER_PREFERENCES_DB[guild_id] || DEFAULT_PREFERENCES;
+    // if channel blocking/whitelist isn't allowed just return true
+    if (!preferences.config.lock_to_channels && !preferences.config.block_channels) return true;
+    if (preferences.config.lock_to_channels) return preferences.config.approved_channels.includes(channel_id);
+    if (preferences.config.block_channels) return !preferences.config.blocked_channels.includes(channel_id);
+    return true;
+}
+
+/**
  * Get all preferences for a Guild ID
  * @param guild_id The Guild to get preferences of
  */
@@ -488,6 +503,56 @@ function ChangeSettingTo(i: ButtonInteraction) {
         content:'✅ Your change has been recorded successfully.',
         components: []
     });
+}
+
+export function SetChannelBehavior(guild_id: Snowflake, config: {
+    mode: 'free'
+} | {
+    mode: 'blacklist',
+    blocked_channels: Array<Snowflake>
+} | {
+    mode: 'whitelist',
+    allowed_channels: Array<Snowflake>
+}) {
+    if (!SERVER_PREFERENCES_DB[guild_id]) SERVER_PREFERENCES_DB[guild_id] = DEFAULT_PREFERENCES;
+    
+    switch(config.mode) {
+        case "free":
+            SERVER_PREFERENCES_DB[guild_id].config = {
+                block_channels: false,
+                blocked_channels: SERVER_PREFERENCES_DB[guild_id].config.blocked_channels,
+                lock_to_channels: false,
+                approved_channels: SERVER_PREFERENCES_DB[guild_id].config.approved_channels,
+                permit_roles: SERVER_PREFERENCES_DB[guild_id].config.permit_roles,
+                allowed_roles: SERVER_PREFERENCES_DB[guild_id].config.allowed_roles,
+                disallowed_roles: SERVER_PREFERENCES_DB[guild_id].config.disallowed_roles,
+            };
+            break;
+        case "blacklist":
+            SERVER_PREFERENCES_DB[guild_id].config = {
+                block_channels: true,
+                blocked_channels: config.blocked_channels,
+                lock_to_channels: false,
+                approved_channels: SERVER_PREFERENCES_DB[guild_id].config.approved_channels,
+                permit_roles: SERVER_PREFERENCES_DB[guild_id].config.permit_roles,
+                allowed_roles: SERVER_PREFERENCES_DB[guild_id].config.allowed_roles,
+                disallowed_roles: SERVER_PREFERENCES_DB[guild_id].config.disallowed_roles,
+            };
+            break;
+        case "whitelist":
+            SERVER_PREFERENCES_DB[guild_id].config = {
+                block_channels: false,
+                blocked_channels: SERVER_PREFERENCES_DB[guild_id].config.blocked_channels,
+                lock_to_channels: true,
+                approved_channels: config.allowed_channels,
+                permit_roles: SERVER_PREFERENCES_DB[guild_id].config.permit_roles,
+                allowed_roles: SERVER_PREFERENCES_DB[guild_id].config.allowed_roles,
+                disallowed_roles: SERVER_PREFERENCES_DB[guild_id].config.disallowed_roles,
+            };
+            break;
+    }
+
+    SaveServerPreferencesDB();
 }
 
 //

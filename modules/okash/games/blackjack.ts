@@ -577,7 +577,9 @@ async function LoseV2(i: ButtonInteraction, game: BlackjackGame, reason: 'bust' 
 
     if (TallyCards(game.user) + TallyCards(game.dealer) == 21) GrantAchievement(i.user, Achievements.SHARED_21, i.channel as TextChannel);
 
-    AddXP(i.user.id, i.channel as TextChannel, 10);
+    const streak = WinStreak.get(i.user.id) || 0;
+    const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
+    AddXP(i.user.id, i.channel as TextChannel, streak > 2 ? 10 : 10 + streak_bonus);
     DoRandomDrops(await i.fetchReply(), i.user);
 
     DoDailyTrackableCheck(i, game);
@@ -617,7 +619,8 @@ async function BuildBlackjackContainer(game: BlackjackGame, can_double_down = fa
     BlackjackContainer.addTextDisplayComponents(CardDisplaysTexts);
 
     const streak = WinStreak.get(user_id!) || 0;
-    const streak_text = streak>1?await t('games.streak', game.language!, {streak}):'';
+    const streak_bonus = Math.round((5 * Math.floor(streak)) ** (0.01 * Math.floor(streak) + 1));
+    const streak_text = streak>1?await t('games.streak', game.language!, {streak, xp: streak_bonus}):'';
     // console.log(streak);
 
     if (gameover == 'win') {
