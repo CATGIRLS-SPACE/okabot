@@ -512,9 +512,11 @@ client.on(Events.MessageCreate, async message => {
     // if (message.guild && !(message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282')) return;
     if (message.flags.any("IsCrosspost") || message.flags.any("HasThread") || message.flags.any('HasSnapshot')) return; // forwarded messages break shit
     
+    const rules = await CheckForRulesSimple(message.author.id);
+
+    if (rules) await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     if (!CheckChannelAvailability(message.guild!.id, message.channel.id)) return;
 
-    const rules = await CheckForRulesSimple(message.author.id);
     if ((message.content.startsWith('okabot, ') || message.channel.isDMBased()) && !rules) {
         const reply = await message.reply({
             content: 'You appear to be trying to use okabot\'s Gemini features. You must agree to the okabot rules before doing so. Please run any okabot command before trying again.',
@@ -543,7 +545,6 @@ client.on(Events.MessageCreate, async message => {
     // if (!(message.guild!.id == "1019089377705611294" || message.guild!.id == "748284249487966282")) return; // only listen to my approved guilds
 
     // various checks
-    await CheckForShorthand(message); // checks for shorthands like "oka update" etc...
     CheckForFunMessages(message); // checks for things like "thank you okabot" etc...
     DoLeveling(message); // self-explanatory
     if (message.channel.id == "1310486655257411594") WordleCheck(message); // checks for wordle spoilers

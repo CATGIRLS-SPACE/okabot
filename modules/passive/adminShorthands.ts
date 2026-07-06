@@ -34,7 +34,7 @@ import {exec} from "child_process";
 import {existsSync} from "fs";
 import axios from "axios";
 import {CreateRegularPost, CreateTestPost} from "../bluesky/autoposter";
-import { SetPremiumStatus, SubscriptionLevel } from "../system/serverPrefs";
+import { CheckChannelAvailability, GetPreferencesFor, SetChannelBehavior, SetPremiumStatus, SubscriptionLevel } from "../system/serverPrefs";
 
 
 interface ShorthandList {
@@ -577,6 +577,47 @@ export function RegisterAllShorthands() {
             })
         }
     });
+
+    RegisterShorthand('oka set-whitelist', (message: Message, params: string[]) => {
+        if (params.length < 3) throw new Error('invalid parameters: usage: "oka set-whitelist <on | off>"');
+
+        SetChannelBehavior(message.guild!.id, params[2] == 'on' ? {
+            mode: 'whitelist',
+            allowed_channels: []
+        } : {mode:'free'});
+
+        message.reply({
+            flags: [MessageFlags.SuppressNotifications],
+            content: `OK, this server's channel filtering mode is now set to \`${params[2] == 'on' ? 'whitelist' : 'free'}\``
+        });
+    });
+
+    RegisterShorthand('oka set-channel-permit', async (message: Message, params: string[]) => {
+        if (params.length < 4) throw new Error('invalid parameters: usage: `oka set-channel-permit <channel ID> <allow | disallow>');
+
+        const preferences = GetPreferencesFor(message.guild!.id);
+        if (!preferences) throw new Error('guild has no preferences. use "oka set-whitelist" first.');
+        if (!preferences.config.lock_to_channels) throw new Error('guild channel filtering setting is set to "free". use "oka set-whitelist on" first.');
+
+        if (params[3] == 'allow' && preferences.config.approved_channels.includes(params[2])) return message.reply('No change, this channel is already approved.');
+        if (params[3] == 'disallow' && !preferences.config.approved_channels.includes(params[2])) return message.reply('No change, this channel is already disapproved');
+
+        if (params[3] == 'allow')
+            preferences.config.approved_channels.push(params[2]);
+
+        if (params[3] == 'disallow')
+            preferences.config.approved_channels.splice(preferences.config.approved_channels.indexOf(params[2]), 1);
+
+        SetChannelBehavior(message.guild!.id, {
+            mode: 'whitelist',
+            allowed_channels: preferences.config.approved_channels
+        });
+
+        message.reply({
+            flags: [MessageFlags.SuppressNotifications],
+            content: `OK, channel <#${params[2]}> is now ${params[3] == 'allow' ? '' : 'DIS'}ALLOWED.`
+        });
+    });
 }
 
 export async function CheckForShorthand(message: Message) {
@@ -599,6 +640,7 @@ export async function CheckForShorthand(message: Message) {
 
     // if you can use shorthands but aren't the bot master, you aren't permitted to use them on yourself or the bot master
     if (CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
+        if (!CheckChannelAvailability(message.guild!.id, message.channel!.id)) return;
         if (params[2] == 'me' || params[2] == CONFIG.bot_master) return message.reply('https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492');
         if (params[2] == 'them' &&
             message.reference &&
@@ -609,6 +651,7 @@ export async function CheckForShorthand(message: Message) {
 
     if (params[2] == 'me') params[2] = message.author.id;
     if (params[2] == 'them') params[2] = (message.channel as TextChannel).messages.cache.find((msg) => msg.id == message.reference?.messageId)!.author.id;
+    if (params[2] == 'here') params[2] = message.channel!.id;
 
     for (const key of Object.keys(Shorthands)) {
         try {
