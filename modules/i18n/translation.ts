@@ -95,6 +95,7 @@ export async function InitLanguage() {
                 cat_money_eyes: GetEmoji(EMOJI.CAT_MONEY_EYES),
                 cat_raised: GetEmoji(EMOJI.CAT_RAISED_EYEBROWS),
                 streak_restore: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
+                sr: GetEmoji(EMOJI.STREAK_RESTORE_GEM),
                 cbcd_back: GetEmoji(EMOJI.CARD_BACK_SAKURA),
                 dcd_back: GetEmoji(EMOJI.CARD_BACK),
                 tcd_back: GetEmoji(EMOJI.CARD_BACK_TRANS),

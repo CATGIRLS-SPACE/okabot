@@ -151,7 +151,7 @@ import {CheckForRuleReact, CheckForRulesSimple, CheckRuleAgreement, TextBasedRul
 import {WordleCheck} from "./modules/extra/wordle";
 import {CheckForShorthand, RegisterAllShorthands} from "./modules/passive/adminShorthands";
 import {DoRandomDrops} from "./modules/passive/onMessage";
-import {LoadSerialItemsDB} from "./modules/okash/trackedItem";
+import {Check$Message, LoadSerialItemsDB} from "./modules/okash/trackedItem";
 import {DeployCommands} from "./modules/deployment/commands";
 import {
     CheckForTranslationFlag,
@@ -174,7 +174,7 @@ import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { CheckForTextCommands } from "./util/textCommandMappings";
-import {CheckChannelAvailability, HandleServerPrefsCommand} from "./modules/system/serverPrefs";
+import {CheckChannelAvailability, GetPremiumStatus, HandleServerPrefsCommand, SubscriptionLevel} from "./modules/system/serverPrefs";
 import {CheckRequiredPermissions} from "./util/permscheck";
 import {CheckGuessGameMessage, GuessBlueArchive} from "./modules/interactions/guessgame";
 import {PrivacyGuardCheckLinks} from "./modules/catgirlcentral/privacyguard";
@@ -493,11 +493,16 @@ async function GetInfoEmbed(interaction: ChatInputCommandInteraction) {
             {name:'Earthquake Information Sources', value:'Project DM-D.S.S', inline: false},
             {name:'Donators', value:'tacobella03, flyer., jemu_', inline: false},
         )
-        .setFooter({text: 'read if cute | thanks for using my bot <3'})
-        .setThumbnail(client.user!.avatarURL())
+        .setFooter({text: 'read if cute | thanks for using my bot, it means the world to me <3'})
+        .setThumbnail(client.user!.avatarURL());
+
+    const subLevel = GetPremiumStatus(interaction.guildId || '0');
+    let subText = 'This server doesn\'t have a premium subscription. Just using okabot is good enough, though!';
+    if (subLevel == SubscriptionLevel.VXCP_ONLY) subText = 'This server has access to Voice XP features!';
+    if (subLevel == SubscriptionLevel.FULL_ACCESS || subLevel == SubscriptionLevel.GRANTED) subText = 'This server has full access to okabot features. Thanks for supporting me!'
 
     interaction.editReply({
-        content:['1387213389083709590','1019089377705611294'].includes(interaction.guildId || '0')?`This server has full access to okabot features! ${GetEmoji(EMOJI.NEKOHEART)}`:'This server is using basic okabot features.',
+        content:`${subText} ${GetEmoji(EMOJI.NEKOHEART)}`,
         embeds:[info_embed]
     });
 }
@@ -553,6 +558,7 @@ client.on(Events.MessageCreate, async message => {
     CheckGuessGameMessage(message);
     PrivacyGuardCheckLinks(message);
     CheckModerationShorthands(message);
+    Check$Message(message);
 
     // text-based official commands
     if (message.content.startsWith('o.patchnotes')) ShowPatchnotes(message);
@@ -560,17 +566,9 @@ client.on(Events.MessageCreate, async message => {
 
     if (message.content.startsWith('o.')) CheckForTextCommands(message);
 
-    // if (message.content.includes('<@908895994027049021>')) {
-    //     (await client.channels.fetch('1315805846910795846') as TextChannel).send(`User ${message.author.username} has pinged me with message:\n${message.content}`);
-    //     await message.reply(`Heads up, **${message.author.displayName}**! Any message that pings me is relayed to Millie's private server. No other context can be seen, so if you are reporting a bug, please send as much context as possible.`);
-    // }
-
-    if (message.content.toLowerCase().startsWith('okabot, ') && (message.guild?.id == '1019089377705611294' || message.guild?.id == '748284249487966282' || message.guild?.id == '1486807815023493173')) {
-        // if (!CONFIG.gemini.enable) return;
-        if (message.guild.id != '748284249487966282' && message.guild.id != '1019089377705611294' && message.guild.id != '1486807815023493173') return message.reply({
-            content: `**${message.author.displayName}**, sorry... Gemini isn't enabled for this server. Please contact a bot admin if you'd like to apply for access.`,
-        });
-        else GeminiDemoRespondToInquiry(message);
+    if (message.content.toLowerCase().startsWith('okabot, ') && GetPremiumStatus((message.guild || {id:'0'}).id)) {
+        if (!CONFIG.gemini.enable) return;
+        GeminiDemoRespondToInquiry(message);
     }
     
     if (message.reference) {
@@ -601,7 +599,7 @@ client.on(Events.MessageCreate, async message => {
     }
 
     // bsky
-    if (!message.guild) return;
+    if (!message.guild || !CONFIG.bluesky.enable) return;
     if (message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282') {
         if (message.author.bot) return;
         AddMessageToRecord(`${message.author.username}: "${message.content}"`);

@@ -806,3 +806,38 @@ export function SetPremiumStatus(guild: Snowflake, data: {user: Snowflake, expir
 
     SaveServerPreferencesDB();
 }
+
+/**
+ * Check whether a guild has a valid active premium status
+ * @param guild The Guild ID to check
+ */
+export function GetPremiumStatus(guild: Snowflake): SubscriptionLevel {
+    const preferences = SERVER_PREFERENCES_DB[guild];
+    if (!preferences) return SubscriptionLevel.FREE;
+    const premium_config = preferences.premium;
+    if (!premium_config) return SubscriptionLevel.FREE;
+
+    if (!premium_config.is_subscribed) return SubscriptionLevel.FREE;
+    if (premium_config.expires < Date.now()) {
+        SERVER_PREFERENCES_DB[guild].premium = {
+            is_subscribed: false,
+            payment_data: {
+                current: {
+                    active: false,
+                    amount: 0.00,
+                    by_user: '0',
+                    email: '',
+                    method: PaymentMethod.STRIPE,
+                    next_payment: 0
+                },
+                transaction_history: premium_config.payment_data.transaction_history
+            },
+            version: 1
+        }
+        SaveServerPreferencesDB();
+
+        return SubscriptionLevel.FREE;
+    }
+
+    return premium_config.tier;
+}

@@ -5,5 +5,5 @@
        "**/*.js.map": true,
        "**/*.js": {"when": "$(basename).ts"}
     },
-    "discord.enabled": false
+    "discord.enabled": true
 }

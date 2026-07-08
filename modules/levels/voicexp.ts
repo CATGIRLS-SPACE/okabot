@@ -4,14 +4,16 @@ import { BASE_DIRNAME } from "../../index";
 import { AddXP } from "./onMessage";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
-import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import {CheckFeatureAvailability, GetPremiumStatus, ServerFeature, SubscriptionLevel} from "../system/serverPrefs";
 
 const L = new Logger('voice xp');
 
 const VoiceData: Map<string, number> = new Map<string, number>();
 
 export async function HandleVoiceEvent(client: Client, oldState: VoiceState, newState: VoiceState) {
-    if (newState.guild.id != '1019089377705611294') return;
+    const subLevel = GetPremiumStatus(oldState.guild.id);
+    if (![SubscriptionLevel.VXCP_ONLY, SubscriptionLevel.FULL_ACCESS, SubscriptionLevel.GRANTED].includes(subLevel)) return;
+
 
     if ((<unknown>newState.member! as User).bot) return;
     const d = new Date();
