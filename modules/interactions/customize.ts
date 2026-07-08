@@ -203,6 +203,7 @@ async function CustomizeLevelBar(interaction: ChatInputCommandInteraction) {
         selected_title: profile.customization.level_banner.selected_title
     };
     profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM_PENDING), 1);
+    profile.customization.unlocked.push(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM);
     UpdateUserProfile(interaction.user.id, profile);
 
     interaction.editReply({

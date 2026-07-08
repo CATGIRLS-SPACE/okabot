@@ -381,6 +381,7 @@ export function CheckFeatureAvailability(guild_id: Snowflake, feature: ServerFea
  * @returns true if allowed, false if disallowed
  */
 export function CheckChannelAvailability(guild_id: Snowflake, channel_id: Snowflake): boolean {
+    if (Object.keys(SERVER_PREFERENCES_DB).length == 0) LoadServerPreferencesDB();
     const preferences = SERVER_PREFERENCES_DB[guild_id] || DEFAULT_PREFERENCES;
     // if channel blocking/whitelist isn't allowed just return true
     if (!preferences.config.lock_to_channels && !preferences.config.block_channels) return true;
