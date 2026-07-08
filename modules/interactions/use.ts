@@ -22,7 +22,7 @@ import {FLAG, GetUserProfile, UpdateUserProfile, USER_PROFILE} from "../user/pre
 import {exLootboxReward, LOOTBOX_REWARD_TYPE, lootboxRewardCommon, rareLootboxReward} from "../okash/lootboxes";
 import {EMOJI, GetEmoji, GetEmojiID} from "../../util/emoji";
 import {PassesActive} from "../okash/games/blackjack";
-import {ITEM_NAMES} from "./pockets";
+import {ITEM_I18N_KEYS, ITEM_NAMES, UNLOCK_I18N_KEYS} from "./pockets";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {BoostsActive, DoPresenceChecks} from "../passive/onMessage";
 import {item_tracking_device} from "./usables/trackingDevice";
@@ -39,6 +39,7 @@ import {BASE_DIRNAME} from "../../index";
 import {scratch_ticket} from "./usables/scratchTicket";
 import {item_bmToken} from "./usables/blackMarketToken";
 import {item_bank_robbery_tool} from "./usables/bankRobberyTool";
+import { t } from "../i18n/translation";
 
 export async function HandleCommandUse(interaction: ChatInputCommandInteraction) {
     switch (interaction.options.getString('item')!.toLowerCase()) {
@@ -165,35 +166,42 @@ async function item_common_lootbox(interaction: ChatInputCommandInteraction) {
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
+    const amount_to_open = Math.min(interaction.options.getNumber('amount', false) || 1, inventory.find(i => i.item_id == ITEMS.LOOTBOX_COMMON)!.amount);
+
+    for (let i = 0; i < amount_to_open; i++)
+        RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_COMMON);
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds...`
+        // content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds...`
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
-
-    const reward = lootboxRewardCommon(interaction.user.id);
+    
     let rewardMessage = '';
 
-    switch (reward.type) {
-        case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, reward.item_id)
-            rewardMessage = reward.item_id==ITEMS.WEIGHTED_COIN_ONE_USE?`a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`:`a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore**!`;
-            break;
-
-        case LOOTBOX_REWARD_TYPE.OKASH:
-            AddToWallet(interaction.user.id, reward.amount)
-            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.amount}**`;
-            break;
-
-        default:
-            break;
+    for (let i = 0; i < amount_to_open; i++) {
+        const reward = lootboxRewardCommon(interaction.user.id);
+        
+        switch (reward.type) {
+            case LOOTBOX_REWARD_TYPE.ITEM:
+                AddOneToInventory(interaction.user.id, reward.item_id)
+                rewardMessage += reward.item_id==ITEMS.WEIGHTED_COIN_ONE_USE?`- a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!\n`:`- a ${GetEmoji(EMOJI.STREAK_RESTORE_GEM)} **Streak Restore**!\n`;
+                break;
+                
+            case LOOTBOX_REWARD_TYPE.OKASH:
+                AddToWallet(interaction.user.id, reward.amount)
+                rewardMessage += `- ${GetEmoji(EMOJI.OKASH)} OKA**${reward.amount}**\n`;
+                break;
+                
+            default:
+                break;
+        }
     }
 
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds ${rewardMessage}`
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :package: **Common Lootbox** and finds:\n${rewardMessage}`
     });
     // DoPresenceChecks(interaction);
 }
@@ -209,41 +217,49 @@ async function item_rare_lootbox(interaction: ChatInputCommandInteraction) {
         });
     }
 
-    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
+    const amount_to_open = Math.min(interaction.options.getNumber('amount', false) || 1, inventory.find(i => i.item_id == ITEMS.LOOTBOX_RARE)!.amount);
+
+    for (let i = 0; i < amount_to_open; i++)
+        RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_RARE);
 
     await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds...`
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds...`
     });
 
     await new Promise(resolve => setTimeout(resolve, 3000));
-
-    const reward = rareLootboxReward(interaction.user.id);
+    
     let rewardMessage = '';
+    
+    for (let i = 0; i < amount_to_open; i++) {
+        const reward = rareLootboxReward(interaction.user.id);
 
-    switch (reward.type) {
-        case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, reward.value);
+        switch (reward.type) {
+            case LOOTBOX_REWARD_TYPE.ITEM:
+                AddOneToInventory(interaction.user.id, reward.value);
 
-            // Dynamic message based on the item received
-            if (reward.value === ITEMS.WEIGHTED_COIN_ONE_USE) {
-                rewardMessage = `a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!`;
-            } else if (reward.value === ITEMS.SHOP_VOUCHER) {
-                rewardMessage = `a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!`;
-            }
-            break;
+                // Dynamic message based on the item received
+                if (reward.value == ITEMS.WEIGHTED_COIN_ONE_USE) {
+                    rewardMessage += `- a ${GetEmoji(EMOJI.WEIGHTED_COIN_STATIONARY)} **Weighted Coin**!\n`;
+                } else if (reward.value == ITEMS.SHOP_VOUCHER) {
+                    rewardMessage += `- a ${GetEmoji(EMOJI.SHOP_VOUCHER)} **Shop Voucher**!\n`;
+                } else if (reward.value == ITEMS.LOT_SCRATCH) {
+                    rewardMessage += `- a :ticket: **Scratch Ticket**!\n`;
+                }
+                break;
 
-        case LOOTBOX_REWARD_TYPE.OKASH:
-            AddToWallet(interaction.user.id, reward.value)
-            rewardMessage = `${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**`;
-            break;
+            case LOOTBOX_REWARD_TYPE.OKASH:
+                AddToWallet(interaction.user.id, reward.value)
+                rewardMessage += `- ${GetEmoji(EMOJI.OKASH)} OKA**${reward.value}**\n`;
+                break;
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
-    await interaction.editReply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds ${rewardMessage}`
+   await interaction.editReply({
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :package: **Rare Lootbox** and finds\n${rewardMessage}`
     });
-    DoPresenceChecks(interaction);
+    // DoPresenceChecks(interaction);
 }
 
 
@@ -254,44 +270,75 @@ async function item_ex_lootbox(interaction: ChatInputCommandInteraction) {
         content: `**${interaction.user.displayName}**, you don't have an :sparkles: **EX Lootbox** :sparkles: to open!` 
     });
 
-    //
+    const amount_to_open = Math.min(interaction.options.getNumber('amount', false) || 1, GetInventory(interaction.user.id).find(i => i.item_id == ITEMS.LOOTBOX_EX)!.amount);
 
+    
     await interaction.reply({
-        content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds...`
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds...`
     });
-
-    RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_EX);
-    const result = exLootboxReward(interaction.user.id);
-
+    
+    for (let i = 0; i < amount_to_open; i++)
+        RemoveOneFromInventory(interaction.user.id, ITEMS.LOOTBOX_EX);
+    
     await new Promise((r) => setTimeout(r, 3000));
-    DoPresenceChecks(interaction);
+    // DoPresenceChecks(interaction);
 
-    switch (result.type) {
-        case LOOTBOX_REWARD_TYPE.OKASH:
-            AddToWallet(interaction.user.id, result.value);
-            return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds ${GetEmoji(EMOJI.OKASH)} OKA**${result.value}**!`
-            });
+    let rewards_got = '';
 
-        case LOOTBOX_REWARD_TYPE.ITEM:
-            AddOneToInventory(interaction.user.id, result.value);
-            return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a **${ITEM_NAMES[result.value].name}**!`
-            });
+    for (let i = 0; i < amount_to_open; i++) {
+        const result = exLootboxReward(interaction.user.id);
 
-        case LOOTBOX_REWARD_TYPE.CUSTOMIZATION:
-            // you can only get a rainbow coin lol
-            if (GetUserProfile(interaction.user.id).customization.unlocked.indexOf(CUSTOMIZATION_UNLOCKS.COIN_RAINBOW) == -1) { 
-                AddToWallet(interaction.user.id, 500_000);
-                return await interaction.editReply({
-                    content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!\nYou already have this customization, so I deposited ${GetEmoji(EMOJI.OKASH)} OKA**500,000** into your wallet!`
-                });
-            }
-            // doesn't have
-            return await interaction.editReply({
-                content: `**${interaction.user.displayName}** opens ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds a ${GetEmoji(EMOJI.COIN_RAINBOW_STATIONARY)} **Rainbow Coin**!`
-            });
+        switch (result.type) {
+            case LOOTBOX_REWARD_TYPE.OKASH:
+                AddToWallet(interaction.user.id, result.value);
+                rewards_got += `- ${GetEmoji(EMOJI.OKASH)} OKA**${result.value}**\n`
+                break;
+
+            case LOOTBOX_REWARD_TYPE.ITEM:
+                AddOneToInventory(interaction.user.id, result.value);
+                rewards_got += `- ${await t(ITEM_I18N_KEYS[result.value] + '.name')}\n`;
+                break;
+
+            case LOOTBOX_REWARD_TYPE.CUSTOMIZATION:
+                // you can only get a rainbow or purple coin lol
+                if (GetUserProfile(interaction.user.id).customization.unlocked.includes(result.value)) {
+                    switch (result.value) {
+                        case CUSTOMIZATION_UNLOCKS.COIN_PURPLE:
+                            AddToWallet(interaction.user.id, 250_000);
+                            rewards_got += `- a ${await t(UNLOCK_I18N_KEYS[result.value] + '.name')} (you already have this, so you got ${GetEmoji(EMOJI.OKASH)}OKA**250,000** instead!)\n`;
+                            break;
+
+                        case CUSTOMIZATION_UNLOCKS.COIN_RAINBOW:
+                            AddToWallet(interaction.user.id, 500_000);
+                            rewards_got += `- a ${await t(UNLOCK_I18N_KEYS[result.value] + '.name')} (you already hve this, so you got ${GetEmoji(EMOJI.OKASH)}OKA**500,000** instead!)\n`;
+                            break;
+                    }
+
+                    return;
+                }
+
+                // does not have customization unlock
+                const profile = GetUserProfile(interaction.user.id);
+                switch (result.value) {
+                    case CUSTOMIZATION_UNLOCKS.COIN_PURPLE:
+                        profile.customization.unlocked.push(result.value);
+                        rewards_got += `- Woah! A ${await t(UNLOCK_I18N_KEYS[result.value] + '.name')}\n`;
+                        break;
+
+                    case CUSTOMIZATION_UNLOCKS.COIN_RAINBOW:
+                        profile.customization.unlocked.push(result.value);
+                        rewards_got += `- Woah! A ${await t(UNLOCK_I18N_KEYS[result.value] + '.name')}\n`;
+                        break;
+                }
+                UpdateUserProfile(interaction.user.id, profile);
+
+                break;
+        }
     }
+
+    interaction.editReply({
+        content: `**${interaction.user.displayName}** opens ${amount_to_open} of ${preferences.customization.global.pronouns.possessive} :sparkles: **EX Lootbox** :sparkles: and finds:\n${rewards_got}`
+    });
 }
 
 
@@ -541,4 +588,11 @@ export const UseSlashCommand = new SlashCommandBuilder()
         .setName('on-user')
         .setDescription('Who to use the item on, if applicable')
         .setRequired(false)
+    )
+    .addNumberOption(option => option
+        .setName('amount')
+        .setDescription('If opening lootboxes, specify the amount of lootboxes to open')
+        .setRequired(false)
+        .setMinValue(1)
+        .setMaxValue(10)
     )

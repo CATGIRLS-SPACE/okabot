@@ -27,7 +27,7 @@ export const ITEM_NAMES: {
     22: {name: `${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} Bank Robbery Tool`, desc:`Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!`},
 }
 
-const ITEM_I18N_KEYS: {
+export const ITEM_I18N_KEYS: {
     [key: number]: string
 } = {
     0: 'items.lootbox.common',

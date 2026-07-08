@@ -169,6 +169,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
 
     let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    let custom_banner_failed = false;
 
     // Background color
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
@@ -185,22 +186,28 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
-        const banner_buffer = await fetchImage(banner_url);
+        let banner_buffer: Buffer;
 
-        console.log(banner_url);
+        banner_buffer = await fetchImage(banner_url).catch(() => custom_banner_failed = true) as Buffer;
 
-        if (banner_url.split('?')[0].endsWith('.gif')) {
-            // don't draw anymore and rather we will save it and invoke the python script
-            writeFileSync(join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`), banner_buffer);
-            IS_GIF_BANNER = true;
+        if (!custom_banner_failed) {
+            if (banner_url.split('?')[0].endsWith('.gif')) {
+                // don't draw anymore and rather we will save it and invoke the python script
+                writeFileSync(join(BASE_DIRNAME, 'temp', `banner-${interaction.user.id}.gif`), banner_buffer);
+                IS_GIF_BANNER = true;
+            } else {
+                const banner_img = await loadImage(banner_buffer);
+                ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
+                console.log('before:', banner_img.width, banner_img.height);
+                const new_width = 600;
+                const new_height = banner_img.height * (600/banner_img.width); // i cant anymore
+                console.log('after:', new_width, new_height);
+                ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+            }
         } else {
-            const banner_img = await loadImage(banner_buffer);
-            ctx.drawImage(banner_img, (600-1024)/2, (150-361)/2);
-            console.log('before:', banner_img.width, banner_img.height);
-            const new_width = 600;
-            const new_height = banner_img.height * (600/banner_img.width); // i cant anymore
-            console.log('after:', new_width, new_height);
-            ctx.drawImage(banner_img, 0, Math.round((height-new_height)/2), new_width, Math.round(new_height));
+            console.error('Banner is too big, ignoring!');
+            const banner_img = await loadImage(join(BASE_DIRNAME, 'assets', 'art', 'banner-failed.png'));
+            ctx.drawImage(banner_img, 0, 0);
         }
 
         // darken with a slightly-transparent rectangle
@@ -522,7 +529,7 @@ export function CalculateOkashReward(level: number): number {
 
 
 export async function fetchImage(url: string) {
-    const response = await axios.get(url, {responseType: 'arraybuffer'});
+    const response = await axios.get(url, {responseType: 'arraybuffer', maxContentLength: 1024 * 1024 * 5}); // should limit to 5MB
     return Buffer.from(response.data, 'binary');   
 }
 

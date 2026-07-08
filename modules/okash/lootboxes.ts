@@ -86,28 +86,27 @@ export function exLootboxReward(user_id: Snowflake): {type: LOOTBOX_REWARD_TYPE,
     }
 
     if (roll >= 500 && roll < 900) {
-        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.STICKER_NOT_APPLIED, ITEMS.BLACKMARKET_TOKEN_SHARD][Math.round(Math.random() * 2)];
+        const item = [ITEMS.TRACKED_CONVERTER, ITEMS.STICKER_NOT_APPLIED, ITEMS.BLACKMARKET_TOKEN_SHARD, ITEMS.LOT_SCRATCH][Math.round(Math.random() * 3)];
         LootboxRecentlyDropped.set(user_id, {item, time})
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item}
     }
 
     if (roll >= 900 && roll < 950) {
         const item = [
-            ITEMS.CASINO_PASS_30_MIN,
-            ITEMS.CASINO_PASS_1_HOUR,
-            ITEMS.LOOTBOX_INCREASE_15_MIN,
-            ITEMS.LOOTBOX_INCREASE_30_MIN,
             ITEMS.TRACKED_CONVERTER,
             ITEMS.STICKER_NOT_APPLIED,
             ITEMS.BLACKMARKET_TOKEN
-        ][Math.round(Math.random() * 7)]; // get a random item
+        ][Math.round(Math.random() * 2)]; // get a random item
 
         LootboxRecentlyDropped.set(user_id, {item, time});
         return {type: LOOTBOX_REWARD_TYPE.ITEM, value: item};
     }
 
     if (roll >= 950) {
-        return {type: LOOTBOX_REWARD_TYPE.CUSTOMIZATION, value: CUSTOMIZATION_UNLOCKS.COIN_RAINBOW};
+        return (roll < 980) ?
+        {type: LOOTBOX_REWARD_TYPE.CUSTOMIZATION, value: CUSTOMIZATION_UNLOCKS.COIN_PURPLE}
+        :
+        {type: LOOTBOX_REWARD_TYPE.CUSTOMIZATION, value: CUSTOMIZATION_UNLOCKS.COIN_RAINBOW};
     }
 
     // this should never trigger but its here to stop tsc from whining
