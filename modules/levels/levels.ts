@@ -179,7 +179,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     let IS_GIF_BANNER = false;
 
     // why do we have to force fetch the user? idk, it's dumb
-    if (!override_user_with && profile.customization.level_bg_override != '') {
+    if (profile.customization.level_bg_override != '') {
         banner_url = profile.customization.level_bg_override;
         console.log(`profile banner override is selected: ${banner_url}`)
     }

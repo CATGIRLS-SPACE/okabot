@@ -86,9 +86,12 @@ export const CUSTOMIZTAION_ID_NAMES: {[key: number]: string} = {
     5: 'Purple Coin',
     12:'Default Card Deck',
     13:'Trans Card Deck',
+    14:'Cherry Blossom Card Deck',
     16:'Dark Green Coin',
     17:'Rainbow Coin',
-    18:'Cherry Blossom Card Deck'
+    18:'User Banner Level Background',
+    19:'Custom Level Bar',
+    20:'Custom Level Bar',
 }
 export const TRACKABLE_ID_NAMES: {[key: string]: number} = {
     'red coin': 1,

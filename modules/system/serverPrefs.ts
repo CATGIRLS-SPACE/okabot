@@ -514,6 +514,7 @@ export function SetChannelBehavior(guild_id: Snowflake, config: {
     mode: 'whitelist',
     allowed_channels: Array<Snowflake>
 }) {
+    if (Object.keys(SERVER_PREFERENCES_DB).length == 0) LoadServerPreferencesDB();
     if (!SERVER_PREFERENCES_DB[guild_id]) SERVER_PREFERENCES_DB[guild_id] = DEFAULT_PREFERENCES;
     
     switch(config.mode) {
