@@ -15,7 +15,7 @@ interface OAuth2Token {
     scope: string
 }
 
-let PanelDB: Low<{sessions:{[key: string]: {token: OAuth2Token, expiry: number, user: TokenUserData}}}>;
+var PanelDB: Low<{sessions:{[key: string]: {token: OAuth2Token, expiry: number, user: TokenUserData}}}>;
 
 JSONFilePreset(join(BASE_DIRNAME, 'db', 'panel.oka2'), {
     sessions: {} as {[key: string]: {token: OAuth2Token, expiry: number, user: TokenUserData}}

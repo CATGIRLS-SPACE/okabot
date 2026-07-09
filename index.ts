@@ -162,7 +162,7 @@ import {
     SetupPrefs
 } from "./modules/user/prefs";
 import {LoadReminders} from "./modules/tasks/dailyRemind";
-import {ScheduleJob} from "./modules/tasks/cfResetBonus";
+import {ScheduleFloatsReset} from "./modules/tasks/cfResetBonus";
 import {IsUserBanned} from "./modules/user/administrative";
 import {HandleCommand8Ball} from "./modules/interactions/8ball";
 import {CheckModerationShorthands, LoadWarnings} from "./modules/moderation/moderation";
@@ -277,7 +277,7 @@ async function RunPreStartupTasks() {
     LoadVoiceData(); // load voice data that might have been lost on restart
     LoadReminders(); // load daily reminders
     LoadUserReminders(); // o.remind reminders
-    ScheduleJob(client); // schedule the coinflip reset bonus
+    ScheduleFloatsReset(); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
     LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)

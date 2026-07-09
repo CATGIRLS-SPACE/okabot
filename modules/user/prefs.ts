@@ -187,18 +187,18 @@ const DEFAULT_DATA: USER_PROFILE = {
     }
 }
 
-let PROFILES_DIR: string | null = null;
-let LOW_PROFILE_DB_PATH: string;
 
 const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
+var PROFILES_DIR: string | null = null;
+var LOW_PROFILE_DB_PATH: string;
 
 interface ProfileDB {
     profiles: {
         [key: Snowflake]: USER_PROFILE
     }
 }
-let ProfilesDB: Low<ProfileDB>
+var ProfilesDB: Low<ProfileDB>
 
 export async function SetupPrefs(base_dirname: string) {
     PROFILES_DIR = join(base_dirname, 'profiles');

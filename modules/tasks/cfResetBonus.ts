@@ -48,10 +48,10 @@ export interface CoinFloats {
     }
 }
 
-let c: Client;
+// let c: Client;
 
-export function ScheduleJob(client: Client) {
-    c = client;
+export function ScheduleFloatsReset() {
+    // c = client;
     if (DEV) BROADCAST_CHANNEL = '941843973641736253';
     scheduleJob(COINFLIP_MINMAX_FREQUENCY, async () => {
         L.info('Bonus time has arrived, running tasks...');
