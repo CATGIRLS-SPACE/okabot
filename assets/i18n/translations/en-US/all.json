@@ -45,6 +45,10 @@
             },
             "language": {
                 "eng_only": "Sorry, this feature is only available when your okabot language is set to English!"
+            },
+            "generic": {
+                "unknown": ":x: Something went wrong. This is a bug.",
+                "missing_handler": ":x: This command doesn't have a handler set. This is a bug."
             }
         }
     },
@@ -101,7 +105,13 @@
             "no_posts": "No posts for tag list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` *do not* count towards the two-tag limit!)"
         },
         "use": {
-            "dont_have": "**{{name}}**, you don't have any {{item}}!"
+            "dont_have": "**{{name}}**, you don't have any **{{item}}**!"
+        },
+        "sell": {
+            "not_item": "{{cat_raised}} Sorry, **{{name}}**, looks like I don't buy those!",
+            "dont_have": "**{{name}}**, you don't have any **{{item}}**!",
+            "sold_one": "{{cat_money_eyes}} **{{name}}**, you sold your **{{item}}** for {{okash}} OKA**{{amount}}**!",
+            "sold_multiple": "{{cat_money_eyes}} **{{name}}**, you sold **{{number}}** of your **{{item}}** for a total of {{okash}} OKA**{{amount}}**!"
         }
     },
     "level": {

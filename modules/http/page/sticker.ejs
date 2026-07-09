@@ -10,14 +10,23 @@
 </body>
 
 <script>
+
+const ID = '<%=token%>'
+
+fetch(`/api/v3/sticker/render_profile&token=${ID}`).then(() => {
+    
+});
+
+async function Render() {
     const width = 600, height = 150;
     const canvas = document.getElementById('banner');
     const ctx = canvas.getContext('2d');
-
+    
     const gradient = ctx.createLinearGradient(0, height, 0, 0);
     gradient.addColorStop(0, '#271e2e');
     gradient.addColorStop(1, '#3c3245');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
+}
 </script>
 </html>

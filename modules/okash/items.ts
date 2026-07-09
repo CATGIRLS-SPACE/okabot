@@ -158,14 +158,21 @@ export const GLOBAL_SHORTHANDS: {[key: string]: string} = {
     'ht': 'hacking tool',
 }
 
+// originally was shorthands only however now includes full names
 export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
     // shop items
     'sr': 4,
+    'streak restore': 4,
     'db15': 8,
+    'drop boost (15 minute)': 8,
     'db30': 9,
+    'drop boost (30 minute)': 9,
     'cas10': 10,
+    'casino pass (10 minute)': 10,
     'cas30': 11,
+    'casino pass (30 minute)': 11,
     'cas60': 12,
+    'casino pass (60 minute)': 12,
     'st': 7,
     'sk': 18,
     // other items
@@ -182,9 +189,24 @@ export const GLOBAL_ITEM_SHORTHANDS_IDS: {[key: string]: number} = {
 }
 
 
-// finish later
 export const GLOBAL_CUST_SHORTHANDS_IDS: {[key: string]: number} = {
-    'ublb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER
+    'dc': CUSTOMIZATION_UNLOCKS.COIN_DEF,
+    'rc': CUSTOMIZATION_UNLOCKS.COIN_RED,
+    'dbc': CUSTOMIZATION_UNLOCKS.COIN_DBLUE,
+    'dgc': CUSTOMIZATION_UNLOCKS.COIN_DGREEN,
+    'lbc': CUSTOMIZATION_UNLOCKS.COIN_BLUE,
+    'pc': CUSTOMIZATION_UNLOCKS.COIN_PINK,
+    'ppc': CUSTOMIZATION_UNLOCKS.COIN_PURPLE,
+    'rbc': CUSTOMIZATION_UNLOCKS.COIN_RAINBOW,
+    'ublb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER,
+    'rlb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_RED,
+    'glb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_GREEN,
+    'blb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_BLUE,
+    'plb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_PINK,
+    'dcd': CUSTOMIZATION_UNLOCKS.DECK_DEFAULT,
+    'tcd': CUSTOMIZATION_UNLOCKS.DECK_TRANS,
+    'cbcd': CUSTOMIZATION_UNLOCKS.DECK_SAKURA,
+    'clb': CUSTOMIZATION_UNLOCKS.CV_LEVEL_BAR_CUSTOM
 }
 
 export enum ITEM_TYPE {
