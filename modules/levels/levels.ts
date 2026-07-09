@@ -169,6 +169,18 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
 
     let banner_url = await interaction.client.users.fetch(interaction.user.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    let IS_GIF_BANNER = false;
+    
+    if (banner_url == null) {
+        let resp = await fetch(`https://usrbg.is-hardly.online/usrbg/v2/${interaction.user.id}`, {method: 'HEAD'});
+        if (!resp.ok) banner_url = null;
+        // user has a USRBG banner
+        banner_url = `https://usrbg.is-hardly.online/usrbg/v2/${interaction.user.id}`;
+        resp = await fetch(`https://usrbg.is-hardly.online/usrbg/v2/${interaction.user.id}`);
+        // weird way to check if it's a gif but it works i suppose?
+        const text = await resp.text();
+        if(text.startsWith('GIF')) banner_url = `https://usrbg.is-hardly.online/usrbg/v2/${interaction.user.id}?.gif`;
+    }
     let custom_banner_failed = false;
 
     // Background color
@@ -176,8 +188,6 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     gradient.addColorStop(0, '#271e2e');
     gradient.addColorStop(1, '#3c3245');
     ctx.fillStyle = gradient;
-
-    let IS_GIF_BANNER = false;
 
     // why do we have to force fetch the user? idk, it's dumb
     if (profile.customization.level_bg_override != '') {
@@ -508,6 +518,11 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
         UpdateUserProfile(user_to_get.id, profile);
     }
 
+    let banner_url = await interaction.client.users.fetch(user_to_get.id, {force: true}).then(user => user.bannerURL({extension:'png', size:1024})); // 1024x361
+    let resp = await fetch(`https://usrbg.is-hardly.online/usrbg/v2/${user_to_get.id}`, {method: 'HEAD'});
+    console.log(banner_url, resp.ok);
+    const is_USRBG = !banner_url && resp.ok;
+
     const return_out = await generateLevelBanner(interaction, profile, user_to_get!=interaction.user?user_to_get:undefined);
     if (return_out) return;
     let image;
@@ -517,8 +532,11 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
     else
         image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', `level-banner-${interaction.user.id}.png`));
 
+    let content = await t('level.xp_gain', interaction.okabot.translateable_locale);
+    if (is_USRBG) content += '\n' + await t('level.banner_usrbg', interaction.okabot.translateable_locale);
+
     interaction.editReply({
-        content: await t('level.xp_gain', interaction.okabot.translateable_locale),
+        content,
         files: [image]
     });
 }

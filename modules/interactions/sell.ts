@@ -1,12 +1,14 @@
 import {ChatInputCommandInteraction, Locale, SlashCommandBuilder, TextChannel} from "discord.js";
 import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
-import {CUSTOMIZATION_UNLOCKS, GLOBAL_SHORTHANDS, ITEMS} from "../okash/items";
+import {CUSTOMIZATION_UNLOCKS, GLOBAL_CUST_SHORTHANDS_IDS, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {AddToWallet, GetInventory, RemoveOneFromInventory} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {LootboxRecentlyDropped} from "../okash/lootboxes";
 import {Achievements, GrantAchievement} from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
 import {CompleteDailyMission, CurrentMissions, DAILY_MISSIONS_EASY} from "../tasks/dailyMissions";
+import { t } from "../i18n/translation";
+import { ITEM_I18N_KEYS, UNLOCK_I18N_KEYS } from "./pockets";
 
 const NAMES: {[key: string]: CUSTOMIZATION_UNLOCKS} = {
     'red coin':CUSTOMIZATION_UNLOCKS.COIN_RED,
@@ -41,13 +43,10 @@ const SELL_PRICES: {
 
 export async function HandleCommandSell(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.okash)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
+        content: await t('system.errors.command.disabled', interaction.okabot.translateable_locale)
     });
     
     await interaction.deferReply();
-
-    let locale = interaction.locale;
-    if (locale != Locale.EnglishUS && locale != Locale.Japanese) locale = Locale.EnglishUS;
 
     // check if the user has this item in their inventory
     const profile = GetUserProfile(interaction.user.id);
@@ -55,13 +54,13 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     const item = interaction.options.getString('item', true).toLowerCase();
 
     if (!SELL_PRICES[item] && !SELL_PRICES[GLOBAL_SHORTHANDS[item]]) return interaction.editReply({
-        content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
+        content: await t('interactions.sell.not_item', interaction.okabot.translateable_locale, {name: interaction.user.displayName})
     });
 
     switch ((SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).type) {
         case 'item':
             if (!pockets.some(i => i.item_id == (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!)) return interaction.editReply({
-                content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
+                content: await t('interactions.sell.not_item', interaction.okabot.translateable_locale, {name: interaction.user.displayName})
             });
             RemoveOneFromInventory(interaction.user.id, (SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).itemID!);
 
@@ -74,7 +73,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
     
         case 'cust':
             if (!profile.customization.unlocked.includes(NAMES[item])) return interaction.editReply({
-                content: `${GetEmoji(EMOJI.CAT_RAISED_EYEBROWS)} Sorry, **${interaction.user.displayName}**. Looks like I don't buy those!`
+                content: await t('interactions.sell.not_item', interaction.okabot.translateable_locale, {name: interaction.user.displayName})
             });
             // splice from inventory
             profile.customization.unlocked.splice(profile.customization.unlocked.indexOf(NAMES[item]), 1);
@@ -84,7 +83,7 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
 
         default:
             return interaction.editReply({
-                content: `:x: Something went wrong.`
+                content: await t('system.errors.generic.unknown', interaction.okabot.translateable_locale)
             });
     }
 
@@ -95,12 +94,21 @@ export async function HandleCommandSell(interaction: ChatInputCommandInteraction
         content:`${GetEmoji(EMOJI.CAT_MONEY_EYES)} **${interaction.user.displayName}**, you sold your \`${GLOBAL_SHORTHANDS[item] || item}\` for ${GetEmoji(EMOJI.OKASH)} OKA**${(SELL_PRICES[item] || SELL_PRICES[GLOBAL_SHORTHANDS[item]]).price}**!`
     });
 
+    // interaction.editReply({
+    //     content: await t('interactions.sell.sell_one', interaction.okabot.translateable_locale, {
+    //         name: interaction.user.displayName,
+    //         item: await t(`${ITEM_I18N_KEYS[GLOBAL_ITEM_SHORTHANDS_IDS[item] || 999] || UNLOCK_I18N_KEYS[GLOBAL_CUST_SHORTHANDS_IDS[item] || 999]}.name`, interaction.okabot.translateable_locale),
+    //         amount: SELL_PRICES[item].price || SELL_PRICES[GLOBAL_SHORTHANDS[item]].price
+    //     })
+    // });
+
     if (CurrentMissions.easy.selected == DAILY_MISSIONS_EASY.SELL_ITEM)
         CompleteDailyMission(interaction.user, 'e', interaction.channel as TextChannel);
 }
 
 
 export const SellSlashCommand = new SlashCommandBuilder()
-    .setName('sell').setNameLocalization('ja', '売り')
-    .setDescription('Sell an item from your pockets').setDescriptionLocalization('ja', 'ポケットでアイテムを売り')
+    .setName('sell')
+    .setDescription('Sell an item from your pockets')
     .addStringOption(option => option.setName('item').setDescription('The item to sell').setRequired(true))
+    // .addNumberOption(option => option.setName('amount').setDescription('The amount to sell').setRequired(false));

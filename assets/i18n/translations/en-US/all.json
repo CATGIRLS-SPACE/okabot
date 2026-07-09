@@ -117,6 +117,7 @@
     "level": {
         "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
         "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
+        "banner_usrbg": "-# :globe_with_meridians: **It seems you don't have a Discord banner, but you have one on USRBG. Thus, I got your banner from USRBG!**",
         "xp_modernization": ":scream_cat: Heads up, **{{name}}**! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
         "custom_link": {
             "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
@@ -246,7 +247,7 @@
         },
         "ublb": {
             "name": ":ribbon: User Banner Level Background",
-            "desc": "Allows you to show off your Discord profile banner in /profile level!"
+            "desc": "Allows you to show off your Discord/USRBG profile banner in /profile level!"
         },
         "dc": {
             "name": "{{default_coin}} Default Coin",
