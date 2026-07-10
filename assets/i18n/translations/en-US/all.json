@@ -121,6 +121,7 @@
         "xp_modernization": ":scream_cat: Heads up, **{{name}}**! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
         "custom_link": {
             "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
+            "bad_link": ":crying_cat_face: Invalid link. It must start with `http://` or `https://` and end with one of `.jpg`, `.jpeg`, `.png`, or `.gif`.\n-# *Need help? Contact a bot admin for links that don't fall into this criteria!*",
             "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
         },
         "names": {

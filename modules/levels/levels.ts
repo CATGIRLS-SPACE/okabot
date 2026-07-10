@@ -496,8 +496,23 @@ export async function HandleCommandLevel(interaction: ChatInputCommandInteractio
             flags: [MessageFlags.SuppressNotifications]
         });
 
-        profile.customization.level_bg_override = interaction.options.getString('link') || '';
-        UpdateUserProfile(interaction.user.id, profile);
+        if (!interaction.options.getString('link')) {            
+            profile.customization.level_bg_override = '';
+            UpdateUserProfile(interaction.user.id, profile);
+        } else {
+            let link = interaction.options.getString('link')!;
+            if (
+                !(link.startsWith('http://') || link.startsWith('https://')) || 
+                link.includes(' ') ||
+                !(link.endsWith('.png') || link.endsWith('.jpg') || link.endsWith('.jpeg') || link.endsWith('.gif'))
+            ) return interaction.reply({
+                content: await t('level.custom_link.bad_link', interaction.okabot.translateable_locale),
+                flags: [MessageFlags.SuppressNotifications]
+            });
+
+            profile.customization.level_bg_override = link;
+            UpdateUserProfile(interaction.user.id, profile);
+        }
 
         return interaction.reply({
             content: await t('level.custom_link.on_set', interaction.okabot.translateable_locale, {
