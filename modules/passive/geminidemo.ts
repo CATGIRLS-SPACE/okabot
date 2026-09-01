@@ -251,8 +251,29 @@ export async function GeminiDemoRespondToInquiry(message: Message, disable_searc
             last_update: new Date().getTime()
         }
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response.text}\``.replaceAll('@','') });
+        const attempted_recovered_text = response.text?.split(`"reply":"`)[1].split(`"}`)[0] as string;
+        const reply = await message.reply({ content: `${attempted_recovered_text}\n-# :warning: failed to parse the JSON response, but a recovery was attempted of the text.\n-# You should be able to reply to this message.`.replaceAll('@','') });
         console.error(err);
+        ConversationChains[message.channel.isDMBased() ? message.channel.id : reply.id] = {
+            author: message.author.id,
+            orignal_message: message.channel.isDMBased() ? message.channel.id : reply.id,
+            disable_search,
+            messages: [
+                {
+                    user: reply.author.displayName,
+                    content: reply.content,
+                },
+                {
+                    user: (user as GuildMember).nickname || user.displayName,
+                    content: message.content,
+                },
+                {
+                    user: 'okabot',
+                    content: attempted_recovered_text
+                }
+            ],
+            last_update: new Date().getTime()
+        }
     }
 }
 
@@ -437,8 +458,19 @@ export async function GeminiDemoReplyToConversationChain(message: Message) {
 
         ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     } catch (err) {
-        message.reply({ content: `:warning: An error occurred sending the message:\n\`\`\`${err}\`\`\`\nRaw: \`${response!.text}\``.replaceAll('@','') });
+        const attempted_recovered_text = response!.text?.split(`"reply":"`)[1].split(`"}`)[0] as string;
+        const reply = await message.reply({ content: `${attempted_recovered_text}\n-# :warning: failed to parse the JSON response, but a recovery was attempted of the text.\n-# You should be able to reply to this message.`.replaceAll('@','') });
         console.error(err);
+        ConversationChains[chain.orignal_message].messages.push({
+            user: (user as GuildMember).nickname || user.displayName,
+            content: message.content
+        }, {
+            user: 'okabot',
+            content: attempted_recovered_text
+        });
+        ConversationChains[chain.orignal_message].last_update = new Date().getTime();
+
+        ConversationChainReplyPointers[reply.id] = chain.orignal_message;
     }
 }
 

@@ -57,7 +57,7 @@
         "daily": {
             "init": "{{cat_sunglasses}} You got your daily reward of {{okash}} OKA**1500** and a **{{coin}}**!",
             "streak": ":chart_with_upwards_trend: Wow! You've got a streak of {{length}} days, keep it up! You get a streak bonus of {{okash}} OKA**{{bonus}}**! **(+{{xp}}XP)**",
-            "got_shard": ":scream_cat: Woah! You also got a rare 1x {{bmts}}!",
+            "got_shard": ":scream_cat: Woah! You also got a rare 1x **{{bmts}}**!",
             "too_early": ":crying_cat_face: It's too early to get your daily reward, **{{name}}**! Come back <t:{{time}}:R> to claim it!\nYour current daily streak is {{days}} day(s).",
             "reminder": {
                 "now": ":clock3: {{ping}}, you can now claim your daily reward! Come get it!",
