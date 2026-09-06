@@ -1,7 +1,6 @@
 import {ChatInputCommandInteraction, MessageFlags} from "discord.js";
-import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
-import {GetUserProfile, UpdateUserProfile} from "../../user/prefs";
+import {FLAG, GetUserProfile, UpdateUserProfile} from "../../user/prefs";
 import {GetBank} from "../../okash/wallet";
 import { t } from "../../i18n/translation";
 
@@ -19,6 +18,9 @@ export async function item_bank_robbery_tool(interaction: ChatInputCommandIntera
     });
 
     const robbed_user_profile = GetUserProfile(robbed_user.id);
+    if (robbed_user_profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.reply({
+        content: `:x: You can't rob this person, as their profile is protected to leave a legacy.`
+    });
 
     if (robbed_user.id == interaction.user.id) return interaction.reply({
         content: await t('items.brt.on_use.fail_self', interaction.okabot.translateable_locale, {name: interaction.user.displayName}),

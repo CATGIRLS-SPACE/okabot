@@ -25,12 +25,13 @@ const L = new Logger('profiles');
 
 export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
-    CASINO_PASS,
-    DROP_BOOST,
+    __UNUSED_CASINO_PASS,
+    __UNUSED_DROP_BOOST,
     TRANSLATION_NOTICE_SEEN,
     LEVELING_MODERNIZED,
     TRIGGER_SPLATOON_EASTER_EGG,
-    NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS
+    NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS,
+    PROTECTED_FOR_LEGACY,
 }
 
 export interface ItemData {
@@ -190,15 +191,16 @@ const DEFAULT_DATA: USER_PROFILE = {
 
 const ProfileCache = new Map<Snowflake, USER_PROFILE>();
 
-var PROFILES_DIR: string | null = null;
-var LOW_PROFILE_DB_PATH: string;
+let PROFILES_DIR: string | null = null;
+let LOW_PROFILE_DB_PATH: string;
 
 interface ProfileDB {
     profiles: {
         [key: Snowflake]: USER_PROFILE
     }
 }
-var ProfilesDB: Low<ProfileDB>
+
+let ProfilesDB: Low<ProfileDB>;
 
 export async function SetupPrefs(base_dirname: string) {
     PROFILES_DIR = join(base_dirname, 'profiles');
@@ -255,9 +257,7 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
         ProfilesDB.write();
     }
 
-    let profile = ProfilesDB.data.profiles[user_id];
-
-    return profile;
+    return ProfilesDB.data.profiles[user_id];
 }
 
 /**
@@ -266,6 +266,9 @@ export function GetUserProfile(user_id: string): USER_PROFILE {
  * @param new_data The new profile data to replace the current data
  */
 export function UpdateUserProfile(user_id: string, new_data: USER_PROFILE) {
+    if (ProfilesDB.data.profiles[user_id].flags.includes(FLAG.PROTECTED_FOR_LEGACY))
+        throw new Error("Cannot write to a profile that is protected.");
+
     ProfilesDB.data.profiles[user_id] = new_data;
     ProfilesDB.write();
 }

@@ -5,7 +5,7 @@ import {Achievements, GrantAchievement} from "../../passive/achievement";
 import {join} from "node:path";
 import {BASE_DIRNAME} from "../../../index";
 import {existsSync, readFileSync, writeFileSync} from "node:fs";
-import {GetUserProfile} from "../../user/prefs";
+import {FLAG, GetUserProfile} from "../../user/prefs";
 import {CheckFeatureAvailability, ServerFeature} from "../../system/serverPrefs";
 import {
     CompleteDailyMission,
@@ -99,6 +99,10 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
 
     const robbed_user = interaction.options.getUser('user', true);
     const robbed_user_profile = GetUserProfile(robbed_user.id);
+
+    if (robbed_user_profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.reply({
+        content: `:x: You can't rob this person, as their profile is protected to leave a legacy.`
+    });
 
     if (robbed_user.id == interaction.user.id) return interaction.reply({
         content: `:x: **${interaction.user.displayName}**, you can't rob yourself!`,
@@ -197,49 +201,6 @@ export async function HandleCommandRob(interaction: ChatInputCommandInteraction)
         if (BANK_ROBS.get(robbed_user.id)!.when + 180 >= (new Date()).getTime()/1000) GrantAchievement(robbed_user, Achievements.ROBBED_CHAIN, interaction.channel as TextChannel);
     }
 }
-
-
-// async function DrawWantedPoster(interaction: ChatInputCommandInteraction) {
-//     if (!interaction.deferred) await interaction.deferReply();
-
-//     const width = 600;
-//     const height = 800;
-//     const canvas = createCanvas(width, height);
-//     const ctx = canvas.getContext("2d");
-
-//     ctx.fillStyle = '#1f1d1bff'
-//     ctx.fillRect(0, 0, width, height);
-
-//     ctx.fillStyle = '#fff';
-//     ctx.textAlign = 'center';
-//     ctx.textBaseline = 'top';
-//     ctx.font = '80px azuki_font';
-//     ctx.fillText('have you seen?', width/2, 10);
-//     ctx.font = '40px azuki_font';
-//     ctx.fillText(interaction.user.displayName, width/2, 95);
-
-//     const pfp_url = interaction.user.avatarURL({extension:'png', size:512})!;
-//     const pfp_buffer = await fetchImage(pfp_url);
-//     const pfp_img = await loadImage(pfp_buffer);
-
-//     ctx.drawImage(pfp_img, 44, 150, 512, 512);
-
-//     // Save the image
-//     const buffer = canvas.toBuffer('image/png');
-//     if (!existsSync(join(BASE_DIRNAME, 'temp'))) mkdirSync(join(BASE_DIRNAME, 'temp'));
-//     writeFileSync(join(BASE_DIRNAME, 'temp', 'wanted.png'), buffer);
-
-//     const image = new AttachmentBuilder(join(BASE_DIRNAME, 'temp', 'wanted.png'));
-//     interaction.editReply({
-//         files: [image]
-//     });
-// }
-
-// async function fetchImage(url: string) {
-//     const response = await axios.get(url, {responseType: 'arraybuffer'});
-//     return Buffer.from(response.data, 'binary');   
-// }
-
 
 
 export const RobSlashCommand = new SlashCommandBuilder()

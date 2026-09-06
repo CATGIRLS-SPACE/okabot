@@ -166,7 +166,7 @@ const DEFAULT_PREFERENCES: ServerPreferences = {
         permit_roles: false,
         allowed_roles: [],
         disallowed_roles: [],
-        lock_to_channels: true,
+        lock_to_channels: false,
         approved_channels: [],
         block_channels: false,
         blocked_channels: []

@@ -156,7 +156,7 @@ import {DeployCommands} from "./modules/deployment/commands";
 import {
     CheckForTranslationFlag,
     CheckUserIdOkashRestriction,
-    DumpProfileCache,
+    DumpProfileCache, FLAG,
     GetUserProfile,
     MigrateProfilesToLowDB,
     SetupPrefs
@@ -435,6 +435,11 @@ client.on(Events.InteractionCreate, async interaction => {
         locale: {ja:'ja','en-GB':'en','en-US':'en'}[interaction.locale as string] as 'en' | 'ja' || 'en',
         translateable_locale: allows_translation ? interaction.locale : manual_locale
     };
+
+    if (profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.reply({
+        flags: [MessageFlags.Ephemeral],
+        content: `:question: It appears your profile has the flag \`PROTECTED_FOR_LEGACY\` and cannot be modified.\nUnless you've hijacked someone's account, you should not be seeing this.`
+    });
 
     if (interaction.guild && !CheckChannelAvailability(interaction.guild.id, interaction.channel!.id)) return interaction.reply({
         flags: [MessageFlags.Ephemeral],

@@ -1,5 +1,5 @@
 import {ChatInputCommandInteraction, Locale, SlashCommandBuilder} from "discord.js";
-import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
+import {FLAG, GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {CUSTOMIZATION_UNLOCKS, CUSTOMIZTAION_ID_NAMES, ITEM_ID_NAMES, ITEMS} from "../okash/items";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {GetItemFromSerial} from "../okash/trackedItem";
@@ -77,6 +77,9 @@ export async function HandleCommandTrade(interaction: ChatInputCommandInteractio
         await interaction.deferReply();
 
         const receiver_profile = GetUserProfile(receiver.id);
+        if (receiver_profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.reply({
+            content: `:x: You can't trade with this person, as their profile is protected to leave a legacy.`
+        });
 
         const tracked_item = GetItemFromSerial(item)!; // will exist if in inventory, and if it doesn't, we've fucked up BAD somewhere
 
@@ -106,6 +109,9 @@ export async function HandleCommandTrade(interaction: ChatInputCommandInteractio
     await interaction.deferReply();
 
     const receiver_profile = GetUserProfile(receiver.id);
+    if (receiver_profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.editReply({
+        content: `:x: You can't trade with this person, as their profile is protected to leave a legacy.`
+    });
 
     if (tradable_items[item].type == 'item') {
         if (!sender_profile.inventory.some(i => i.item_id == tradable_items[item].id as ITEMS)) return interaction.editReply({

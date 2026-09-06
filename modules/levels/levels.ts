@@ -196,9 +196,7 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     }
     // if the user has a banner + unlocked the user banner ability
     if (banner_url && profile.customization.unlocked.includes(CUSTOMIZATION_UNLOCKS.CV_LEVEL_BANNER_USER)) {
-        let banner_buffer: Buffer;
-
-        banner_buffer = await fetchImage(banner_url).catch(() => custom_banner_failed = true) as Buffer;
+        const banner_buffer = await fetchImage(banner_url).catch(() => custom_banner_failed = true) as Buffer;
 
         if (!custom_banner_failed) {
             if (banner_url.split('?')[0].endsWith('.gif')) {
@@ -379,15 +377,16 @@ export async function generateLevelBanner(interaction: ChatInputCommandInteracti
     ctx.fillText(`🌠 ${LEVEL_NAME} ${ROMAN_NUMERAL_KEYS[profile.leveling.level - 1]} (${profile.leveling.level})`, PFP_OFFSET + 6, 100);
 
     // User title
+    const is_protected_legacy = profile.flags.includes(FLAG.PROTECTED_FOR_LEGACY);
     ctx.font = "24px azuki_font, Arial, 'Segoe UI Emoji'";
-    if (trigger_splatoon) ctx.font = "20px 'Splatoon - Square Script'";
+    if (trigger_splatoon && !is_protected_legacy) ctx.font = "20px 'Splatoon - Square Script'";
     // bg
-    if (!profile.flags.includes(FLAG.NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS)) {
+    if (!profile.flags.includes(FLAG.NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS) || is_protected_legacy) {
         ctx.fillStyle = '#3d3d3d';
-        ctx.fillText(USER_TITLE, 23 + 3, 132);
+        ctx.fillText(is_protected_legacy ? 'beloved angel in heaven' : USER_TITLE, 23 + 3, 132);
         // fg
         ctx.fillStyle = '#ffffffff';
-        ctx.fillText(USER_TITLE, 23, 129);
+        ctx.fillText(is_protected_legacy ? 'beloved angel in heaven' : USER_TITLE, 23, 129);
     }
 
     // XP Bar Background

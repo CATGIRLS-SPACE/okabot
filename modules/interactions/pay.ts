@@ -1,6 +1,6 @@
 import { ChatInputCommandInteraction, Client, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
 import { AddToWallet, GetWallet, RemoveFromWallet } from "../okash/wallet";
-import { CheckOkashRestriction, CheckUserIdOkashRestriction, OKASH_ABILITY } from "../user/prefs";
+import {CheckOkashRestriction, CheckUserIdOkashRestriction, FLAG, GetUserProfile, OKASH_ABILITY} from "../user/prefs";
 import { Logger } from "okayulogger";
 import { Achievements, GrantAchievement } from "../passive/achievement";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
@@ -52,6 +52,9 @@ export async function HandleCommandPay(interaction: ChatInputCommandInteraction,
     }
 
     const sender_bank_amount = GetWallet(sender_id);
+    if (GetUserProfile(receiver_id).flags.includes(FLAG.PROTECTED_FOR_LEGACY)) return interaction.editReply({
+        content: `:x: You can't pay this person, as their profile is protected to leave a legacy.`
+    });
 
     const pay_amount = Math.floor(interaction.options.getNumber('amount')!);
 
