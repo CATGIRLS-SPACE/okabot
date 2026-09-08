@@ -1,7 +1,7 @@
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {AttachmentBuilder, Message, TextChannel} from "discord.js";
 import {Achievements, GrantAchievement} from "./achievement";
-import {BASE_DIRNAME, client, GetLastLocale} from "../../index";
+import {BASE_DIRNAME, client, CONFIG, GetLastLocale} from "../../index";
 import {readFileSync} from "node:fs";
 import {join} from "node:path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
@@ -69,7 +69,11 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             if (!CheckFeatureAvailability(message.guildId || '', ServerFeature.danbooru_nsfw) && !emulated) force_general = true;
             let post;
             try {
-                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts/${message.content.split('#')[1]}.json`);
+                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts/${message.content.split('#')[1]}.json?login=${CONFIG.danbooru_username}&api_key=${CONFIG.danbooru_api_key || ''}`, {
+                    headers: {
+                        'User-Agent': `okabot (user #${CONFIG.danbooru_user})`,
+                    }
+                });
                 post = await danbooru_response.json();
             } catch (err) {
                 return message.reply({
@@ -121,7 +125,11 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
             let posts;
 
             try {
-                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts.json?tags=${tags}${force_general?'rating:g':''}&limit=${num}&page=${offset}`);
+                const danbooru_response = await fetch(`https://danbooru.donmai.us/posts.json?tags=${tags}${force_general?'rating:g':''}&limit=${num}&page=${offset}&login=${CONFIG.danbooru_username}&api_key=${CONFIG.danbooru_api_key || ''}`, {
+                    headers: {
+                        'User-Agent': `okabot (user #${CONFIG.danbooru_user})`,
+                    }
+                });
                 posts = await danbooru_response.json();
             } catch (err) {
                 return message.reply({
@@ -129,9 +137,12 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
                 });
             }
 
-            if (posts.success == false) return message.reply({
-                content: `:warning: Error from Danbooru: \`${posts.message}\`\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)`
-            });
+            if (posts.success == false) {
+                console.log(posts, CONFIG.danbooru_username, CONFIG.danbooru_api_key);
+                return message.reply({
+                    content: `:warning: Error from Danbooru: ${posts.message}\n(note: tags such as \`rating:g\` **do not** count towards the two-tag limit!)`
+                });
+            }
 
             if (posts.length == 0) return message.reply({content: 'No posts for list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` **do not** count towards the two-tag limit!)'});
 
@@ -152,7 +163,7 @@ export async function CheckForFunMessages(message: Message, emulated: boolean = 
                 const post_ids = [];
                 for (let i = 0; i < num; i++) {
                     post_ids.push(posts[i].id);
-                    const image_asset_res = (await fetch(posts[i].media_asset.variants.at(2).url));
+                    const image_asset_res = (await fetch(posts[i].media_asset.variants.at(2).url, {headers: {'User-Agent': `okabot (user #${CONFIG.danbooru_user})`}}));
                     const arrayBuffer = await image_asset_res.arrayBuffer();
                     files.push(new AttachmentBuilder(Buffer.from(arrayBuffer), {name: posts[i].rating == 'g' ? `danbooru-${posts[i].id}.jpg` : `SPOILER_danbooru-${posts[i].id}.jpg`}));
                 }

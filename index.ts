@@ -36,6 +36,9 @@ if (!existsSync(join(__dirname, 'config.json'))) {
         },
         extra: ['disable jma fetching'],
         dmdata_api_key: "<optional>",
+        danbooru_api_key: "<optional>",
+        danbooru_user: "<optional>",
+        danbooru_username: "<optional>",
         translate_api_key: "<not required, unused>",
         gemini: {
             enable: false,
@@ -70,6 +73,9 @@ export let CONFIG: {
     }>,
     extra: Array<string>,
     dmdata_api_key: string,
+    danbooru_api_key: string,
+    danbooru_user: string,
+    danbooru_username: string,
     translate_api_key: string,
     gemini: {
         enable: boolean,
