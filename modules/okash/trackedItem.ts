@@ -167,6 +167,7 @@ export async function Check$Message(message: Message) {
     if (!message.content.startsWith('$')) return;
 
     const serial = message.content.split('$')[1].split(' ')[0];
+    if (!/\$[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}/i.test(serial)) return;
     const item = GetItemFromSerial(serial);
     if (!item) return message.reply({
         content:`:x: Invalid Serial No.`,
