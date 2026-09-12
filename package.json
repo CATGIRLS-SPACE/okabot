@@ -56,8 +56,8 @@
     "typescript-eslint": "^8.42.0"
   },
   "allowScripts": {
-    "protobufjs@7.6.4": true,
-    "sharp@0.34.4": true,
-    "canvas@3.2.3": true
+    "canvas@3.2.3": true,
+    "protobufjs@7.6.6": true,
+    "sharp@0.34.5": true
   }
 }

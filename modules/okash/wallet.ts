@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from "node:fs"
+import { readdirSync } from "node:fs"
 import { join } from "node:path";
 import { ITEMS } from "./items";
 import { Logger } from "okayulogger";
@@ -6,32 +6,26 @@ import {GetUserProfile, UpdateUserProfile} from "../user/prefs";
 import {Snowflake} from "discord.js";
 import {BASE_DIRNAME} from "../../index";
 
-export interface Wallet {
-    version: number,
-    wallet: number,
-    bank: number,
-    inventory: {
-        other: Array<ITEMS>
-    }
-}
-
-const WALLET_PATH = join(__dirname, '..', '..', 'money', 'wallet');
 const L = new Logger('wallet');
 
+export enum BalanceLocation {
+    WALLET = 'wallet',
+    BANK = 'bank'
+}
 
 /**
  * Modifies a user's okash amount in either their bank or wallet
  * @param user_id The Snowflake of the user to modify
  * @param location The bank or wallet
  * @param amount How much to add/subtract (use negative to subtract)
- * @param fallback_to_bank When removing from the wallet, should it fall back and subtract from the bank?
+ * @param fallback_to_bank When removing from the wallet, should it fall back to the bank?
  */
-export function ModifyOkashAmount(user_id: Snowflake, location: 'wallet' | 'bank', amount: number, fallback_to_bank: boolean = false) {
+export function ModifyOkashAmount(user_id: Snowflake, location: BalanceLocation | 'wallet' | 'bank', amount: number, fallback_to_bank: boolean = false) {
     const profile = GetUserProfile(user_id);
     const add = amount > 0;
     amount = Math.abs(amount);
 
-    if (amount > 50000) L.warn(`LARGE OKASH CHANGE FOR ACCOUNT ${user_id}! -${amount}`);
+    if (amount > 250_000) L.warn(`LARGE OKASH CHANGE FOR ACCOUNT ${user_id}! -${amount}`);
 
     if (add) {
         // adding:
@@ -127,9 +121,9 @@ export function AddOneToInventory(user_id: string, item: ITEMS) {
         });
     }
 
-    // if a user has 25+ BMTS then turn them into tokens
-    // a user will 99% most likely never get over 25 bmts during one check since usually adds are recursive.
-    if (item == ITEMS.BLACKMARKET_TOKEN_SHARD && profile.inventory.find(i => i.item_id == item)!.amount == 25) {
+    // if a user has 10+ BMTS then turn them into tokens
+    // a user will 99% most likely never get over 10 bmts during one check since usually adds are recursive.
+    if (item == ITEMS.BLACKMARKET_TOKEN_SHARD && profile.inventory.find(i => i.item_id == item)!.amount == 10) {
         profile.inventory.splice(profile.inventory.indexOf(profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN_SHARD)!), 1);
         if (profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)) {
             profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)!.amount += 1;
@@ -141,17 +135,4 @@ export function AddOneToInventory(user_id: string, item: ITEMS) {
         }
     }
     UpdateUserProfile(user_id, profile);
-}
-
-/**
- * @Deprecated This will no longer work. It is only here to prevent typescript errors while I work on migrating the rest of the code to v3 profiles.
- */
-export function Dangerous_WipeAllWallets() {
-    readdirSync(WALLET_PATH).forEach(file => {
-        const wallet_data: Wallet = JSON.parse(readFileSync(join(WALLET_PATH, file), 'utf-8'));
-        wallet_data.bank = 0;
-        wallet_data.wallet = 0;
-        writeFileSync(join(WALLET_PATH, file), JSON.stringify(wallet_data), 'utf-8');
-        L.info(`Wiped wallet file ${file}`);
-    });
 }

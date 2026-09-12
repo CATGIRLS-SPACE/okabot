@@ -49,7 +49,7 @@
         "daily": {
             "init": "{{cat_sunglasses}} Вы получили ежедневную награду в размере {{okash}} OKA**1500** и **{{coin}}**!",
             "streak": ":chart_with_upwards_trend: Вау! У вас серия из **{{length}}** дней, так держать!\nВы получаете бонус за серию в размере {{okash}} OKA**{{bonus}}**! **(+{{xp}}XP)**",
-            "got_shard": ":scream_cat: Вау! Вы также получили редкий 1x {{token}} **Black Market Token Shard**!",
+            "got_shard": ":scream_cat: Вау! Вы также получили редкий 1x **{{bmts}}**!",
             "too_early": ":crying_cat_face: Ещё слишком рано для получения ежедневной награды, **{{name}}**! Возвращайтесь <t:{{time}}:R>, чтобы забрать её!\nВаша текущая серия: {{days}} дн.",
             "reminder": {
                 "now": ":clock3: {{ping}}, вы уже можете забрать ежедневную награду! Скорее получите её!",
@@ -92,213 +92,213 @@
             }
         },
         "danbooru": {
-            "search_results": "Most recent posts with those tags:\n{{ids}}\nView one with \"d#<post id>\".",
-            "search_display": "Most recent {{num}} post(s) for your search. Lower quality is chosen to prevent oversize.\nIDs: {{ids}}",
-            "no_posts": "No posts for tag list, are your tags correct? Tags example: `nia_(xenoblade) open_mouth rating:g`\n(note: tags such as `rating:g` *do not* count towards the two-tag limit!)"
+            "search_results": "Последние посты с этими тегами:\n{{ids}}\nПросмотрите один с помощью \"d#<post id>\".",
+            "search_display": "Последние {{num}} пост(ов) по вашему запросу. Выбрано низкое качество во избежание перегрузки.\nID: {{ids}}",
+            "no_posts": "Постов по списку тегов не найдено, правильно ли указаны теги? Пример тегов: `nia_(xenoblade) open_mouth rating:g` (примечание: теги вроде `rating:g` *не учитываются* в лимите двух тегов!)"
         }
     },
     "level": {
-        "levelup": "Heck yea, **{{name}}**! You've leveled up to **{{level_name}}** ({{level}})!\nYou got {{okash}} OKA**{{amount}}** and 1x **{{lootbox}}**!\nYour next level will be in **{{xp}}XP**.",
-        "xp_gain": "XP Gain is limited to between 3-10xp for each message, with a cooldown of 30s.",
-        "xp_modernization": "Heads up! Your level has been changed to reflect the new XP calculation. Therefore, your level will be lower than it was previously.",
+        "levelup": "Да ладно! **{{name}}**! Вы достигли уровня **{{level_name}}** ({{level}})!\nВы получили {{okash}} OKA**{{amount}}** и 1x **{{lootbox}}**!\nСледующий уровень будет через **{{xp}}XP**.",
+        "xp_gain": "Получение XP ограничено от 3 до 10 за каждое сообщение с кулдауном 30 секунд.",
+        "xp_modernization": "Внимание! Ваш уровень был изменён в соответствии с новым расчётом XP. В связи с этим ваш уровень может быть ниже, чем раньше.",
         "custom_link": {
-            "on_set": "{{cat_sunglasses}} Updated your profile accordingly!",
-            "needs_ublb": ":crying_cat_face: Sorry, but you need to buy {{ublb}} before you can use this!"
+            "on_set": "{{cat_sunglasses}} Профиль обновлён соответствующим образом!",
+            "needs_ublb": ":crying_cat_face: Извините, но вам нужно купить {{ublb}}, прежде чем вы сможете это использовать!"
         },
         "names": {
-            "kitten": "Kitten",
-            "catgirl": "Catgirl",
-            "silver_bell_trainee": "Silver Bell Trainee",
-            "silver_bell_holder": "Silver Bell Holder",
-            "gold_bell_trainee": "Gold Bell Trainee",
-            "gold_bell_holder": "Gold Bell Holder",
-            "waitress_i": "Cook in Training",
-            "waitress_ii": "Waitress",
-            "mainecoon": "Maine Coon",
-            "americancurl": "American Curl",
-            "munchkin": "Custard Munchkin",
-            "scottishfold": "Scottish Fold",
-            "blogger": "Blogger",
-            "persian": "Chinchilla Persian",
-            "mentor": "Bakery Mentor",
+            "kitten": "Котёнок",
+            "catgirl": "Кошкодевочка",
+            "silver_bell_trainee": "Стажёр Серебряного Колокольчика",
+            "silver_bell_holder": "Обладатель Серебряного Колокольчика",
+            "gold_bell_trainee": "Стажёр Золотого Колокольчика",
+            "gold_bell_holder": "Обладатель Золотого Колокольчика",
+            "waitress_i": "Начинающий Повар",
+            "waitress_ii": "Официантка",
+            "mainecoon": "Мэйн-Кун",
+            "americancurl": "Американский Кёрл",
+            "munchkin": "Кастард Манчкин",
+            "scottishfold": "Шотландская Вислоухая",
+            "blogger": "Блогер",
+            "persian": "Персидская Шиншилла",
+            "mentor": "Наставник Пекарни",
             "notsure": "?"
         }
     },
     "items": {
         "missing": {
-            "name": "Unknown Item",
-            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+            "name": "Неизвестный Предмет",
+            "desc": "Я понятия не имею, что это за предмет! (Это баг, пожалуйста, сообщите о нём!)"
         },
         "sr": {
-            "name": "Streak Restore",
-            "desc": "Restores your streak if you miss a day.",
-            "on_use": "{{sr}} **{{name}}**, you've restored your daily reward streak to **{{length}} days**!",
-            "on_use_fail": "**{{name}}**, looks like your streak is already higher than your previous one, so you can't restore your streak!"
+            "name": "Восстановление Серии",
+            "desc": "Восстанавливает вашу серию, если вы пропустили день.",
+            "on_use": "{{sr}} **{{name}}**, вы восстановили серию ежедневных наград до **{{length}}** дней!",
+            "on_use_fail": "**{{name}}**, похоже, ваша текущая серия уже выше предыдущей, так что восстановить серию не получится!"
         },
         "wc": {
-            "name": "{{weighted_coin}} Weighted Coin",
-            "desc": "Increases your chances of winning a coinflip."
+            "name": "{{weighted_coin}} Взвешенная Монета",
+            "desc": "Увеличивает ваши шансы на победу в подбрасывании монеты."
         },
         "lootbox": {
             "common": {
-                "name": ":package: Common Lootbox",
-                "desc": "An old cardboard box containing some common items."
+                "name": ":package: Обычный Лутбокс",
+                "desc": "Старая картонная коробка с несколькими обычными предметами."
             },
             "rare": {
-                "name": ":package: Common Lootbox",
-                "desc": "Not too shabby... A wooden box with a few rare items in it."
+                "name": ":package: Редкий Лутбокс",
+                "desc": "Неплохо... Деревянная коробка с несколькими редкими предметами."
             },
             "ex": {
-                "name": ":package: EX Lootbox",
-                "desc": "Woah, it's so sparkly! A metal box with a bunch of super rare items in it!"
+                "name": ":package: EX Лутбокс",
+                "desc": "Вау, какой блестящий! Металлическая коробка с кучей суперредких предметов!"
             },
             "on_use_first": "**{{name}}** opens {{possessive}} {{lootbox}} and finds...",
             "on_use_okash": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... {{okash}} OKA**{{amount}}**!",
             "on_use_item": "**{{name}}** opens {{possessive}} {{lootbox}} and finds... a **{{item}}**!"
         },
         "td": {
-            "name": "Tracking Device",
-            "desc": "A kit that turns a customization into a Tracked:tm: customization. This makes the item unique and tracks a specific statistic. I hear it's pretty popular amongst Spotify users."
+            "name": "Устройство Отслеживания",
+            "desc": "Набор, превращающий кастомизацию в Tracked:tm: кастомизацию. Делает предмет уникальным и отслеживает определённую статистику. Говорят, это очень популярно среди пользователей Spotify."
         },
         "sv": {
-            "name": "Shop Voucher",
-            "desc": "A voucher that can be redeemed for a free customization (with some exceptions)"
+            "name": "Магазинный Ваучер",
+            "desc": "Ваучер, который можно обменять на бесплатную кастомизацию (с некоторыми исключениями)"
         },
         "st": {
-            "name": "Scratch Ticket",
-            "desc": "Test your luck with this scratch card and have a chance at winning a load of okash!"
+            "name": "Скретч-Карта",
+            "desc": "Испытайте удачу с этой скретч-картой и получите шанс выиграть кучу okash!"
         },
         "db15": {
-            "name": "Drop Boost (15 min)",
-            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+            "name": "Drop Boost (15 мин)",
+            "desc": "Таинственным образом, использование этого предмета, кажется, увеличивает вашу удачу при нахождении лутбоксов."
         },
         "db30": {
-            "name": "Drop Boost (30 min)",
-            "desc": "Mysteriously, using this item seems to increase your luck at finding lootboxes."
+            "name": "Drop Boost (30 мин)",
+            "desc": "Таинственным образом, использование этого предмета, кажется, увеличивает вашу удачу при нахождении лутбоксов."
         },
         "cas10": {
-            "name": ":credit_card: Casino Pass (10 min)",
-            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas10)"
+            "name": ":credit_card: Казино талон (10 мин)",
+            "desc": "Пропускайте очередь и обходите любые кулдауны, пока этот предмет активен! (сокращение: cas10)"
         },
         "cas30": {
-            "name": ":credit_card: Casino Pass (30 min)",
-            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas30)"
+            "name": ":credit_card: Казино талон (30 мин)",
+            "desc": "Пропускайте очередь и обходите любые кулдауны, пока этот предмет активен! (сокращение: cas30)"
         },
         "cas60": {
-            "name": ":credit_card: Casino Pass (60 min)",
-            "desc": "Skip the queue and bypass any cooldowns while you've got this active! (shorthand: cas60)"
+            "name": ":credit_card: Казино талон (60 мин)",
+            "desc": "Пропускайте очередь и обходите любые кулдауны, пока этот предмет активен! (сокращение: cas60)"
         },
         "sk": {
-            "name": ":crystal_ball: Sticker Kit",
-            "desc": "Profile banner looking a bit boring? Slap a sticker on it, make it unique, make it *yours*!"
+            "name": ":crystal_ball: Набор наклеек",
+            "desc": "Баннер профиля выглядит скучновато? Налепите стикер, сделайте его уникальным, сделайте его *своим*!"
         },
         "ht": {
-            "name": "Hacking Tool",
-            "desc": "Unused Item."
+            "name": "Инструмент для взлома",
+            "desc": "Неиспользуемый предмет."
         },
         "bmt": {
-            "name": "{{bmt}} Black Market Token",
-            "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy."
+            "name": "{{bmt}} Токен Чёрного Рынка",
+            "desc": "Говорят, этот токен можно использовать для покупки сомнительных предметов. Хотя откуда мне знать? Я примерный мальчик."
         },
         "bmts": {
-            "name": "{{bmts}} Black Market Token Shard",
-            "desc": "Long ago, when the police destroyed all the **Black Market Tokens**, they sprinkled the shards throughout the land. Seems like about 25 would be enough to make a token."
+            "name": "{{bmts}} Осколок Токена Чёрного Рынка",
+            "desc": "Давным-давно, когда полиция уничтожила все **Токены Чёрного Рынка**, они рассыпали осколки по всей земле. Кажется, около 25 штук хватит, чтобы собрать токен."
         },
         "brt": {
-            "name": "Bank Robbery Tool",
-            "desc": "Did your victim move all their cash to their bank account? Use this totally illegal bank robbery tool to steal a chunk of okash from them!"
+            "name": "Инструмент Ограбления Банка",
+            "desc": "Ваша жертва перевела все деньги на банковский счёт? Используйте этот абсолютно незаконный инструмент ограбления банка, чтобы украсть у них кучу okash!"
         }
     },
     "customizations": {
         "missing": {
-            "name": "Unknown Item",
-            "desc": "I dunno what this item is! (This is a bug, please report it!)"
+            "name": "Неизвестный Предмет",
+            "desc": "Я понятия не имею, что это за предмет! (Это баг, пожалуйста, сообщите о нём!)"
         },
         "tracked": {
             "name": "**Tracked:tm: {{item}}**",
-            "coin": "This item is unique. It counts how many times it's been flipped. Serial no: **`{{serial}}`**. It's been flipped {{flips}} time(s).",
-            "deck": "This item is unique. It counts how many cards it has dealt. Serial no: **`{{serial}}`**. It's dealt {{cards}} card(s)."
+            "coin": "Этот предмет уникален. Он считает, сколько раз его подбрасывали. Серийный номер: **{{serial}}**. Его подбросили {{flips}} раз.",
+            "deck": "Этот предмет уникален. Он считает, сколько карт было сдано. Серийный номер: **{{serial}}**. Сдано карт: {{cards}}."
         },
         "ublb": {
-            "name": "User Banner Level Background",
-            "desc": "Allows you to show off your Discord profile banner in /profile level!"
+            "name": "Фоновый Уровень Баннера Пользователя",
+            "desc": "Позволяет отображать баннер вашего профиля Discord в /profile level!"
         },
         "dc": {
-            "name": "{{default_coin}} Default Coin",
-            "desc": "The definitely-not-biased classic yellow coin everyone has. You're still convinced it's biased."
+            "name": "{{default_coin}} Стандартная Монета",
+            "desc": "Классическая жёлтая монета, которая есть у всех — и это точно не предвзято. Вы всё ещё убеждены, что здесь что-то не так."
         },
         "rc": {
-            "name": "{{red_coin}} Red Coin",
-            "desc": "Red, like strawberries! This coin makes you feel like you can do anything, even climbing a mountain!"
+            "name": "{{red_coin}} Красная Монета",
+            "desc": "Красная, как клубника! Эта монета заставляет вас чувствовать, что вы способны на всё, даже покорить гору!"
         },
         "dbc": {
-            "name": "{{dark_blue_coin}} Dark Blue Coin",
-            "desc": "This coin has a deep color resembling the ocean. Hopefully it can make your pockets just as deep."
+            "name": "{{dark_blue_coin}} Тёмно-Синяя Монета",
+            "desc": "Эта монета имеет глубокий цвет, напоминающий океан. Надеемся, что и ваши карманы станут такими же глубокими."
         },
         "lbc": {
-            "name": "{{light_blue_coin}} Light Blue Coin",
-            "desc": "Even the sky struggles to reach this shade of blue. Just like you're struggling to win your flips."
+            "name": "{{light_blue_coin}} Голубая Монета",
+            "desc": "Даже небо с трудом достигает этого оттенка синего. Прямо как вы с трудом выигрываете подбрасывания монеты."
         },
         "pc": {
-            "name": "{{pink_coin}} Pink Coin",
-            "desc": "\"Pink is for girls\"? I'll do you one better: Pink is for rich people. Beat that."
+            "name": "{{pink_coin}} Розовая Монета",
+            "desc": "«Розовый — для девочек»? Я скажу лучше: розовый — для богатых. Попробуйте возразить."
         },
         "ppc": {
-            "name": "{{purple_coin}} Purple Coin",
-            "desc": "A purple coin. It's the slightly-less-rich man's pink coin, but you don't care, because it still looks cool anyway."
+            "name": "{{purple_coin}} Фиолетовая Монета",
+            "desc": "Фиолетовая монета. Это розовая монета для тех, кто чуть победнее, но вам всё равно, она всё равно выглядит круто."
         },
         "dgc": {
-            "name": "{{dark_green_coin}} Dark Green Coin",
-            "desc": "A dark green coin. Even though it's not weighted, you still feel luckier using it."
+            "name": "{{dark_green_coin}} Тёмно-Зелёная Монета",
+            "desc": "Тёмно-зелёная монета. Несмотря на то, что она не заговорена, с ней вы всё равно чувствуете себя удачливее."
         },
         "rbc": {
-            "name": "{{rainbow_coin}} Rainbow Coin",
-            "desc": "This mythical coin, said to be gifted from the gods, is almost useless, but looks extremely cool."
+            "name": "{{rainbow_coin}} Радужная Монета",
+            "desc": "Эта мифическая монета, по слухам, подаренная богами, почти бесполезна, но выглядит невероятно круто."
         },
         "rlb": {
-            "name": "Red Level Bar",
-            "desc": "Sets your level bar's color to red."
+            "name": "Красная Полоса Уровня",
+            "desc": "Устанавливает красный цвет для вашей полосы уровня."
         },
         "glb": {
-            "name": "Green Level Bar",
-            "desc": "Sets your level bar's color to green."
+            "name": "Зелёная Полоса Уровня",
+            "desc": "Устанавливает зелёный цвет для вашей полосы уровня."
         },
         "blb": {
-            "name": "Blue Level Bar",
-            "desc": "Sets your level bar's color to blue."
+            "name": "Синяя Полоса Уровня",
+            "desc": "Устанавливает синий цвет для вашей полосы уровня."
         },
         "plb": {
-            "name": "Pink Level Bar",
-            "desc": "Sets your level bar's color to pink."
+            "name": "Розовая Полоса Уровня",
+            "desc": "Устанавливает розовый цвет для вашей полосы уровня."
         },
         "dcd": {
-            "name": "{{dcd_back}} Default Card Deck",
-            "desc": "The classic card deck. It's not unique in terms of design, but it gets the job done."
+            "name": "{{dcd_back}} Стандартная Колода Карт",
+            "desc": "Классическая колода карт. Ничего особенного по дизайну, но своё дело делает."
         },
         "tcd": {
-            "name": "{{tcd_back}} Trans Card Deck",
-            "desc": "A card deck that's a little bit different, but being different is okay!"
+            "name": "{{tcd_back}} Транс Колода Карт",
+            "desc": "Колода карт, которая немного отличается от других, но быть другим — это нормально!"
         },
         "cbcd": {
-            "name": "{{cbcd_back}} Cherry Blossom Card Deck",
-            "desc": "A card deck with some pretty sakura flowers and pink numbers on it."
+            "name": "{{cbcd_back}} Колода Цветущей Сакуры",
+            "desc": "Колода карт с красивыми цветами сакуры и розовыми числами."
         }
     },
     "eastereggs": {
         "thankyou": {
-            "of_course": "of course!",
-            "no_problem": "no problem!",
+            "of_course": "конечно!",
+            "no_problem": "без проблем!",
             "heart": "<3",
             "nekoheart": "{{nekoheart}}",
-            "thank_you_too": "thank you too!",
-            "doing_best": "i do my best!"
+            "thank_you_too": "и тебе спасибо!",
+            "doing_best": "я стараюсь!"
         },
-        "pearl": "wawawawa wannochai!"
+        "pearl": "вававава ваннончай!"
     },
     "achievements": {
-        "title": "Achievements",
-        "diffs": "{{ade}} Easy | {{adt}} Tricky | {{adh}} Hard | {{adex}} Extra Hard",
-        "on_unlock": ":trophy: Yaay, **{{name}}**! You've unlocked the achievement {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nYou can now use the title \"**{{title}}**\" on your profile!\n-# {{desc}}",
+        "title": "Достижения",
+        "diffs": "{{ade}} Лёгкое | {{adt}} Среднее | {{adh}} Сложное | {{adex}} Очень Сложное",
+        "on_unlock": ":trophy: Ура, **{{name}}**! Вы разблокировали достижение {{diff}} **{{achievement}}**! **(+{{xp}}XP)**\nТеперь вы можете использовать титул \"**{{title}}**\" в своём профиле!\n-# {{desc}}",
         "not_allowed": "Your account is not allowed to unlock achievements. This is likely because you broke rule #5 (No Public Sharing of Achievement Solutions).",
         "none": {
             "title": "new okabot user"
@@ -321,10 +321,10 @@
         "usewc": {
             "name": "Backup Plan",
             "desc": "The dealer can't win if the odds are in my favor!",
-            "title": "casino cheater"
+            "title": "казино шулером"
         },
         "get21": {
-            "name": "Blackjack!",
+            "name": "Блэкджек!",
             "desc": "Not to be confused with Jack Black.",
             "title": "perfectionist"
         },
@@ -364,7 +364,7 @@
             "title": "okabot beginner"
         },
         "dailyweek": {
-            "name": "New Habit",
+            "name": "Новый привычки",
             "desc": "A great habit was formed!",
             "title": "committed"
         },
@@ -552,22 +552,6 @@
             "name": "Okay, Maybe a Little Sweat",
             "desc": "Can you do it again tomorrow?",
             "title": "model student"
-        }
-    },
-    "games": {
-        "streak": ":fire: **Heck yea, {{streak}} in a row! (+{{xp}}XP)**",
-        "not_enough_okash": ":crying_cat_face: **{{name}}**, you don't have enough okash for that!",
-        "coinflip": {
-            "flipping": "**{{name}}** flips {{possessive}} {{coin_name}} on **{{side}}** for {{okash}} OKA**{{bet}}**... ",
-            "landed_win": "and it lands on **{{side}}**, doubling {{possessive}} bet! **(+{{xp}}XP)**",
-            "landed_loss": "and it lands on **{{side}}**, losing {{possessive}} bet! :crying_cat_face: **(+{{xp}}XP)**",
-            "heads": "heads",
-            "tails": "tails",
-            "already_flipping": ":bangbang: Woah there, **{{name}}**! You can only flip one coin at a time!",
-            "new_daily_float_high": "**New Daily Highest:** `{{float}}` is the highest float someone has rolled today!",
-            "new_daily_float_low": "**New Daily Lowest:** `{{float}}` is the lowest float someone has rolled today!",
-            "new_alltime_float_high": "**NEW ALL-TIME HIGHEST:** `{{float}}` is the highest float someone has rolled on okabot!",
-            "new_alltime_float_low": "**NEW ALL-TIME LOWEST:** `{{float}}` is the lowest float someone has rolled on okabot!"
         }
     }
 }
