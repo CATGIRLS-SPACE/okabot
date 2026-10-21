@@ -2,6 +2,7 @@
     "supporters": [
         {"name": "tacobella03","id": "502879264081707008","type": "ko-fi"},
         {"name": "JadyLan","id": "720723512972804267","type": "booster"},
+        {"name": "kbgkaden","id": "566671009189462038","type": "booster"},
         {"name": "flyer.","id":"268666183018872832","type":"ko-fi"},
         {"name": "themagicanimals","id":"492908628597276692","type":"granted"},
         {"name": "nyupenyu","id":"450808820684292117","type":"granted"},
@@ -18,6 +19,7 @@
     "testers": [
         {"name": "tacobella03","id": "502879264081707008","type": "cgc-beta"},
         {"name": "JadyLan","id": "720723512972804267","type": "cgc-beta"},
+        {"name": "kbgkaden","id": "566671009189462038","type": "cgc-beta"},
         {"name": "BakaBuns","id": "577570010743046144","type": "cgc-beta"},
         {"name": "guppibuppi","id": "894128935670018089","type": "cgc-beta"},
         {"name": "PanickedShears","id": "659271658581786624","type": "cgc-beta"},
