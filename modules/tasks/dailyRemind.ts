@@ -3,6 +3,8 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 import { BASE_DIRNAME, client } from "../../index";
 import { join } from "path";
 import {CheckFeatureAvailability, ServerFeature} from "../system/serverPrefs";
+import { t } from "../i18n/translation";
+import {GetUserProfile} from "../user/prefs";
 
 const reminders = new Map<Snowflake, {time: number, channel: Snowflake}>();
 export const quickdraw = new Map<Snowflake, number>();
@@ -18,14 +20,14 @@ export function ScheduleDailyReminder(time: number, user_id: string, channel: Te
     
     const d = new Date();
     reminders.set(user_id, {time, channel: channel.id});
-    setTimeout(() => {
+    setTimeout(async () => {
         if (!CheckFeatureAvailability(channel.guild!.id, ServerFeature.daily)) return;
 
 
         // I don't like the apostrophe here,
         // but Siri mispronounces it as "jetcha" so I'm changing it for that reason only.
         channel.send({
-            content:`:clock3: <@${user_id}>, come get'cha daily!`
+            content:await t('interactions.daily.reminder.now', GetUserProfile(user_id).customization.global.preferred_locale, {ping: `<@${user_id}>`})
         });
         const dd = new Date();
         quickdraw.set(user_id, dd.getTime());
@@ -53,11 +55,11 @@ export async function LoadReminders() {
             channel: reminder.channel
         });
 
-        setTimeout(() => {
+        setTimeout(async () => {
             const ch = client.channels.cache.get(reminder.channel)!;
             if (!CheckFeatureAvailability((ch as TextChannel).guild!.id, ServerFeature.daily)) return;
             (ch as TextChannel).send({
-                content:`:clock3: <@${reminder.user_id}>, come get'cha daily!`
+                content:await t('interactions.daily.reminder.now', GetUserProfile(reminder.user_id).customization.global.preferred_locale, {ping: `<@${reminder.user_id}>`})
             });
             const dd = new Date();
             quickdraw.set(reminder.user_id, dd.getTime());

@@ -10,6 +10,8 @@ import {EMOJI, GetEmoji} from "../../../util/emoji";
 import {AddOneToInventory, RemoveOneFromInventory} from "../../okash/wallet";
 import {AddXP} from "../../levels/onMessage";
 import {CalculateTargetXPV2} from "../../levels/levels";
+import {t} from "../../i18n/translation";
+import {GetLastLocale} from "../../../index";
 
 const ITEM_SELECT_COMPONENT = new StringSelectMenuBuilder()
     .setCustomId('blackMarketTokenItemSelect')
@@ -57,7 +59,7 @@ export async function item_bmToken_modal(interaction: ModalSubmitInteraction) {
     const profile = GetUserProfile(interaction.user.id);
 
     if (!profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)) return interaction.reply({
-        content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have any ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Tokens**!`
+        content: await t('items.bmt.on_use.dont_have', GetLastLocale(interaction.user.id), {name: interaction.user.displayName})
     });
 
     const selection = interaction.fields.getStringSelectValues('blackMarketTokenItemSelect')[0];
@@ -65,7 +67,7 @@ export async function item_bmToken_modal(interaction: ModalSubmitInteraction) {
     if (selection == 'xpl') {
 
         if (!profile.inventory.some(i => i.item_id == ITEMS.BLACKMARKET_TOKEN) || profile.inventory.find(i => i.item_id == ITEMS.BLACKMARKET_TOKEN)!.amount < 2) return interaction.reply({
-            content: `:crying_cat_face: **${interaction.user.displayName}**, you don't have enough (2x) ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Tokens**!`
+            content: await t('items.bmt.on_use.not_enough_2x', GetLastLocale(interaction.user.id), {name: interaction.user.displayName})
         });
 
         RemoveOneFromInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN);
@@ -81,35 +83,39 @@ export async function item_bmToken_modal(interaction: ModalSubmitInteraction) {
         case 'td':
             AddOneToInventory(interaction.user.id, ITEMS.TRACKED_CONVERTER);
             interaction.reply({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Token** for a **Tracking Device**!`
+                content: await t('items.bmt.on_use.exchange.td', profile.customization.global.preferred_locale, {name: interaction.user.displayName})
             });
             break;
 
         case 'brk':
             AddOneToInventory(interaction.user.id, ITEMS.BANK_ROBBERY_KIT);
             interaction.reply({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Token** for a ${GetEmoji(EMOJI.BANK_ROBBERY_TOOL)} **Bank Robbery Tool**!`
+                content: await t('items.bmt.on_use.exchange.brt', profile.customization.global.preferred_locale, {name: interaction.user.displayName})
             });
             break;
 
         case 'xpe':
             AddXP(interaction.user.id, interaction.channel as TextChannel, 2500);
             interaction.reply({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Token** for a :nazar_amulet: **2500 XP Exchange**! **(+2500XP)**`
+                content: await t('items.bmt.on_use.exchange.xp2500', profile.customization.global.preferred_locale, {name: interaction.user.displayName})
             });
             break;
 
         case 'xpl':
             AddXP(interaction.user.id, interaction.channel as TextChannel, CalculateTargetXPV2(profile.leveling.level));
             interaction.reply({
-                content: `${GetEmoji(EMOJI.CAT_SUNGLASSES)} **${interaction.user.displayName}**, you exchanged a ${GetEmoji(EMOJI.BLACK_MARKET_TOKEN)} **Black Market Token** for an :nazar_amulet: **XP Level Up**!`
+                content: await t('items.bmt.on_use.exchange.xpl', profile.customization.global.preferred_locale, {name: interaction.user.displayName})
             });
             break;
 
         default:
-            AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN);
+            if (selection == 'xpl') {
+                AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN);
+                AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN);
+            } else AddOneToInventory(interaction.user.id, ITEMS.BLACKMARKET_TOKEN);
+
             interaction.reply({
-                content: `:x: Something went wrong (switch statement defaulted). Please report this as a bug.`
+                content: await t('items.bmt.on_use.switch_statement_default', profile.customization.global.preferred_locale, {name: interaction.user.displayName})
             });
             break;
     }

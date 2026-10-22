@@ -217,7 +217,18 @@
         },
         "bmt": {
             "name": "{{bmt}} Black Market Token",
-            "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy."
+            "desc": "It's said this token can be used to buy legally-questionable items. I wouldn't know, though. I'm a good boy.",
+            "on_use": {
+                "dont_have": ":crying_cat_face: **{{name}}**, you don't have any {{bmts}} **Black Market Tokens**!",
+                "not_enough_2x": ":crying_cat_face: **{{name}}**, you don't have enough (2x) {{bmts}} **Black Market Tokens**!",
+                "exchange": {
+                    "td": "{{cat_sunglasses}} **{{name}}**, you exchanged a {{bmt}} **Black Market Token** for a :electric_plug: **Tracking Device**!",
+                    "brt": "{{cat_sunglasses}} **{{name}}**, you exchanged a {{bmt}} **Black Market Token** for a **Bank Robbery Tool**!",
+                    "xp2500": "{{cat_sunglasses}} **{{name}}**, you exchanged a {{bmt}} **Black Market Token** for :nazar_amulet: **2500 XP**! **(+2500XP)**",
+                    "xpl": "{{cat_sunglasses}} **{{name}}**, you exchanged 2x {{bmt}} **Black Market Token** for an :nazar_amulet: **XP Level Up**!"
+                },
+                "switch_statement_default": ":x: Something went wrong (switch statement defaulted out). I refunded your token(s). Please report this as a bug!"
+            }
         },
         "bmts": {
             "name": "{{bmts}} Black Market Token Shard",

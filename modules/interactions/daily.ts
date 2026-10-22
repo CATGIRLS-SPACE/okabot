@@ -22,7 +22,7 @@ import {t} from "../i18n/translation";
 
 export async function HandleCommandDaily(interaction: ChatInputCommandInteraction) {
     if (!CheckFeatureAvailability(interaction.guild!.id, ServerFeature.daily)) return interaction.reply({
-        content: 'This feature isn\'t available in this server. Maybe ask a server admin to enable it?'
+        content: await t('system.errors.command.disabled', interaction.okabot.translateable_locale)
     });
 
     // scrap removal checks
