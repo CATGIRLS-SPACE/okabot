@@ -25,13 +25,26 @@ const L = new Logger('profiles');
 
 export enum FLAG {
     WEIGHTED_COIN_EQUIPPED,
-    __UNUSED_CASINO_PASS,
-    __UNUSED_DROP_BOOST,
+    __UNUSED_SLOT_1,
+    __UNUSED_SLOT_2,
     TRANSLATION_NOTICE_SEEN,
     LEVELING_MODERNIZED,
     TRIGGER_SPLATOON_EASTER_EGG,
     NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS,
     PROTECTED_FOR_LEGACY,
+    OVERRIDE_PREMIUM,
+    PREMIUM_TIER_GRANTED,
+    PREMIUM_TIER_DONATOR,
+    PREMIUM_TIER_BOOSTER,
+    PREMIUM_TIER_REVOKED,
+    IS_BETA_TESTER, // tested beta features after okabot went public
+    IS_BETA_TESTER_CGC, // used okabot before going public (cgc-exclusive)
+    IS_ACTIVE_DEVELOPER, // actively develops
+    IS_CONTRIBUTOR, // actively developed at one point or made considerable contribution
+    IS_TRANSLATOR,
+    BOT_MASTER, // administrator, can do everything
+    BOT_ADMINISTRATOR, // administrator, can do everything except "master-only" bans, etc. CAN affect above role
+    BOT_MODERATOR, // moderator, can do everything except affect above roles
 }
 
 export interface ItemData {

@@ -176,7 +176,6 @@ import {GeminiDemoReplyToConversationChain, GeminiDemoRespondToInquiry, SetupGem
 import {ShowPatchnotes} from "./modules/textbased/patchnotes/patchnotes";
 import { LoadUserReminders, RemindLater } from "./modules/textbased/remind/remind";
 import {HandleCommandCatgirl} from "./modules/interactions/catgirl";
-import {LoadSpecialUsers} from "./util/users";
 import { SetupGoodluckle } from "./modules/http/goodluckle";
 import { SetupTranslate } from "./util/translate";
 import { CheckForTextCommands } from "./util/textCommandMappings";
@@ -195,7 +194,6 @@ import {HandleCommandDig} from "./modules/okash/games/dig";
 import {ps} from "./modules/http/panel/core";
 import {InitLanguage, t} from "./modules/i18n/translation";
 import {SetupBlueskyJob} from "./modules/bluesky/autoposter";
-import {AddMessageToRecord} from "./modules/bluesky/contentRecord";
 import {HandleCommandESL} from "./modules/catgirlcentral/esl/command";
 
 
@@ -241,7 +239,6 @@ export function ToggleDisableOfCommand(command: string): boolean {
  */
 export function ReloadConfig() {
     CONFIG = JSON.parse(readFileSync(join(__dirname, 'config.json'), 'utf-8'));
-    LoadSpecialUsers(__dirname);
     DumpProfileCache();
 }
 
@@ -286,7 +283,6 @@ async function RunPreStartupTasks() {
     ScheduleFloatsReset(); // schedule the coinflip reset bonus
     LoadSerialItemsDB(); // load the tracked item database
     LoadWarnings(); // load all user warnings from moderation database
-    LoadSpecialUsers(__dirname); // loads all "special" users (donators, testers, devs...)
     SetupGoodluckle();
     SetupTranslate();
     InitLanguage();
@@ -607,13 +603,6 @@ client.on(Events.MessageCreate, async message => {
                 message: final_message
             })
         });
-    }
-
-    // bsky
-    if (!message.guild || !CONFIG.bluesky.enable) return;
-    if (message.guild.id == '1019089377705611294' || message.guild.id == '748284249487966282') {
-        if (message.author.bot) return;
-        AddMessageToRecord(`${message.author.username}: "${message.content}"`);
     }
 });
 
