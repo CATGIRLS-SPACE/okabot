@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { ps } from "../core";
 import { CheckSessionValidity, GetUserBySession } from "../oauth2";
 import { client, CONFIG } from "../../../..";
-import { CheckForProfile, GetUserProfile, UpdateUserProfile } from "../../../user/prefs";
+import {CheckForProfile, GetUserProfile, UpdateUserProfile} from "../../../user/prefs";
 
 const NeedsValidSession = (req: Request, res: Response, next: CallableFunction) => {
     if (!req.query || !req.query.session) {
@@ -23,7 +23,7 @@ const NeedsAdminSession = (req: Request, res: Response, next: CallableFunction) 
     next();
 }
 
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setNestedProperty(obj: any, path: string, value: string | boolean | number): boolean {
     const keys = path.split('.');
     const lastKey = keys.pop(); // The final property to update
@@ -84,5 +84,45 @@ export function RegisterUserAdminRoutes() {
         console.log(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) PROP "${req.query.prop}" NOW IS "${value}"`)
 
         res.json({success:true,prop:req.query.prop as string,value:req.query.value as string});
+    });
+
+    ps.put('/admin/user/:id/flags', NeedsValidSession, NeedsAdminSession, (req, res) => {
+        if (!req.query.flag || Number.isNaN(parseInt(req.query.flag as string))) return <never> res.status(400).json({success:false,code:'core:1'});
+
+        if (!CheckForProfile(req.params.id, true)) return <never> res.status(404).json({success:false,code:'admin:u-1'});
+        const user = GetUserBySession(req.query.session as string)!;
+        const profile = GetUserProfile(req.params.id);
+        if (profile.flags.includes(parseInt(req.query.flag as string))) return <never> res.status(200).json({success:true});
+
+        profile.flags.push(parseInt(req.query.flag as string));
+        UpdateUserProfile(req.params.id, profile);
+
+        const modded_user = client.users.cache.get(req.params.id);
+        const channel = client.channels.cache.get('1318329592095703060');
+        if (channel && channel.isSendable()) channel.send(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) ADD FLAG ${req.query.flag}`);
+
+        console.log(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) ADD FLAG ${req.query.flag}`)
+
+        res.json({success:true});
+    });
+
+    ps.delete('/admin/user/:id/flags', NeedsValidSession, NeedsAdminSession, (req, res) => {
+        if (!req.query.flag || Number.isNaN(parseInt(req.query.flag as string))) return <never> res.status(400).json({success:false,code:'core:1'});
+
+        if (!CheckForProfile(req.params.id, true)) return <never> res.status(404).json({success:false,code:'admin:u-1'});
+        const user = GetUserBySession(req.query.session as string)!;
+        const profile = GetUserProfile(req.params.id);
+        if (!profile.flags.includes(parseInt(req.query.flag as string))) return <never> res.status(200).json({success:true});
+
+        profile.flags.splice(profile.flags.indexOf(parseInt(req.query.flag as string)), 1);
+        UpdateUserProfile(req.params.id, profile);
+
+        const modded_user = client.users.cache.get(req.params.id);
+        const channel = client.channels.cache.get('1318329592095703060');
+        if (channel && channel.isSendable()) channel.send(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) REMOVE FLAG ${req.query.flag}`);
+
+        console.log(`(audit) (panel) ${user.username} (${user.id}) MODIFIED ${modded_user?.username} (${modded_user?.id}) REMOVE FLAG ${req.query.flag}`)
+
+        res.json({success:true});
     });
 }
