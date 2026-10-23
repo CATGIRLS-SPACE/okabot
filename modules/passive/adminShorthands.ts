@@ -10,7 +10,8 @@ import {Achievements, GrantAchievement} from "./achievement";
 import {AddOneToInventory, AddToWallet, GetAllWallets, GetWallet, RemoveFromWallet} from "../okash/wallet";
 import {EMOJI, GetEmoji} from "../../util/emoji";
 import {
-    DumpProfileCache, GetProfileLowDB,
+    CheckForProfile,
+    DumpProfileCache, FLAG, GetProfileLowDB,
     GetUserProfile,
     RestrictUser,
     UpdateUserProfile,
@@ -29,12 +30,12 @@ import { SetGambleLock } from "../okash/games/_lock";
 import { DumpConversationChain } from "./geminidemo";
 import {UpdateMarkets} from "../okash/stock";
 import {ActivateTwitchIntegration} from "../integrations/twitch";
-import {CUSTOMIZTAION_ID_NAMES, GLOBAL_CUST_SHORTHANDS_IDS, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS} from "../okash/items";
+import {GLOBAL_CUST_SHORTHANDS_IDS, GLOBAL_ITEM_SHORTHANDS_IDS, GLOBAL_SHORTHANDS} from "../okash/items";
 import {exec} from "child_process";
 import {existsSync} from "fs";
 import axios from "axios";
 import {CreateRegularPost, CreateTestPost} from "../bluesky/autoposter";
-import { CheckChannelAvailability, GetPreferencesFor, SetChannelBehavior, SetPremiumStatus, SubscriptionLevel } from "../system/serverPrefs";
+import { GetPreferencesFor, SetChannelBehavior, SetPremiumStatus, SubscriptionLevel } from "../system/serverPrefs";
 
 
 interface ShorthandList {
@@ -562,7 +563,7 @@ export function RegisterAllShorthands() {
             throw new Error('A minimum of 4 arguments is required. Usage: `oka set-premium <this | id> <yes | no> [(if yes) until-date]');
         }
         if (params[2] == 'this') params[2] = message.guild!.id;
-        let enabled = params[3]=='yes';
+        const enabled = params[3]=='yes';
 
         if (enabled) {
             let until = new Date('2099-12-31');
@@ -618,35 +619,161 @@ export function RegisterAllShorthands() {
             content: `OK, channel <#${params[2]}> is now ${params[3] == 'allow' ? '' : 'DIS'}ALLOWED.`
         });
     });
+
+    // flag management on profiles (during development of panel)
+    const flag_mappings: Array<string> = [
+        'Weighted Coin Equipped',
+        'Unused Flag', 'Unused Flag',
+        'Translation Notice Seen',
+        'Leveling Modernized (June 2026)',
+        'Trigger Splatoon Easteregg',
+        'Achievements Blocked',
+        'Is Protected For Legacy',
+        'Premium Status Overridden',
+        'Premium Status: Granted',
+        'Premium Status: Ko-Fi',
+        'Premium Status: Booster',
+        'Premium Manually Revoked',
+        'Is Beta Tester',
+        'Is Catgirl Central Tester',
+        'Is Active Developer',
+        'Is Previous Contributor',
+        'Is Translator',
+        'Is Bot Master',
+        'Is Bot Admin',
+        'Is Bot Moderator',
+    ];
+
+    const flag_typables = [
+        'WEIGHTED_COIN_EQUIPPED',
+        '__UNUSED_SLOT_1',
+        '__UNUSED_SLOT_2',
+        'TRANSLATION_NOTICE_SEEN',
+        'LEVELING_MODERNIZED',
+        'TRIGGER_SPLATOON_EASTER_EGG',
+        'NOT_ALLOWED_TO_UNLOCK_ACHIEVEMENTS',
+        'PROTECTED_FOR_LEGACY',
+        'OVERRIDE_PREMIUM',
+        'PREMIUM_TIER_GRANTED',
+        'PREMIUM_TIER_DONATOR',
+        'PREMIUM_TIER_BOOSTER',
+        'PREMIUM_TIER_REVOKED',
+        'IS_BETA_TESTER',
+        'IS_BETA_TESTER_CGC',
+        'IS_ACTIVE_DEVELOPER',
+        'IS_CONTRIBUTOR',
+        'IS_TRANSLATOR',
+        'BOT_MASTER',
+        'BOT_ADMINISTRATOR',
+        'BOT_MODERATOR',
+    ];
+
+    RegisterShorthand('oka list-flags', (message: Message) => {
+        message.reply({
+            content: 'Available flags:\n```' + flag_typables.join(', ') + '```',
+        })
+    });
+
+    RegisterShorthand('oka show-flags', (message: Message, params: string[]) => {
+        if (params.length < 3) throw new Error('shorthand usage: oka show-flags <id | me | them>');
+        if (!CheckForProfile(params[2])) throw new Error(`User id ${params[2]} does not exist!`);
+        const user = client.users.cache.get(params[2]);
+        if (!user) throw new Error('User not found');
+        const profile = GetUserProfile(params[2]);
+        message.reply({
+            content: `Flags set for **${user.username}**'s profile:\n\`\`\`${profile.flags.map(flag => flag_mappings[flag] + ` (${flag})`).join(', ')}\`\`\``
+        });
+    });
+
+    RegisterShorthand('oka add-flag', (message: Message, params: string[]) => {
+        if (params.length < 4) throw new Error('shorthand usage: oka add-flag <id | me | them> <flag name>');
+        if (flag_typables.indexOf(params[3].toUpperCase()) == -1) throw new Error('flag ID does not exist');
+        if (!CheckForProfile(params[2])) throw new Error(`User id ${params[2]} does not exist!`);
+        const user = client.users.cache.get(params[2]);
+        if (!user) throw new Error('User not found');
+        const profile = GetUserProfile(params[2]);
+        if (profile.flags.includes(flag_typables.indexOf(params[3].toUpperCase()))) throw new Error('Profile already has this flag!');
+        profile.flags.push(flag_typables.indexOf(params[3].toUpperCase()));
+        UpdateUserProfile(params[2], profile);
+        message.reply({
+            content: `Added flag \`${params[3].toUpperCase()}\` (${flag_typables.indexOf(params[3].toUpperCase())}) to **${user.username}**'s profile.`
+        });
+    });
+
+    RegisterShorthand('oka remove-flag', (message: Message, params: string[]) => {
+        if (params.length < 4) throw new Error('shorthand usage: oka remove-flag <id | me | them> <flag name>');
+        if (flag_typables.indexOf(params[3].toUpperCase()) == -1) throw new Error('flag ID does not exist');
+        if (!CheckForProfile(params[2])) throw new Error(`User id ${params[2]} does not exist!`);
+        const user = client.users.cache.get(params[2]);
+        if (!user) throw new Error('User not found');
+        const profile = GetUserProfile(params[2]);
+        if (!profile.flags.includes(flag_typables.indexOf(params[3].toUpperCase()))) throw new Error('Profile does not have this flag!');
+        profile.flags.splice(profile.flags.indexOf(flag_typables.indexOf(params[3].toUpperCase())), 1);
+        UpdateUserProfile(params[2], profile);
+        message.reply({
+            content: `Removed flag \`${params[3].toUpperCase()}\` (${flag_typables.indexOf(params[3].toUpperCase())}) from **${user.username}**'s profile.`
+        });
+    });
 }
 
 export async function CheckForShorthand(message: Message) {
     if (!message.content.startsWith('oka ')) return;
-    if (!CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
-        /* temporarily disabled due to applications */
+
+    const profile = GetUserProfile(message.author.id);
+    if (!(profile.flags.includes(FLAG.BOT_MASTER) || profile.flags.includes(FLAG.BOT_ADMINISTRATOR) || profile.flags.includes(FLAG.BOT_MODERATOR))) {
         await message.reply({
             content:'https://tenor.com/view/anime-yeet-dekomori-chuunibyou-nibutani-gif-24780597'
         });
         GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
-        // await message.reply({
-        //     content: `:crying_cat_face: **${message.author.displayName}**, I've moved on from the "oka" prefix! They're restricted to bot admins to help fix profile issues/moderate users for breaking bot rules. Please use slash commands instead!\nIf they don't appear, you might have to reload/restart Discord!`,
-        //     flags: [MessageFlags.SuppressNotifications]
-        // });
         return;
     }
+
+    let admin_type: 'master' | 'admin' | 'mod' | undefined;
+
+    if (profile.flags.includes(FLAG.BOT_MODERATOR)) admin_type = 'mod';
+    if (profile.flags.includes(FLAG.BOT_ADMINISTRATOR)) admin_type = 'admin';
+    if (profile.flags.includes(FLAG.BOT_MASTER)) admin_type = 'master';
 
     const regex = /"([^"]+)"|(\S+)/g;
     const params = [...message.content.matchAll(regex)].map(match => match[1] || match[2]);
 
-    // if you can use shorthands but aren't the bot master, you aren't permitted to use them on yourself or the bot master
-    if (CONFIG.permitted_to_use_shorthands.includes(message.author.id) && message.author.id != CONFIG.bot_master) {
-        if (!CheckChannelAvailability(message.guild!.id, message.channel!.id)) return;
-        if (params[2] == 'me' || params[2] == CONFIG.bot_master) return message.reply('https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492');
-        if (params[2] == 'them' &&
-            message.reference &&
-            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == CONFIG.bot_master ||
-            (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference?.messageId)?.author.id == message.author.id
-        ) return message.reply('https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492');
+    if (params[2] == 'them' && !message.reference) return message.reply(':x: You need to reply to a message to use "them"!');
+
+    // BOT_MODERATOR cannot use on self or anyone above.
+    // BOT_ADMIN can use on moderator, self, but not master
+    // BOT_MASTER is, well, the master
+
+    if (admin_type == 'mod') {
+        // are we affecting ourselves?
+        if (params[2] == 'me') {
+            GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
+            return message.reply('Only admins can affect themselves or other moderators!\n-# [gif](https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492)');
+        }
+
+        // are we affecting another moderator?
+        if (params[2] == 'them') {
+            if (!message.reference) return;
+            const reference = (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference!.messageId);
+            if (!reference) return;
+
+            if (CheckForProfile(reference.author.id) && (GetUserProfile(reference.author.id).flags.includes(FLAG.BOT_MASTER) || GetUserProfile(params[2]).flags.includes(FLAG.BOT_ADMINISTRATOR))) {
+                GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
+                return message.reply('Only admins can affect themselves or other moderators!\n-# [gif](https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492)');
+            }
+        }
+    }
+
+    if (admin_type == 'admin') {
+        if (params[2] == 'them') {
+            if (!message.reference) return;
+            const reference = (message.channel as TextChannel).messages.cache.find(msg => msg.id == message.reference!.messageId);
+            if (!reference) return;
+
+            if (CheckForProfile(reference.author.id) && GetUserProfile(reference.author.id).flags.includes(FLAG.BOT_MASTER)) {
+                GrantAchievement(message.author, Achievements.SHORTHAND_NO, message.channel as TextChannel);
+                return message.reply('Only bot masters can affect themselves or other bot masters!\n-# [gif](https://tenor.com/view/hit-yuuta-anime-angry-rikka-gif-16461492)');
+            }
+        }
     }
 
     if (params[2] == 'me') params[2] = message.author.id;
